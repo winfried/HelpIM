@@ -1,0 +1,6 @@
+== Installation ==
+
+To install make sure to download all dependencies like this
+
+$ git submodule init
+$ git submodule update 
