@@ -26,6 +26,12 @@ $ cp settings.py.example settings.py
 
 $ python manage.py syncdb
 
+At that point you will be asked to create a first admin user. Remember
+those credentials they are essential.
+
 7) Run the dev server
 
 $ python manage.py runserver
+
+8) Point your browser to http://localhost:8000/admin and login with
+the credentials from above.
