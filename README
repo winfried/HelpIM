@@ -13,25 +13,30 @@ $ cd HelpIM
 $ git submodule init
 $ git submodule update 
 
-3) Create a database (and a user with full access rights)
+3) Setup your machine to make django work following the description at
+http://docs.djangoproject.com/en/1.2/topics/install/#installing-development-version
+(of course you don't have to checkout django anymore as this has been
+done in the step before)
 
-4) Copy configuration file
+4) Create a database (and a user with full access rights)
+
+5) Copy configuration file
 
 $ cd django/helpim
 $ cp settings.py.example settings.py
 
-5) Edit configuration file to match your DB settings
+6) Edit configuration file to match your DB settings
 
-6) Initialize the DB
+7) Initialize the DB
 
 $ python manage.py syncdb
 
 At that point you will be asked to create a first admin user. Remember
 those credentials they are essential.
 
-7) Run the dev server
+8) Run the dev server
 
 $ python manage.py runserver
 
-8) Point your browser to http://localhost:8000/admin and login with
+9) Point your browser to http://localhost:8000/admin and login with
 the credentials from above.
