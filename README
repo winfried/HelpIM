@@ -1,6 +1,31 @@
-== Installation ==
+== Installation (Development) ==
 
-To install make sure to download all dependencies like this
+These are preliminary instructions for how to setup a development
+environment. This code is not meant to be used in production yet.
 
+1) Download the app with git
+
+$ git clone git://github.com/e-hulp/HelpIM.git
+
+2) Download dependencies like this
+
+$ cd HelpIM
 $ git submodule init
 $ git submodule update 
+
+3) Create a database (and a user with full access rights)
+
+4) Copy configuration file
+
+$ cd django/helpim
+$ cp settings.py.example settings.py
+
+5) Edit configuration file to match your DB settings
+
+6) Initialize the DB
+
+$ python manage.py syncdb
+
+7) Run the dev server
+
+$ python manage.py runserver
