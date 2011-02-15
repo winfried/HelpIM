@@ -4,20 +4,33 @@ from django.contrib.auth.models import User
 from helpim.conversations.models import Conversation, Participant
 
 class Group(models.Model):
+    name = models.CharField(max_length=64)
     description = models.TextField()
     created_by = models.ForeignKey(User)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     max_members = models.SmallIntegerField()
     is_open = models.BooleanField()
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['created_at']
 
 class Member(models.Model):
     group = models.ForeignKey(Group)
     email = models.EmailField()
     name = models.CharField(max_length=64)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     invite_sent = models.BooleanField()
     is_admin = models.BooleanField()
     access_token = models.CharField(max_length=16)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 class Meeting(Conversation):
     group = models.ForeignKey(Group)
