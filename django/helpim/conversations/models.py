@@ -5,6 +5,12 @@ class Conversation(models.Model):
     start_time = models.DateTimeField()
     subject = models.CharField(max_length=64, blank=True)
 
+    def __unicode__(self):
+        return self.start_time.strftime('%c')
+
+    class Meta:
+        ordering = ['start_time']
+
 class Participant(models.Model):
     conversation = models.ForeignKey(Conversation)
     name = models.CharField(max_length=64)

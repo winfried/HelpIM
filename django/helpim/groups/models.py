@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Conversation, Participant
 
@@ -16,6 +17,8 @@ class Group(models.Model):
 
     class Meta:
         ordering = ['created_at']
+        verbose_name_plural = _("Chatgroups")
+        verbose_name = _("Chatgroup")
 
 class Member(models.Model):
     group = models.ForeignKey(Group)
@@ -30,7 +33,7 @@ class Member(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ['created_at']
 
 class Meeting(Conversation):
     group = models.ForeignKey(Group)
