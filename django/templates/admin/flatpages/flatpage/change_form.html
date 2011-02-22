@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css"
+href="http://yui.yahooapis.com/2.5.1/build/assets/skins/sam/skin.css">
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/element/element-beta.js"></script>
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/container/container_core.js"></script>
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/menu/menu.js"></script>
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/button/button.js"></script>
+<script type="text/javascript"
+src="http://yui.yahooapis.com/2.5.1/build/editor/editor-beta.js"></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} change-form yui-skin-sam{% endblock %}
+
+{% block after_field_sets %}
+<script type="text/javascript">
+    var editor = new YAHOO.widget.Editor('id_content', { handleSubmit: true});
+    editor.render();
+</script>
+{% endblock %}
