@@ -1,3 +1,4 @@
 *.pyc
 .#*
 django/helpim/settings.py
+django/helpim/locale/*/LC_MESSAGES/django.mo
