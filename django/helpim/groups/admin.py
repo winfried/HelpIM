@@ -2,13 +2,14 @@ from groups.models import Group, Meeting, Member
 from django.contrib import admin
 
 class MemberInline(admin.TabularInline):
-    date_hierarchy = 'created_at'
     model = Member
     extra = 0
+    readonly_fields = ['access_token']
 
-class MeetingInline(admin.TabularInline):
+class MeetingInline(admin.StackedInline):
     model = Meeting
     extra = 0
+    fields = ['start_time']
 
 class GroupAdmin(admin.ModelAdmin):
     inlines = [MemberInline, MeetingInline]

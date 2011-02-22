@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Conversation, Participant
+from helpim.groups.utils import gen_token
 
 class Group(models.Model):
     name = models.CharField(max_length=64)
@@ -23,21 +24,29 @@ class Group(models.Model):
 class Member(models.Model):
     group = models.ForeignKey(Group)
     email = models.EmailField()
-    name = models.CharField(max_length=64)
+    name = models.CharField(_('Nickname'), max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
     invite_sent = models.BooleanField()
-    is_admin = models.BooleanField()
-    access_token = models.CharField(max_length=16)
+    is_admin = models.BooleanField(_('Facilitator'))
+    access_token = models.CharField(
+        max_length=16,
+        default=gen_token)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         ordering = ['created_at']
+        verbose_name = _('Member')
+        verbose_name_plural = _('Members')
 
 class Meeting(Conversation):
     group = models.ForeignKey(Group)
     invites_sent = models.BooleanField()
+
+    class Meta:
+        verbose_name = _('Meeting')
+        verbose_name_plural = _('Meetings')
 
 class MeetingParticipant(Participant):
     meeting = models.ForeignKey(Meeting)
