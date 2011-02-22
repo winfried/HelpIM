@@ -14,5 +14,3 @@ class GroupAdmin(admin.ModelAdmin):
     inlines = [MemberInline, MeetingInline]
 
 admin.site.register(Group, GroupAdmin)
-admin.site.register(Member)
-admin.site.register(Meeting)
