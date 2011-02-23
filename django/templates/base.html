@@ -15,6 +15,14 @@
     {% endfor %}
       </ul>
     </div>
-    {% block content %}{% endblock %}
+    <div id="centeredColumn" class="main">
+      <div class="copyright" style="width:100%">
+        <div class="divLeft"><span><span>HelpIM3&nbsp;3.0&nbsp;-&nbsp;001M</span></span></div>
+        <div class="divRight"><span>{% if is_logged_in %}Welcome, {{
+        name }}!{% endif %}</span></div>
+        <div class="clear"></div>
+      </div>
+      {% block content %}{% endblock %}
+    </div>
   </body>
 </html>
