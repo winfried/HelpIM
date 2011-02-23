@@ -34,6 +34,20 @@ a:hover {
 	background-color: #eee;
 }
 
+#header {
+	border-bottom: 1px solid #000;
+	background-color: #eee;
+        color: #999;
+}
+
+#header a:link, #header a:visited {
+    color: #000;
+}
+
+#branding h1 {
+        color: #999;
+}
+
 #navigation ul,#navigation li {
 	margin: 0;
 	padding: 0;
