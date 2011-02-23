@@ -1,0 +1,485 @@
+body {
+	margin: 0;
+	padding: 0 0 1em 0;
+	font-family: sans-serif;
+	font-size: .8em;
+}
+
+select {
+	margin-right: 5pt;
+}
+
+pre {
+	margin: 0;
+	padding: 0 0 1em 0;
+	font-family: sans-serif;
+	font-size: 1em;
+	vertical-align: top;
+	text-align: left;
+}
+
+a {
+	text-decoration: none;
+	color: blue
+}
+
+a:hover {
+	background-color: #ff9;
+}
+
+#navigation {
+	margin: 0;
+	padding: 1em 0 20px 5%;
+	border-bottom: 1px solid #000;
+	background-color: #eee;
+}
+
+#navigation ul,#navigation li {
+	margin: 0;
+	padding: 0;
+	display: inline;
+	list-style-type: none;
+}
+
+#navigation a:link,#navigation a:visited,#navigation div {
+	float: left;
+	line-height: 14px;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 0 20px 4px 0;
+	text-decoration: none;
+	color: #999;
+	border-bottom: 4px solid #eee;
+	padding-bottom: 2px;
+}
+
+#navigation a:link#current,#navigation a:visited#current,#navigation a:hover
+	{
+	border-bottom: 4px solid #000;
+	padding-bottom: 2px;
+	background: transparent;
+	color: #000;
+}
+
+#navigation a:hover {
+	color: #000;
+}
+
+#logout {
+	clear: both;
+	margin: .1em 5% .1em 0;
+	text-align: right;
+	font-size: .7em;
+}
+
+.clear {
+	clear: both;
+}
+
+.hidden {
+    display: none;
+}
+
+.copyright {
+	clear: both;
+	margin: .1em 5% .1em 0;
+	margin-left: 5%;
+	margin-right: 5%;
+	font-size: .7em;
+	margin: .1em 5% .1em 0;
+}
+
+.divLeft {
+	margin-left: 5%;
+	width: 40%;
+	float: left;
+}
+
+.divRight {
+	margin-right: 5%;
+	width: 40%;
+	float: right;
+	text-align: right;
+}
+
+.VT1R {
+	width: 99%;
+}
+
+.conversationQuestion {
+	margin: 5pt 5%;
+}
+
+#centeredColumn {
+	margin: 5pt 5%;
+}
+
+.panelTitle {
+	font-weight: normal;
+	font-size: 1.6em;
+	padding: 5pt;
+}
+
+.panelData {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #000;
+	margin-top: 5pt;
+	padding: 5pt;
+}
+
+#main {
+	
+}
+
+#submenu {
+	margin: 5pt 5%;
+	padding: 5pt;
+}
+
+ul,ol {
+	
+}
+
+li {
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	margin: 0 0 0em 0;
+	padding: 0;
+	font-weight: normal;
+	font-size: 1.6em;
+}
+
+h2 {
+	/* margin: 1em 0; */
+	padding: 0;
+	font-weight: normal;
+	font-size: 1.2em;
+}
+
+h3,h4,h5 {
+	font-size: 1em;
+}
+
+ul.subnavigation {
+	margin: 0 0 1em 0;
+	padding: 0;
+	list-style-type: none;
+	color: #999;
+}
+
+ul.subnavigation li {
+	margin: 0;
+	padding: 0 1em 0 0;
+	display: inline;
+	list-style-type: none;
+}
+
+ul.subnavigation li a {
+	border-bottom: 1px solid #fff;
+}
+
+ul.subnavigation li.current a {
+	color: #000;
+	border-bottom: 1px solid #000;
+}
+
+table {
+	margin: 0;
+	padding: 0;
+	border-collapse: collapse;
+}
+
+/* fix table width for IE 5.x */
+table.fillwidth {
+	width: 90%;
+	voice-family: "\"}\"";
+	voice-family: inherit;
+	width: 100%;
+}
+
+html>body table.fillwidth {
+	width: 100%;
+}
+
+td,th {
+	margin: 0;
+	padding: .1em 1em .1em 0;
+	vertical-align: top;
+	text-align: left;
+	font-size: 1em;
+}
+
+dl {
+	font-size: .8em;
+}
+
+dt {
+	font-weight: bold;
+}
+
+tr.odd {
+	background-color: #f0f0f0;
+}
+
+tr.even {
+	background-color: #f8f8f8;
+}
+
+tr.client {
+	background-color: #f0f0ff;
+}
+
+tr.staff {
+	background-color: #f0fff0;
+}
+
+tr.HelpIM {
+	background-color: #fff0f0;
+}
+
+tr.send {
+	background-color: #f0f0ff;
+}
+
+tr.receive {
+	background-color: #f0fff0;
+}
+
+td ul,td li {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+        white-space: nowrap;
+}
+
+td.checkbox {
+	padding-right: 0;
+}
+
+table.stats td {
+	text-align: right;
+}
+
+.error {
+	color: #900;
+}
+
+.panelMessage {
+	color: green;
+}
+
+p.message {
+	padding: .5em;
+	color: #999;
+	background-color: #f8f8f8;
+	border: 1px solid #eee;
+	font-size: .8em;
+}
+
+div.form {
+	margin: 0em 0 0em 0;
+}
+
+input {
+	margin-right: 1em;
+	display: inline;
+}
+
+input.delete {
+	margin-left: 2em;
+	color: #900;
+}
+
+div.textileform {
+	position: absolute;
+	padding: 1em 0 2em 0;
+}
+
+div.textileform form {
+	position: relative;
+	display: block;
+	padding: 0 .5em 0 0;
+}
+
+label {
+	display: block;
+}
+
+label.header {
+	padding-top: 0em;
+	font-size: .8em;
+	display: block;
+}
+
+textarea {
+	font-family: sans-serif;
+}
+
+div.submit {
+	margin: .5em 0 0 0;
+}
+
+img {
+	display: block;
+	margin: 1em 0;
+}
+
+#textilehelp {
+	position: absolute;
+	width: 200px;
+	top: 0;
+	right: -200px;
+	padding: 1.3em 0 0 0;
+	font-size: .7em;
+}
+
+#textilehelp ul.index,#textilehelp ul.index ul,#textilehelp ul.index li
+	{
+	list-style-type: none;
+}
+
+#textilehelp ul.index,#textilehelp ul.index ul {
+	margin: 0;
+	padding: 0;
+}
+
+#textilehelp ul.index li {
+	margin: 1em 0 0 0;
+	padding: 0;
+}
+
+#textilehelp ul.index ul li {
+	margin: 0;
+	padding: 0;
+}
+
+#textilehelp a {
+	color: #999;
+}
+
+#textilehelp a:hover {
+	color: #000;
+}
+
+/* registration questions */
+div.registrationform {
+	width: 100%;
+	background-color: #f8f8f8;
+}
+
+.fields,.fieldsmissing {
+	width: 99%;
+	margin: 0 3px 20px 3px;
+}
+
+div.stam {
+	background-color: #f0f0f0;
+	clear: both;
+	font-size: 1.2em;
+}
+
+div.missing {
+	color: #aa0000;
+	background-color: #f0f0f0;
+	clear: both;
+	font-size: 1.2em;
+}
+
+td.missing {
+	color: #aa0000;
+}
+
+table.dial,table.fields {
+	border-width: 2px;
+	border-spacing: 0px;
+	border-style: solid;
+	border-collapse: separate;
+	border-color: #f0f0f0;
+	background-color: #f8f8f8;
+}
+
+table.dial td,table.fields td {
+	border-width: 2px;
+	padding: 1px;
+	border-style: solid;
+	border-color: #f0f0f0;
+	background-color: #f8f8f8;
+}
+
+table.dialmissing,table.fieldsmissing {
+	border-width: 2px;
+	border-spacing: 0px;
+	border-style: solid;
+	border-collapse: separate;
+	border-color: #f0f0f0;
+	background-color: #fff8f8 !important;
+}
+
+table.dialmissing td,table.fieldsmissing td {
+	border-width: 2px;
+	padding: 1px;
+	border-style: solid;
+	border-color: #f0f0f0;
+	background-color: #fff8f8 !important;
+}
+
+.dialtext {
+	position: relative;
+	top: -2px;
+	display: inline;
+}
+
+.comment, .commenttext, .comments_expand {
+    font-style: italic;
+    color: gray;
+    margin: 0px;
+}
+
+form.comment {
+    display: none;
+}
+
+div.comment_insert {
+    background-color: #D3D3D3;
+    height: 6pt;
+    width: 95%;
+}
+
+.comments_expand {
+    height: 6pt;
+    margin: 0pt;
+    padding: 0pt;
+    border: 0pt;
+    width: 5%;
+}
+
+.comments_toggleButton {
+    cursor: pointer;
+}
+
+.reply_button {
+    background: url(images/reply.png) no-repeat;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    float: right;
+}
+
+.reply_button_hidden {
+    background: none;
+    width: 14px;
+    height: 14px;
+    cursor: default;
+    float: right;
+}
+
+/* printing */
+@media print {
+	#navigation,#logout,.subnavigation {
+		display: none;
+	}
+}

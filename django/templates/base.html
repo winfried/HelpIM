@@ -1,0 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+  <head>
+    <title>{% block title %}helpim{% endblock %}</title>
+    <link type="text/css" rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div id="navigation">
+{% load flatpages %}
+{% get_flatpages as flatpages %}
+      <ul>
+   {% for page in flatpages %}
+        <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+    {% endfor %}
+      </ul>
+    </div>
+    {% block content %}{% endblock %}
+  </body>
+</html>
