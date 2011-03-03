@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+
+import os, sys
+
+# make sure we use the Django version included in the HelpIM tree (if
+# any), fall back to the os-wide installed version of Django
+gitPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+djangoPath = os.path.join(gitPath, "vendor", "django")
+if os.path.exists(djangoPath) and not djangoPath in sys.path:
+    sys.path = [djangoPath]+sys.path
+
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
