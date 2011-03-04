@@ -13,10 +13,16 @@ $ cd HelpIM
 $ git submodule init
 $ git submodule update 
 
-3) Setup your machine to make django work following the description at
+3)
+Option 1 (preferred):
+Setup your machine to make django work following the description at
 http://docs.djangoproject.com/en/1.2/topics/install/#installing-development-version
 (of course you don't have to checkout django anymore as this has been
 done in the step before)
+Option 2 (expiremental):
+If you want to use several versions of django beside each other you can
+run manage.py directly from the django/helpim directory. It is modified
+to detect the django instance in the vendor/django directory. 
 
 4) Create a database (and a user with full access rights)
 
@@ -25,7 +31,11 @@ done in the step before)
 $ cd django/helpim
 $ cp settings.py.example settings.py
 
-6) Edit configuration file to match your DB settings
+6) Edit configuration file:
+   - Edit the DATABASES to match your DB settings
+   - Edit the FIXTURE_DIRS to match your installation directory, should be [install_dir]/django/helpim/fixtures
+   - Edit the STATICFILES_DIRS to match your installation directory, should be [install_dir]/django/templates/
+   - Edit the TEMPLATE_DIRS to match your installation directory, should be [install_dir]/django/templates
 
 7) Initialize the DB
 
@@ -34,9 +44,30 @@ $ python manage.py syncdb
 At that point you will be asked to create a first admin user. Remember
 those credentials they are essential.
 
-8) Run the dev server
+8) Load the standard permissions and other standard data into the DB
+
+$ python manage.py loaddata setup_data
+
+9) Run the dev server
 
 $ python manage.py runserver
 
-9) Point your browser to http://localhost:8000/admin and login with
+10) Point your browser to http://localhost:8000/admin and login with
 the credentials from above.
+
+
+== Updating the setup data (Development) ==
+With the command:
+
+dump_setup_data.sh > django/helpim/fixtures/setup_data.json
+
+you can update the setup_data to the changes you have made in the
+settings stored in the database. These changes can now be imported
+by other developers.
+
+Note 1:
+When adding models, it might be necessary to update dump_setup_data.sh
+
+Note 2:
+There is deliberately chosen to not use 'initial_data.json', to avoid overwriting
+data when running syncdb.
