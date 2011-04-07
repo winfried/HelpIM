@@ -6,7 +6,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """ get config """
-
         
         """ pass config to bot """
         bot = Bot()
