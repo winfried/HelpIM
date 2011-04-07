@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 class Conversation(models.Model):
     start_time = models.DateTimeField()
@@ -10,10 +11,16 @@ class Conversation(models.Model):
 
     class Meta:
         ordering = ['start_time']
+        verbose_name = _("Conversation")
+        verbose_name_plural = _("Conversations")
 
 class Participant(models.Model):
     conversation = models.ForeignKey(Conversation)
     name = models.CharField(max_length=64)
+
+    class Meta:
+        verbose_name = _("Participant")
+        verbose_name_plural = _("Participants")
 
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation)
