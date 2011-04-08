@@ -6,3 +6,4 @@ class ConversationAdmin(admin.ModelAdmin):
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.register(Participant)
+admin.site.disable_action('delete_selected')
