@@ -5,6 +5,39 @@
 import sqlalchemy
 import datetime
 
+class Site:
+    def __init__(self, name, metadata):
+        """Initiates a new site, performing the following actions:
+           - Reading its settings
+           - Opening its database connection
+           - Creating its rooms-object
+           etc.."""
+        self.name = name
+        confFile = SiteConfigPath + "/" + name + '.xml'
+        if os.path.isfile(confFile):
+            siteConfig = xmlObject.readXmlFile(fileName=confFile)
+            self.metadata = metadata
+            self.engine = sqlalchemy.create_engine(siteConfig.databaseuri)
+            Session = sessionmaker(bind=self.engine, autocommit=True)
+            self.session = Session()
+            self.rooms = HelpIM.rooms.Rooms(self.metadata, self.engine)
+            self.groupRooms = HelpIM.rooms.GroupRooms(self.metadata, self.engine)
+        else:
+            raise IOError(confFile+' is not a file')
+
+def getSites():
+    metadata = sqlalchemy.MetaData()
+    metadata = HelpIM.databaseMetadata.getAllMetadata(metadata)
+    sites = {}
+    for confFile in os.listdir(SiteConfigPath):
+        try:
+            name, ext = confFile.rsplit('.', 1)
+        except ValueError:
+            ext = None
+        if os.path.isfile(SiteConfigPath + "/" + confFile) and ext == 'xml':
+            sites[name] = Site(name, metadata)
+    return sites
+
 class StatusError(Exception):
     pass
 

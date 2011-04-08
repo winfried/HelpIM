@@ -1,7 +1,19 @@
+import sys
+import os
+import logging
+import getopt
+import socket
+import traceback
+
+from time import sleep
+from signal import signal, alarm, SIGALRM
+
 from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jid import JID
 from pyxmpp.message import Message
 from pyxmpp.presence import Presence
+
+from helpim.bot.roomhandler import One2OneRoomHandler, GroupRoomHandler
 
 class Bot(JabberClient):
     def __init__(self, conf):
@@ -17,7 +29,7 @@ class Bot(JabberClient):
         self.nick = c.nick.strip()
         self.password = c.password
         self.port = int(c.port)
-        self.loadSites()
+        self.sites = helpim.rooms.getSites()
 
     def roomCleanup(self):
         for name, site in self.sites.iteritems():
@@ -46,9 +58,6 @@ class Bot(JabberClient):
     def alarmHandler(self, signum, frame):
         # Assumes only to be called for alarm signal: Ignores arguments
         self.cleanup = True
-
-    def loadSites(self):
-        self.sites = getSites()
 
     def run(self):
         JabberClient.__init__(self, self.jid, self.password, port=self.port, disco_name="HelpIM3 chat room manager", disco_type="bot")
@@ -581,4 +590,164 @@ class Bot(JabberClient):
         # Ignore other requests
         return True
 
+class LogError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
 
+class BotError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class Stats:
+    pass
+
+class Log:
+    def __init__(self):
+        logging.addLevelName(25, "NOTICE")
+        self.__log = logging.getLogger()
+        self.__helpimlog = logging.getLogger('HelpIM3.bot')
+        self.__pyxmpplog = logging.getLogger('pyxmpp')
+        self.__pyxmpplog.setLevel(logging.DEBUG)
+        self.__logHandler = None
+
+    def form(self, form):
+        self.debug("MUC-room configuration form ==BEGIN==")
+        for field in form:
+            self.debug("  Field '%s':" % field.name)
+            self.debug("    Label = %s" % field.label)
+            self.debug("    Description = %s" % field.desc)
+            self.debug("    Type = %s" % field.type)
+            self.debug("    Required = %s" % field.required)
+            self.debug("    Value = %s" % field.value)
+            self.debug("    Options:")
+            for option in field.options:
+                self.debug("      Label = %s" % option.label)
+                self.debug("      Values = %s" % option.values)
+            self.debug("    Values = %s" % field.values)
+        self.debug("MUC-room confugration form ==END==")
+
+    def user(self, user):
+        self.debug("User log ==BEGIN==")
+        if user.real_jid:
+            self.debug("  Real JID = %s" % user.real_jid.as_unicode())
+        self.debug("  Room JID = %s" % user.room_jid.as_unicode())
+        self.debug("  Nick = %s" % user.nick)
+        self.debug("  Affiliation = %s" % user.affiliation)
+        self.debug("  Role = %s" % user.role)            
+        self.debug("User log ==END==")
+
+    def stanza(self, stanza):
+        stanzaType = stanza.get_stanza_type()
+        objectType = None
+        if isinstance(stanza, MucPresence):
+            objectType = "MucPresence"
+        elif isinstance(stanza, Presence):
+            objectType = "Presence"
+        elif isinstance(stanza, Message):
+            objectType = "Message"
+        self.debug("Stanza log ==BEGIN==")
+        self.debug("  Stanza type = %s" % stanzaType)
+        self.debug("  XMPP object type = %s" % objectType)
+        self.debug("  From = %s" % stanza.get_from().as_unicode())
+        self.debug("  To   = %s" % stanza.get_from().as_unicode())
+        if objectType == "Message":
+            self.debug("  Subject = %s" % stanza.get_subject())
+            self.debug("  Body = %s" % stanza.get_body())
+        elif objectType == "Presence" or objectType == "MucPresence":
+            self.debug("  Priority = %s" % stanza.get_priority())
+            self.debug("  Status = %s" % stanza.get_status())
+            self.debug("  Show = %s" % stanza.get_show())
+        elif objectType == "MucPresence":
+            joininfo = stanza.get_join_info()
+            self.debug("  Password = %s" % joininfo.get_password())
+            self.debug("  History = %s" % joininfo.get_history())
+            mucchild = stanza.get_muc_child()
+            self.debug("MUC child = %s" % mucchild)
+        self.debug("Stanza log ==END==")
+
+    # set_... methods: Methods to change settings that can be changed at runtime.
+    #
+    # Note: The set_... methods below return empty string on success, and error-string on failure.
+    #       So using the returned value in conditional expressions may opposite of what you might expect.
+    #
+    def set_Destination(self, dest):
+        '''Sets logging destination -> empty string on success. error-string on failure.
+
+        Arguments:
+        dest - A string: either "stdout", "stderr" or a string starting with "file:" followed
+               by a valid file path.
+               An empty string has the same effect as "stderr".
+               Leading or railing whitespace is ignored.
+
+        '''
+        dest = dest.strip()
+        if not dest or dest == "stderr":
+             newhandler = logging.StreamHandler(sys.stderr)
+        elif dest == "stdout":
+            newhandler = logging.StreamHandler(sys.stdout)
+        elif dest.split(':')[0] == 'file':
+            filepath = dest.split(':')[1].strip()
+            if not filepath:
+                return "No file path specified in logging destination"
+            try:
+                logfile = open(filepath, 'a')
+            except IOError, e:
+                return "Could not open %s for writing: %s" % (e.filename, e.args[1])
+            newhandler = logging.StreamHandler(logfile)
+        else:
+            return "Invalid log destination '%s'" % dest
+        if self.__logHandler is not None:
+            self.__log.removeHandler(self.__logHandler)
+        self.__helpimlog.info("Setting log destination to '%s'" % dest)
+        formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)-8s %(message)s')
+        newhandler.setFormatter(formatter)
+        self.__logHandler = newhandler
+        self.__log.addHandler(newhandler)
+        self.__helpimlog.info("Log destination now set to '%s'" % dest)
+        return str()
+
+    # Actual logging methods
+    #
+    def critical(self, msg): self.__helpimlog.critical(msg)
+    def error(self, msg): self.__helpimlog.error(msg)
+    def warning(self, msg): self.__helpimlog.warning(msg)
+    def notice(self, msg): self.__helpimlog.log(25, msg)
+    def info(self, msg): self.__helpimlog.info(msg)
+    def debug(self, msg): self.__helpimlog.debug(msg)
+
+    def set_Level(self, level, loggername=''):
+        '''Sets log level --> empty string on success. error-string on failure.
+
+        Arguments:
+        level -  One of the following strings: "critical", "error", "warning", "notice",
+                 "info" or "debug". 
+                 An empty string has the same effect as "notice".
+                 Leading or railing whitespace is ignored.
+
+        '''
+        level = level.strip()
+        if not level:             newlevel = 25
+        elif level == "critical": newlevel = 50
+        elif level == "error":    newlevel = 40
+        elif level == "warning":  newlevel = 30
+        elif level == "notice":   newlevel = 25
+        elif level == "info":     newlevel = 20
+        elif level == "debug":    newlevel = 10
+        else:
+            return "Invalid log level '%s'." % level
+        level = level.upper()
+        logger = logging.getLogger(loggername)
+        logger.setLevel(newlevel)
+        self.__helpimlog.info("Log level now set to '%s'" % level)
+        return str()
+
+def str2roomjid(jidstr):
+    tmp = jidstr.split('@')
+    node = tmp[0]
+    domain = tmp[1].split('/')[0]
+    roomjid = JID(node, domain)
+    return roomjid
