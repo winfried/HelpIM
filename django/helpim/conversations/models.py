@@ -7,7 +7,10 @@ class Conversation(models.Model):
     subject = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
-        return self.start_time.strftime('%c')
+        return _('"%(subject)s" at %(start_time)s') % {
+          'subject': self.subject,
+          'start_time': self.start_time.strftime('%c'),
+        }
 
     class Meta:
         ordering = ['start_time']
