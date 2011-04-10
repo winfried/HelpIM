@@ -76,7 +76,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    abspath(join(dirname(__file__), '..', 'static')),
+    abspath(join(dirname(__file__), 'static')),
 )
 
 # List of finder classes that know how to find static files in
@@ -109,7 +109,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'helpim.urls'
 
 TEMPLATE_DIRS = (
-   abspath(join(dirname(__file__), '..', 'templates')),
+   abspath(join(dirname(__file__), 'templates')),
 )
 
 INSTALLED_APPS = (
