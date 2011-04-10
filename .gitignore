@@ -2,3 +2,10 @@
 .#*
 helpim/settings.py
 helpim/locale/*/LC_MESSAGES/django.mo
+parts/
+bin/buildout
+bin/django
+develop-eggs/Django.egg-link
+.installed.cfg
+eggs/
+downloads/

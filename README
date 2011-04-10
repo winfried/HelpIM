@@ -7,22 +7,16 @@ environment. This code is not meant to be used in production yet.
 
 $ git clone git://github.com/e-hulp/HelpIM.git
 
-2) Download dependencies like this
+2) Download dependencies like this:
 
 $ cd HelpIM
-$ git submodule init
-$ git submodule update 
+$ python bootstrap.py --distribute
+$ ./bin/buildout
 
-3)
-Option 1 (preferred):
-Setup your machine to make django work following the description at
-http://docs.djangoproject.com/en/1.2/topics/install/#installing-development-version
-(of course you don't have to checkout django anymore as this has been
-done in the step before)
-Option 2 (expiremental):
-If you want to use several versions of django beside each other you can
-run manage.py directly from the django/helpim directory. It is modified
-to detect the django instance in the vendor/django directory. 
+HelpIM runs on django 1.3 by default, if you want another version (say 1.2.1),
+run:
+
+$ ./bin/buildout versions:django=1.2.1
 
 4) Create a database (and a user with full access rights)
 
@@ -39,24 +33,24 @@ $ cp settings.py.example settings.py
 
 7) Initialize the DB
 
-$ python manage.py syncdb
+$ ./bin/django syncdb
 
 At that point you will be asked to create a first admin user. Remember
 those credentials they are essential.
 
 8) Load the standard permissions and other standard data into the DB
 
-$ python manage.py loaddata setup_data
+$ ./bin/django loaddata setup_data
 
 9) Run the dev server
 
-$ python manage.py runserver
+$ ./bin/django runserver
 
 10) Point your browser to http://localhost:8000/admin and login with
 the credentials from above.
 
-
 == Updating the setup data (Development) ==
+
 With the command:
 
 dump_setup_data.sh > django/helpim/fixtures/setup_data.json
