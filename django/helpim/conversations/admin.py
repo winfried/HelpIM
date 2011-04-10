@@ -1,4 +1,4 @@
-from conversations.models import Conversation, Participant
+from helpim.conversations.models import Conversation, Participant
 from django.utils.translation import ugettext as _
 from django.contrib import admin
 

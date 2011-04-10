@@ -1,4 +1,4 @@
-from groups.models import Group, Meeting, Member
+from helpim.groups.models import Group, Meeting, Member
 from django.contrib import admin
 
 class MemberInline(admin.TabularInline):
