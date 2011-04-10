@@ -56,23 +56,23 @@ class AtomicSQLBase:
 class RoomBase(AtomicSQLBase):
 
     def _createRoom(self, jid, password):
-            if not jid:
-                raise TypeError("Need a jid to create a new room object")
-            self.jid = jid
-            self.password = password
-            stmt = self.table.insert().values(jid=jid,
-                                        password=password,
-                                        status='available')
-            rp = self.execute(stmt)
-            rp.close()
-            self.connection.close()
-            # get id of this room
-            stmt = self.table.select(self.table.c.jid==jid)
-            rp = self.execute(stmt)
-            result=rp.fetchone()
-            self.id = result[0]
-            rp.close()
-            self.connection.close()            
+        if not jid:
+            raise TypeError("Need a jid to create a new room object")
+        self.jid = jid
+        self.password = password
+        stmt = self.table.insert().values(jid=jid,
+                                    password=password,
+                                    status='available')
+        rp = self.execute(stmt)
+        rp.close()
+        self.connection.close()
+        # get id of this room
+        stmt = self.table.select(self.table.c.jid==jid)
+        rp = self.execute(stmt)
+        result=rp.fetchone()
+        self.id = result[0]
+        rp.close()
+        self.connection.close()
 
     def getStatus(self):
         """Returns the current status of the room."""
@@ -88,7 +88,7 @@ class RoomBase(AtomicSQLBase):
         """Sets the status of the room to 'status'. 'Status' must be a
            valid status or a StatusError is raised."""
         if status not in self.validStatusses:
-            raise StatusError("Programming error: invalid room status '%s'", status)            
+            raise StatusError("Programming error: invalid room status '%s'", status)
         stmt = self.table.update().where(self.table.c.jid==self.jid).values(
             status=status,
             status_timestamp=datetime.datetime.now())
@@ -429,11 +429,11 @@ class Rooms(AtomicSQLBase):
 
     def getStaffWaiting(self):
         """Returns a list with all rooms with status 'staffWaiting'"""
-        return self.getByStatus("staffWaiting")    
+        return self.getByStatus("staffWaiting")
 
     def getStaffWaitingForInvitee(self):
         """Returns a list with all rooms with status 'staffWaitingForInvitee'"""
-        return self.getByStatus("staffWaitingForInvitee")    
+        return self.getByStatus("staffWaitingForInvitee")
 
     def __getRoomsByJids(self, jids):
         """Private function to convert a list from a resultproxy
@@ -490,7 +490,7 @@ class Rooms(AtomicSQLBase):
 
            Keyword arguments:
            status -- string, the status to select the rooms on
-           timeout -- timeout in seconds 
+           timeout -- timeout in seconds
            """
         cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
         stmt = sqlalchemy.select([self.table.c.jid],
@@ -508,7 +508,7 @@ class Rooms(AtomicSQLBase):
 
            Keyword arguments:
            status -- string, the status to select the rooms on
-           timeout -- timeout in seconds 
+           timeout -- timeout in seconds
            """
         cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
         stmt = sqlalchemy.select([self.table.c.jid],
@@ -771,7 +771,7 @@ class GroupRooms(AtomicSQLBase):
 
            Keyword arguments:
            status -- string, the status to select the rooms on
-           timeout -- timeout in seconds 
+           timeout -- timeout in seconds
            """
         cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
         stmt = sqlalchemy.select([self.table.c.jid],

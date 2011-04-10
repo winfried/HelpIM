@@ -48,9 +48,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """ get options """
-        
+
         """ get config """
-        
+
         """ pass config to bot """
         bot = Bot()
 

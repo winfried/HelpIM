@@ -23,7 +23,7 @@ class Bot(JabberClient):
         self.todo = list()
         self.__lost_connection = False
         self.conf = conf
-        
+
         c = self.conf.connection
         self.jid = JID(c.username, c.domain, c.resource)
         self.nick = c.nick.strip()
@@ -64,7 +64,7 @@ class Bot(JabberClient):
         self.stats.mainloopcount = 0
         self.stats.busycount = 0
         self.stats.connectionLost = 0
-        self.connect() 
+        self.connect()
         self.cleanup = False
         cleanupTimeout = int(self.conf.mainloop.cleanup)
         signal(SIGALRM, self.alarmHandler)
@@ -94,7 +94,7 @@ class Bot(JabberClient):
                         else:
                             alarm(cleanupTimeout)
                         self.cleanup = False
-                        
+
                 except (AttributeError, socket.error):
                     if not dbg:
                         dbg = True
@@ -117,8 +117,8 @@ class Bot(JabberClient):
             self.stats.mainloopcount += 1
             if self.stats.mainloopcount >= sys.maxint:
                 self.stats.mainloopcount = 0
-                self.stats.busycount = 0            
-                
+                self.stats.busycount = 0
+
         except KeyboardInterrupt:
             log.notice("Keyboard interrupt. Exit...")
             self.closeRooms()
@@ -156,11 +156,11 @@ class Bot(JabberClient):
                     v = v.strip()
                     if v:
                         settings[k] = v
-        return settings            
+        return settings
 
     def fillMucRoomPool(self, site=None):
         '''Create MUC-rooms in the pool up to configured pool size
-        
+
         Arguments:
         site - HelpIM Site object or string with the name of the site.
                If site is None, all pools will be filled.
@@ -228,9 +228,9 @@ class Bot(JabberClient):
                 if mucstate:
                     self.fixgrouproomstatus(room, mucstate)
 
-    def fixroomstatus(self, room, mucstate): 
+    def fixroomstatus(self, room, mucstate):
         # Wait until all events are processed
-        # i.e. until all presence stanzas are received so we can count 
+        # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
         while self.stream.loop_iter(1):
             log.debug("Looping until all pending events are processed.")
@@ -334,7 +334,7 @@ class Bot(JabberClient):
         elif status == 'closingChat':
             if nUsers >= 2:
                 log.error("Two users in room while status was already 'closingChat'. Room: '%s'." % room.jid)
-                room.setStatus("toDestroy")                
+                room.setStatus("toDestroy")
             elif nUsers == 1:
                 log.info("Status is correct.")
             else: # nUsers == 0
@@ -344,7 +344,7 @@ class Bot(JabberClient):
         elif status == 'toDestroy':
             if nUsers >= 1:
                 log.error("Unexpected users in room: '%s'."  % room.jid)
-                room.setStatus("toDestroy")                
+                room.setStatus("toDestroy")
             else: # nUsers == 0
                 log.info("Status correct.")
 
@@ -394,9 +394,9 @@ class Bot(JabberClient):
         room.rejoinCount = None
 
 
-    def fixgrouproomstatus(self, room, mucstate): 
+    def fixgrouproomstatus(self, room, mucstate):
         # Wait until all events are processed
-        # i.e. until all presence stanzas are received so we can count 
+        # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
         while self.stream.loop_iter(1):
             log.debug("Looping until all pending events are processed.")
@@ -430,11 +430,11 @@ class Bot(JabberClient):
                 room.setStatus("toDestroy")
 
         elif status == 'abandoned':
-                if nUsers >= 1:
-                    log.info("User(s) returned to group room. Fixing status to 'chatting'. GroupRoom: '%s'."  % room.jid)
-                    room.setStatus("chatting")
-                else: # nUsers == 0
-                    log.notice("Status is correct.")
+            if nUsers >= 1:
+                log.info("User(s) returned to group room. Fixing status to 'chatting'. GroupRoom: '%s'."  % room.jid)
+                room.setStatus("chatting")
+            else: # nUsers == 0
+                log.notice("Status is correct.")
         # Finished fixing, set rejoinCount to None
         room.rejoinCount = None
 
@@ -495,7 +495,7 @@ class Bot(JabberClient):
         xml = "<iq to='%s' type='set' id='mod'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, nick)
         log.debug(xml)
         self.stream.write_raw(xml)
-        
+
     def closeRooms(self, roomstatus=None, site=None):
         if site is None:
             # Resursively do all sites
@@ -545,7 +545,7 @@ class Bot(JabberClient):
 
         Arguments:
         newSize - string or int representing number of rooms to keep available for use. if newSize
-                  is a string, it will be converted to an integer. 
+                  is a string, it will be converted to an integer.
 
         '''
         try:
@@ -637,7 +637,7 @@ class Log:
         self.debug("  Room JID = %s" % user.room_jid.as_unicode())
         self.debug("  Nick = %s" % user.nick)
         self.debug("  Affiliation = %s" % user.affiliation)
-        self.debug("  Role = %s" % user.role)            
+        self.debug("  Role = %s" % user.role)
         self.debug("User log ==END==")
 
     def stanza(self, stanza):
@@ -686,7 +686,7 @@ class Log:
         '''
         dest = dest.strip()
         if not dest or dest == "stderr":
-             newhandler = logging.StreamHandler(sys.stderr)
+            newhandler = logging.StreamHandler(sys.stderr)
         elif dest == "stdout":
             newhandler = logging.StreamHandler(sys.stdout)
         elif dest.split(':')[0] == 'file':
@@ -724,7 +724,7 @@ class Log:
 
         Arguments:
         level -  One of the following strings: "critical", "error", "warning", "notice",
-                 "info" or "debug". 
+                 "info" or "debug".
                  An empty string has the same effect as "notice".
                  Leading or railing whitespace is ignored.
 

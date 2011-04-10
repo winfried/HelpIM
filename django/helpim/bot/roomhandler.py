@@ -30,7 +30,7 @@ class RoomHandlerBase(MucRoomHandler):
     def configuration_form_received(self, form):
         log.debug("MUC-Room callback: configuration_form_received(%s)" % (form))
         log.debug("Configuring MUC-room '%s'" % self.room_state.room_jid.as_unicode())
-        
+
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
@@ -112,7 +112,7 @@ class RoomHandlerBase(MucRoomHandler):
         # FIXME:
         # elif <other known combination that may occur> :
         #    log.error(<message that makes sense>)
-        
+
         log.debug("XMPP error type: '%s'.  PyXMPP error class: '%s'.  Message: '%s'." % (errortype, stanzaclass, errormsg))
         self.room_state.leave()
         self.mucmanager.forget(self.room_state)
@@ -187,7 +187,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                     log.error("Could not store message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
                 else:
                     self.site.session.flush()
-                    
+
             elif user.nick == room.staff_nick:
                 try:
                     services.logCareWorkerChatMessage(conv_id=room.chat_id,
@@ -433,7 +433,7 @@ class GroupRoomHandler(RoomHandlerBase):
 
         status = room.getStatus()
         nUsers = len(self.room_state.users) -1 # -1 for not counting the bot itself
-        
+
         mucStatus = stanza.xpath_eval('d:x/d:status',
                                       {'d': 'http://jabber.org/protocol/muc#user'})
 
@@ -455,7 +455,7 @@ class GroupRoomHandler(RoomHandlerBase):
                     # room.setPassword(password)
                     break
                 curAttr = curAttr.next
-        
+
         cleanexit = stanza.get_status()
         if cleanexit is not None and cleanexit.strip() == u"Clean Exit":
             cleanexit = True
@@ -483,4 +483,3 @@ class GroupRoomHandler(RoomHandlerBase):
         #DBG log.stanza(stanza)
         #DBG log.user(user)
         return False
-
