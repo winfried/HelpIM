@@ -20,16 +20,12 @@ $ ./bin/buildout versions:django=1.2.1
 
 4) Create a database (and a user with full access rights)
 
-5) Copy configuration file
+5) Copy the development settings template:
 
-$ cd django/helpim
-$ cp settings.py.example settings.py
+$ cp helpim/development.py{.example,}
 
-6) Edit configuration file:
-   - Edit the DATABASES to match your DB settings
-   - Edit the FIXTURE_DIRS to match your installation directory, should be [install_dir]/django/helpim/fixtures
-   - Edit the STATICFILES_DIRS to match your installation directory, should be [install_dir]/django/templates/
-   - Edit the TEMPLATE_DIRS to match your installation directory, should be [install_dir]/django/templates
+6) Edit the development settings at helpim/development.py and make DATABASES
+   match your DB settings
 
 7) Initialize the DB
 
