@@ -19,8 +19,8 @@ class Conversation(models.Model):
 
 class Participant(models.Model):
     ROLE_CHOICES = (
-        ('CS', 'Care seeker'),
-        ('CW', 'Care worker'),
+        ('CS', _('Care seeker')),
+        ('CW', _('Care worker')),
     )
 
     conversation = models.ForeignKey(Conversation)
@@ -35,7 +35,7 @@ class Participant(models.Model):
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation)
     sender = models.ForeignKey(Participant)
-    sender_name = models.CharField("participant's name when sending", max_length=64)
+    sender_name = models.CharField(_("Participant's name at sending time"), max_length=64)
     created_at = models.DateTimeField()
     body = models.TextField()
 
