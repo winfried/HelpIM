@@ -54,7 +54,7 @@ Updating the setup data (Development)
 
 With the command::
 
-    dump_setup_data.sh > helpim/fixtures/setup_data.json
+    ./bin/dump_setup_data.sh > helpim/fixtures/setup_data.json
 
 you can update the setup_data to the changes you have made in the
 settings stored in the database. These changes can now be imported
