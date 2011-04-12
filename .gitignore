@@ -4,7 +4,7 @@ helpim/development.py
 helpim/locale/*/LC_MESSAGES/django.mo
 parts/
 bin/buildout
-bin/django
+bin/manage.py
 develop-eggs/Django.egg-link
 .installed.cfg
 eggs/
