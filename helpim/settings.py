@@ -1,8 +1,6 @@
 # Django settings for helpim project.
 
 from os.path import dirname, join, abspath
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
 #    ('Stefan Strigler', 'stefan@strigler.de'),
