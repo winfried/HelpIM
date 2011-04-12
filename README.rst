@@ -33,18 +33,18 @@ environment. This code is not meant to be used in production yet.
 
 7) Initialize the DB::
 
-    $ ./bin/django syncdb
+    $ ./bin/manage.py syncdb
 
   At that point you will be asked to create a first admin user. Remember
   those credentials they are essential.
 
 8) Load the standard permissions and other standard data into the DB::
 
-    $ ./bin/django loaddata setup_data
+    $ ./bin/manage.py loaddata setup_data
 
 9) Run the dev server::
 
-    $ ./bin/django runserver
+    $ ./bin/manage.py runserver
 
 10) Point your browser to http://localhost:8000/admin and login with the
     credentials from above.
