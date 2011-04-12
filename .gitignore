@@ -9,3 +9,5 @@ develop-eggs/Django.egg-link
 .installed.cfg
 eggs/
 downloads/
+build/
+develop-eggs/
