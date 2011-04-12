@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'helpim.conversations',
     'helpim.groups',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
