@@ -4,7 +4,7 @@ from django.contrib import admin
 
 class ParticipantInline(admin.TabularInline):
     model = Participant
-    readonly_fields = ('name',)
+    readonly_fields = ('name', 'role')
     can_delete = False
     max_num = 0
 

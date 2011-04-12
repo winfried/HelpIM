@@ -18,8 +18,15 @@ class Conversation(models.Model):
         verbose_name_plural = _("Conversations")
 
 class Participant(models.Model):
+    ROLE_CHOICES = (
+        ('CS', 'Care seeker'),
+        ('CW', 'Care worker'),
+    )
+
     conversation = models.ForeignKey(Conversation)
     name = models.CharField(max_length=64)
+
+    role = models.CharField(max_length=2, choices=ROLE_CHOICES, null=True)
 
     class Meta:
         verbose_name = _("Participant")
