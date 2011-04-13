@@ -28,6 +28,9 @@ class Participant(models.Model):
 
     role = models.CharField(max_length=2, choices=ROLE_CHOICES, null=True)
 
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         verbose_name = _("Participant")
         verbose_name_plural = _("Participants")
