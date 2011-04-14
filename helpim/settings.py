@@ -124,8 +124,13 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'helpim.conversations',
     'helpim.groups',
+    'helpim.bot',
     'south',
 )
+
+BOT = {
+    'domain': 'localhost',
+    }
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

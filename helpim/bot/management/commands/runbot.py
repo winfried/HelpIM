@@ -1,5 +1,7 @@
-from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
+
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from helpim.bot import Bot
 
@@ -47,13 +49,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """ get options """
-
         """ get config """
+        conf = dict()
+        for key, val in options.items():
+            if val is not None:
+                conf[key] = val
 
         """ pass config to bot """
-        bot = Bot()
+        bot = Bot(dict(settings.BOT, **conf))
 
         """ run the bot """
-        bot.run()
+        # bot.run()
         pass
