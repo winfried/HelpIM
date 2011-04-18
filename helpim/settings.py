@@ -129,7 +129,24 @@ INSTALLED_APPS = (
 )
 
 BOT = {
-    'domain': 'localhost',
+    'connection': {
+        'domain': 'localhost',
+        'username': 'helpimbot',
+        'resource': 'HelpIM',
+        'password': 'password',
+        'nick': 'HelpIM',
+        'port': 5222
+        },
+    'muc': {
+        'domain': 'muc.localhost',
+        'poolsize': 10,
+        'history_maxchars': 2000,
+        'history_maxstanzas': 10,
+        'history_seconds': 120,
+        },
+    'mainloop': {
+        'timeout': 1
+        }
     }
 
 # A sample logging configuration. The only tangible logging
