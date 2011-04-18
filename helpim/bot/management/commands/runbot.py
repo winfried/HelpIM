@@ -57,10 +57,12 @@ class Command(BaseCommand):
             if val is not None:
                 if (key in ['username', 'domain', 'resource', 'password', 'port', 'nick']):
                     setattr(conf.connection, key, val)
-                if (key in ['muc_domain', 'room_pool_size']):
+                elif (key in ['muc_domain', 'room_pool_size']):
                     if (key == 'muc_domain'):
                         key = 'domain'
                     setattr(conf.muc, key, val)
+                else:
+                    setattr(conf, key, val)
 
         print conf.connection.username
         print conf.connection.domain
