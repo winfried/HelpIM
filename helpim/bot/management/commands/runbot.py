@@ -50,14 +50,37 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """ get config """
-        conf = dict()
+        conf = BotConfig(settings.BOT)
+
+        """ haters gonna hate """
         for key, val in options.items():
             if val is not None:
-                conf[key] = val
+                if (key in ['username', 'domain', 'resource', 'password', 'port', 'nick']):
+                    setattr(conf.connection, key, val)
+                if (key in ['muc_domain', 'room_pool_size']):
+                    if (key == 'muc_domain'):
+                        key = 'domain'
+                    setattr(conf.muc, key, val)
+
+        print conf.connection.username
+        print conf.connection.domain
 
         """ pass config to bot """
-        bot = Bot(dict(settings.BOT, **conf))
+        bot = Bot(conf)
 
         """ run the bot """
         # bot.run()
         pass
+
+class BotConfig:
+
+    def __init__(self, cfg):
+        """ we get the config as a dict, but Bot needs the config as
+        an object """
+
+        for k, v in cfg.iteritems():
+            if type(v).__name__ == 'dict':
+                setattr(self, k, BotConfig(v))
+            else:
+                setattr(self, k, v)
+
