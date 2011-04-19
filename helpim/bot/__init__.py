@@ -14,6 +14,7 @@ from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 
 from helpim.bot.roomhandler import One2OneRoomHandler, GroupRoomHandler
+from helpim.bot.rooms import getSites
 
 class Bot(JabberClient):
     def __init__(self, conf):
@@ -29,7 +30,7 @@ class Bot(JabberClient):
         self.nick = c.nick.strip()
         self.password = c.password
         self.port = int(c.port)
-        self.sites = helpim.rooms.getSites()
+        self.sites = getSites()
 
     def roomCleanup(self):
         for name, site in self.sites.iteritems():

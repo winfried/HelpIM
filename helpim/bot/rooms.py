@@ -6,54 +6,18 @@ import sqlalchemy
 import datetime
 
 class Site:
-    def __init__(self, name, metadata):
-        """Initiates a new site, performing the following actions:
-           - Reading its settings
-           - Opening its database connection
-           - Creating its rooms-object
-           etc.."""
+    def __init__(self, name):
         self.name = name
-        confFile = SiteConfigPath + "/" + name + '.xml'
-        if os.path.isfile(confFile):
-            siteConfig = xmlObject.readXmlFile(fileName=confFile)
-            self.metadata = metadata
-            self.engine = sqlalchemy.create_engine(siteConfig.databaseuri)
-            Session = sessionmaker(bind=self.engine, autocommit=True)
-            self.session = Session()
-            self.rooms = HelpIM.rooms.Rooms(self.metadata, self.engine)
-            self.groupRooms = HelpIM.rooms.GroupRooms(self.metadata, self.engine)
-        else:
-            raise IOError(confFile+' is not a file')
+        self.rooms = Rooms()
+        self.groupRooms = GroupRooms()
 
 def getSites():
-    metadata = sqlalchemy.MetaData()
-    metadata = HelpIM.databaseMetadata.getAllMetadata(metadata)
-    sites = {}
-    for confFile in os.listdir(SiteConfigPath):
-        try:
-            name, ext = confFile.rsplit('.', 1)
-        except ValueError:
-            ext = None
-        if os.path.isfile(SiteConfigPath + "/" + confFile) and ext == 'xml':
-            sites[name] = Site(name, metadata)
-    return sites
+    return {'helpim': Site('helpim')}
 
 class StatusError(Exception):
     pass
 
-class AtomicSQLBase:
-    def execute(self, stmt):
-        self.connection = self.engine.connect()
-        trans = self.connection.begin()
-        try:
-            rp = self.connection.execute(stmt)
-            trans.commit()
-        except:
-            trans.rollback()
-            raise
-        return rp
-
-class RoomBase(AtomicSQLBase):
+class RoomBase():
 
     def _createRoom(self, jid, password):
         if not jid:
@@ -395,13 +359,8 @@ class GroupRoom(RoomBase):
         self.setStatus('toDestroy')
 
 
-class Rooms(AtomicSQLBase):
+class Rooms():
     """Container for all chatrooms of a site"""
-    def __init__(self, metadata, engine):
-        """Creates a new container."""
-        self.metadata = metadata
-        self.engine = engine
-        self.table = metadata.tables['One2OneRoom']
 
     def newRoom(self, jid, password):
         """Adds a new room to the rooms, returns the new room object"""
@@ -688,13 +647,8 @@ class Rooms(AtomicSQLBase):
         self.connection.close()
         return
 
-class GroupRooms(AtomicSQLBase):
+class GroupRooms():
     """Container for all chatrooms of a site"""
-    def __init__(self, metadata, engine):
-        """Creates a new container."""
-        self.metadata = metadata
-        self.engine = engine
-        self.table = metadata.tables['GroupRoom']
 
     def newRoom(self, jid, password):
         """Adds a new room to the rooms, returns the new room object"""
