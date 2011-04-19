@@ -140,12 +140,28 @@ BOT = {
     'muc': {
         'domain': 'muc.localhost',
         'poolsize': 10,
+        'nick': 'HelpIM',
+        'whoisaccess': 'moderators',
+        'allowchangesubject': 'yes',
         'history_maxchars': 2000,
         'history_maxstanzas': 10,
         'history_seconds': 120,
+        'site': {
+            'name': '',
+            'domain': '',
+            'poolsize': '',
+            'nick': '',
+            'whoisaccess': '',
+            'allowchangesubject': '',
+            'history_maxchars': 0,
+            'history_maxstanzas': 0,
+            'history_seconds': 0
+            },
         },
     'mainloop': {
-        'timeout': 1
+        'timeout': 1,
+        'reconnectdelay': 5,
+        'cleanup': 600,
         }
     }
 
