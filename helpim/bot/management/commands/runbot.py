@@ -64,9 +64,6 @@ class Command(BaseCommand):
                 else:
                     setattr(conf, key, val)
 
-        print conf.connection.username
-        print conf.connection.domain
-
         """ pass config to bot """
         bot = Bot(conf)
 
