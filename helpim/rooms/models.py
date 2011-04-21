@@ -115,7 +115,11 @@ class One2OneRoomManager(RoomManager):
            status -- string, the status to select the rooms on
            timeout -- timeout in seconds
            """
-        pass
+        cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
+        return list(
+            self.filter(
+                models.Q(status='available') | models.Q(status='availableForInvitation'),
+                modified_timestamp__lte=cutOffTime).exclude(staff=None))
 
     def getByClientId(self, clientId):
         """Returns the room-objects with given clientId
@@ -123,7 +127,8 @@ class One2OneRoomManager(RoomManager):
            Keyword arguments:
            clientId -- string, client id to select the room on
            """
-        pass
+        client = Participant.objects.get(pk=clientId)
+        return self.get(client=client)
 
     def admitStaff(self, staff_id):
         """Tries to bind a staff to an available room. Returns False if
