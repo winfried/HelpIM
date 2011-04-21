@@ -135,7 +135,7 @@ class One2OneRoomManager(RoomManager):
     def _admitStaff(self, staff_id, status=None):
         room = self.filter(staff=None).filter(status='available')[0]
         room.setStaffId(staff_id)
-        if status not None:
+        if not status == None:
             room.setStatus(status)
         return room
 
@@ -168,8 +168,6 @@ class One2OneRoomManager(RoomManager):
            """
         room = self.filter(client=None).filter(status='staffWaiting')[0]
         room.setClientId(client_id)
-        if status not None:
-            room.setStatus(status)
         return room
 
     def admintClientInvitation(self, roomId, clientId):
