@@ -362,9 +362,6 @@ class GroupRoom(Room):
         ('abandoned', _('Abandoned')),
         )
 
-    status = models.CharField(max_length=32,
-                              choices=STATUS_CHOICES)
-
     objects = GroupRoomManager()
 
     def userJoined(self):
