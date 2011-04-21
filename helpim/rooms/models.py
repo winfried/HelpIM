@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant
@@ -22,7 +23,7 @@ class RoomManager(models.Manager):
         room = self.model(jid=jid, password=password)
         room.save()
         return room
-    
+
     def getToDestroy(self):
         """Returns a list with all rooms with status 'toDestroy'"""
         return self.getByStatus("toDestroy")
@@ -130,6 +131,14 @@ class One2OneRoomManager(RoomManager):
         client = Participant.objects.get(pk=clientId)
         return self.get(client=client)
 
+    @transaction.commit_on_success
+    def _admitStaff(self, staff_id, status=None):
+        room = self.filter(staff=None).filter(status='available').one()
+        room.setStaffId(staff_id)
+        if status not None:
+            room.setStatus(status)
+        return room
+
     def admitStaff(self, staff_id):
         """Tries to bind a staff to an available room. Returns False if
            it failed, returns the room object it binded to if succeeded
@@ -137,7 +146,7 @@ class One2OneRoomManager(RoomManager):
            Keyword arguments:
            staff_id -- id of the staff that should be bound to a room
            """
-        pass
+        return self._adminStaff(staff_id)
 
     def admitStaffInvitation(self, staff_id):
         """Tries to bind a staff to an available room. Returns False if
@@ -146,8 +155,9 @@ class One2OneRoomManager(RoomManager):
            Keyword arguments:
            staff_id -- id of the staff that should be bound to a room
            """
-        pass
+        return self._admitStaff(staff_id, 'availableForInvitation')
 
+    @transaction.commit_on_success
     def admitClient(self, client_id):
         """Tries to bind a client to a room with staff waiting. Returns
            False if it failed, returns the room object it binded to if
@@ -156,7 +166,11 @@ class One2OneRoomManager(RoomManager):
            Keyword arguments:
            client_id -- id of the client that should be bound to a room
            """
-        pass
+        room = self.filter(client=None).filter(status='staffWaiting').one()
+        room.setClientId(client_id)
+        if status not None:
+            room.setStatus(status)
+        return room
 
     def admintClientInvitation(self, roomId, clientId):
         """Tries to bind a client to the room where the staff with the given
@@ -167,19 +181,36 @@ class One2OneRoomManager(RoomManager):
            staff_id -- id of the staff the client should be connected to
            client_id -- id of the client that should be bound to the staff
            """
-        pass
+        room = self.get(pk=roomId)
+        if not room.getStatus() == "staffWaitingForInvitee":
+            raise Exception("Attempt to enter room where inviter should be waiting, but room has status: " + room.getStatus())
+        room.setClientId(clientId)
+        return room
 
 class GroupRoomManager(RoomManager):
+
+    @transaction.commit_on_success
     def admitToGroup(self, chatId):
         """Admits a client to the group with id 'chat_id'. If no room is
         assigend to that chat, a new room is assigned to it. Returns
         False if it failed, returns the room object it binded to if
         succeeded.
-           
+
         Keyword arguments:
         chat_id -- id of the chat the client should be admitted to.
         """
-        pass
+        chatId=int(chatId)
+        chat = Chat.objects.get(pk=chatId)
+        try:
+            room = self.get(chat=chat)[0]
+        except Room.DoesNotExist:
+            rooms = self.filter(chat=None).filter(status='available')
+            if len(rooms) == 0:
+                return False # this looks odd but hey, don't break the old API
+            room = rooms[0]
+            room.chat = chat
+            room.save()
+        return room
 
 class StatusError(Exception):
     """ thrown when rooms status is set to a bad value
