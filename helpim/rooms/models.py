@@ -3,6 +3,17 @@ from django.db import models
 from helpim.conversations.models import Chat, Participant
 from django.utils.translation import ugettext as _
 
+class Site:
+    def __init__(self, name):
+        self.name = name
+        """ [FIXME] will it blend? """
+        self.rooms = One2OneRoom.objects
+        self.groupRooms = GroupRoom.objects
+
+def getSites():
+    """ this is a fake sites dict as we're not using real sites right now """
+    return {'helpim': Site('helpim')}
+
 class RoomManager(models.Manager):
     def newRoom(self, jid, password):
         """Adds a new room to the rooms, returns the new room object"""
