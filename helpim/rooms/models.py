@@ -133,7 +133,7 @@ class One2OneRoomManager(RoomManager):
 
     @transaction.commit_on_success
     def _admitStaff(self, staff_id, status=None):
-        room = self.filter(staff=None).filter(status='available').one()
+        room = self.filter(staff=None).filter(status='available')[0]
         room.setStaffId(staff_id)
         if status not None:
             room.setStatus(status)
@@ -166,7 +166,7 @@ class One2OneRoomManager(RoomManager):
            Keyword arguments:
            client_id -- id of the client that should be bound to a room
            """
-        room = self.filter(client=None).filter(status='staffWaiting').one()
+        room = self.filter(client=None).filter(status='staffWaiting')[0]
         room.setClientId(client_id)
         if status not None:
             room.setStatus(status)
