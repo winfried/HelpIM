@@ -1,7 +1,9 @@
+import datetime
+
 from django.db import models
+from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant
-from django.utils.translation import ugettext as _
 
 class Site:
     def __init__(self, name):
@@ -66,11 +68,11 @@ class RoomManager(models.Manager):
            timeout -- timeout in seconds
            """
         cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
-        return list(self.filter(status=status).filter(status_timestamp<=cutOffTime))
+        return list(self.filter(status=status).filter(status_timestamp__lte=cutOffTime))
 
     def getNotDestroyed(self):
         """Returns a list with room-objects that are not destroyed."""
-        return list(self.filter(status!='destroyed'))
+        return list(self.exclude(status='destroyed'))
 
     def getByJid(self, jid):
         """Returns the room-objects with given jid
