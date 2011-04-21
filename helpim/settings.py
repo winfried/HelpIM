@@ -124,7 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'helpim.conversations',
     'helpim.groups',
-    'helpim.bot',
+    'helpim.rooms',
     'south',
 )
 
