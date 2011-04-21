@@ -13,8 +13,7 @@ from pyxmpp.jid import JID
 from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 
-from helpim.bot.roomhandler import One2OneRoomHandler, GroupRoomHandler
-from helpim.bot.rooms import getSites
+from helpim.rooms.roomhandler import One2OneRoomHandler, GroupRoomHandler
 
 class Bot(JabberClient):
     def __init__(self, conf):
@@ -745,6 +744,15 @@ class Log:
         logger.setLevel(newlevel)
         self.__helpimlog.info("Log level now set to '%s'" % level)
         return str()
+
+class Site:
+    def __init__(self, name):
+        self.name = name
+        self.rooms = Rooms()
+        self.groupRooms = GroupRooms()
+
+def getSites():
+    return {'helpim': Site('helpim')}
 
 def str2roomjid(jidstr):
     tmp = jidstr.split('@')

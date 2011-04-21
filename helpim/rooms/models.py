@@ -27,7 +27,7 @@ class GroupRoom(models.Model):
     modified_timestamp = models.DateTimeField()
 
 class One2OneRoom(GroupRoom):
-    staff_id = models.ForeignKey(Participant)
+    staff = models.ForeignKey(Participant, related_name='+')
     staff_nick = models.CharField(max_length=64)
-    client_id = models.CharField(max_length=64)
+    client = models.ForeignKey(Participant, related_name='+')
     client_nick = models.CharField(max_length=64)

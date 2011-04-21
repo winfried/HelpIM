@@ -3,7 +3,7 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from helpim.bot import Bot
+from helpim.rooms.bot import Bot
 
 class Command(BaseCommand):
     help = "runs the jabber channel bot"
