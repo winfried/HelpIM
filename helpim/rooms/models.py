@@ -3,6 +3,166 @@ from django.db import models
 from helpim.conversations.models import Chat, Participant
 from django.utils.translation import ugettext as _
 
+class RoomManager(models.Manager):
+    def newRoom(self, jid, password):
+        """Adds a new room to the rooms, returns the new room object"""
+        room = self.model(jid=jid, password=password)
+        room.save()
+        return room
+    
+    def getToDestroy(self):
+        """Returns a list with all rooms with status 'toDestroy'"""
+        return self.getByStatus("toDestroy")
+
+    def getAvailable(self):
+        """Returns a list with all rooms with status 'available'"""
+        return self.getByStatus("available")
+
+    def getChatting(self):
+        """Returns a list with all rooms with status 'chatting'"""
+        return self.getByStatus("chatting")
+
+    def getAbandoned(self):
+        """Returns a list with all rooms with status 'abandoned'"""
+        return self.getByStatus("abandoned")
+
+    def getAll(self):
+        """Returns a list with all room-objects"""
+        return list(self.all())
+
+    def getByStatus(self, status):
+        """Returns a list with room-objects with status 'status'
+
+           Keyword arguments:
+           status -- string, the status to select the rooms on
+           """
+        return list(self.filter(status=status))
+
+    def getStatusById(self, roomId):
+        """Returns a string with the status of the room with the given
+           id.
+           Keyword arguments:
+           id -- int, the id of the room the status of is requested
+           """
+        return self.get(pk=roomId).status
+
+    def getTimedOut(self, status, timeout):
+        """Returns a list with room-objects with status 'status' that
+           have that status longer then 'timeout'
+
+           Keyword arguments:
+           status -- string, the status to select the rooms on
+           timeout -- timeout in seconds
+           """
+        cutOffTime=datetime.datetime.now()-datetime.timedelta(seconds=timeout)
+        return list(self.filter(status=status).filter(status_timestamp<=cutOffTime))
+
+    def getNotDestroyed(self):
+        """Returns a list with room-objects that are not destroyed."""
+        return list(self.filter(status!='destroyed'))
+
+    def getByJid(self, jid):
+        """Returns the room-objects with given jid
+
+           Keyword arguments:
+           jid -- string, jid to select the rooms on
+           """
+        return self.get(jid=jid)
+
+    def getByPassword(self, password):
+        """Returns the room-objects with given password
+
+           Keyword arguments:
+           password -- string, password to select the room on
+           """
+        return self.get(password=password)
+
+    def deleteClosed(self):
+        """Deletes records with the status 'destroyed'"""
+        self.filter(status='destroyed').delete()
+
+class One2OneRoomManager(RoomManager):
+    def getAvailableForInvitation(self):
+        """Returns a list with all rooms with status 'availableForInvitation'"""
+        return self.getByStatus("availableForInvitation")
+
+    def getStaffWaiting(self):
+        """Returns a list with all rooms with status 'staffWaiting'"""
+        return self.getByStatus("staffWaiting")
+
+    def getStaffWaitingForInvitee(self):
+        """Returns a list with all rooms with status 'staffWaitingForInvitee'"""
+        return self.getByStatus("staffWaitingForInvitee")
+
+    def getHangingStaffStart(self, timeout):
+        """Returns a list with room-objects with status 'status' that
+           have that status longer then 'timeout'
+
+           Keyword arguments:
+           status -- string, the status to select the rooms on
+           timeout -- timeout in seconds
+           """
+        pass
+
+    def getByClientId(self, clientId):
+        """Returns the room-objects with given clientId
+
+           Keyword arguments:
+           clientId -- string, client id to select the room on
+           """
+        pass
+
+    def admitStaff(self, staff_id):
+        """Tries to bind a staff to an available room. Returns False if
+           it failed, returns the room object it binded to if succeeded
+
+           Keyword arguments:
+           staff_id -- id of the staff that should be bound to a room
+           """
+        pass
+
+    def admitStaffInvitation(self, staff_id):
+        """Tries to bind a staff to an available room. Returns False if
+           it failed, returns the room object it binded to if succeeded
+
+           Keyword arguments:
+           staff_id -- id of the staff that should be bound to a room
+           """
+        pass
+
+    def admitClient(self, client_id):
+        """Tries to bind a client to a room with staff waiting. Returns
+           False if it failed, returns the room object it binded to if
+           succeeded.
+
+           Keyword arguments:
+           client_id -- id of the client that should be bound to a room
+           """
+        pass
+
+    def admintClientInvitation(self, roomId, clientId):
+        """Tries to bind a client to the room where the staff with the given
+           id is waiting. Returns false if the room is not available, returns
+           the room object if succeeded.
+
+           Keyword arguments:
+           staff_id -- id of the staff the client should be connected to
+           client_id -- id of the client that should be bound to the staff
+           """
+        pass
+
+class GroupRoomManager(RoomManager):
+    def admitToGroup(self, chatId):
+        """Admits a client to the group with id 'chat_id'. If no room is
+        assigend to that chat, a new room is assigned to it. Returns
+        False if it failed, returns the room object it binded to if
+        succeeded.
+           
+        Keyword arguments:
+        chat_id -- id of the chat the client should be admitted to.
+        """
+        pass
+
 class StatusError(Exception):
     """ thrown when rooms status is set to a bad value
     this does not refer to a value that's not defined
@@ -105,6 +265,8 @@ class One2OneRoom(Room):
     client = models.ForeignKey(Participant, related_name='+')
     client_nick = models.CharField(max_length=64)
 
+    objects = One2OneRoomManager()
+
     def setClientId(self, clientId):
         client = Participant.objects.get(pk=clientId)
         self.client = client
@@ -191,6 +353,8 @@ class GroupRoom(Room):
 
     status = models.CharField(max_length=32,
                               choices=STATUS_CHOICES)
+
+    objects = GroupRoomManager()
 
     def userJoined(self):
         """To be called after a client has joined
