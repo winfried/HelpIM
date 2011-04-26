@@ -225,10 +225,11 @@ class Room(models.Model):
     status = models.CharField(max_length=32,
                               choices=STATUS_CHOICES)
     password = models.CharField(max_length=64)
-    chat = models.ForeignKey(Chat)
+    chat = models.ForeignKey(Chat,
+                             null = True)
     web_clean_exit = models.BooleanField()
-    status_timestamp = models.DateTimeField()
-    modified_timestamp = models.DateTimeField()
+    status_timestamp = models.DateTimeField(null = True)
+    modified_timestamp = models.DateTimeField(null = True)
 
     class Meta:
         abstract = True
@@ -307,10 +308,10 @@ class One2OneRoom(Room):
         ('abandoned', _('Abandoned')),
         )
 
-    staff = models.ForeignKey(Participant, related_name='+')
-    staff_nick = models.CharField(max_length=64)
-    client = models.ForeignKey(Participant, related_name='+')
-    client_nick = models.CharField(max_length=64)
+    staff = models.ForeignKey(Participant, related_name='+', null = True)
+    staff_nick = models.CharField(max_length=64, null = True)
+    client = models.ForeignKey(Participant, related_name='+', null = True)
+    client_nick = models.CharField(max_length=64, null = True)
 
     objects = One2OneRoomManager()
 
