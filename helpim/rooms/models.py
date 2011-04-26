@@ -223,7 +223,8 @@ class Room(models.Model):
     jid = models.CharField(max_length=255,
                            unique=True)
     status = models.CharField(max_length=32,
-                              choices=STATUS_CHOICES)
+                              choices=STATUS_CHOICES,
+                              default='available')
     password = models.CharField(max_length=64)
     chat = models.ForeignKey(Chat,
                              null = True)
