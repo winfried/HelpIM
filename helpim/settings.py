@@ -163,6 +163,11 @@ BOT = {
         'timeout': 1,
         'reconnectdelay': 5,
         'cleanup': 600,
+        },
+    'logging': {
+        'destination': 'file:/var/log/HelpIM/helpim31.log',
+        'level': 'debug',
+        'level_pyxmpp': 'info',
         }
     }
 

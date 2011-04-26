@@ -68,7 +68,7 @@ class Command(BaseCommand):
         bot = Bot(conf)
 
         """ run the bot """
-        # bot.run()
+        bot.run()
         pass
 
 class BotConfig:

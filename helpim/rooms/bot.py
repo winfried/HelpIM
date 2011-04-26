@@ -32,6 +32,21 @@ class Bot(JabberClient):
         self.port = int(c.port)
         self.sites = getSites()
 
+        global log
+        log = Log()
+        error = log.set_Destination(conf.logging.destination)
+        if error:
+            raise LogError(error)
+        error = log.set_Level(conf.logging.level)
+        if error:
+            raise LogError(error)
+        error = log.set_Level(conf.logging.level_pyxmpp, 'pyxmpp')
+        if error:
+            raise LogError(error)
+        global logger
+        logger = log
+
+
     def roomCleanup(self):
         for name, site in self.sites.iteritems():
             # One2OneRooms
@@ -553,7 +568,7 @@ class Bot(JabberClient):
             poolsize = int(self.conf.muc.poolsize)
         except ValueError:
             return "MUC-room pool size invalid"
-        self.conf.muc['poolsize'] = newSize
+        self.conf.muc.poolsize = newSize
         log.info("MUC-room pool size set to %s" % newSize)
         self.todo.append((self.fillMucRoomPool,))
         return str()
