@@ -247,7 +247,7 @@ class Room(models.Model):
         self.save()
 
     def getCleanExit(self):
-        return selt.web_clean_exit
+        return self.web_clean_exit
 
     def setCleanExit(self):
         self.web_clean_exit = True
