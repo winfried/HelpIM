@@ -83,3 +83,9 @@ class BotConfig:
             else:
                 setattr(self, k, v)
 
+    def __getitem__(self, k):
+        return getattr(self, k)
+
+    def __setitem__(self, k, v):
+        return setattr(self, k, v)
+
