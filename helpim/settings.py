@@ -147,17 +147,6 @@ BOT = {
         'history_maxchars': 2000,
         'history_maxstanzas': 10,
         'history_seconds': 120,
-        'site': {
-            'name': '',
-            'domain': '',
-            'poolsize': '',
-            'nick': '',
-            'whoisaccess': '',
-            'allowchangesubject': '',
-            'history_maxchars': 0,
-            'history_maxstanzas': 0,
-            'history_seconds': 0
-            },
         },
     'mainloop': {
         'timeout': 1,
