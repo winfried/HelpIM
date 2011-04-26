@@ -1,0 +1,278 @@
+{% load i18n adminmedia admin_modify threadedcommentstags %}
+<div class="inline-group" id="{{ inline_admin_formset.formset.prefix }}-group">
+  <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
+{{ inline_admin_formset.formset.management_form }}
+<fieldset class="module">
+   <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+   {{ inline_admin_formset.formset.non_form_errors }}
+   <table>
+     <thead><tr>
+     {% for field in inline_admin_formset.fields %}
+       {% if not field.widget.is_hidden %}
+         <th{% if forloop.first %} colspan="2"{% endif %}{% if field.required %} class="required"{% endif %}>{{ field.label|capfirst }}</th>
+       {% endif %}
+     {% endfor %}
+     <th>Comments</th>
+     {% if inline_admin_formset.formset.can_delete %}<th>{% trans "Delete?" %}</th>{% endif %}
+     </tr></thead>
+
+     <tbody>
+     {% for inline_admin_form in inline_admin_formset %}
+        {% if inline_admin_form.form.non_field_errors %}
+        <tr><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
+        {% endif %}
+        <tr class="{% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
+             id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
+        <td class="original">
+          {% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+          {{ inline_admin_form.fk_field.field }}
+
+          {% spaceless %}
+          {% for fieldset in inline_admin_form %}
+            {% for line in fieldset %}
+              {% for field in line %}
+                {% if field.is_hidden %} {{ field.field }} {% endif %}
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+          {% endspaceless %}
+        </td>
+        {% for fieldset in inline_admin_form %}
+          {% for line in fieldset %}
+            {% for field in line %}
+              <td class="{{ field.field.name }}">
+              {% if field.is_readonly %}
+                  <p>{{ field.contents }}</p>
+              {% else %}
+                  {{ field.field.errors.as_ul }}
+                  {{ field.field }}
+              {% endif %}
+              </td>
+            {% endfor %}
+          {% endfor %}
+          {% if inline_admin_form.original %}
+            {% get_threaded_comment_tree for inline_admin_form.original as tree %}
+            <td><p>
+              <a class=add_comment href="javascript:django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').toggle();">
+                {{ tree|length }} comment{{ tree|pluralize }}
+              </a>
+              &nbsp;
+              <a class='add_comment' id='replylink_m{{ inline_admin_form.original.pk }}' href="javascript:django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').show();show_reply_form('m{{ inline_admin_form.original.pk }}', {{ inline_admin_form.original.pk }}, 1, null, '{% get_comment_url_json inline_admin_form.original %}')">Reply</a>
+            </p></td>
+          {% endif %}
+        {% endfor %}
+        {% if inline_admin_formset.formset.can_delete %}
+          <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
+        {% endif %}
+
+
+  <style>
+    tr.commentrow {
+      height: 1em;
+      background: #EEE;
+    }
+    tr.commentrow td {
+      padding-bottom: 0px;
+      padding-top: 2px;
+    }
+    .commenttext {
+      width: 100%;
+    }
+    a.add_comment {
+      background: url('/static/comment_stroke_12x11.png') 0 0 no-repeat;
+      background-position: top right;
+      padding-right: 14px;
+      text-decoration: underline;
+    }
+    tr.has_original.dynamic-message_set td {
+      padding-top: 1em;
+    }
+    .sender_name {
+      width: 10em;
+      white-space: no-wrap;
+    }
+    .created_at {
+      width: 15em;
+      white-space: no-wrap;
+    }
+  </style>
+
+  {% if inline_admin_form.original %}
+    {% get_threaded_comment_tree for inline_admin_form.original as tree %}
+    {% for comment in tree %}
+    <tr style="display: none;" 
+        class="commentrow commentrow-for-{{ inline_admin_form.original.pk }} {{ inline_admin_formset.formset.prefix }}-{% if not forloop.parentloop.last %}{{ forloop.parentloop.counter0 }}{% else %}empty{% endif %}"
+        id="c{{ comment.id }}">
+      <td class=original></td>
+      <td class="sender_name careworker"><p>{{ comment.user }}</p></td>
+      <td class=created_at><p>{{ comment.date_submitted }}</p></td>
+      <td class=body>
+        <p class=comment style="margin-left: {{ comment.depth|add:1 }}em;">
+
+          {% auto_transform_markup comment %}
+        </p>
+      </td>
+      <td> <p class=comment>
+          <a class='add_comment' id="replylink_c{{ comment.id }}" href="javascript:show_reply_form('c{{ comment.id }}', {{ inline_admin_form.original.pk }},{{ comment.depth|add:2 }}, '{{ comment.id }}', '{% get_comment_url_json inline_admin_form.original comment %}')">Reply</a>
+      </p></td>
+    </tr>
+    {% endfor %}
+
+    {% comment %}
+     <tr style="display: none;" class="commentrow commentrow-for-{{ inline_admin_form.original.pk }}">
+       <td class=original></td>
+       <td class=sender_name></td>
+       <td class=created_at></td>
+       <td class=body>
+         <p class=comment style="margin-left: 1em;">
+         <input class=commenttext>
+         </p>
+       </td>
+       <td><p><input formaction="{% get_comment_url_json inline_admin_form.original %}" class=commentsubmit type="submit" value="Send reply" /></p></td>
+     </tr>
+    {% endcomment %}
+
+     {% endif %}
+     {% endfor %}
+     </tbody>
+   </table>
+</fieldset>
+  </div>
+</div>
+
+
+<script>
+(function($) {
+
+  if (window.location.hash) {
+    var hash = window.location.hash;
+    $(hash.replace(/^#/, '.')).show();
+    var pos = $(window.location.hash).offset().top;
+    $('#container').scrollTop(pos);
+  }
+
+  window.show_reply_form = function(replylink, original_pk, depth, comment_id, url) {
+
+    var to_add = $(
+      '<tr class="commentrow commentrow-for-' + original_pk + '" style="display: table-row">'+
+        '<td class=original><p></p></td>'+
+        '<td class=sender_name><p></p></td>'+
+        '<td class=created_at><p></p></td>'+
+        '<td class=body>'+
+        '<p class=comment style="margin-left: ' + depth + 'em;">' +
+        '<input class=commenttext></p></td>'+
+        '<td><p><input formaction="' + url + '" class=commentsubmit type=button value="Send reply" /></p></td>'+
+      '</tr>'
+    );
+
+    var show_below;
+
+	if (comment_id) {
+      show_below = $('#c' + comment_id);
+    } else {
+      show_below = $(
+        document.getElementById('replylink_' + replylink).parentElement.parentElement.parentElement
+      )
+    }
+
+    show_below.after(to_add);
+    to_add.slideDown();
+
+    $('#replylink_' + replylink).remove();
+
+    $(".commentsubmit").click(sendcomment);
+    $(".commentsubmit").submit(sendcomment);
+  };
+
+  function sendcomment(event){
+    var commentrow = event.target.parentElement.parentElement.parentElement;
+    var commentinput = $(commentrow).find('input.commenttext');
+
+    if (!commentinput.val()) {
+      commentinput.focus();
+      return false;
+    }
+
+    $(event.target).attr('disabled', 'disabled');
+
+    $.post(event.target.getAttribute("formaction"), {
+      csrfmiddlewaretoken: document.forms[0].csrfmiddlewaretoken.value,
+      comment: commentinput.val()
+      }, function(data) {
+        window.location.href = (
+          window.location.origin +
+          window.location.pathname +
+          '#message_set-' + ((commentrow.className.match(/[0-9]/)[0]*1) - 1)
+        );
+        window.location.reload();
+      }
+    );
+    return false;
+  }
+
+})(django.jQuery);
+</script>
+
+
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        var rows = "#{{ inline_admin_formset.formset.prefix }}-group .tabular.inline-related tbody tr";
+        var alternatingRows = function(row) {
+            $(rows).not(".add-row").removeClass("row1 row2")
+                .filter(":even").addClass("row1").end()
+                .filter(rows + ":odd").addClass("row2");
+        }
+        var reinitDateTimeShortCuts = function() {
+            // Reinitialize the calendar and clock widgets by force
+            if (typeof DateTimeShortcuts != "undefined") {
+                $(".datetimeshortcuts").remove();
+                DateTimeShortcuts.init();
+            }
+        }
+        var updateSelectFilter = function() {
+            // If any SelectFilter widgets are a part of the new form,
+            // instantiate a new SelectFilter instance for it.
+            if (typeof SelectFilter != "undefined"){
+                $(".selectfilter").each(function(index, value){
+                  var namearr = value.name.split('-');
+                  SelectFilter.init(value.id, namearr[namearr.length-1], false, "{% admin_media_prefix %}");
+                });
+                $(".selectfilterstacked").each(function(index, value){
+                  var namearr = value.name.split('-');
+                  SelectFilter.init(value.id, namearr[namearr.length-1], true, "{% admin_media_prefix %}");
+                });
+            }
+        }
+        var initPrepopulatedFields = function(row) {
+            row.find('.prepopulated_field').each(function() {
+                var field = $(this);
+                var input = field.find('input, select, textarea');
+                var dependency_list = input.data('dependency_list') || [];
+                var dependencies = [];
+                $.each(dependency_list, function(i, field_name) {
+                  dependencies.push('#' + row.find(field_name).find('input, select, textarea').attr('id'));
+                });
+                if (dependencies.length) {
+                    input.prepopulate(dependencies, input.attr('maxlength'));
+                }
+            });
+        }
+        $(rows).formset({
+            prefix: "{{ inline_admin_formset.formset.prefix }}",
+            addText: "{% blocktrans with inline_admin_formset.opts.verbose_name|title as verbose_name %}Add another {{ verbose_name }}{% endblocktrans %}",
+            formCssClass: "dynamic-{{ inline_admin_formset.formset.prefix }}",
+            deleteCssClass: "inline-deletelink",
+            deleteText: "{% trans "Remove" %}",
+            emptyCssClass: "empty-form",
+            removed: alternatingRows,
+            added: (function(row) {
+                initPrepopulatedFields(row);
+                reinitDateTimeShortCuts();
+                updateSelectFilter();
+                alternatingRows(row);
+            })
+        });
+    });
+})(django.jQuery);
+</script>

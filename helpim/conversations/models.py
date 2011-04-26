@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
+from threadedcomments.models import ThreadedComment
 
 class Conversation(models.Model):
     start_time = models.DateTimeField()
@@ -38,16 +39,11 @@ class Participant(models.Model):
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation)
     sender = models.ForeignKey(Participant)
-    sender_name = models.CharField(_("Participant's name at sending time"), max_length=64)
+    sender_name = models.CharField(_("Sender"), max_length=64)
     created_at = models.DateTimeField()
     body = models.TextField()
 
-class MessageComment(models.Model):
-    parent = models.ForeignKey('self')
-    message = models.ForeignKey(Message)
-    author = models.ForeignKey(User)
-    created_at = models.DateTimeField()
-    body = models.TextField()
+    comments = models.ManyToManyField(ThreadedComment)
 
 class Chat(Conversation):
     room = models.IntegerField()
