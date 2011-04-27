@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from helpim.conversations.models import Chat, Participant
 
@@ -234,6 +235,20 @@ class Room(models.Model):
 
     class Meta:
         abstract = True
+
+    def getStaffJoinUrl(self):
+        return reverse('staff_join_specific_chat', args=[self.pk,])
+
+    def joinLink(self):
+        if self.status == 'staffWaiting':
+            return '<b style="font-size: 12px;"><a href="%(link)s">%(linktext)s</a></b>' % {
+              'link': self.getStaffJoinUrl(),
+              'linktext': _('Join room'),
+            }
+        else:
+            return _('N/A')
+
+    joinLink.allow_tags = True
 
     def getStatus(self):
         return self.status
