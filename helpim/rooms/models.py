@@ -296,6 +296,13 @@ class One2OneRoom(Room):
                     must be destroyed.
        """
 
+
+    class Meta:
+        verbose_name = _('One2One Room')
+
+    def __str__(self):
+        return '<One2OneRoom:%s>' % self.status
+
     STATUS_CHOICES = (
         ('available', _('Available')),
         ('availableForInvitation', _('Available for Invitation')),
