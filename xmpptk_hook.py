@@ -1,11 +1,18 @@
 import logging
-from subprocess import check_output
+from subprocess import Popen
 
 log = logging.getLogger('xmpptk-make')
 
 def preconfigure(options, buildout, environment):
-    log.info(check_output(
+    proc = Popen(
       "git submodule update --init".split(" "),
       cwd=buildout['xmpptk']['location']
-    ))
+    )
+
+    (stdoutdata, stderrdata) = proc.communicate()
+
+    if stderrdata:
+        log.error(stderrdata)
+
+    log.info(stdoutdata)
 
