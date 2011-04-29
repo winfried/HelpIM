@@ -35,7 +35,7 @@ def staff_join_chat(request, room_pk=None):
 '<html> <head>'
 '    <title></title>'
 '    <script src="/static/jsjac.js"></script>'
-'    <script src="/static/helpim.js"></script>'
+'    <script src="/static/chat.js"></script>'
 '    <script>'
 'goog.require("helpim.start");'
 'var HELPIM_CONFIG = %(xmpptk_config)s;'
