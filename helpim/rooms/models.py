@@ -236,6 +236,12 @@ class Room(models.Model):
     class Meta:
         abstract = True
 
+    def getRoomId(self):
+        return self.jid[:self.jid.find('@')]
+
+    def getRoomService(self):
+        return self.jid[self.jid.find('@')+1:]
+
     def getStaffJoinUrl(self):
         return reverse('staff_join_specific_chat', args=[self.pk,])
 
