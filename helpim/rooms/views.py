@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.simplejson import dumps
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 @transaction.commit_on_success
 @login_required
@@ -71,6 +72,7 @@ def staff_join_chat(request, room_pk=None):
           'muc_nick': request.user.username,
           'mode': 'light',
           'logout_redirect': request.META.get('HTTP_REFERER'),
+          'bot_nick': settings.BOT['muc']['nick'],
       })
     }
     return HttpResponse(html)
