@@ -63,12 +63,14 @@ def staff_join_chat(request, room_pk=None):
 '</html>'
     ) % {
       'xmpptk_config': dumps({
-            'httpbase': "/http-bind/",
-            'authtype': "saslanon",
-            'muc_service': room.getRoomService(),
-            'muc_room': room.getRoomId(),
-            'muc_password': room.password,
-            'muc_nick': request.user.username
+          'httpbase': "/http-bind/",
+          'authtype': "saslanon",
+          'muc_service': room.getRoomService(),
+          'muc_room': room.getRoomId(),
+          'muc_password': room.password,
+          'muc_nick': request.user.username,
+          'mode': 'light',
+          'logout_redirect': request.META.get('HTTP_REFERER'),
       })
     }
     return HttpResponse(html)
