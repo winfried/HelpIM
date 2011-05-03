@@ -65,6 +65,7 @@ def staff_join_chat(request, room_pk=None):
       'xmpptk_config': dumps({
           'httpbase': "/http-bind/",
           'authtype': "saslanon",
+          'domain': settings.BOT['connection']['domain'],
           'muc_service': room.getRoomService(),
           'muc_room': room.getRoomId(),
           'muc_password': room.password,
