@@ -16,7 +16,6 @@ from pyxmpp.presence import Presence
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler, MucRoomUser
 from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
-from helpim.rooms.roomhandler import One2OneRoomHandler, GroupRoomHandler
 from helpim.rooms.models import getSites
 
 
