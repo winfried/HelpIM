@@ -18,6 +18,7 @@ var HELPIM_CONFIG = {{ xmpptk_config|safe }};
       <div class="goog-tab-bar-clear"></div>
       <div id="tab_content" class="goog-tab-content"></div>
    </div>
+   {% if debug %}
     <hr>
     <fieldset class="goog-debug-panel">
       <legend>Debug Log</legend>
@@ -29,5 +30,6 @@ var HELPIM_CONFIG = {{ xmpptk_config|safe }};
       <div class="messagesPanel"></div>
       <div class="sendPanel"><textarea class="sendTextarea"></textarea></div>
    </div>
+   {% endif %}
   </body>
 </html>

@@ -34,6 +34,7 @@ def staff_join_chat(request, room_pk=None):
 
     return render_to_response(
       'rooms/staff_join_chat.html', {
+      'debug': settings.DEBUG,
       'xmpptk_config': dumps({
           'httpbase': "/http-bind/",
           'authtype': "saslanon",
