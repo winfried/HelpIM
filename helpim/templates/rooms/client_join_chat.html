@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script src="/static/jsjac.js"></script>
+<script src="/static/chat.js"></script>
+<script>
+HELPIM_CONFIG = {{ xmpptk_config|safe }};
+</script>
+<link type="text/css" rel="stylesheet" href="/static/chat.css"/>
+
+<body onload="helpim.start(HELPIM_CONFIG);">
+ <div id="helpimClient">
+   <div id="logoutButton"></div>
+   <div id="tabBar">
+  </div>
+   <div class="goog-tab-bar-clear"></div>
+   <div id="tab_content" class="goog-tab-content"></div>
+</div>
+
+{% if debug %}
+
+<hr>
+<fieldset class="goog-debug-panel">
+  <legend>Debug Log</legend>
+  <div id="log"></div>
+</fieldset>
+<div id="panelTemplate">
+  <div class="subjectPanel">Subject: <span class="roomSubject"></span></div>
+  <div class="rosterPanel"></div>
+  <div class="messagesPanel"></div>
+  <div class="sendPanel"><textarea class="sendTextarea"></textarea></div>
+</div>
+{% endif %}
+
+{% endblock content %}
