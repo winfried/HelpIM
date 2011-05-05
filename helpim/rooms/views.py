@@ -44,6 +44,7 @@ def staff_join_chat(request, room_pk=None):
           'mode': 'light',
           'logout_redirect': request.META.get('HTTP_REFERER'),
           'bot_nick': settings.BOT['muc']['nick'],
+          'static_url': settings.STATIC_URL,
       }, indent=2)
     })
 
