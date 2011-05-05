@@ -3,19 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-05 14:31+0200\n"
-"PO-Revision-Date: 2011-02-23 16:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: conversations/admin.py:28
 msgid "Message"
@@ -27,11 +27,11 @@ msgstr ""
 
 #: conversations/admin.py:39 conversations/models.py:36
 msgid "Participant"
-msgstr "Teilnehmer"
+msgstr ""
 
 #: conversations/admin.py:40 conversations/models.py:37
 msgid "Participants"
-msgstr "Teilnehmer"
+msgstr ""
 
 #: conversations/models.py:11
 #, python-format
@@ -40,11 +40,11 @@ msgstr ""
 
 #: conversations/models.py:18
 msgid "Conversation"
-msgstr "Unterhaltung"
+msgstr ""
 
 #: conversations/models.py:19
 msgid "Conversations"
-msgstr "Unterhaltungen"
+msgstr ""
 
 #: conversations/models.py:23
 msgid "Care seeker"
@@ -60,35 +60,35 @@ msgstr ""
 
 #: groups/models.py:21
 msgid "Chatgroups"
-msgstr "Chatgruppen"
+msgstr ""
 
 #: groups/models.py:22
 msgid "Chatgroup"
-msgstr "Chatgruppe"
+msgstr ""
 
 #: groups/models.py:27
 msgid "Nickname"
-msgstr "Spitzname"
+msgstr ""
 
 #: groups/models.py:30
 msgid "Facilitator"
-msgstr "Verwalter"
+msgstr ""
 
 #: groups/models.py:40
 msgid "Member"
-msgstr "Mitglied"
+msgstr ""
 
 #: groups/models.py:41
 msgid "Members"
-msgstr "Mitglieder"
+msgstr ""
 
 #: groups/models.py:48
 msgid "Meeting"
-msgstr "Treffen"
+msgstr ""
 
 #: groups/models.py:49
 msgid "Meetings"
-msgstr "Treffen"
+msgstr ""
 
 #: rooms/models.py:252
 msgid "Join room"
