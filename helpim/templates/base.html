@@ -13,6 +13,7 @@
 {% for page in flatpages %}
         <li><a href="{{ page.url }}">{{ page.title }}</a></li>
 {% endfor %}
+        <li><a href="{% url helpim.rooms.views.client_join_chat %}">Join Chat</a></li>
       </ul>
     </div>
     <div id="centeredColumn" class="main">
