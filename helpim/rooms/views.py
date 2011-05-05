@@ -23,14 +23,10 @@ def staff_join_chat(request, room_pk=None):
       except IndexError:
         # bot should always keep a few rooms available
         # XXX raise ? This is a error 500 IMHO
+        # [zeank] actually this SHOULD only happen if the bot is down
         return redirect('/admin/rooms/one2oneroom/')
 
     assert room.status == 'available'
-
-    # XXX does the bot also change this status ? Joining should be atomic so a
-    # room is not entered by two care workers
-#    room.status = 'staffWaiting'
-#    room.save()
 
     return render_to_response(
       'rooms/staff_join_chat.html', {
