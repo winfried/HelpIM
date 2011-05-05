@@ -2,195 +2,194 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# 
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: HelpIM\n"
+"Report-Msgid-Bugs-To: http://github.com/e-hulp/HelpIM/issues\n"
 "POT-Creation-Date: 2011-05-05 14:31+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-05-05 13:07+0000\n"
+"Last-Translator: winfried <winfried@tilanus.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: nl_NL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: conversations/admin.py:28
 msgid "Message"
-msgstr ""
+msgstr "Bericht"
 
 #: conversations/admin.py:29
 msgid "Messages"
-msgstr ""
+msgstr "Berichten"
 
 #: conversations/admin.py:39 conversations/models.py:36
 msgid "Participant"
-msgstr ""
+msgstr "Deelnemer"
 
 #: conversations/admin.py:40 conversations/models.py:37
 msgid "Participants"
-msgstr ""
+msgstr "Deelnemers"
 
 #: conversations/models.py:11
 #, python-format
 msgid "\"%(subject)s\" at %(start_time)s"
-msgstr ""
+msgstr "\"%(subject)s\" om %(start_time)s"
 
 #: conversations/models.py:18
 msgid "Conversation"
-msgstr ""
+msgstr "Gesprek"
 
 #: conversations/models.py:19
 msgid "Conversations"
-msgstr ""
+msgstr "Gesprekken"
 
 #: conversations/models.py:23
 msgid "Care seeker"
-msgstr ""
+msgstr "Hulpvrager"
 
 #: conversations/models.py:24
 msgid "Care worker"
-msgstr ""
+msgstr "Hulpverlener"
 
 #: conversations/models.py:42
 msgid "Sender"
-msgstr ""
+msgstr "Afzender"
 
 #: groups/models.py:21
 msgid "Chatgroups"
-msgstr ""
+msgstr "Chatgroepen"
 
 #: groups/models.py:22
 msgid "Chatgroup"
-msgstr ""
+msgstr "Chatgroep"
 
 #: groups/models.py:27
 msgid "Nickname"
-msgstr ""
+msgstr "Nicknaam"
 
 #: groups/models.py:30
 msgid "Facilitator"
-msgstr ""
+msgstr "Facilitator"
 
 #: groups/models.py:40
 msgid "Member"
-msgstr ""
+msgstr "Lid"
 
 #: groups/models.py:41
 msgid "Members"
-msgstr ""
+msgstr "Leden"
 
 #: groups/models.py:48
 msgid "Meeting"
-msgstr ""
+msgstr "Bijeenkomst"
 
 #: groups/models.py:49
 msgid "Meetings"
-msgstr ""
+msgstr "Bijeenkomsten"
 
 #: rooms/models.py:252
 msgid "Join room"
-msgstr ""
+msgstr "Ga chatroom in"
 
 #: rooms/models.py:255
 msgid "N/A"
-msgstr ""
+msgstr "N/B"
 
 #: rooms/models.py:322
 msgid "One2One Room"
-msgstr ""
+msgstr "EenOpEen chatroom"
 
 #: rooms/models.py:328 rooms/models.py:424
 msgid "Available"
-msgstr ""
+msgstr "Beschikbaar"
 
 #: rooms/models.py:329
 msgid "Available for Invitation"
-msgstr ""
+msgstr "Beschikbaar voor uitnodiging"
 
 #: rooms/models.py:330
 msgid "Staff Waiting"
-msgstr ""
+msgstr "Hulpverlener wacht"
 
 #: rooms/models.py:331
 msgid "Staff Waiting for Invitee"
-msgstr ""
+msgstr "Hulpverlener wacht op genodigde"
 
 #: rooms/models.py:332 rooms/models.py:425
 msgid "Chatting"
-msgstr ""
+msgstr "Aan het chatten"
 
 #: rooms/models.py:333
 msgid "Closing Chat"
-msgstr ""
+msgstr "Chat aan het afsluiten"
 
 #: rooms/models.py:334 rooms/models.py:426
 msgid "To Destroy"
-msgstr ""
+msgstr "Te vernietigen"
 
 #: rooms/models.py:335 rooms/models.py:427
 msgid "Destroyed"
-msgstr ""
+msgstr "Vernietigd"
 
 #: rooms/models.py:336
 msgid "Lost"
-msgstr ""
+msgstr "Verloren"
 
 #: rooms/models.py:337 rooms/models.py:428
 msgid "Abandoned"
-msgstr ""
+msgstr "Verlaten"
 
 #: templates/admin/base_site.html:4
 msgid "Django site admin"
-msgstr ""
+msgstr "Django site beheerder"
 
 #: templates/admin/base_site.html:10
 msgid "HelpIM administration"
-msgstr ""
+msgstr "HelpIM beheer"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
-msgstr ""
+msgstr "Verwijderen?"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:264
 #, python-format
 msgid "Add another %(verbose_name)s"
-msgstr ""
+msgstr "Voeg een %(verbose_name)s toe"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:267
 msgid "Remove"
-msgstr ""
+msgstr "Verwijder"
 
 #: templates/admin/rooms/change_list.html:10
 #, python-format
 msgid "Join next available %(name)s"
-msgstr ""
+msgstr "Ga in volgende beschikbare %(name)s"
 
 #: templates/admin/rooms/change_list.html:15
 #, python-format
 msgid "Add %(name)s"
-msgstr ""
+msgstr "Voeg %(name)s toe"
 
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
 msgid "Join Chat"
-msgstr ""
+msgstr "Chat"
 
 #: templates/rooms/client_logged_out.html:5
 msgid "Logged out"
-msgstr ""
+msgstr "Uitgelogd"
 
 #: templates/rooms/client_logged_out.html:7
 msgid "Thank you for using our service."
-msgstr ""
+msgstr "Dank je voor het gebruiken van deze chat."
 
 #: templates/rooms/client_room_unavailable.html:5
 msgid "No room available"
-msgstr ""
+msgstr "Geen chatroom beschikbaar"
 
 #: templates/rooms/client_room_unavailable.html:7
 msgid "We're sorry, but there is no care worker available right now."
-msgstr ""
+msgstr "Helaas is er momenteel geen hulpverlener beschikbaar."
