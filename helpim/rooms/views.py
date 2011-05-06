@@ -82,6 +82,7 @@ def client_join_chat(request):
           'mode': 'light',
           'logout_redirect': '/rooms/logged_out/',
           'bot_nick': settings.BOT['muc']['nick'],
+          'static_url': settings.STATIC_URL,
       }, indent=2)
     })
 
