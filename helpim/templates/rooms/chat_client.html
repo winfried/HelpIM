@@ -1,0 +1,35 @@
+<script src="/static/jsjac.js"></script>
+<script src="/static/chat.js"></script>
+<link type="text/css" rel="stylesheet" href="/static/chat.css"/>
+
+<div id="helpimClient">
+   <div id="logoutButton"></div>
+   <div id="tabBar"></div>
+   <div class="goog-tab-bar-clear"></div>
+   <div id="tab_content" class="goog-tab-content"></div>
+</div>
+
+<div id="panelTemplate">
+  <div class="subjectPanel">Subject: <span class="roomSubject"></span></div>
+  <div class="rosterPanel"></div>
+  <div class="messagesPanel"></div>
+      <div class="emoticonsPanel">
+        <img src="/static/images/emoticons/smile.gif" alt="smiley" title=":-)"/>
+        <img src="/static/images/emoticons/wink.gif" alt="wink" title=";-)"/>
+        <img src="/static/images/emoticons/depressed.gif" alt="depressed" title=":-("/>
+        <img src="/static/images/emoticons/lick.gif" alt="lick" title=":-p"/>
+      </div>
+  <div class="sendPanel"><textarea class="sendTextarea">Click here to send a message!</textarea></div>
+</div>
+
+{% if debug %}
+<hr>
+<fieldset class="goog-debug-panel">
+  <legend>Debug Log</legend>
+  <div id="log"></div>
+</fieldset>
+{% endif %}
+
+<script>
+helpim.start({{ xmpptk_config|safe }});
+</script>
