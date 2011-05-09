@@ -1,10 +1,16 @@
 from django.conf.urls.defaults import patterns, include, url
-
-# Uncomment the next two lines to enable the admin:
+from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns('')
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        url(r'^admin/translate/', include('rosetta.urls')),
+    )
+
+urlpatterns += patterns('',
     # Examples:
     # url(r'^$', 'helpim.views.home', name='home'),
     # url(r'^helpim/', include('helpim.foo.urls')),
@@ -22,9 +28,3 @@ urlpatterns = patterns('',
     url(r'^rooms/unavailable/$', 'helpim.rooms.views.client_room_unavailable', name='client_room_unavailable'),
     url(r'^rooms/logged_out/$', 'helpim.rooms.views.client_logged_out', name='client_logged_out'),
 )
-
-from django.conf import settings
-if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        url(r'^admin/translate/', include('rosetta.urls')),
-    )
