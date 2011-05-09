@@ -245,16 +245,19 @@ class Room(models.Model):
     def getStaffJoinUrl(self):
         return reverse('staff_join_specific_chat', args=[self.pk,])
 
-    def joinLink(self):
-        if self.status == 'staffWaiting':
+    def current_status(self):
+        linktext = dict(self.STATUS_CHOICES)[self.status]
+
+        if self.status == 'available':
             return '<b style="font-size: 12px;"><a href="%(link)s">%(linktext)s</a></b>' % {
               'link': self.getStaffJoinUrl(),
-              'linktext': _('Join room'),
+              'linktext': linktext,
             }
         else:
-            return _('N/A')
+            return linktext
 
-    joinLink.allow_tags = True
+    current_status.allow_tags = True
+    current_status.short_description = _('Room status')
 
     def getStatus(self):
         return self.status

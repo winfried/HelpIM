@@ -3,9 +3,9 @@ from django.contrib import admin
 
 class One2OneRoomAdmin(admin.ModelAdmin):
     model = One2OneRoom
-    list_display_links = ('jid',)
+    list_filter = ('status', 'staff')
     list_display = (
-      'jid', 'status', 'staff', 'staff_nick', 'client', 'client_nick', 'joinLink'
+      'current_status', 'staff', 'staff_nick', 'client', 'client_nick', 'jid'
     )
 
 admin.site.register(One2OneRoom, One2OneRoomAdmin)
