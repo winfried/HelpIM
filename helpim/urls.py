@@ -22,3 +22,9 @@ urlpatterns = patterns('',
     url(r'^rooms/unavailable/$', 'helpim.rooms.views.client_room_unavailable', name='client_room_unavailable'),
     url(r'^rooms/logged_out/$', 'helpim.rooms.views.client_logged_out', name='client_logged_out'),
 )
+
+from django.conf import settings
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        url(r'^admin/translate/', include('rosetta.urls')),
+    )

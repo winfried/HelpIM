@@ -127,6 +127,7 @@ INSTALLED_APPS = (
     'helpim.rooms',
     'south',
     'threadedcomments',
+    'rosetta',
 )
 
 BOT = {
