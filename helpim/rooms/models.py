@@ -340,10 +340,11 @@ class One2OneRoom(Room):
         ('abandoned', _('Abandoned')),
         )
 
-    staff = models.ForeignKey(Participant, related_name='+', null = True, limit_choices_to={'role': 'CW'})
-    staff_nick = models.CharField(max_length=64, null = True)
-    client = models.ForeignKey(Participant, related_name='+', null = True, limit_choices_to={'role': 'CS'})
-    client_nick = models.CharField(max_length=64, null = True)
+    staff = models.ForeignKey(Participant, verbose_name=_('Staff member'), related_name='+', null = True, limit_choices_to={'role': 'CW'})
+    staff_nick = models.CharField(_('Staff nickname'), max_length=64, null = True)
+
+    client = models.ForeignKey(Participant, verbose_name=_('Client'), related_name='+', null = True, limit_choices_to={'role': 'CS'})
+    client_nick = models.CharField(_('Client nickname'), max_length=64, null = True)
 
     objects = One2OneRoomManager()
 
