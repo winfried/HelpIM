@@ -2,19 +2,19 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
-"Report-Msgid-Bugs-To: http://github.com/e-hulp/HelpIM/issues\n"
-"POT-Creation-Date: 2011-05-05 14:31+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-09 14:09+0200\n"
 "PO-Revision-Date: 2011-05-05 13:07+0000\n"
 "Last-Translator: winfried <winfried@tilanus.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nl_NL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: conversations/admin.py:28
@@ -90,57 +90,72 @@ msgstr "Bijeenkomst"
 msgid "Meetings"
 msgstr "Bijeenkomsten"
 
-#: rooms/models.py:252
-msgid "Join room"
-msgstr "Ga chatroom in"
+#: rooms/models.py:260
+msgid "Room status"
+msgstr ""
 
-#: rooms/models.py:255
-msgid "N/A"
-msgstr "N/B"
-
-#: rooms/models.py:322
+#: rooms/models.py:325
 msgid "One2One Room"
 msgstr "EenOpEen chatroom"
 
-#: rooms/models.py:328 rooms/models.py:424
+#: rooms/models.py:331 rooms/models.py:428
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: rooms/models.py:329
+#: rooms/models.py:332
 msgid "Available for Invitation"
 msgstr "Beschikbaar voor uitnodiging"
 
-#: rooms/models.py:330
+#: rooms/models.py:333
 msgid "Staff Waiting"
 msgstr "Hulpverlener wacht"
 
-#: rooms/models.py:331
+#: rooms/models.py:334
 msgid "Staff Waiting for Invitee"
 msgstr "Hulpverlener wacht op genodigde"
 
-#: rooms/models.py:332 rooms/models.py:425
+#: rooms/models.py:335 rooms/models.py:429
 msgid "Chatting"
 msgstr "Aan het chatten"
 
-#: rooms/models.py:333
+#: rooms/models.py:336
 msgid "Closing Chat"
 msgstr "Chat aan het afsluiten"
 
-#: rooms/models.py:334 rooms/models.py:426
+#: rooms/models.py:337 rooms/models.py:430
 msgid "To Destroy"
 msgstr "Te vernietigen"
 
-#: rooms/models.py:335 rooms/models.py:427
+#: rooms/models.py:338 rooms/models.py:431
 msgid "Destroyed"
 msgstr "Vernietigd"
 
-#: rooms/models.py:336
+#: rooms/models.py:339
 msgid "Lost"
 msgstr "Verloren"
 
-#: rooms/models.py:337 rooms/models.py:428
+#: rooms/models.py:340 rooms/models.py:432
 msgid "Abandoned"
 msgstr "Verlaten"
+
+#: rooms/models.py:343
+#, fuzzy
+msgid "Staff member"
+msgstr "Nicknaam"
+
+#: rooms/models.py:344
+#, fuzzy
+msgid "Staff nickname"
+msgstr "Nicknaam"
+
+#: rooms/models.py:346
+msgid "Client"
+msgstr ""
+
+#: rooms/models.py:347
+#, fuzzy
+msgid "Client nickname"
+msgstr "Nicknaam"
 
 #: templates/admin/base_site.html:4
 msgid "Django site admin"
@@ -193,3 +208,9 @@ msgstr "Geen chatroom beschikbaar"
 #: templates/rooms/client_room_unavailable.html:7
 msgid "We're sorry, but there is no care worker available right now."
 msgstr "Helaas is er momenteel geen hulpverlener beschikbaar."
+
+#~ msgid "Join room"
+#~ msgstr "Ga chatroom in"
+
+#~ msgid "N/A"
+#~ msgstr "N/B"

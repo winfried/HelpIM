@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-05 14:31+0200\n"
+"POT-Creation-Date: 2011-05-09 14:09+0200\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,57 +90,72 @@ msgstr "Treffen"
 msgid "Meetings"
 msgstr "Treffen"
 
-#: rooms/models.py:252
-msgid "Join room"
+#: rooms/models.py:260
+msgid "Room status"
 msgstr ""
 
-#: rooms/models.py:255
-msgid "N/A"
-msgstr ""
-
-#: rooms/models.py:322
+#: rooms/models.py:325
 msgid "One2One Room"
 msgstr ""
 
-#: rooms/models.py:328 rooms/models.py:424
+#: rooms/models.py:331 rooms/models.py:428
 msgid "Available"
 msgstr ""
 
-#: rooms/models.py:329
+#: rooms/models.py:332
 msgid "Available for Invitation"
 msgstr ""
 
-#: rooms/models.py:330
+#: rooms/models.py:333
 msgid "Staff Waiting"
 msgstr ""
 
-#: rooms/models.py:331
+#: rooms/models.py:334
 msgid "Staff Waiting for Invitee"
 msgstr ""
 
-#: rooms/models.py:332 rooms/models.py:425
+#: rooms/models.py:335 rooms/models.py:429
 msgid "Chatting"
 msgstr ""
 
-#: rooms/models.py:333
+#: rooms/models.py:336
 msgid "Closing Chat"
 msgstr ""
 
-#: rooms/models.py:334 rooms/models.py:426
+#: rooms/models.py:337 rooms/models.py:430
 msgid "To Destroy"
 msgstr ""
 
-#: rooms/models.py:335 rooms/models.py:427
+#: rooms/models.py:338 rooms/models.py:431
 msgid "Destroyed"
 msgstr ""
 
-#: rooms/models.py:336
+#: rooms/models.py:339
 msgid "Lost"
 msgstr ""
 
-#: rooms/models.py:337 rooms/models.py:428
+#: rooms/models.py:340 rooms/models.py:432
 msgid "Abandoned"
 msgstr ""
+
+#: rooms/models.py:343
+#, fuzzy
+msgid "Staff member"
+msgstr "Spitzname"
+
+#: rooms/models.py:344
+#, fuzzy
+msgid "Staff nickname"
+msgstr "Spitzname"
+
+#: rooms/models.py:346
+msgid "Client"
+msgstr ""
+
+#: rooms/models.py:347
+#, fuzzy
+msgid "Client nickname"
+msgstr "Spitzname"
 
 #: templates/admin/base_site.html:4
 msgid "Django site admin"
