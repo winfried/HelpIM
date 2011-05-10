@@ -198,24 +198,18 @@ class One2OneRoomHandler(RoomHandlerBase):
                 try:
                     services.logCareSeekerChatMessage(conv_id=room.chat_id,
                                              messageText=stanza.get_body(),
-                                             nickName=user.nick,
-                                             databaseSession=self.site.session)
+                                             nickName=user.nick)
                 except AttributeError:
                     log.error("Could not store message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
-                else:
-                    self.site.session.flush()
 
             elif user.nick == room.staff_nick:
                 try:
                     services.logCareWorkerChatMessage(conv_id=room.chat_id,
                                              messageText=stanza.get_body(),
                                              user_id=room.staff_id,
-                                             nickName=room.staff_nick,
-                                             databaseSession=self.site.session)
+                                             nickName=room.staff_nick)
                 except AttributeError:
                     log.error("Could not store message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
-                else:
-                    self.site.session.flush()
         #DBG log.debug("MUC-Room callback: message_received(). User = '%s'" % (user))
         #DBG log.stanza(stanza)
         #DBG log.user(user)
@@ -261,9 +255,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         elif status == 'chatting':
             services.logChatEvent(conv_id=room.chat_id,
                          eventName="rejoin",
-                         eventData="%s rejoind the chat" % user.nick,
-                         databaseSession=self.site.session)
-            self.site.session.flush()
+                         eventData="%s rejoind the chat" % user.nick)
             if self.rejoinCount is not None:
                 self.rejoinCount += 1
                 if self.rejoinCount == 2:
@@ -317,17 +309,13 @@ class One2OneRoomHandler(RoomHandlerBase):
                 log.info("A user left room '%s' (clean exit)." % self.room_state.room_jid.as_unicode())
                 services.logChatEvent(conv_id=room.chat_id,
                              eventName="ended",
-                             eventData="%s ended the chat" % user.nick,
-                             databaseSession=self.site.session)
-                self.site.session.flush()
+                             eventData="%s ended the chat" % user.nick)
             else:
                 room.userLeftDirty()
                 log.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
                 services.logChatEvent(conv_id=room.chat_id,
                              eventName="left",
-                             eventData="%s left the chat" % user.nick,
-                             databaseSession=self.site.session)
-                self.site.session.flush()
+                             eventData="%s left the chat" % user.nick)
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
