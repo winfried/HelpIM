@@ -200,7 +200,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         if room.getStatus() != 'chatting':
             return True
 
-        chatmessage = new ChatMessage(conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
+        chatmessage = ChatMessage(event='message', conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
 
         if user.nick == room.client_nick:
             chatmessage.sender = room.staff
@@ -247,9 +247,15 @@ class One2OneRoomHandler(RoomHandlerBase):
                 self.rejoinCount = None
                 log.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'chatting':
-            services.logChatEvent(conv_id=room.chat_id,
-                         eventName="rejoin",
-                         eventData="%s rejoind the chat" % user.nick)
+
+            chatmessage = ChatMessage(event='rejoin', conversation=room.conversation, sender_name=user.nick)
+            if user.nick == room.client_nick:
+                chatmessage.sender = room.staff
+            elif user.nick == room.staff_nick:
+                chatmessage.sender = room.client
+
+            chatmessage.save()
+
             if self.rejoinCount is not None:
                 self.rejoinCount += 1
                 if self.rejoinCount == 2:
@@ -301,15 +307,12 @@ class One2OneRoomHandler(RoomHandlerBase):
             if cleanexit:
                 room.userLeftClean()
                 log.info("A user left room '%s' (clean exit)." % self.room_state.room_jid.as_unicode())
-                services.logChatEvent(conv_id=room.chat_id,
-                             eventName="ended",
-                             eventData="%s ended the chat" % user.nick)
+                chatmessage = ChatMessage(event='ended', conversation=room.conversation, sender_name=user.nick)
             else:
                 room.userLeftDirty()
+                chatmessage = ChatMessage(event='left', conversation=room.conversation, sender_name=user.nick)
                 log.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
-                services.logChatEvent(conv_id=room.chat_id,
-                             eventName="left",
-                             eventData="%s left the chat" % user.nick)
+
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
@@ -356,19 +359,17 @@ class GroupRoomHandler(RoomHandlerBase):
         return True
 
     def message_received(self, user, stanza):
-        #try:
-        if True:
-            room = self.get_helpim_room()
-            if room is None or user is None or stanza.get_body() is None:
-                return True
-            if room.getStatus() == 'chatting':
-                groupServices.logChatgroupMessage(self.site, room.chat_id, user.nick, stanza.get_body())
-        #except:
-        #   log.error("Could not store groupchat message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
+        room = self.get_helpim_room()
+
+        if room is None or user is None or stanza.get_body() is None:
+            return True
+
+        if room.getStatus() == 'chatting':
+            chatmessage = ChatMessage(event='message', conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
+            chatmessage.save()
+
         log.debug("MUC-Room for groupchat callback: message_received(). User = '%s'" % (user))
-        # DBG log.debug(stanza.serialize())
-        # DBG log.stanza(stanza)
-        # DBG log.user(user)
+
         return True
 
     def get_helpim_room(self):
@@ -400,8 +401,9 @@ class GroupRoomHandler(RoomHandlerBase):
             log.warning("User '%s' joined room '%s' while not expected (roomstatus == %s)." % (user.nick, room.jid, status))
             return False
 
-        groupMember = groupServices.getChatgroupMemberByMeetingIdAndNickname(self.site, room.chat_id, user.nick)
-        if groupMember.is_admin:
+        groupMember = Participant.objects.get(room=room, name=user.nick)
+
+        if groupMember.role == Participant.ROLE_STAFF:
             if not self.room_state.configured:
                 log.warning("Should make participant moderator, but room is not configured. (Room: '%s')" % room.jid)
             if not self.room_state.me.affiliation=="admin" and not  self.room_state.me.affiliation=="owner":
@@ -419,11 +421,6 @@ class GroupRoomHandler(RoomHandlerBase):
             return False
         roomname = self.room_state.room_jid.as_unicode()
         room = self.get_helpim_room()
-
-        groupServices.setChatgroupMeetingParticipantLeft(
-            self.site,
-            room.chat_id,
-            user.nick)
 
         if self.userkicked == user.nick or self.closingDown:
             self.userkicked = ''
@@ -444,14 +441,7 @@ class GroupRoomHandler(RoomHandlerBase):
                     to delete his access token and change the password for
                     this room
                     """
-                    log.debug("############")
-                    groupServices.setChatgroupMemberTokenInvalid(
-                        self.site,
-                        room.chat_id,
-                        user.nick)
-                    """ disabled resetting password as this would need to be done on xmpp level too and that's just too much work for now """
-                    # password = unicode(newHash())
-                    # room.setPassword(password)
+                    # FIXME implement
                     break
                 curAttr = curAttr.next
 
