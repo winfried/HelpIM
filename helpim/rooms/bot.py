@@ -16,6 +16,8 @@ from pyxmpp.presence import Presence
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler, MucRoomUser
 from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
+from helpim.conversations.models import Chat, Participant, ChatMessage
+
 from helpim.rooms.models import getSites
 
 class RoomHandlerBase(MucRoomHandler):
@@ -191,29 +193,21 @@ class One2OneRoomHandler(RoomHandlerBase):
 
     def message_received(self, user, stanza):
         room = self.get_helpim_room()
+
         if room is None or user is None or stanza.get_body() is None or stanza.get_body()[0:16] == "[#startuplines#]":
             return True
-        if room.getStatus() == 'chatting':
-            if user.nick == room.client_nick:
-                try:
-                    services.logCareSeekerChatMessage(conv_id=room.chat_id,
-                                             messageText=stanza.get_body(),
-                                             nickName=user.nick)
-                except AttributeError:
-                    log.error("Could not store message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
 
-            elif user.nick == room.staff_nick:
-                try:
-                    services.logCareWorkerChatMessage(conv_id=room.chat_id,
-                                             messageText=stanza.get_body(),
-                                             user_id=room.staff_id,
-                                             nickName=room.staff_nick)
-                except AttributeError:
-                    log.error("Could not store message in database, chat id: %s, from: %s" % (str(room.chat_id), user.nick))
-        #DBG log.debug("MUC-Room callback: message_received(). User = '%s'" % (user))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
-        return True
+        if room.getStatus() != 'chatting':
+            return True
+
+        chatmessage = new ChatMessage(conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
+
+        if user.nick == room.client_nick:
+            chatmessage.sender = room.staff
+        elif user.nick == room.staff_nick:
+            chatmessage.sender = room.client
+
+        chatmessage.save()
 
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
