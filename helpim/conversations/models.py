@@ -51,4 +51,12 @@ class Chat(Conversation):
     room = models.IntegerField()
 
 class ChatMessage(Message):
-    pass
+    EVENT_CHOICES = (
+        ('message', _('Chat message')),
+        ('join', _('Chat joining')),
+        ('rejoin', _('Chat rejoining')),
+        ('left', _('Chat exit')),
+        ('ended', _('Chat end')),
+    )
+    event = models.CharField(max_length=10, choices=EVENT_CHOICES, default='message')
+
