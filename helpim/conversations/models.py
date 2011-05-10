@@ -19,15 +19,17 @@ class Conversation(models.Model):
         verbose_name_plural = _("Conversations")
 
 class Participant(models.Model):
-    ROLE_CHOICES = (
-        ('CS', _('Care seeker')),
-        ('CW', _('Care worker')),
-    )
+
+    ROLE_CLIENT = 'C'
+    ROLE_STAFF = 'S'
 
     conversation = models.ForeignKey(Conversation)
     name = models.CharField(max_length=64)
 
-    role = models.CharField(max_length=2, choices=ROLE_CHOICES, null=True)
+    role = models.CharField(max_length=2, choices=(
+      (ROLE_CLIENT, _('Client')),
+      (ROLE_STAFF, _('Staff')),
+    ), null=True)
 
     def __unicode__(self):
         return self.name
