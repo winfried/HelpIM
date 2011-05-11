@@ -212,9 +212,12 @@ class One2OneRoomHandler(RoomHandlerBase):
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
+
         room = self.get_helpim_room()
+
         if room is None:
             return
+
         status = room.getStatus()
         log.debug("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
         if status == 'available':
@@ -411,14 +414,12 @@ class GroupRoomHandler(RoomHandlerBase):
             log.info("Making user moderator: Nick = '%s'" % user.nick)
             self.makeModerator(self.room_state.room_jid.bare(), user.nick)
 
-        #DBG log.debug("MUC-Room callback: user_joined(). User = '%s'" % (user))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
         return False
 
     def user_left(self, user, stanza):
         if user.nick == self.nick:
             return False
+
         roomname = self.room_state.room_jid.as_unicode()
         room = self.get_helpim_room()
 
@@ -964,10 +965,12 @@ class Bot(JabberClient):
             for name in self.sites.iterkeys():
                 self.closeRooms(roomstatus, name)
             return
+
         if isinstance(site, str):
             sitename = site
         else:
             sitename = site.name
+
         site = self.sites[sitename]
 
         if roomstatus is None:
