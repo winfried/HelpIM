@@ -361,10 +361,23 @@ class One2OneRoom(Room):
         self.client_nick = nick
         self.save()
 
-    def staffJoined(self):
+    def staffJoined(self, nick):
         """To be called after the staffmember has joined
         the room at the jabber-server.
         """
+
+        if not self.chat:
+            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat.room = -1 # WTF ?
+            chat.save()
+            self.chat = chat
+
+        if not self.staff:
+            staff = Participant(
+                conversation=self.chat, name=nick, role=Participant.ROLE_STAFF)
+            staff.save()
+            self.staff = staff
+
         if self.getStatus() == "available":
             self.setStatus("staffWaiting")
         elif self.getStatus() == "availableForInvitation":
@@ -372,10 +385,23 @@ class One2OneRoom(Room):
         else:
             raise StatusError("staff joining room while not room status is not 'available' or 'availableForInvitation'")
 
-    def clientJoined(self):
+    def clientJoined(self, nick):
         """To be called after a client has joined
            the room at the jabber-server.
            """
+
+        if not self.chat:
+            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat.room = -1 # WTF ?
+            chat.save()
+            self.chat = chat
+
+        if not self.client:
+            client = Participant(
+                    conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
+            client.save()
+            self.client = client
+
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
         else:

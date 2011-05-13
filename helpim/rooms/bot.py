@@ -200,7 +200,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         if room.getStatus() != 'chatting':
             return True
 
-        chatmessage = ChatMessage(event='message', conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
+        chatmessage = ChatMessage(event='message', conversation=room.chat, body=stanza.get_body(), sender_name=user.nick)
 
         if user.nick == room.client_nick:
             chatmessage.sender = room.staff
@@ -221,20 +221,20 @@ class One2OneRoomHandler(RoomHandlerBase):
         status = room.getStatus()
         log.debug("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
         if status == 'available':
-            room.staffJoined()
+            room.staffJoined(user.nick)
             room.setStaffNick(user.nick)
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
         elif status == 'availableForInvitation':
-            room.staffJoined()
+            room.staffJoined(user.nick)
             room.setStaffNick(user.nick)
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
-                room.clientJoined()
+                room.clientJoined(user.nick)
                 room.setClientNick(user.nick)
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
@@ -242,7 +242,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 log.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'staffWaitingForInvitee':
             if self.rejoinCount is None:
-                room.clientJoined()
+                room.clientJoined(user.nick)
                 room.setClientNick(user.nick)
                 log.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             else:
@@ -251,7 +251,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 log.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'chatting':
 
-            chatmessage = ChatMessage(event='rejoin', conversation=room.conversation, sender_name=user.nick)
+            chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick)
             if user.nick == room.client_nick:
                 chatmessage.sender = room.staff
             elif user.nick == room.staff_nick:
@@ -310,12 +310,13 @@ class One2OneRoomHandler(RoomHandlerBase):
             if cleanexit:
                 room.userLeftClean()
                 log.info("A user left room '%s' (clean exit)." % self.room_state.room_jid.as_unicode())
-                chatmessage = ChatMessage(event='ended', conversation=room.conversation, sender_name=user.nick)
+                chatmessage = ChatMessage(event='ended', conversation=room.chat, sender_name=user.nick)
             else:
                 room.userLeftDirty()
-                chatmessage = ChatMessage(event='left', conversation=room.conversation, sender_name=user.nick)
+                chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
                 log.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
 
+            chatmessage.save()
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
@@ -368,7 +369,7 @@ class GroupRoomHandler(RoomHandlerBase):
             return True
 
         if room.getStatus() == 'chatting':
-            chatmessage = ChatMessage(event='message', conversation=room.conversation, body=stanza.get_body(), sender_name=user.nick)
+            chatmessage = ChatMessage(event='message', conversation=room.chat, body=stanza.get_body(), sender_name=user.nick)
             chatmessage.save()
 
         log.debug("MUC-Room for groupchat callback: message_received(). User = '%s'" % (user))
