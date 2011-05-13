@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from threadedcomments.models import ThreadedComment
 
+from datetime import datetime
+
 class Conversation(models.Model):
     start_time = models.DateTimeField()
     subject = models.CharField(max_length=64, blank=True)
@@ -46,6 +48,12 @@ class Message(models.Model):
     body = models.TextField()
 
     comments = models.ManyToManyField(ThreadedComment)
+
+    def save(self, *args, **kwargs):
+        if not self.created_at:
+            self.created_at = datetime.now()
+        super(Message, self).save(*args, **kwargs)
+
 
 class Chat(Conversation):
     room = models.IntegerField()
