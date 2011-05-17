@@ -30,14 +30,6 @@
         }
     },
     {
-        "pk": 1,
-        "model": "auth.group",
-        "fields": {
-            "name": "volunteers",
-            "permissions": []
-        }
-    },
-    {
         "pk": 2,
         "model": "auth.group",
         "fields": {
@@ -402,6 +394,40 @@
                     "delete_threadedcomment",
                     "threadedcomments",
                     "threadedcomment"
+                ]
+            ]
+        }
+    },
+    {
+        "pk": 1,
+        "model": "auth.group",
+        "fields": {
+            "name": "volunteers",
+            "permissions": [
+                [
+                    "change_chat",
+                    "conversations",
+                    "chat"
+                ],
+                [
+                    "change_chatmessage",
+                    "conversations",
+                    "chatmessage"
+                ],
+                [
+                    "change_conversation",
+                    "conversations",
+                    "conversation"
+                ],
+                [
+                    "change_message",
+                    "conversations",
+                    "message"
+                ],
+                [
+                    "change_participant",
+                    "conversations",
+                    "participant"
                 ]
             ]
         }
