@@ -19,6 +19,12 @@
   margin-top: 2em;
 }
 
+.joinlink {
+  background: url({% admin_media_prefix %}img/admin/selector-add.gif) 0 0 no-repeat;
+  padding-left: 20px;
+  line-height: 16px;
+}
+
 </style>
 
 {% if app_list %}
@@ -32,6 +38,14 @@
                 <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
             {% else %}
                 <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.name == "Gesprekkken" %}
+            <td>
+              <a href="{% url staff_join_next_available_chat %}" class="joinlink">
+                {% blocktrans %}Next available One2One chatroom{% endblocktrans %}
+              </a>
+            </td>
             {% endif %}
 
             {% if model.perms.add %}
