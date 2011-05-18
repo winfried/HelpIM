@@ -33,23 +33,22 @@ def staff_join_chat(request, room_pk=None):
     return render_to_response(
       'rooms/staff_join_chat.html', {
       'debug': settings.DEBUG,
-      'xmpptk_config': dumps({
-          'httpbase': "/http-bind/",
-          'authtype': "saslanon",
-          'domain': settings.BOT['connection']['domain'],
-          'muc_service': room.getRoomService(),
-          'muc_room': room.getRoomId(),
-          'muc_password': room.password,
-          'muc_nick': request.user.username,
-          'mode': 'light',
-          'logout_redirect': request.META.get('HTTP_REFERER'),
-          'bot_nick': settings.BOT['muc']['nick'],
-          'static_url': settings.STATIC_URL,
-      }, indent=2)
+      'xmpptk_config': dumps(dict({
+                'muc_service': room.getRoomService(),
+                'muc_room': room.getRoomId(),
+                'muc_password': room.password,
+                'muc_nick': request.user.username,
+                'logout_redirect': request.META.get('HTTP_REFERER'),
+                'bot_nick': settings.BOT['muc']['nick'],
+                'static_url': settings.STATIC_URL,
+                'is_one2one': True,
+                'is_staff': True,
+      }.items() + settings.CHAT.items()), indent=2)
     })
 
 class GetClientNickForm(Form):
     nick = CharField(max_length=40)
+    subject = CharField(max_length=64)
 
 @transaction.commit_on_success
 def client_join_chat(request):
@@ -71,19 +70,18 @@ def client_join_chat(request):
     return render_to_response(
       'rooms/client_join_chat.html', {
       'debug': settings.DEBUG,
-      'xmpptk_config': dumps({
-          'httpbase': "/http-bind/",
-          'authtype': "saslanon",
-          'domain': settings.BOT['connection']['domain'],
-          'muc_service': room.getRoomService(),
-          'muc_room': room.getRoomId(),
-          'muc_password': room.password,
-          'muc_nick': form.cleaned_data['nick'],
-          'mode': 'light',
-          'logout_redirect': '/rooms/logged_out/',
-          'bot_nick': settings.BOT['muc']['nick'],
-          'static_url': settings.STATIC_URL,
-      }, indent=2)
+      'xmpptk_config': dumps(dict({
+                'muc_service': room.getRoomService(),
+                'muc_room': room.getRoomId(),
+                'muc_password': room.password,
+                'muc_nick': form.cleaned_data['nick'],
+                'muc_subject': form.cleaned_data['subject'],
+                'logout_redirect': '/rooms/logged_out/',
+                'bot_nick': settings.BOT['muc']['nick'],
+                'static_url': settings.STATIC_URL,
+                'is_one2one': True,
+                'is_staff': False,
+      }.items() + settings.CHAT.items()), indent=2)
     })
 
 def client_logged_out(request):
