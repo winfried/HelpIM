@@ -1,5 +1,13 @@
 <script src="/static/jsjac.js"></script>
+{% if debug %}
+<script src="/static/closure/goog/base.js"></script>
+<script src="/static/deps.js"></script>
+<script>
+  goog.require('helpim');
+</script>
+{% else %}
 <script src="/static/chat.js"></script>
+{% endif %}
 <link type="text/css" rel="stylesheet" href="/static/chat.css"/>
 
 <div id="helpimClient">
@@ -28,7 +36,6 @@
 {% endif %}
 
 <iframe src="/static/empty.html" id="soundIFrame" name="soundIFrame" style="border:0;width:0;height:0;"></iframe>
-
 <script>
-helpim.start({{ xmpptk_config|safe }});
+  helpim.start({{ xmpptk_config|safe }});
 </script>
