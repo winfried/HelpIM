@@ -22,7 +22,7 @@ higher.
 
 On a Debian system the needed python and mysql packages are:
 
-    git-core python python-dev mysql-server mysql-client libmysqlclient-dev libxml2-dev
+    git-core python python-dev mysql-server mysql-client libmysqlclient-dev libxml2-dev openjdk-6-jre-headless
 
 Installation:
 -------------
