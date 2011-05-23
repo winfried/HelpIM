@@ -21,11 +21,8 @@ not tested with HelpIM. Tigase needs needs a JDK (not JRE!) of version 1.6 or
 higher.
 
 On a Debian system the needed python and mysql packages are:
-* python
-* mysql-server
-* mysql-client
-* libmysqlclient-dev
 
+    git-core python python-dev mysql-server mysql-client libmysqlclient-dev libxml2-dev
 
 Installation:
 -------------
