@@ -56,9 +56,7 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
-    room = models.IntegerField()
-    # FIXME: What is the reason behind this field ?
-    # The supermodel Message already has a conversation relation.
+    pass
 
 class ChatMessage(Message):
     EVENT_CHOICES = (
