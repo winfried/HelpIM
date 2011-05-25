@@ -338,10 +338,18 @@ class One2OneRoomHandler(RoomHandlerBase):
         elif roomstatus == 'closingChat':
             if cleanexit:
                 room.userLeftClean()
+                chatmessage = ChatMessage(event='ended', conversation=room.chat, sender_name=user.nick)
                 log.info("A user left room '%s' while the other user already left clean before (clean exit)." % self.room_state.room_jid.as_unicode())
             else:
                 room.userLeftDirty()
+                chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
                 log.info("A user left room '%s' while the other user already left clean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
+            if user.nick == room.client_nick:
+                chatmessage.sender = room.staff
+            elif user.nick == room.staff_nick:
+                chatmessage.sender = room.client
+
+            chatmessage.save()
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'lost':
             if cleanexit:
