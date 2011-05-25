@@ -24,6 +24,11 @@
   <ul>
     <li><a href="/admin/conversations/conversation/">{% trans "Conversations" %}</a></li>
     <li><a href="/admin/rooms/join/one2oneroom/">{% trans "Next available One2One chatroom" %}</a></li>
+    {% load flatpages %}
+    {% get_flatpages '/admin/' for user as admin_flat_pages %}
+    {% for page in admin_flat_pages  %}
+        <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+    {% endfor %}
   </ul>
 </div>
 {% endblock %}

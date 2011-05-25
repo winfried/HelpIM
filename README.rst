@@ -100,3 +100,23 @@ by other developers.
 .. note:: When adding models, it might be necessary to update dump_setup_data.sh
 .. note:: There is deliberately chosen to not use 'initial_data.json', to avoid
           overwriting data when running syncdb.
+
+
+Adding content with flatpages
++++++++++++++++++++++++++++++
+
+Static content in HelpIM installations can be added through Django the
+flatpages application. Admins should see the administration panel in the admin
+interface.
+
+Adding content to public-facing web pages comes with very few restrictions:
+When creating the flatpage choose a non-colliding URL, and make sure not to
+check the "[ ] Registration required" box.
+
+When adding content that is only available to staff members (such as news,
+manuals, guidelines, etc.) you need to prefix the URL with "/admin/" and check
+the "[x] Registration required" box, so it is not publicly visible.
+
+For both types of contents, make sure the url contains leading and trailing
+slashes. All content will automatically be linked to from the particular
+navigation bar.
