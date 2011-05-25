@@ -175,8 +175,12 @@ class RoomHandlerBase(MucRoomHandler):
         log.debug("MUC-Room callback: subject_changed(%s, %s)" % (user, stanza))
         #DBG log.stanza(stanza)
         #DBG log.user(user)
+        room = self.get_helpim_room()
+        if not room is None:
+            chat = room.chat
+            chat.subject = stanza.get_subject()
+            chat.save()
         return True
-
 
 class One2OneRoomHandler(RoomHandlerBase):
 
