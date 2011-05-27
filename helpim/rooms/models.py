@@ -368,7 +368,6 @@ class One2OneRoom(Room):
 
         if not self.chat:
             chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
-            chat.room = -1 # WTF ?
             chat.save()
             self.chat = chat
 
@@ -392,7 +391,6 @@ class One2OneRoom(Room):
 
         if not self.chat:
             chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
-            chat.room = -1 # WTF ?
             chat.save()
             self.chat = chat
 
