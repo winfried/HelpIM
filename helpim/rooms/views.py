@@ -9,7 +9,6 @@ from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
-@transaction.commit_on_success
 @login_required
 def staff_join_chat(request, room_pk=None):
     if room_pk:
@@ -50,7 +49,6 @@ class GetClientNickForm(Form):
     nick = CharField(max_length=40)
     subject = CharField(max_length=64)
 
-@transaction.commit_on_success
 def client_join_chat(request):
     try:
       room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
