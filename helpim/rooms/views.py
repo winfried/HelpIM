@@ -63,20 +63,35 @@ class GetClientNickForm(Form):
 
 @transaction.commit_on_success
 def client_join_chat(request):
-    try:
-      room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
-    except IndexError:
-      return redirect('/rooms/unavailable/')
+    room = None
+    if request.COOKIES.has_key('room_id'):
+        room_id = request.COOKIES.get('room_id')
+        nick = request.COOKIES.get('room_nick')
+        subject = request.COOKIES.get('room_subject')
+        try: 
+            room = One2OneRoom.objects.get(jid=room_id)
+            if room.status != 'abandoned' and room.status != 'lost':
+                room = None
+        except One2OneRoom.DoesNotExist:
+            pass
 
-    if request.method != 'POST':
-        form = GetClientNickForm()
-    else:
-        form = GetClientNickForm(request.POST)
+    if room is None: 
+        try:
+            room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
+        except IndexError:
+            return redirect('/rooms/unavailable/')
 
-    if not form.is_valid():
-        c = { 'form': form }
-        c.update(csrf(request))
-        return render_to_response('rooms/client_get_info.html', c)
+        if request.method != 'POST':
+            form = GetClientNickForm()
+        else:
+            form = GetClientNickForm(request.POST)
+
+        if not form.is_valid():
+            c = { 'form': form }
+            c.update(csrf(request))
+            return render_to_response('rooms/client_get_info.html', c)
+        nick = form.cleaned_data['nick']
+        subject = form.cleaned_data['subject']
 
     return render_to_response(
       'rooms/client_join_chat.html', {
@@ -85,8 +100,8 @@ def client_join_chat(request):
                 'muc_service': room.getRoomService(),
                 'muc_room': room.getRoomId(),
                 'muc_password': room.password,
-                'muc_nick': form.cleaned_data['nick'],
-                'muc_subject': form.cleaned_data['subject'],
+                'muc_nick': nick,
+                'muc_subject': subject,
                 'logout_redirect': '/rooms/logged_out/',
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
