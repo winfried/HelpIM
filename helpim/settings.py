@@ -135,6 +135,7 @@ CHAT = {
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
+    'composing_timeout': 10,
     }
 
 BOT = {
