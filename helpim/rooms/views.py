@@ -9,25 +9,37 @@ from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
+@transaction.commit_on_success
 @login_required
 def staff_join_chat(request, room_pk=None):
-    if room_pk:
-      try:
-        room = One2OneRoom.objects.get(pk=room_pk, status__exact='available')
-      except One2OneRoom.DoesNotExist:
-        # Room is not available to join anymore, choose a new one
-        return redirect('/admin/rooms/one2oneroom/')
+    room = None
+    if request.COOKIES.has_key('room_id'):
+        room_id = request.COOKIES.get('room_id')
+        try: 
+            room = One2OneRoom.objects.get(jid=room_id)
+            if room.status != 'abandoned' and room.status != 'lost':
+                room = None
+        except One2OneRoom.DoesNotExist:
+            pass
 
-    else:
-      try:
-        room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
-      except IndexError:
-        # bot should always keep a few rooms available
-        # XXX raise ? This is a error 500 IMHO
-        # [zeank] actually this SHOULD only happen if the bot is down
-        return redirect('/admin/rooms/one2oneroom/')
+    if room is None: 
+        if room_pk:
+            try:
+                room = One2OneRoom.objects.get(pk=room_pk, status__exact='available')
+            except One2OneRoom.DoesNotExist:
+                # Room is not available to join anymore, choose a new one
+                return redirect('/admin/rooms/one2oneroom/')
 
-    assert room.status == 'available'
+        else:
+            try:
+                room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+            except IndexError:
+                # bot should always keep a few rooms available
+                # XXX raise ? This is a error 500 IMHO
+                # [zeank] actually this SHOULD only happen if the bot is down
+                return redirect('/admin/rooms/one2oneroom/')
+
+        assert room.status == 'available'
 
     return render_to_response(
       'rooms/staff_join_chat.html', {
@@ -49,6 +61,7 @@ class GetClientNickForm(Form):
     nick = CharField(max_length=40)
     subject = CharField(max_length=64)
 
+@transaction.commit_on_success
 def client_join_chat(request):
     try:
       room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
