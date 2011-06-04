@@ -67,4 +67,3 @@ class ChatMessage(Message):
         ('ended', _('Chat end')),
     )
     event = models.CharField(max_length=10, choices=EVENT_CHOICES, default='message')
-

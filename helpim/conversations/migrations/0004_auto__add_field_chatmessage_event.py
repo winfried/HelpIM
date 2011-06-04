@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'ChatMessage.event'
         db.add_column('conversations_chatmessage', 'event', self.gf('django.db.models.fields.CharField')(default='message', max_length=10), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'ChatMessage.event'
         db.delete_column('conversations_chatmessage', 'event')
 

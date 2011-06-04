@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Deleting field 'Chat.room'
         db.delete_column('conversations_chat', 'room')
 
 
     def backwards(self, orm):
-        
+
         # Adding field 'Chat.room'
         db.add_column('conversations_chat', 'room', self.gf('django.db.models.fields.IntegerField')(default=-1), keep_default=False)
 

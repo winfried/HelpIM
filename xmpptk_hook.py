@@ -15,4 +15,3 @@ def preconfigure(options, buildout, environment):
         log.error(stderrdata)
 
     log.info(stdoutdata)
-

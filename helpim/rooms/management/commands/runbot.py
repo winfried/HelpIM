@@ -88,4 +88,3 @@ class BotConfig:
 
     def __setitem__(self, k, v):
         return setattr(self, k, v)
-

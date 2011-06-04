@@ -15,14 +15,14 @@ def staff_join_chat(request, room_pk=None):
     room = None
     if request.COOKIES.has_key('room_id'):
         room_id = request.COOKIES.get('room_id')
-        try: 
+        try:
             room = One2OneRoom.objects.get(jid=room_id)
             if room.status != 'abandoned' and room.status != 'lost':
                 room = None
         except One2OneRoom.DoesNotExist:
             pass
 
-    if room is None: 
+    if room is None:
         if room_pk:
             try:
                 room = One2OneRoom.objects.get(pk=room_pk, status__exact='available')
@@ -68,14 +68,14 @@ def client_join_chat(request):
         room_id = request.COOKIES.get('room_id')
         nick = request.COOKIES.get('room_nick')
         subject = request.COOKIES.get('room_subject')
-        try: 
+        try:
             room = One2OneRoom.objects.get(jid=room_id)
             if room.status != 'abandoned' and room.status != 'lost':
                 room = None
         except One2OneRoom.DoesNotExist:
             pass
 
-    if room is None: 
+    if room is None:
         try:
             room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
         except IndexError:
@@ -115,4 +115,3 @@ def client_logged_out(request):
 
 def client_room_unavailable(request):
     return render_to_response('rooms/client_room_unavailable.html', {});
-
