@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+from setuptools import setup, find_packages
+from os.path import join, dirname
+
+import sys
+sys.path.append(join(dirname(__file__), 'helpim'))
+
+long_description=(
+    open(join(dirname(__file__),
+         'README.rst',
+         )).read())
+
+name='HelpIM'
+
+install_requires=[
+   'setuptools',
+   'distribute==0.6.16',
+   'setuptools==0.6c11',
+   'django>=1.3',
+   'mysql-python==1.2.3',
+   'south==0.7.3',
+   'django-threadedcomments==0.5.3',
+   'django-rosetta==0.6.0',
+   'pyxmpp==1.1.1',
+   'libxml2-python==2.6.21',
+]
+
+from version import get_git_version
+
+setup(
+    name=name,
+    version=get_git_version().lstrip('v'),
+    url='http://www.python.org/pypi/'+name,
+    license='AGPL',
+    description='A chat-system for online psycho-social counselling',
+    long_description=long_description,
+    author='e-hulp.nl HelpIM Team',
+    author_email='helpdesk@e-hulp.nl',
+    packages=find_packages('helpim'),
+    package_dir={'': 'helpim'},
+    namespace_packages=[],
+    include_package_data = True,
+    install_requires=install_requires,
+    zip_safe = False,
+    classifiers = [
+      "Programming Language :: Python",
+      "Development Status :: 4 - Beta",
+      "Environment :: Other Environment",
+    ],
+    extras_require = dict(
+        test=[],
+        ),
+    entry_points = dict(
+        console_scripts=[],
+        ),
+    )
+

@@ -1,0 +1,4 @@
+include helpim/RELEASE-VERSION
+include README.rst
+include version.py
+
