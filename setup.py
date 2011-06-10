@@ -37,7 +37,7 @@ setup(
     long_description=long_description,
     author='e-hulp.nl HelpIM Team',
     author_email='helpdesk@e-hulp.nl',
-    packages=find_packages('helpim'),
+    packages=find_packages('helpim') + [''],
     package_dir={'': 'helpim'},
     namespace_packages=[],
     include_package_data = True,
