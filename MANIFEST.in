@@ -2,3 +2,12 @@ include helpim/RELEASE-VERSION
 include README.rst
 include version.py
 
+include parts/xmpptk/htdocs/helpim.css
+include parts/xmpptk/htdocs/helpim.js
+include parts/xmpptk/htdocs/empty.html
+include parts/xmpptk/htdocs/images/*
+include parts/xmpptk/htdocs/jsjac.js
+include parts/xmpptk/htdocs/sounds/*
+include helpim/static/style.css
+include helpim/static/helpim.css
+include helpim/static/comment_stroke_12x11.png
