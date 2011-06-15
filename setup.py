@@ -11,7 +11,7 @@ long_description=(
          'README.rst',
          )).read())
 
-name='HelpIM'
+name='helpim'
 
 install_requires=[
    'setuptools',
