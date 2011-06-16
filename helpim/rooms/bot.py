@@ -18,7 +18,9 @@ from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom
+
+NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
 class RoomHandlerBase(MucRoomHandler):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -642,6 +644,7 @@ class Bot(JabberClient):
         self.todo.append((self.__rejoinRooms,))   # check DB for active room and rejoin/fix them.
         self.stream.set_message_handler("normal", self.handle_message)
         self.stream.set_presence_handler("subscribe", self.handle_presence_control)
+        self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_rooms)
 
     def getMucSettings(self, site):
         '''Return dict with global MUC-settings merged with site-specific MUC-settings'''
@@ -1065,6 +1068,26 @@ class Bot(JabberClient):
 
         #self.todo.append((self.closeRooms, None, 'Sensoor'))
         return True
+
+    def handle_iq_get_rooms(self, iq):
+        log.stanza(iq)
+        token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})
+        if token_n:
+            token = token_n[0].getContent()
+            try:
+                test = AccessToken.objects.get(token=token)
+                resIq = iq.make_result_response()
+                room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+                query = resIq.new_query(NS_HELPIM_ROOMS)
+                query.newChild(None, 'room', room.getRoomId())
+                query.newChild(None, 'service', room.getRoomService())
+                query.newChild(None, 'password', room.password)
+            except AccessToken.DoesNotExist:
+                resIq = iq.make_error_response()
+            except IndexError:
+                resIq = iq.make_error_response()
+
+        self.stream.send(resIq)
 
     def printrooms(self):    #DBG:
         print "Rooms:"
