@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from helpim.rooms.models import One2OneRoom
+from helpim.rooms.models import One2OneRoom, AccessToken
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.simplejson import dumps
 from django.db import transaction
@@ -40,19 +40,20 @@ def staff_join_chat(request, room_pk=None):
 
         assert room.status == 'available'
 
+    at = AccessToken.create()
+
     return render_to_response(
       'rooms/staff_join_chat.html', {
       'debug': settings.DEBUG,
       'xmpptk_config': dumps(dict({
-                'muc_service': room.getRoomService(),
-                'muc_room': room.getRoomId(),
-                'muc_password': room.password,
                 'muc_nick': request.user.username,
                 'logout_redirect': request.META.get('HTTP_REFERER'),
+                'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
                 'is_staff': True,
+                'token': at.token
       }.items() + settings.CHAT.items()), indent=2)
     })
 
