@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 
 from helpim.conversations.models import Chat, Participant
+from helpim.utils import newHash
 
 class Site:
     def __init__(self, name):
@@ -483,3 +484,22 @@ class GroupRoom(Room):
         if not self.getStatus() == "chatting":
             raise StatusError("Participant left clean while status was not chatting")
         self.setStatus('toDestroy')
+
+class AccessToken(models.Model):
+
+    token = models.CharField(max_length=64,
+                             unique=True)
+    role = models.CharField(max_length=2,
+                            choices=(
+                                (Participant.ROLE_CLIENT, _('Client')),
+                                (Participant.ROLE_STAFF, _('Staff')),
+                                ))
+    owner = models.ForeignKey(Participant,
+                              null=True)
+
+    @staticmethod
+    def create(len=64):
+        at = AccessToken()
+        at.token = newHash()
+        at.save()
+        return at
