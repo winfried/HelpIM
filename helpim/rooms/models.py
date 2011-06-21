@@ -496,6 +496,7 @@ class AccessToken(models.Model):
                                 ))
     owner = models.ForeignKey(Participant,
                               null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def create(role=Participant.ROLE_CLIENT):
