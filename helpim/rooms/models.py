@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
 from django.db import transaction
 from django.utils.translation import ugettext as _
@@ -500,6 +501,9 @@ class AccessToken(models.Model):
 
     @staticmethod
     def create(role=Participant.ROLE_CLIENT):
+        # delete outdated tokens
+        AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
+
         at = AccessToken()
         at.token = newHash()
         at.role = role
