@@ -498,8 +498,9 @@ class AccessToken(models.Model):
                               null=True)
 
     @staticmethod
-    def create(len=64):
+    def create(role=Participant.ROLE_CLIENT):
         at = AccessToken()
         at.token = newHash()
+        at.role = role
         at.save()
         return at
