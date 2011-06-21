@@ -33,8 +33,10 @@ class GetClientNickForm(Form):
     subject = CharField(max_length=64)
 
 def client_join_chat(request):
-    if request.COOKIES.has_key('token'):
-        token = request.COOKIES.get('token')
+    if request.COOKIES.has_key('room_token'):
+        token = request.COOKIES.get('room_token')
+        nick = request.COOKIES.get('room_nick')
+        subject = request.COOKIES.get('room_subject')
     else:
         if request.method != 'POST':
             form = GetClientNickForm()
