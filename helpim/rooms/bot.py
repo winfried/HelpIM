@@ -1081,10 +1081,10 @@ class Bot(JabberClient):
                 query.newChild(None, 'password', room.password)
             except AccessToken.DoesNotExist:
                 log.info("bad acces token: %s"%token)
-                resIq = iq.make_error_response()
+                resIq = iq.make_error_response(u"not-authorized")
             except IndexError:
                 log.info("no available room found")
-                resIq = iq.make_error_response()
+                resIq = iq.make_error_response(u"item-not-found")
 
         self.stream.send(resIq)
 
