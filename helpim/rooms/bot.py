@@ -1061,12 +1061,6 @@ class Bot(JabberClient):
         msg = Message(None, s.get_to(), s.get_from(), s.get_type(), None, None, message)
         self.stream.send(msg)
         self.printrooms()
-        # for k,v in self.sites.iteritems():
-        #     print 'Available for:', k
-        #     for r in v.rooms.getAvailable():
-        #         print r.jid
-
-        #self.todo.append((self.closeRooms, None, 'Sensoor'))
         return True
 
     def handle_iq_get_rooms(self, iq):
@@ -1075,16 +1069,21 @@ class Bot(JabberClient):
         if token_n:
             token = token_n[0].getContent()
             try:
-                test = AccessToken.objects.get(token=token)
+                accessToken = AccessToken.objects.get(token=token)
+                if accessToken.role == Participant.ROLE_STAFF:
+                    room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+                else:
+                    room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
                 resIq = iq.make_result_response()
-                room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
                 query = resIq.new_query(NS_HELPIM_ROOMS)
                 query.newChild(None, 'room', room.getRoomId())
                 query.newChild(None, 'service', room.getRoomService())
                 query.newChild(None, 'password', room.password)
             except AccessToken.DoesNotExist:
+                log.info("bad acces token: %s"%token)
                 resIq = iq.make_error_response()
             except IndexError:
+                log.info("no available room found")
                 resIq = iq.make_error_response()
 
         self.stream.send(resIq)
