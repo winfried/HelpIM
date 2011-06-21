@@ -487,16 +487,14 @@ class GroupRoom(Room):
         self.setStatus('toDestroy')
 
 class AccessToken(models.Model):
-
-    token = models.CharField(max_length=64,
-                             unique=True)
+    token = models.CharField(max_length=64, unique=True)
     role = models.CharField(max_length=2,
                             choices=(
                                 (Participant.ROLE_CLIENT, _('Client')),
                                 (Participant.ROLE_STAFF, _('Staff')),
                                 ))
-    owner = models.ForeignKey(Participant,
-                              null=True)
+    room = models.ForeignKey(One2OneRoom, null=True)
+    owner = models.ForeignKey(Participant, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
