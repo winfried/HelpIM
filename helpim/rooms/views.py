@@ -24,7 +24,7 @@ def staff_join_chat(request, room_pk=None):
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
                 'is_staff': True,
-                'token': at.token
+                'token': at.token,
       }.items() + settings.CHAT.items()), indent=2)
     })
 
@@ -33,24 +33,9 @@ class GetClientNickForm(Form):
     subject = CharField(max_length=64)
 
 def client_join_chat(request):
-    room = None
-    if request.COOKIES.has_key('room_id'):
-        room_id = request.COOKIES.get('room_id')
-        nick = request.COOKIES.get('room_nick')
-        subject = request.COOKIES.get('room_subject')
-        try:
-            room = One2OneRoom.objects.get(jid=room_id)
-            if room.status != 'abandoned' and room.status != 'lost':
-                room = None
-        except One2OneRoom.DoesNotExist:
-            pass
-
-    if room is None:
-        try:
-            room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
-        except IndexError:
-            return redirect('/rooms/unavailable/')
-
+    if request.COOKIES.has_key('token'):
+        token = request.COOKIES.get('token')
+    else:
         if request.method != 'POST':
             form = GetClientNickForm()
         else:
@@ -63,20 +48,22 @@ def client_join_chat(request):
         nick = form.cleaned_data['nick']
         subject = form.cleaned_data['subject']
 
+        # must be done after form is checked otherwise token would be created at each request
+        token = AccessToken.create().token
+
     return render_to_response(
       'rooms/client_join_chat.html', {
       'debug': settings.DEBUG,
       'xmpptk_config': dumps(dict({
-                'muc_service': room.getRoomService(),
-                'muc_room': room.getRoomId(),
-                'muc_password': room.password,
                 'muc_nick': nick,
                 'muc_subject': subject,
                 'logout_redirect': '/rooms/logged_out/',
+                'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
                 'is_staff': False,
+                'token': token,
       }.items() + settings.CHAT.items()), indent=2)
     })
 
