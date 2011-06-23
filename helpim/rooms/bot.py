@@ -1072,12 +1072,20 @@ class Bot(JabberClient):
                 raise BadRequestError()
 
             accessToken = AccessToken.objects.get(token=token_n.getContent())
-
-            if accessToken.role == Participant.ROLE_STAFF:
-                room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
-            else:
-                room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
-
+            room = None
+            try:
+                if accessToken.room and (
+                    accessToken.room.status == 'lost' or accessToken.room.status == 'abandoned'):
+                    room = accessToken.room
+            except One2OneRoom.DoesNotExist:
+                pass
+            
+            if not room:
+                if accessToken.role == Participant.ROLE_STAFF:
+                    room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+                else:
+                    room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
+                
             accessToken.room = room
             accessToken.save()
                 
@@ -1086,6 +1094,8 @@ class Bot(JabberClient):
             query.newChild(None, 'room', room.getRoomId())
             query.newChild(None, 'service', room.getRoomService())
             query.newChild(None, 'password', room.password)
+            if accessToken.role == Participant.ROLE_CLIENT and accessToken.room.client_nick is not '':
+                query.newChild(None, 'nick', accessToken.room.client_nick)
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
