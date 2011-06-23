@@ -35,30 +35,13 @@ class GetClientNickForm(Form):
 def client_join_chat(request):
     if request.COOKIES.has_key('room_token'):
         token = request.COOKIES.get('room_token')
-        nick = request.COOKIES.get('room_nick')
-        subject = request.COOKIES.get('room_subject')
     else:
-        if request.method != 'POST':
-            form = GetClientNickForm()
-        else:
-            form = GetClientNickForm(request.POST)
-
-        if not form.is_valid():
-            c = { 'form': form }
-            c.update(csrf(request))
-            return render_to_response('rooms/client_get_info.html', c)
-        nick = form.cleaned_data['nick']
-        subject = form.cleaned_data['subject']
-
-        # must be done after form is checked otherwise token would be created at each request
         token = AccessToken.create().token
 
     return render_to_response(
       'rooms/client_join_chat.html', {
       'debug': settings.DEBUG,
       'xmpptk_config': dumps(dict({
-                'muc_nick': nick,
-                'muc_subject': subject,
                 'logout_redirect': '/rooms/logged_out/',
                 'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
                 'bot_nick': settings.BOT['muc']['nick'],
