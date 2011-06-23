@@ -1065,26 +1065,36 @@ class Bot(JabberClient):
 
     def handle_iq_get_rooms(self, iq):
         log.stanza(iq)
-        token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})
-        if token_n:
-            token = token_n[0].getContent()
-            try:
-                accessToken = AccessToken.objects.get(token=token)
-                if accessToken.role == Participant.ROLE_STAFF:
-                    room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
-                else:
-                    room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
-                resIq = iq.make_result_response()
-                query = resIq.new_query(NS_HELPIM_ROOMS)
-                query.newChild(None, 'room', room.getRoomId())
-                query.newChild(None, 'service', room.getRoomService())
-                query.newChild(None, 'password', room.password)
-            except AccessToken.DoesNotExist:
-                log.info("bad acces token: %s"%token)
-                resIq = iq.make_error_response(u"not-authorized")
+        try:
+            try: 
+                token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
-                log.info("no available room found")
-                resIq = iq.make_error_response(u"item-not-found")
+                raise BadRequestError()
+
+            accessToken = AccessToken.objects.get(token=token_n.getContent())
+
+            if accessToken.role == Participant.ROLE_STAFF:
+                room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+            else:
+                room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
+
+            accessToken.room = room
+            accessToken.save()
+                
+            resIq = iq.make_result_response()
+            query = resIq.new_query(NS_HELPIM_ROOMS)
+            query.newChild(None, 'room', room.getRoomId())
+            query.newChild(None, 'service', room.getRoomService())
+            query.newChild(None, 'password', room.password)
+        except AccessToken.DoesNotExist:
+            log.info("Bad AccessToken given: %s" % token_n.getContent())
+            resIq = iq.make_error_response(u"not-authorized")
+        except IndexError:
+            log.info("No available room found")
+            resIq = iq.make_error_response(u"item-not-found")
+        except BadRequestError:
+            log.info("request xml was malformed: %s" % iq.serialize())
+            resIq = iq.make_error_response(u"bad-request")
 
         self.stream.send(resIq)
 
@@ -1111,6 +1121,12 @@ class LogError(Exception):
 
 class BotError(Exception):
     def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class BadRequestError(Exception):
+    def __init__(self, msg='bad request'):
         self.msg = msg
     def __str__(self):
         return repr(self.msg)
