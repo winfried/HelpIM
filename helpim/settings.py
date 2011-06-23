@@ -137,18 +137,6 @@ CHAT = {
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
     'composing_timeout': 10,
-    'debug': True,
- #    * The levels in descending order are:
- # * <ul>
- # * <li>SEVERE (highest value)
- # * <li>WARNING
- # * <li>INFO
- # * <li>CONFIG
- # * <li>FINE
- # * <li>FINER
- # * <li>FINEST  (lowest value)
- # * </ul>
-    'log_level': 'ALL',
     }
 
 BOT = {
