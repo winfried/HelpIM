@@ -11,7 +11,10 @@ from django.core.context_processors import csrf
 
 @login_required
 def staff_join_chat(request, room_pk=None):
-    at = AccessToken.create(Participant.ROLE_STAFF)
+    if request.COOKIES.has_key('room_token'):
+        token = request.COOKIES.get('room_token')
+    else:
+        token = AccessToken.create(Participant.ROLE_STAFF).token
 
     return render_to_response(
       'rooms/staff_join_chat.html', {
@@ -24,7 +27,7 @@ def staff_join_chat(request, room_pk=None):
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
                 'is_staff': True,
-                'token': at.token,
+                'token': token,
       }.items() + settings.CHAT.items()), indent=2)
     })
 
