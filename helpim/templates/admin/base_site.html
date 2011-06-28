@@ -1,11 +1,13 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="/static/style.css" />
-<link rel="stylesheet" type="text/css" href="/static/helpim.css" />
+{% get_static_prefix as STATIC_PREFIX %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}helpim/style.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}helpim/helpim.css" />
 <style>
 #navigation {
   border-bottom: 0px solid #000;

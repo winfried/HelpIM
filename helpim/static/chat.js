@@ -1,1 +1,0 @@
-../../parts/xmpptk/htdocs/helpim.js

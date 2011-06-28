@@ -1,9 +1,11 @@
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
     "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
   <head>
     <title>{% block title %}HelpIM3{% endblock %}</title>
-    <link type="text/css" rel="stylesheet" href="/static/helpim.css">
+	<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}helpim/helpim.css">
   </head>
   <body>
     <div id="navigation">

@@ -11,3 +11,7 @@ eggs/
 downloads/
 build/
 develop-eggs/
+static/
+helpim.egg-info/
+dist/
+helpim/RELEASE-VERSION

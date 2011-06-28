@@ -45,3 +45,10 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
+if DEBUG:
+    STATICFILES_DIRS = [
+       ("xmpptk",         abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'src'))),
+       ("xmpptk/closure", abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'closure-library', 'closure'))),
+       ("xmpptk/jsjac",   abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'jsjac'))),
+    ]
+

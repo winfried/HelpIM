@@ -1,17 +1,21 @@
-<script src="/static/jsjac.js"></script>
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
 {% if debug %}
-<script src="/static/closure/goog/base.js"></script>
-<script src="/static/deps.js"></script>
-<script>
-  goog.require('helpim');
-</script>
+<link  href="{{ STATIC_PREFIX }}xmpptk/helpim/helpim.css" type="text/css" rel="stylesheet" />
+<script src="{{ STATIC_PREFIX }}xmpptk/jsjac/jsjac.js"></script>
+<script src="{{ STATIC_PREFIX }}xmpptk/closure/goog/base.js"></script>
+<script src="{{ STATIC_PREFIX }}xmpptk/deps.js"></script>
+<script> goog.require('helpim'); </script>
 {% else %}
-<script src="/static/chat.js"></script>
+<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}xmpptk/helpim.css"/>
+<script src="{{ STATIC_PREFIX }}xmpptk/jsjac.js"></script>
+<script src="{{ STATIC_PREFIX }}xmpptk/helpim.js"></script>
 {% endif %}
-<link type="text/css" rel="stylesheet" href="/static/chat.css"/>
+
 <div id="dialog"></div>
 <div id="helpimClient">
-  <img src="/static/images/stock_volume.png" alt="sound button" id="soundButton"
+  <img src="{{ STATIC_PREFIX }}{% if debug %}xmpptk/{% endif %}xmpptk/images/stock_volume.png" alt="sound button" id="soundButton"
   title="click to mute" width="16" height="16" align="left"/>
   <div id="logoutButton"></div>
  <div id="tabBar"></div>
@@ -27,7 +31,7 @@
   <div class="sendPanel"><textarea class="sendTextarea">Click here to send a message!</textarea></div>
 </div>
 
-<iframe src="/static/empty.html" id="soundIFrame" name="soundIFrame" style="border:0;width:0;height:0;"></iframe>
+<iframe src="{{ STATIC_PREFIX }}xmpptk/empty.html" id="soundIFrame" name="soundIFrame" style="border:0;width:0;height:0;"></iframe>
 <script>
   helpim.start({{ xmpptk_config|safe }});
 </script>
