@@ -11,13 +11,34 @@ from django.core.context_processors import csrf
 
 @login_required
 def staff_join_chat(request, room_pk=None):
+    return join_chat(
+        request,
+        dict({
+            'muc_nick': request.user.username,
+            'logout_redirect': request.META.get('HTTP_REFERER'),
+            'is_staff': True,
+            }),
+        Participant.ROLE_STAFF
+        )
+
+def client_join_chat(request):
+    return join_chat(
+        request,
+        dict({
+                'logout_redirect': '/logged_out/',
+                'full_redirect': '/full/',
+                'is_staff': False,
+            })
+        )
+
+def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
     if request.COOKIES.has_key('room_token'):
         token = request.COOKIES.get('room_token')
     else:
-        token = AccessToken.create(Participant.ROLE_STAFF).token
+        token = AccessToken.create(role).token
 
     return render_to_response(
-      'rooms/staff_join_chat.html', {
+      'rooms/join_chat.html', {
       'debug': settings.DEBUG,
       'xmpptk_config': dumps(dict({
                 'muc_nick': request.user.username,
@@ -28,35 +49,5 @@ def staff_join_chat(request, room_pk=None):
                 'is_one2one': True,
                 'is_staff': True,
                 'token': token,
-      }.items() + settings.CHAT.items()), indent=2)
+      }.items() + settings.CHAT.items() + cfg.items()), indent=2)
     })
-
-class GetClientNickForm(Form):
-    nick = CharField(max_length=40)
-    subject = CharField(max_length=64)
-
-def client_join_chat(request):
-    if request.COOKIES.has_key('room_token'):
-        token = request.COOKIES.get('room_token')
-    else:
-        token = AccessToken.create().token
-
-    return render_to_response(
-      'rooms/client_join_chat.html', {
-      'debug': settings.DEBUG,
-      'xmpptk_config': dumps(dict({
-                'logout_redirect': '/rooms/logged_out/',
-                'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
-                'bot_nick': settings.BOT['muc']['nick'],
-                'static_url': settings.STATIC_URL,
-                'is_one2one': True,
-                'is_staff': False,
-                'token': token,
-      }.items() + settings.CHAT.items()), indent=2)
-    })
-
-def client_logged_out(request):
-    return render_to_response('rooms/client_logged_out.html', {});
-
-def client_room_unavailable(request):
-    return render_to_response('rooms/client_room_unavailable.html', {});

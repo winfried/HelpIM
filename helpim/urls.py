@@ -25,6 +25,4 @@ urlpatterns += patterns('',
     url(r'^admin/rooms/join/one2oneroom/(\d+)/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_specific_chat'),
 
     url(r'^rooms/join/$', 'helpim.rooms.views.client_join_chat', name='client_join_chat'),
-    url(r'^rooms/unavailable/$', 'helpim.rooms.views.client_room_unavailable', name='client_room_unavailable'),
-    url(r'^rooms/logged_out/$', 'helpim.rooms.views.client_logged_out', name='client_logged_out'),
 )
