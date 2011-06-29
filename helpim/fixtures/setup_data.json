@@ -4,13 +4,13 @@
         "model": "flatpages.flatpage",
         "fields": {
             "registration_required": false,
-            "title": "Home",
-            "url": "/",
+            "title": "Logged Out",
+            "url": "/logged_out/",
             "template_name": "",
             "sites": [
                 1
             ],
-            "content": "Welcome!",
+            "content": "Thanks for using our service!",
             "enable_comments": false
         }
     },
@@ -19,13 +19,13 @@
         "model": "flatpages.flatpage",
         "fields": {
             "registration_required": false,
-            "title": "About",
-            "url": "/about/",
+            "title": "Unavailable",
+            "url": "/unavailable/",
             "template_name": "",
             "sites": [
                 1
             ],
-            "content": "<strong>What's it all about</strong>",
+            "content": "Sorry, currently there is no chat available for conversation. Please try again later!",
             "enable_comments": false
         }
     },
@@ -126,81 +126,6 @@
                     "contenttype"
                 ],
                 [
-                    "add_chat",
-                    "conversations",
-                    "chat"
-                ],
-                [
-                    "change_chat",
-                    "conversations",
-                    "chat"
-                ],
-                [
-                    "delete_chat",
-                    "conversations",
-                    "chat"
-                ],
-                [
-                    "add_chatmessage",
-                    "conversations",
-                    "chatmessage"
-                ],
-                [
-                    "change_chatmessage",
-                    "conversations",
-                    "chatmessage"
-                ],
-                [
-                    "delete_chatmessage",
-                    "conversations",
-                    "chatmessage"
-                ],
-                [
-                    "add_conversation",
-                    "conversations",
-                    "conversation"
-                ],
-                [
-                    "change_conversation",
-                    "conversations",
-                    "conversation"
-                ],
-                [
-                    "delete_conversation",
-                    "conversations",
-                    "conversation"
-                ],
-                [
-                    "add_message",
-                    "conversations",
-                    "message"
-                ],
-                [
-                    "change_message",
-                    "conversations",
-                    "message"
-                ],
-                [
-                    "delete_message",
-                    "conversations",
-                    "message"
-                ],
-                [
-                    "add_participant",
-                    "conversations",
-                    "participant"
-                ],
-                [
-                    "change_participant",
-                    "conversations",
-                    "participant"
-                ],
-                [
-                    "delete_participant",
-                    "conversations",
-                    "participant"
-                ],
-                [
                     "add_flatpage",
                     "flatpages",
                     "flatpage"
@@ -276,36 +201,6 @@
                     "member"
                 ],
                 [
-                    "add_grouproom",
-                    "rooms",
-                    "grouproom"
-                ],
-                [
-                    "change_grouproom",
-                    "rooms",
-                    "grouproom"
-                ],
-                [
-                    "delete_grouproom",
-                    "rooms",
-                    "grouproom"
-                ],
-                [
-                    "add_one2oneroom",
-                    "rooms",
-                    "one2oneroom"
-                ],
-                [
-                    "change_one2oneroom",
-                    "rooms",
-                    "one2oneroom"
-                ],
-                [
-                    "delete_one2oneroom",
-                    "rooms",
-                    "one2oneroom"
-                ],
-                [
                     "add_session",
                     "sessions",
                     "session"
@@ -319,21 +214,6 @@
                     "delete_session",
                     "sessions",
                     "session"
-                ],
-                [
-                    "add_site",
-                    "sites",
-                    "site"
-                ],
-                [
-                    "change_site",
-                    "sites",
-                    "site"
-                ],
-                [
-                    "delete_site",
-                    "sites",
-                    "site"
                 ],
                 [
                     "add_migrationhistory",
@@ -403,33 +283,7 @@
         "model": "auth.group",
         "fields": {
             "name": "volunteers",
-            "permissions": [
-                [
-                    "change_chat",
-                    "conversations",
-                    "chat"
-                ],
-                [
-                    "change_chatmessage",
-                    "conversations",
-                    "chatmessage"
-                ],
-                [
-                    "change_conversation",
-                    "conversations",
-                    "conversation"
-                ],
-                [
-                    "change_message",
-                    "conversations",
-                    "message"
-                ],
-                [
-                    "change_participant",
-                    "conversations",
-                    "participant"
-                ]
-            ]
+            "permissions": []
         }
     }
 ]
