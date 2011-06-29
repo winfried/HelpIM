@@ -1,0 +1,31 @@
+#header {
+  border-bottom: 1px solid #000;
+  background-color: #eee;
+  color: #999;
+}
+
+#header a:link,
+#header a:visited,
+.breadcrumbs a:link,
+.breadcrumbs a:visited,
+a.section:link,
+a.section:visited,
+a,
+a:link,
+a:visited
+{
+  color: #000;
+}
+
+.inline-group h2, .module table caption {
+  background: #eee;
+  color: #000;
+}
+
+#branding h1 {
+  color: #999;
+}
+
+.row1 {
+  background: #eee;
+}
