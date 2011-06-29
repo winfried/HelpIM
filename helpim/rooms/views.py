@@ -26,7 +26,7 @@ def client_join_chat(request):
         request,
         dict({
                 'logout_redirect': '/logged_out/',
-                'full_redirect': '/full/',
+                'unavailable_redirect': '/unavailable/',
                 'is_staff': False,
             })
         )
