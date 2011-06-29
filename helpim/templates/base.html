@@ -8,22 +8,13 @@
 	<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}helpim/helpim.css">
   </head>
   <body>
-    <div id="navigation">
-{% load flatpages %}
-{% get_flatpages as flatpages %}
-      <ul>
-{% for page in flatpages %}
-        <li><a href="{{ page.url }}">{{ page.title }}</a></li>
-{% endfor %}
-        <li><a href="{% url helpim.rooms.views.client_join_chat %}">Join Chat</a></li>
-      </ul>
-    </div>
-    <div id="centeredColumn" class="main">
+   <div id="centeredColumn" class="main">
       <div class="copyright">
         <div class="divLeft"><span><span>HelpIM3&nbsp;3.1</span></span></div>
         <div class="divRight"><span>{% if is_logged_in %}Welcome, {{ name }}!{% endif %}</span></div>
         <div class="clear"></div>
       </div>
+      <h1>{% block heading %}HelpIM 3.1{% endblock %}</h1>
       <div id="content">
         {% block content %}{% endblock %}
       </div>
