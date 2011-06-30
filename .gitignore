@@ -2,6 +2,7 @@
 .#*
 helpim/development.py
 helpim/locale/*/LC_MESSAGES/django.mo
+helpim/locale/*/LC_MESSAGES/djangojs.mo
 parts/
 bin/buildout
 bin/manage.py
@@ -15,7 +16,3 @@ static/
 helpim.egg-info/
 dist/
 helpim/RELEASE-VERSION
-helpim/locale/de/LC_MESSAGES/djangojs.mohelpim/locale/en/LC_MESSAGES/djangojs.mo
-helpim/locale/de/LC_MESSAGES/djangojs.mo
-helpim/locale/en/LC_MESSAGES/djangojs.mo
-helpim/locale/nl/LC_MESSAGES/djangojs.mo
