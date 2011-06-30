@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 14:57+0200\n"
+"POT-Creation-Date: 2011-06-30 15:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,6 +60,11 @@ msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:98
 msgid "Click to collapse emoticons"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:265
+#, perl-format
+msgid "%s has entered the conversation"
 msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:276
