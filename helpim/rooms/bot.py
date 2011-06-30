@@ -1066,7 +1066,7 @@ class Bot(JabberClient):
     def handle_iq_get_rooms(self, iq):
         log.stanza(iq)
         try:
-            try: 
+            try:
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
@@ -1079,16 +1079,16 @@ class Bot(JabberClient):
                     room = accessToken.room
             except One2OneRoom.DoesNotExist:
                 pass
-            
+
             if not room:
                 if accessToken.role == Participant.ROLE_STAFF:
                     room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
                 else:
                     room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
-                
+
             accessToken.room = room
             accessToken.save()
-                
+
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
             query.newChild(None, 'room', room.getRoomId())

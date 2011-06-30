@@ -55,4 +55,3 @@ setup(
         console_scripts=[],
         ),
     )
-

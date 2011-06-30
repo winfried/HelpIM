@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'AccessToken.room'
         db.add_column('rooms_accesstoken', 'room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.One2OneRoom'], null=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'AccessToken.room'
         db.delete_column('rooms_accesstoken', 'room_id')
 

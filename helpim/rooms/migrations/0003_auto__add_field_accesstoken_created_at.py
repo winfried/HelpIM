@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'AccessToken.created_at'
         db.add_column('rooms_accesstoken', 'created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=datetime.datetime(2011, 6, 21, 11, 27, 57, 694435), blank=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'AccessToken.created_at'
         db.delete_column('rooms_accesstoken', 'created_at')
 
