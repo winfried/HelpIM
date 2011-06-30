@@ -15,3 +15,4 @@ static/
 helpim.egg-info/
 dist/
 helpim/RELEASE-VERSION
+helpim/locale/de/LC_MESSAGES/djangojs.mo

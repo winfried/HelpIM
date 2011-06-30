@@ -1,6 +1,6 @@
 {% load static %}
 {% get_static_prefix as STATIC_PREFIX %}
-
+<script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 {% if debug %}
 <link  href="{{ STATIC_PREFIX }}xmpptk/helpim/helpim.css" type="text/css" rel="stylesheet" />
 <script src="{{ STATIC_PREFIX }}xmpptk/jsjac/jsjac.js"></script>

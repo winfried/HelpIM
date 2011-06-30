@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'helpim.conversations',
     'helpim.groups',
     'helpim.rooms',
+    'helpim',
     'south',
     'threadedcomments',
     'rosetta',

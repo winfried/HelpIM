@@ -1,0 +1,20 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Helpim 3.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-06-30 12:48+0200\n"
+"PO-Revision-Date: 2011-06-30 12:08+0200\n"
+"Last-Translator: Stefan Strigler <zeank@jwchat.org>\n"
+"Language-Team: Helpim <helpim@helpim.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: rooms/static/helpim/chat.js:174
+msgid "Stop Conversation"
+msgstr "Unterhaltung beenden"
