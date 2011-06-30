@@ -1,66 +1,66 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: HelpIM 3.1\n"
-"PO-Revision-Date: 2011-06-30 14:58+0200\n"
-"Last-Translator: Stefan Strigler <stefan@strigler.de>\n"
-"Language-Team: Helpim <helpim@helpim.org>\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-06-30 14:57+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-
 #: static/xmpptk/helpim/ui/client.js:50
 msgid "Stop Conversation"
-msgstr "Unterhaltung beenden"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:73
 msgid "Nickname"
-msgstr "Spitzname"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:73
 msgid "Subject"
-msgstr "Betreff"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:86
 msgid "Please provide a nickname!"
-msgstr "Du musst einen Spitznamen angeben"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:134
 msgid "Sorry, you're not allowed to access this service"
-msgstr "Leider darfst Du nicht auf diesen Dienst zugreifen"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:139
 #: static/xmpptk/helpim/ui/client_running.js:22
 msgid "An error occured"
-msgstr "Es ist ein Fehler aufgetreten"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/client_running.js:23
 msgid "Sorry, there's already a conversation active at some other window."
 msgstr ""
-"Entschuldigung, es scheint als liefe bereits ein Chat in einem anderen "
-"Fenster."
 
 #: static/xmpptk/helpim/ui/muc/room.js:83
 #: static/xmpptk/helpim/ui/muc/room.js:94
 msgid "Click to see even more emoticons"
-msgstr "Klicken um noch mehr emoticons zu sehen"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:93
 msgid "more"
-msgstr "mehr"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:97
 msgid "less"
-msgstr "weniger"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:98
 msgid "Click to collapse emoticons"
-msgstr "Klicken um die erweiterten emoticons zu verstecken"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:276
 msgid "Ring! Ring!"
@@ -69,24 +69,24 @@ msgstr ""
 #: static/xmpptk/helpim/ui/muc/room.js:319
 #, perl-format
 msgid "Welcome %s, now wait for a client to join!"
-msgstr "Hallo %s, bitte warte bis ein Gesprächspartner eintritt!"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:324
 #, perl-format
 msgid "%s has disappeared from the conversation"
-msgstr "%s ist aus der Unterhaltung verschwunden"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:327
 #, perl-format
 msgid "%s has ended the conversation"
-msgstr "%s hat die Unterhaltung beendet"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:372
 #, perl-format
 msgid "%s stopped composing"
-msgstr "%s hat aufgehört zu tippen"
+msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/room.js:375
 #, perl-format
 msgid "%s is composing a message"
-msgstr "%s tippt gerade"
+msgstr ""

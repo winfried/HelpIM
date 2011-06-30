@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-09 14:09+0200\n"
+"POT-Creation-Date: 2011-06-30 15:00+0200\n"
 "PO-Revision-Date: 2011-05-05 13:07+0000\n"
 "Last-Translator: winfried <winfried@tilanus.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: nl_NL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: conversations/admin.py:28
@@ -25,38 +25,63 @@ msgstr "Bericht"
 msgid "Messages"
 msgstr "Berichten"
 
-#: conversations/admin.py:39 conversations/models.py:36
+#: conversations/admin.py:39 conversations/models.py:40
 msgid "Participant"
 msgstr "Deelnemer"
 
-#: conversations/admin.py:40 conversations/models.py:37
+#: conversations/admin.py:40 conversations/models.py:41
 msgid "Participants"
 msgstr "Deelnemers"
 
-#: conversations/models.py:11
+#: conversations/models.py:13
 #, python-format
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr "\"%(subject)s\" om %(start_time)s"
 
-#: conversations/models.py:18
+#: conversations/models.py:20
 msgid "Conversation"
 msgstr "Gesprek"
 
-#: conversations/models.py:19
+#: conversations/models.py:21 templates/admin/base_site.html:27
+#: templates/admin/index.html:36
 msgid "Conversations"
 msgstr "Gesprekken"
 
-#: conversations/models.py:23
-msgid "Care seeker"
-msgstr "Hulpvrager"
+#: conversations/models.py:32 rooms/models.py:348 rooms/models.py:493
+msgid "Client"
+msgstr ""
 
-#: conversations/models.py:24
-msgid "Care worker"
-msgstr "Hulpverlener"
+#: conversations/models.py:33 rooms/models.py:494
+msgid "Staff"
+msgstr ""
 
-#: conversations/models.py:42
+#: conversations/models.py:46
 msgid "Sender"
 msgstr "Afzender"
+
+#: conversations/models.py:63
+#, fuzzy
+msgid "Chat message"
+msgstr "Bericht"
+
+#: conversations/models.py:64
+#, fuzzy
+msgid "Chat joining"
+msgstr "Aan het chatten"
+
+#: conversations/models.py:65
+#, fuzzy
+msgid "Chat rejoining"
+msgstr "Aan het chatten"
+
+#: conversations/models.py:66
+msgid "Chat exit"
+msgstr ""
+
+#: conversations/models.py:67
+#, fuzzy
+msgid "Chat end"
+msgstr "Aan het chatten"
 
 #: groups/models.py:21
 msgid "Chatgroups"
@@ -90,80 +115,120 @@ msgstr "Bijeenkomst"
 msgid "Meetings"
 msgstr "Bijeenkomsten"
 
-#: rooms/models.py:260
+#: rooms/models.py:262
 msgid "Room status"
 msgstr ""
 
-#: rooms/models.py:325
+#: rooms/models.py:327
 msgid "One2One Room"
 msgstr "EenOpEen chatroom"
 
-#: rooms/models.py:331 rooms/models.py:428
+#: rooms/models.py:333 rooms/models.py:454
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: rooms/models.py:332
+#: rooms/models.py:334
 msgid "Available for Invitation"
 msgstr "Beschikbaar voor uitnodiging"
 
-#: rooms/models.py:333
+#: rooms/models.py:335
 msgid "Staff Waiting"
 msgstr "Hulpverlener wacht"
 
-#: rooms/models.py:334
+#: rooms/models.py:336
 msgid "Staff Waiting for Invitee"
 msgstr "Hulpverlener wacht op genodigde"
 
-#: rooms/models.py:335 rooms/models.py:429
+#: rooms/models.py:337 rooms/models.py:455
 msgid "Chatting"
 msgstr "Aan het chatten"
 
-#: rooms/models.py:336
+#: rooms/models.py:338
 msgid "Closing Chat"
 msgstr "Chat aan het afsluiten"
 
-#: rooms/models.py:337 rooms/models.py:430
+#: rooms/models.py:339 rooms/models.py:456
 msgid "To Destroy"
 msgstr "Te vernietigen"
 
-#: rooms/models.py:338 rooms/models.py:431
+#: rooms/models.py:340 rooms/models.py:457
 msgid "Destroyed"
 msgstr "Vernietigd"
 
-#: rooms/models.py:339
+#: rooms/models.py:341
 msgid "Lost"
 msgstr "Verloren"
 
-#: rooms/models.py:340 rooms/models.py:432
+#: rooms/models.py:342 rooms/models.py:458
 msgid "Abandoned"
 msgstr "Verlaten"
 
-#: rooms/models.py:343
+#: rooms/models.py:345
 #, fuzzy
 msgid "Staff member"
 msgstr "Nicknaam"
 
-#: rooms/models.py:344
+#: rooms/models.py:346
 #, fuzzy
 msgid "Staff nickname"
 msgstr "Nicknaam"
 
-#: rooms/models.py:346
-msgid "Client"
-msgstr ""
-
-#: rooms/models.py:347
+#: rooms/models.py:349
 #, fuzzy
 msgid "Client nickname"
 msgstr "Nicknaam"
 
-#: templates/admin/base_site.html:4
+#: rooms/models.py:372 rooms/models.py:395
+#, fuzzy
+msgid "Chat"
+msgstr "Aan het chatten"
+
+#: templates/404.html:3 templates/404.html.py:4
+msgid "Page not found"
+msgstr ""
+
+#: templates/500.html:3 templates/500.html.py:4
+msgid "Internal server error"
+msgstr ""
+
+#: templates/admin/base_site.html:5 templates/admin/flatpage.html:4
 msgid "Django site admin"
 msgstr "Django site beheerder"
 
-#: templates/admin/base_site.html:10
+#: templates/admin/base_site.html:20
 msgid "HelpIM administration"
 msgstr "HelpIM beheer"
+
+#: templates/admin/base_site.html:28 templates/admin/index.html:40
+msgid "Next available One2One chatroom"
+msgstr ""
+
+#: templates/admin/index.html:33
+msgid "Quick access"
+msgstr ""
+
+#: templates/admin/index.html:50
+#, python-format
+msgid "Models available in the %(name)s application."
+msgstr ""
+
+#: templates/admin/index.html:51
+#, fuzzy, python-format
+msgid "%(name)s"
+msgstr "Voeg %(name)s toe"
+
+#: templates/admin/index.html:61
+msgid "Add"
+msgstr ""
+
+#: templates/admin/index.html:67
+#, fuzzy
+msgid "Change"
+msgstr "Aan het chatten"
+
+#: templates/admin/index.html:77
+msgid "You don't have permission to edit anything."
+msgstr ""
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
@@ -188,26 +253,32 @@ msgstr "Ga in volgende beschikbare %(name)s"
 msgid "Add %(name)s"
 msgstr "Voeg %(name)s toe"
 
+#: templates/rooms/chat_client.html:27
+msgid "Subject"
+msgstr ""
+
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
 msgid "Join Chat"
 msgstr "Chat"
 
-#: templates/rooms/client_logged_out.html:5
-msgid "Logged out"
-msgstr "Uitgelogd"
+#~ msgid "Care seeker"
+#~ msgstr "Hulpvrager"
 
-#: templates/rooms/client_logged_out.html:7
-msgid "Thank you for using our service."
-msgstr "Dank je voor het gebruiken van deze chat."
+#~ msgid "Care worker"
+#~ msgstr "Hulpverlener"
 
-#: templates/rooms/client_room_unavailable.html:5
-msgid "No room available"
-msgstr "Geen chatroom beschikbaar"
+#~ msgid "Logged out"
+#~ msgstr "Uitgelogd"
 
-#: templates/rooms/client_room_unavailable.html:7
-msgid "We're sorry, but there is no care worker available right now."
-msgstr "Helaas is er momenteel geen hulpverlener beschikbaar."
+#~ msgid "Thank you for using our service."
+#~ msgstr "Dank je voor het gebruiken van deze chat."
+
+#~ msgid "No room available"
+#~ msgstr "Geen chatroom beschikbaar"
+
+#~ msgid "We're sorry, but there is no care worker available right now."
+#~ msgstr "Helaas is er momenteel geen hulpverlener beschikbaar."
 
 #~ msgid "Join room"
 #~ msgstr "Ga chatroom in"

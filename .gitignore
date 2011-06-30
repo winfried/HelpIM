@@ -15,4 +15,7 @@ static/
 helpim.egg-info/
 dist/
 helpim/RELEASE-VERSION
+helpim/locale/de/LC_MESSAGES/djangojs.mohelpim/locale/en/LC_MESSAGES/djangojs.mo
 helpim/locale/de/LC_MESSAGES/djangojs.mo
+helpim/locale/en/LC_MESSAGES/djangojs.mo
+helpim/locale/nl/LC_MESSAGES/djangojs.mo
