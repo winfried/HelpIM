@@ -35,7 +35,11 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
     if request.COOKIES.has_key('room_token'):
         token = request.COOKIES.get('room_token')
     else:
-        token = AccessToken.create(role).token
+        token = AccessToken.create(role, request.META.get('REMOTE_ADDR'))
+        if token is None:
+            return render_to_response('rooms/blocked.html')
+
+        token = token.token
 
     return render_to_response(
       'rooms/join_chat.html', {

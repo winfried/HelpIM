@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load static %}
 {% get_static_prefix as STATIC_PREFIX %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
@@ -11,7 +12,7 @@
    <div id="centeredColumn" class="main">
       <div class="copyright">
         <div class="divLeft"><span><span>HelpIM3&nbsp;3.1</span></span></div>
-        <div class="divRight"><span>{% if is_logged_in %}Welcome, {{ name }}!{% endif %}</span></div>
+        <div class="divRight"><span>{% if is_logged_in %}{% blocktrans %}Welcome, {{ name }}!{% endblocktrans %}{% endif %}</span></div>
         <div class="clear"></div>
       </div>
       <h1>{% block heading %}HelpIM 3.1{% endblock %}</h1>

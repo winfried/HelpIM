@@ -1,10 +1,12 @@
 import datetime
+from hashlib import md5
 
 from django.conf import settings
 from django.db import models
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from helpim.conversations.models import Chat, Participant
 from helpim.utils import newHash
@@ -495,15 +497,33 @@ class AccessToken(models.Model):
                                 ))
     room = models.ForeignKey(One2OneRoom, null=True)
     owner = models.ForeignKey(Participant, null=True)
+    ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
-    def create(role=Participant.ROLE_CLIENT):
+    def create(role=Participant.ROLE_CLIENT, ip=None):
         # delete outdated tokens
         AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
 
+        ip_hash = md5(ip).hexdigest()
+        
+        if BlockList.objects.filter(ip_hash=ip_hash).count() is not 0:
+            # this user is blocked
+            return None
+            
         at = AccessToken()
         at.token = newHash()
         at.role = role
+        if ip is not None:
+            at.ip_hash = ip_hash
         at.save()
         return at
+
+class BlockList(models.Model):
+    ip_hash = models.CharField(max_length=32, unique=True)
+    created_by = models.ForeignKey(User, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return self.ip_hash
+    
