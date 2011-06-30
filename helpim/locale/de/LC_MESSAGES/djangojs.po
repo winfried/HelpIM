@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 15:08+0200\n"
+"POT-Creation-Date: 2011-06-30 17:12+0200\n"
 "PO-Revision-Date: 2011-06-30 14:58+0200\n"
 "Last-Translator: Stefan Strigler <stefan@strigler.de>\n"
 "Language-Team: Helpim <helpim@helpim.org>\n"
@@ -64,6 +64,7 @@ msgid "Click to collapse emoticons"
 msgstr "Klicken um die erweiterten emoticons zu verstecken"
 
 #: static/xmpptk/helpim/ui/muc/room.js:265
+#, perl-format
 msgid "%s has entered the conversation"
 msgstr "%s hat die Unterhaltung betreten"
 

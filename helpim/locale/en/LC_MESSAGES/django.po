@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 15:00+0200\n"
+"POT-Creation-Date: 2011-06-30 17:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,16 +42,16 @@ msgstr ""
 msgid "Conversation"
 msgstr ""
 
-#: conversations/models.py:21 templates/admin/base_site.html:27
+#: conversations/models.py:21 templates/admin/base_site.html:28
 #: templates/admin/index.html:36
 msgid "Conversations"
 msgstr ""
 
-#: conversations/models.py:32 rooms/models.py:348 rooms/models.py:493
+#: conversations/models.py:32 rooms/models.py:350 rooms/models.py:495
 msgid "Client"
 msgstr ""
 
-#: conversations/models.py:33 rooms/models.py:494
+#: conversations/models.py:33 rooms/models.py:496
 msgid "Staff"
 msgstr ""
 
@@ -111,67 +111,67 @@ msgstr ""
 msgid "Meetings"
 msgstr ""
 
-#: rooms/models.py:262
+#: rooms/models.py:264
 msgid "Room status"
 msgstr ""
 
-#: rooms/models.py:327
+#: rooms/models.py:329
 msgid "One2One Room"
 msgstr ""
 
-#: rooms/models.py:333 rooms/models.py:454
+#: rooms/models.py:335 rooms/models.py:456
 msgid "Available"
 msgstr ""
 
-#: rooms/models.py:334
+#: rooms/models.py:336
 msgid "Available for Invitation"
 msgstr ""
 
-#: rooms/models.py:335
+#: rooms/models.py:337
 msgid "Staff Waiting"
 msgstr ""
 
-#: rooms/models.py:336
+#: rooms/models.py:338
 msgid "Staff Waiting for Invitee"
 msgstr ""
 
-#: rooms/models.py:337 rooms/models.py:455
+#: rooms/models.py:339 rooms/models.py:457
 msgid "Chatting"
 msgstr ""
 
-#: rooms/models.py:338
+#: rooms/models.py:340
 msgid "Closing Chat"
 msgstr ""
 
-#: rooms/models.py:339 rooms/models.py:456
+#: rooms/models.py:341 rooms/models.py:458
 msgid "To Destroy"
 msgstr ""
 
-#: rooms/models.py:340 rooms/models.py:457
+#: rooms/models.py:342 rooms/models.py:459
 msgid "Destroyed"
 msgstr ""
 
-#: rooms/models.py:341
+#: rooms/models.py:343
 msgid "Lost"
 msgstr ""
 
-#: rooms/models.py:342 rooms/models.py:458
+#: rooms/models.py:344 rooms/models.py:460
 msgid "Abandoned"
 msgstr ""
 
-#: rooms/models.py:345
+#: rooms/models.py:347
 msgid "Staff member"
 msgstr ""
 
-#: rooms/models.py:346
+#: rooms/models.py:348
 msgid "Staff nickname"
 msgstr ""
 
-#: rooms/models.py:349
+#: rooms/models.py:351
 msgid "Client nickname"
 msgstr ""
 
-#: rooms/models.py:372 rooms/models.py:395
+#: rooms/models.py:374 rooms/models.py:397
 msgid "Chat"
 msgstr ""
 
@@ -183,15 +183,20 @@ msgstr ""
 msgid "Internal server error"
 msgstr ""
 
-#: templates/admin/base_site.html:5 templates/admin/flatpage.html:4
+#: templates/base.html:15
+#, python-format
+msgid "Welcome, %(name)s!"
+msgstr ""
+
+#: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
 msgid "Django site admin"
 msgstr ""
 
-#: templates/admin/base_site.html:20
+#: templates/admin/base_site.html:21
 msgid "HelpIM administration"
 msgstr ""
 
-#: templates/admin/base_site.html:28 templates/admin/index.html:40
+#: templates/admin/base_site.html:29 templates/admin/index.html:40
 msgid "Next available One2One chatroom"
 msgstr ""
 
@@ -225,12 +230,12 @@ msgstr ""
 msgid "Delete?"
 msgstr ""
 
-#: templates/admin/edit_inline/with_threadedcomments.html:264
+#: templates/admin/edit_inline/with_threadedcomments.html:263
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr ""
 
-#: templates/admin/edit_inline/with_threadedcomments.html:267
+#: templates/admin/edit_inline/with_threadedcomments.html:266
 msgid "Remove"
 msgstr ""
 
@@ -244,7 +249,15 @@ msgstr ""
 msgid "Add %(name)s"
 msgstr ""
 
-#: templates/rooms/chat_client.html:27
+#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
+msgid "Blocked"
+msgstr ""
+
+#: templates/rooms/blocked.html:5
+msgid "Sorry, but your IP address is blocked from using this service."
+msgstr ""
+
+#: templates/rooms/chat_client.html:28
 msgid "Subject"
 msgstr ""
 
