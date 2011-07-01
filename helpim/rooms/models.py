@@ -506,11 +506,11 @@ class AccessToken(models.Model):
         AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
 
         ip_hash = md5(ip).hexdigest()
-        
+
         if BlockList.objects.filter(ip_hash=ip_hash).count() is not 0:
             # this user is blocked
             return None
-            
+
         at = AccessToken()
         at.token = newHash()
         at.role = role
@@ -526,4 +526,3 @@ class BlockList(models.Model):
 
     def __unicode__(self):
         return self.ip_hash
-    

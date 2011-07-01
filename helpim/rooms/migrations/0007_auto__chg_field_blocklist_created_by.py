@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Changing field 'BlockList.created_by'
         db.alter_column('rooms_blocklist', 'created_by_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True))
 
 
     def backwards(self, orm):
-        
+
         # Changing field 'BlockList.created_by'
         db.alter_column('rooms_blocklist', 'created_by_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['conversations.Participant'], null=True))
 

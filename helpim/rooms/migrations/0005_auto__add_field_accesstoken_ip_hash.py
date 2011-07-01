@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'AccessToken.ip_hash'
         db.add_column('rooms_accesstoken', 'ip_hash', self.gf('django.db.models.fields.CharField')(max_length=32, null=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'AccessToken.ip_hash'
         db.delete_column('rooms_accesstoken', 'ip_hash')
 
