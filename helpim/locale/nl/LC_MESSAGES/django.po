@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-30 17:13+0200\n"
 "PO-Revision-Date: 2011-05-05 13:07+0000\n"
-"Last-Translator: winfried <winfried@tilanus.com>\n"
+"Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,11 +49,11 @@ msgstr "Gesprekken"
 
 #: conversations/models.py:32 rooms/models.py:350 rooms/models.py:495
 msgid "Client"
-msgstr ""
+msgstr "Hulpvrager"
 
 #: conversations/models.py:33 rooms/models.py:496
 msgid "Staff"
-msgstr ""
+msgstr "Hulpverlener"
 
 #: conversations/models.py:46
 msgid "Sender"
@@ -76,12 +76,12 @@ msgstr "Aan het chatten"
 
 #: conversations/models.py:66
 msgid "Chat exit"
-msgstr ""
+msgstr "Stop chat"
 
 #: conversations/models.py:67
 #, fuzzy
 msgid "Chat end"
-msgstr "Aan het chatten"
+msgstr "Chat einde"
 
 #: groups/models.py:21
 msgid "Chatgroups"
@@ -117,7 +117,7 @@ msgstr "Bijeenkomsten"
 
 #: rooms/models.py:264
 msgid "Room status"
-msgstr ""
+msgstr "Chatroom status"
 
 #: rooms/models.py:329
 msgid "One2One Room"
@@ -185,11 +185,11 @@ msgstr "Aan het chatten"
 
 #: templates/404.html:3 templates/404.html.py:4
 msgid "Page not found"
-msgstr ""
+msgstr "Pagina niet gevonden"
 
 #: templates/500.html:3 templates/500.html.py:4
 msgid "Internal server error"
-msgstr ""
+msgstr "Interne server fout"
 
 #: templates/base.html:15
 #, fuzzy, python-format
@@ -206,16 +206,16 @@ msgstr "HelpIM beheer"
 
 #: templates/admin/base_site.html:29 templates/admin/index.html:40
 msgid "Next available One2One chatroom"
-msgstr ""
+msgstr "Volgende beschikbare EenOpEen chatroom"
 
 #: templates/admin/index.html:33
 msgid "Quick access"
-msgstr ""
+msgstr "Snelle toegang"
 
 #: templates/admin/index.html:50
 #, python-format
 msgid "Models available in the %(name)s application."
-msgstr ""
+msgstr "Modellen beschikbaar in de %(name)s applicatie."
 
 #: templates/admin/index.html:51
 #, fuzzy, python-format
@@ -224,7 +224,7 @@ msgstr "Voeg %(name)s toe"
 
 #: templates/admin/index.html:61
 msgid "Add"
-msgstr ""
+msgstr "Toevoegen"
 
 #: templates/admin/index.html:67
 #, fuzzy
@@ -233,7 +233,7 @@ msgstr "Aan het chatten"
 
 #: templates/admin/index.html:77
 msgid "You don't have permission to edit anything."
-msgstr ""
+msgstr "U heeft geen toestemming om iets te wijzigen"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
@@ -260,15 +260,15 @@ msgstr "Voeg %(name)s toe"
 
 #: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
 msgid "Blocked"
-msgstr ""
+msgstr "Geblokkeerd"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
-msgstr ""
+msgstr "Sorry, je IP address is geblokkeerd voor deze service."
 
 #: templates/rooms/chat_client.html:28
 msgid "Subject"
-msgstr ""
+msgstr "Onderwerp"
 
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
