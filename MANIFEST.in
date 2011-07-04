@@ -2,5 +2,5 @@ include helpim/RELEASE-VERSION
 include README.rst
 include version.py
 
-graft static/
-
+graft static
+prune static/xmpptk/closure/

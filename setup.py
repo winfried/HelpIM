@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-from os.path import join, dirname
+from os.path import join, dirname, relpath
 
 import sys
 sys.path.append(join(dirname(__file__), 'helpim'))
@@ -26,6 +26,16 @@ install_requires=[
    'libxml2-python==2.6.21',
 ]
 
+static_files = []
+
+import os
+for root, dirs, files in os.walk(join(dirname(__file__), 'static')):
+    relroot = relpath(root, dirname(__file__))
+    static_files.append((
+      join('share', 'helpim', relroot),
+      [join(relroot, f) for f in files]
+    ))
+
 from version import get_git_version
 
 setup(
@@ -39,6 +49,7 @@ setup(
     author_email='helpdesk@e-hulp.nl',
     packages=find_packages('.'),
     package_dir={'': '.'},
+    data_files=static_files,
     namespace_packages=[],
     include_package_data = True,
     install_requires=install_requires,
