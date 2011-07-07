@@ -75,7 +75,7 @@ msgstr "Ring! Ring!"
 #: static/xmpptk/helpim/ui/muc/room.js:319
 #, perl-format
 msgid "Welcome %s, now wait for a client to join!"
-msgstr "<Welkom %s, wacht nu tot er een hulpvrager komt!"
+msgstr "Welkom %s, wacht nu tot er een hulpvrager komt!"
 
 #: static/xmpptk/helpim/ui/muc/room.js:324
 #, perl-format
