@@ -13,14 +13,14 @@ class MessageInline(admin.StackedInline):
     model = Message
     fieldsets = (
         (None, {
-            'fields': ('sender_name', 'created_at', 'body',)
+            'fields': ('sender_name', 'time_sent', 'body',)
         }),
     )
 
     can_delete = False
 
     if not CONVERSATION_EDITABLE:
-        readonly_fields = ('sender_name', 'created_at', 'body',)
+        readonly_fields = ('sender_name', 'time_sent', 'body',)
         max_num = 0
     else:
         fieldsets[0][1]['fields'] = tuple(['sender'] + list(fieldsets[0][1]['fields']))

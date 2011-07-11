@@ -49,6 +49,9 @@ class Message(models.Model):
 
     comments = models.ManyToManyField(ThreadedComment)
 
+    def time_sent(self):
+        return str(self.created_at.time())
+
     def save(self, *args, **kwargs):
         if not self.created_at:
             self.created_at = datetime.now()
