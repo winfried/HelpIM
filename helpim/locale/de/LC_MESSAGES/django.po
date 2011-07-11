@@ -49,11 +49,11 @@ msgstr "Unterhaltungen"
 
 #: conversations/models.py:32 rooms/models.py:350 rooms/models.py:495
 msgid "Client"
-msgstr ""
+msgstr "Klient"
 
 #: conversations/models.py:33 rooms/models.py:496
 msgid "Staff"
-msgstr ""
+msgstr "Mitarbeiter"
 
 #: conversations/models.py:46
 msgid "Sender"
@@ -117,7 +117,7 @@ msgstr "Raumstatus"
 
 #: rooms/models.py:329
 msgid "One2One Room"
-msgstr ""
+msgstr "Eins-zu-eins-Raum"
 
 #: rooms/models.py:335 rooms/models.py:456
 msgid "Available"
@@ -125,57 +125,53 @@ msgstr "Verfügbar"
 
 #: rooms/models.py:336
 msgid "Available for Invitation"
-msgstr ""
+msgstr "Verfügbar für Einladung"
 
 #: rooms/models.py:337
 msgid "Staff Waiting"
-msgstr ""
+msgstr "Mitarbeiter wartet"
 
 #: rooms/models.py:338
 msgid "Staff Waiting for Invitee"
-msgstr ""
+msgstr "Mitarbeiter wartet auf Eingeladenen"
 
 #: rooms/models.py:339 rooms/models.py:457
 msgid "Chatting"
-msgstr ""
+msgstr "Chattend"
 
 #: rooms/models.py:340
 msgid "Closing Chat"
-msgstr ""
+msgstr "Beende Chat"
 
 #: rooms/models.py:341 rooms/models.py:458
 msgid "To Destroy"
-msgstr ""
+msgstr "Zu löschen"
 
 #: rooms/models.py:342 rooms/models.py:459
 msgid "Destroyed"
-msgstr ""
+msgstr "Gelöscht"
 
 #: rooms/models.py:343
 msgid "Lost"
-msgstr ""
+msgstr "Abhanden gekommen"
 
 #: rooms/models.py:344 rooms/models.py:460
 msgid "Abandoned"
-msgstr ""
+msgstr "Verlassen"
 
 #: rooms/models.py:347
-#, fuzzy
 msgid "Staff member"
-msgstr "Spitzname"
+msgstr "Mitarbeiter"
 
 #: rooms/models.py:348
-#, fuzzy
 msgid "Staff nickname"
-msgstr "Spitzname"
+msgstr "Mitarbeiter-Spitzname"
 
 #: rooms/models.py:351
-#, fuzzy
 msgid "Client nickname"
-msgstr "Spitzname"
+msgstr "Klienten-Spitzname"
 
 #: rooms/models.py:374 rooms/models.py:397
-#, fuzzy
 msgid "Chat"
 msgstr "Chat"
 
@@ -216,50 +212,50 @@ msgstr "Verfügbare Models in der %(name)s-Applikation."
 #: templates/admin/index.html:51
 #, python-format
 msgid "%(name)s"
-msgstr ""
+msgstr "%(name)s"
 
 #: templates/admin/index.html:61
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 #: templates/admin/index.html:67
 msgid "Change"
-msgstr ""
+msgstr "Ändern"
 
 #: templates/admin/index.html:77
 msgid "You don't have permission to edit anything."
-msgstr ""
+msgstr "Sie haben keine Rechte um irgendetwas zu bearbeiten."
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
-msgstr ""
+msgstr "Entfernen?"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:263
 #, python-format
 msgid "Add another %(verbose_name)s"
-msgstr ""
+msgstr "Ein weiteres %(verbose_name)s hinzufügen"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:266
 msgid "Remove"
-msgstr ""
+msgstr "Entfernen"
 
 #: templates/admin/rooms/change_list.html:10
 #, python-format
 msgid "Join next available %(name)s"
-msgstr ""
+msgstr "Nächstem verfügbaren %(name)s beitreten"
 
 #: templates/admin/rooms/change_list.html:15
 #, python-format
 msgid "Add %(name)s"
-msgstr ""
+msgstr "%(name)s hinzufügen"
 
 #: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
 msgid "Blocked"
-msgstr ""
+msgstr "Blockiert"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
-msgstr ""
+msgstr "Entschuldigung, aber deine IP-Adresse wurde von diesem Dienst blockiert."
 
 #: templates/rooms/chat_client.html:28
 msgid "Subject"
