@@ -273,7 +273,7 @@ msgstr "Onderwerp"
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
 msgid "Join Chat"
-msgstr "Chat"
+msgstr "Verbind met chat"
 
 #~ msgid "Care seeker"
 #~ msgstr "Hulpvrager"
