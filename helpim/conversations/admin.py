@@ -4,6 +4,7 @@ from django.contrib import admin
 from django import forms
 from threadedcomments.forms import ThreadedCommentForm
 from django.forms.models import inlineformset_factory
+from django.conf import settings
 
 CONVERSATION_EDITABLE = False
 
@@ -54,6 +55,19 @@ class ConversationAdmin(admin.ModelAdmin):
         ParticipantInline,
         MessageInline,
     ]
+
+    def queryset(self, request):
+        qs = super(ConversationAdmin, self).queryset(request) 
+
+        restrict_to_own_conversations = getattr(settings,
+            "HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS", False
+        )
+
+        if (not restrict_to_own_conversations) or request.user.is_superuser:
+            return qs
+        else:
+            return qs.filter(participant=request.user) 
+
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.disable_action('delete_selected')
