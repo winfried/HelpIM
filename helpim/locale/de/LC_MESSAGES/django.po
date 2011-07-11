@@ -121,7 +121,7 @@ msgstr ""
 
 #: rooms/models.py:335 rooms/models.py:456
 msgid "Available"
-msgstr ""
+msgstr "Verfügbar"
 
 #: rooms/models.py:336
 msgid "Available for Invitation"
@@ -177,41 +177,41 @@ msgstr "Spitzname"
 #: rooms/models.py:374 rooms/models.py:397
 #, fuzzy
 msgid "Chat"
-msgstr "Chatgruppe"
+msgstr "Chat"
 
 #: templates/404.html:3 templates/404.html.py:4
 msgid "Page not found"
-msgstr ""
+msgstr "Seite nicht gefunden"
 
 #: templates/500.html:3 templates/500.html.py:4
 msgid "Internal server error"
-msgstr ""
+msgstr "Interner Server-Fehler"
 
 #: templates/base.html:15
 #, python-format
 msgid "Welcome, %(name)s!"
-msgstr ""
+msgstr "Willkommen, %(name)s!"
 
 #: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
 msgid "Django site admin"
-msgstr ""
+msgstr "Django Seiten-Administration"
 
 #: templates/admin/base_site.html:21
 msgid "HelpIM administration"
-msgstr ""
+msgstr "HelpIM-Administration"
 
 #: templates/admin/base_site.html:29 templates/admin/index.html:40
 msgid "Next available One2One chatroom"
-msgstr ""
+msgstr "Nächster Eins-zu-eins-Chatroom beitreten"
 
 #: templates/admin/index.html:33
 msgid "Quick access"
-msgstr ""
+msgstr "Schnellzugang"
 
 #: templates/admin/index.html:50
 #, python-format
 msgid "Models available in the %(name)s application."
-msgstr ""
+msgstr "Verfügbare Models in der %(name)s-Applikation."
 
 #: templates/admin/index.html:51
 #, python-format
