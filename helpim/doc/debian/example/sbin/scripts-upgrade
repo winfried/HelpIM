@@ -13,5 +13,5 @@ chown -R paul:paul /etc/helpim /home/paul/HelpIM/helpim/doc/debian/example/*
 cd /home/paul/HelpIM/
 git commit
 
-echo "do a 'git add ...', then 'git commit', then 'git push'."
+echo "do a 'git add (-A)', then 'git commit', then 'git push'."
 
