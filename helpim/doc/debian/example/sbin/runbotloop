@@ -1,0 +1,12 @@
+#!/bin/bash
+# script to start a bot, and tell about crashing
+
+# while [ 1 ]; do
+  cd /etc/helpim/sites/$1
+  output=`PYTHONPATH='' DJANGO_SETTINGS_MODULE=settings \
+    django-admin.py runbot 2>&1`
+  echo $output >> /var/log/helpim/$1.log
+  # send a message about the crashing bot
+  echo $output | mail -s "Bot $1 crashed" paul@vandervlis.nl
+#  sleep 2
+# done

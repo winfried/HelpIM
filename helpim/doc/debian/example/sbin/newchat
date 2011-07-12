@@ -1,0 +1,158 @@
+#!/bin/bash
+# this script creates a new HelpIM 3.1 chat
+# it needs the packages: rpl pwgen
+version="3"
+
+defaultip="91.198.178.29"
+defaultcert="e-hulp.nl_wildcard.pem"
+defaultdomain="e-hulp.nl"
+
+# ask questions
+echo
+if test "$1" = ""; then
+  read -p "Chatname: " chat
+else
+  chat=`echo $1 | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
+  echo "Chatname: $chat"
+fi
+read -p "Domain, press return for '$chat.$defaultdomain': " domain 
+if test "$domain" = ""; then
+  domain="$chat.$defaultdomain"
+fi
+read -p "IPv4 address, press return for '$defaultip': " address
+if test "$address" = ""; then
+  address="$defaultip"
+fi
+read -p "Certifcate, press return for '$defaultcert': " cert
+if test "$cert" = ""; then
+  cert="$defaultcert"
+fi
+
+# some input checks (incomplete)
+chat=`echo $chat | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
+domain=`echo $domain | tr '[A-Z]' '[a-z]'` # lowercase
+#string="/var/www/$chat";    if test -e $string; then echo "There is allready a $string"; exit; fi
+string="/etc/helpim/sites/$chat"; if test -e $string; then echo "There is allready a $string"; exit; fi
+if test `grep -i "^$chat:" /etc/passwd`; then echo "This user does excist in /etc/passwd"; exit; fi
+# todo: does the user excist in mysql?
+
+# generate passwords
+# generate mysql password
+password=`pwgen -s 8 1`
+# generate tigase password
+botpw=`pwgen -s 8 1`
+# generate admin password webinterface
+adminpw=`pwgen -A 8 1`
+
+# for testing is a fixed password easyer:
+adminpw="secret28"
+
+# show result:
+echo
+echo Chatname:         $chat
+echo Domain:           $domain
+echo IPv4 Address      $address
+echo Certificate:      $cert
+echo
+read -p "Is this correct?  (give ctrl-c to stop)"
+
+echo
+echo "Create user/group/homedir..."
+useradd -d /etc/helpim/sites/$chat $chat
+
+# cp -a /var/www/skel /var/www/$chat  # this skel is empty at the moment
+# chown -R $chat:$chat /var/www/$chat
+# chmod -R 755 /var/www/$chat
+# cp -a /usr/local/lib/python2.6/dist-packages/helpim/templates/ /var/www/$chat/
+# cp -a /usr/local/lib/python2.6/dist-packages/helpim/locale/ /var/www/$chat/
+# cp -a /usr/local/lib/python2.6/dist-packages/helpim/fixtures/ /var/www/$chat/
+# cp -a /home/buildout/HelpIM/helpim/templates /var/www/$chat/
+# cp -a /home/buildout/HelpIM/helpim/fixtures /var/www/$chat/
+# cp -a /home/buildout/HelpIM/helpim/locale /var/www/$chat/
+
+# the locale directory has to be writeable by the webserver:
+#chown -R $chat:$chat /var/www/$chat/locale
+
+echo
+echo "Create Tigase user..."
+botpw=`pwgen -s 8 1`
+cd /usr/local/tigase/
+touch /tmp/file.txt
+chmod 600 /tmp/file.txt
+echo "$chat@localhost,$botpw,,,," >> /tmp/file.txt
+./scripts/repo.sh -import /tmp/file.txt
+rm /tmp/file.txt
+#werkt niet:
+#./scripts/repo.sh -u $chat:$botpw@localhost -add
+
+echo
+echo "Create config..."
+cd /etc/helpim/sites/
+cp -a ../skel $chat
+chown -R $chat:www-data $chat
+chmod -R 750 $chat
+rpl -R CHATX $chat $chat
+rpl -R PASSWD $password $chat
+rpl -R BOTPW $botpw $chat
+#cp -r /home/buildout/HelpIM/helpim/fixtures $chat/
+#cp -r /home/buildout/HelpIM/helpim/templates $chat/
+#cp -r /home/buildout/HelpIM/helpim/rooms/static/helpim/ $chat/static
+
+echo
+echo "Create Database..."
+mysql <<EOD
+create database $chat;
+grant all on $chat.* to $chat@localhost identified by '$password';
+flush privileges;
+EOD
+
+echo
+echo "Running django-admin.py...."
+cd /etc/helpim/sites/$chat
+echo start syncdb
+PYTHONPATH="" DJANGO_SETTINGS_MODULE=settings django-admin.py syncdb --noinput
+echo start migrate
+PYTHONPATH="" DJANGO_SETTINGS_MODULE=settings django-admin.py migrate
+echo start loaddata
+PYTHONPATH="" DJANGO_SETTINGS_MODULE=settings django-admin.py loaddata setup_data
+echo end loaddata
+
+echo
+echo "create superuser..."
+cd /etc/helpim/sites/$chat
+PYTHONPATH="" \
+  DJANGO_SETTINGS_MODULE=settings \
+  ADMINPW="$adminpw" \
+  create-superuser.py
+
+echo
+echo "Create Apache config...."
+cd /etc/apache2/sites-available/
+cp -a /etc/helpim/apache-config $chat
+rpl CHAT $chat $chat
+rpl DOMAIN $domain $chat
+rpl ADDRESS $address $chat
+rpl CERT $cert $chat
+a2ensite $chat
+/etc/init.d/apache2 reload
+
+echo
+echo "Create logfile..."
+touch /var/log/helpim/$chat.log
+chown $chat /var/log/helpim/$chat.log
+
+echo
+echo "Starting chatbot..."
+/usr/local/sbin/runbot $chat
+
+# rapportage
+echo "`date` created $chat version=$version adminpw=$adminpw" >> /var/log/newchat
+
+#
+echo
+echo "Chat is ready:"
+echo "https://$domain/admin" 
+echo "username: admin"
+echo "password: $adminpw"
+echo
+

@@ -1,0 +1,64 @@
+#!/bin/bash
+# upgrades helpim
+
+USERX=buildout
+
+su $USERX -c "   # do this as user 'buildout'
+   cd
+   if test -e HelpIM; then
+     cd HelpIM/
+     git reset --hard HEAD # because .po file is changed by makemessages
+     git pull
+   else   # this is for a new installation
+     git clone git://github.com/e-hulp/HelpIM.git
+     cd HelpIM/
+     cp -r /home/paul/eggs ./ 
+     # cp helpim/development.py{.example,}
+     # read -p 'disable database config and disable south, press return'
+     # pico helpim/development.py     
+     cp /home/paul/development.py helpim/
+   fi
+   python bootstrap.py --distribute
+   ./bin/buildout -vv
+   cd parts/xmpptk/ && make
+   cd ~/HelpIM/
+   echo
+   echo begin collectstatic
+   rm -rf static
+   ./bin/manage.py collectstatic --noinput
+   echo
+   echo begin makemessages
+   cd helpim
+   ../bin/manage.py makemessages -v 2 -l nl
+   echo
+   echo begin compilemessages
+   ../bin/manage.py compilemessages
+   echo
+   cd ~/HelpIM/
+   rm dist/*
+   python setup.py sdist
+   ls dist/* > /tmp/helpim-version
+   "
+
+# rapportage
+version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
+echo "`date` buildout2 and build an egg $version" >> /var/log/helpim-upgrade
+
+echo
+read -p "Press return to copy the egg to the repository (give ctrl-c to stop)"
+mv /home/$USERX/HelpIM/dist/* /var/www/helpim/
+echo "`date` copy egg to repository $version" >> /var/log/helpim-upgrade
+
+echo
+read -p "Press return to install the egg  (give ctrl-c to stop)"
+pip install --upgrade --no-deps -f http://xen9.vandervlis.nl/helpim helpim
+echo "`date` upgrade to new helpim version" >> /var/log/helpim-upgrade
+
+echo
+read -p "Press return to sync the files  (give ctrl-c to stop)"
+rsync -av --del /home/buildout/HelpIM/helpim/locale /usr/local/share/helpim/
+rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
+#rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
+rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
+echo "`date` files synced" >> /var/log/helpim-upgrade
+echo

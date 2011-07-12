@@ -1,0 +1,17 @@
+#!/bin/bash
+# this script copies some files to /home/paul/HelpIM/
+
+# this script does not remove old files
+
+# copy some files
+rsync -av --exclude sites/* /etc/helpim /home/paul/HelpIM/helpim/doc/debian/example/    
+rsync -av /usr/local/sbin /home/paul/HelpIM/helpim/doc/debian/example/
+
+# change ownership
+chown -R paul:paul /etc/helpim /home/paul/HelpIM/helpim/doc/debian/example/*
+
+cd /home/paul/HelpIM/
+git commit
+
+echo "do a 'git add ...', then 'git commit', then 'git push'."
+

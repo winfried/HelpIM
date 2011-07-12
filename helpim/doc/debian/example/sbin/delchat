@@ -1,0 +1,40 @@
+#!/bin/bash
+# this script deletes a HelpIM 3.1 chat
+
+# ask questions
+if test "$1" = ""; then
+  read -p "Chatname: " chat
+else
+  chat=$1
+  echo "Chatname: $chat"
+fi
+
+# kill bot when running
+killbot $chat
+
+# delete apache-config and disable
+a2dissite $chat
+rm /etc/apache2/sites-available/$chat
+/etc/init.d/apache2 reload
+
+# delete database and mysql user
+mysql <<EOD
+drop database $chat;
+drop user $chat@localhost;
+flush privileges;
+EOD
+
+# delete /user/homedir/configdir
+sleep 2
+userdel $chat
+rm -rf /etc/helpim/sites/$chat
+
+# delete tigase-user
+cd /usr/local/tigase/
+scripts/repo.sh -u $chat@localhost -del
+
+# remove logfile
+rm /var/log/helpim/$chat\.*
+
+# rapportage
+echo "`date` deleted $chat" >> /var/log/newchat

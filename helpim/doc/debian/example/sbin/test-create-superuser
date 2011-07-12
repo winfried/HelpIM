@@ -1,0 +1,7 @@
+# script to test create-superuser.py
+
+cd /etc/helpim/sites/newchat/
+PYTHONPATH="" \
+  DJANGO_SETTINGS_MODULE=settings \
+  ADMINPW="verysecret" \
+  create-superuser.py

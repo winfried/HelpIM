@@ -1,0 +1,4 @@
+#!/bin/bash
+# lists all bots what are running
+echo "user               pid  %cpu  %mem command"
+ps axouser:16,pid,%cpu:5,%mem:5,command | grep "/usr/local/bin/django-admin.py [r]unbot"

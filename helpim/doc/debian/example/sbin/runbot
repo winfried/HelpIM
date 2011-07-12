@@ -1,0 +1,8 @@
+#!/bin/bash
+# script to start a bot
+
+# test
+if test "$1" = ""; then echo "Usage: runbot chat"; exit; fi
+
+# run the script runbotuser as the user of the script
+su $1 -c "/usr/local/sbin/runbotloop $1 &"
