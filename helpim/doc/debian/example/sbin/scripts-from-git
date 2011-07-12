@@ -1,0 +1,8 @@
+#!/bin/bash
+# updates scripts
+
+rsync -av /home/buildout/HelpIM/helpim/doc/debian/example/helpim /etc/      
+rsync -av /home/buildout/HelpIM/helpim/doc/debian/example/sbin /usr/local/
+
+# create /etc/helpim/sites if it does not excists:    
+if ! test -e /etc/helpim/sites; then mkdir /etc/helpim/sites; fi

@@ -62,3 +62,5 @@ rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
 echo "`date` files synced" >> /var/log/helpim-upgrade
 echo
+
+echo "do 'scripts-from-git' to sync the scripts and skel."
