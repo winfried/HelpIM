@@ -3,6 +3,16 @@
 
 USERX=buildout
 
+# Quirk:
+if ! test -e /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info; then
+   touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info  
+fi
+
+if ! test -e /usr/local/share/helpim/static; then
+   mkdir -p /usr/local/share/helpim/static
+fi
+
+
 su $USERX -c "   # do this as user 'buildout'
    cd
    if test -e HelpIM; then
@@ -12,7 +22,7 @@ su $USERX -c "   # do this as user 'buildout'
    else   # this is for a new installation
      git clone git://github.com/e-hulp/HelpIM.git
      cd HelpIM/
-     cp -r /home/paul/eggs ./ 
+     # cp -r /home/paul/eggs ./ 
      # cp helpim/development.py{.example,}
      # read -p 'disable database config and disable south, press return'
      # pico helpim/development.py     
