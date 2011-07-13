@@ -170,7 +170,7 @@
       show_below = $('#c' + comment_id);
     } else {
       show_below = $(
-        document.getElementById('replylink_' + replylink).parentElement.parentElement.parentElement
+        document.getElementById('replylink_' + replylink).parentNode.parentNode.parentNode
       )
     }
 
@@ -184,7 +184,7 @@
   };
 
   function sendcomment(event){
-    var commentrow = event.target.parentElement.parentElement.parentElement;
+    var commentrow = event.target.parentNode.parentNode.parentNode;
     var commentinput = $(commentrow).find('input.commenttext');
 
     if (!commentinput.val()) {
