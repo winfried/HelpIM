@@ -53,7 +53,7 @@
           {% if inline_admin_form.original %}
             {% get_threaded_comment_tree for inline_admin_form.original as tree %}
             <td><p>
-              <a class=add_comment href="javascript:django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').toggle();">
+              <a class=add_comment href="#" onclick="django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').toggle();return false;">
                 {{ tree|length }} comment{{ tree|pluralize }}
               </a>
               &nbsp;
