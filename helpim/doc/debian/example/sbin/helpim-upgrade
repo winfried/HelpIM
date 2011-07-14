@@ -3,23 +3,21 @@
 
 USERX=buildout
 
-# Quirk:
+# Bad fix, because of a bug in bootrap.py:
 if ! test -e /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info; then
-   touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info  
+   if test -e /home/$USERX/HelpIM; then
+     touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info  
+     REMOVESETUPTOOLS="1"
+   fi
 fi
 
-if ! test -e /usr/local/share/helpim/static; then
-   mkdir -p /usr/local/share/helpim/static
-fi
-
-
-su $USERX -c "   # do this as user 'buildout'
+su $USERX -c "   # do this as a normal user
    cd
    if test -e HelpIM; then
      cd HelpIM/
-     git reset --hard HEAD # because .po file is changed by makemessages
+     git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
      git pull
-   else   # this is for a new installation
+   else   # this is a new installation
      git clone git://github.com/e-hulp/HelpIM.git
      cd HelpIM/
      # cp -r /home/paul/eggs ./ 
@@ -50,6 +48,11 @@ su $USERX -c "   # do this as user 'buildout'
    ls dist/* > /tmp/helpim-version
    "
 
+# Bad fix, because of a bug in bootrap.py:
+if test "$REMOVESETUPTOOLS" = "1"; then
+  rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+fi
+
 # rapportage
 version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
 echo "`date` buildout2 and build an egg $version" >> /var/log/helpim-upgrade
@@ -61,7 +64,8 @@ echo "`date` copy egg to repository $version" >> /var/log/helpim-upgrade
 
 echo
 read -p "Press return to install the egg  (give ctrl-c to stop)"
-pip install --upgrade --no-deps -f http://xen9.vandervlis.nl/helpim helpim
+#pip install --upgrade --no-deps -f http://xen9.vandervlis.nl/helpim helpim
+pip install --upgrade --no-deps -f http://localhost/helpim helpim
 echo "`date` upgrade to new helpim version" >> /var/log/helpim-upgrade
 
 echo
