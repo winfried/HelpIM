@@ -1,37 +1,35 @@
 [
     {
-        "pk": 2,
-        "model": "flatpages.flatpage",
         "fields": {
-            "registration_required": false,
-            "title": "Logged Out",
-            "url": "/logged_out/",
-            "template_name": "",
-            "sites": [
-                1
-            ],
             "content": "Thanks for using our service!",
-            "enable_comments": false
-        }
-    },
-    {
-        "pk": 1,
-        "model": "flatpages.flatpage",
-        "fields": {
+            "enable_comments": false,
             "registration_required": false,
-            "title": "Unavailable",
-            "url": "/unavailable/",
-            "template_name": "",
             "sites": [
                 1
             ],
-            "content": "Sorry, currently there is no chat available for conversation. Please try again later!",
-            "enable_comments": false
-        }
+            "template_name": "",
+            "title": "Logged Out",
+            "url": "/logged_out/"
+        },
+        "model": "flatpages.flatpage",
+        "pk": 2
     },
     {
-        "pk": 2,
-        "model": "auth.group",
+        "fields": {
+            "content": "Sorry, currently there is no chat available for conversation. Please try again later!",
+            "enable_comments": false,
+            "registration_required": false,
+            "sites": [
+                1
+            ],
+            "template_name": "",
+            "title": "Unavailable",
+            "url": "/unavailable/"
+        },
+        "model": "flatpages.flatpage",
+        "pk": 1
+    },
+    {
         "fields": {
             "name": "admins",
             "permissions": [
@@ -276,14 +274,16 @@
                     "threadedcomment"
                 ]
             ]
-        }
+        },
+        "model": "auth.group",
+        "pk": 2
     },
     {
-        "pk": 1,
-        "model": "auth.group",
         "fields": {
             "name": "volunteers",
             "permissions": []
-        }
+        },
+        "model": "auth.group",
+        "pk": 1
     }
 ]

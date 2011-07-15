@@ -57,7 +57,7 @@ class ConversationAdmin(admin.ModelAdmin):
     ]
 
     def queryset(self, request):
-        qs = super(ConversationAdmin, self).queryset(request) 
+        qs = super(ConversationAdmin, self).queryset(request)
 
         restrict_to_own_conversations = getattr(settings,
             "HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS", False
@@ -66,7 +66,7 @@ class ConversationAdmin(admin.ModelAdmin):
         if (not restrict_to_own_conversations) or request.user.is_superuser:
             return qs
         else:
-            return qs.filter(participant=request.user) 
+            return qs.filter(participant=request.user)
 
 
 admin.site.register(Conversation, ConversationAdmin)
