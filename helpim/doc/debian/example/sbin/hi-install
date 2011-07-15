@@ -1,0 +1,46 @@
+# very basic setup, not ready
+
+mkdir -p /etc/helpim/skel
+mkdir /etc/helpim/sites
+mkdir /var/log/helpim
+mkdir -p /usr/local/share/helpim/static
+ln -s xmpptk/images /usr/local/share/helpim/static/images
+ln -s xmpptk/sounds /usr/local/share/helpim/static/sounds
+
+useradd -s /bin/bash buildout
+mkdir /home/buildout
+chown buildout:buildout /home/buildout
+
+# Bad fix, because of a bug in bootrap.py:
+if ! test -e /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info; then
+   if test -e /home/$USERX/HelpIM; then
+     touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+     REMOVESETUPTOOLS="1"
+   fi
+fi
+
+USERX=buildout
+su $USERX -c "   # do this as a normal user
+   cd
+   if ! test -e HelpIM; then
+     git clone git://github.com/e-hulp/HelpIM.git
+     cd HelpIM/helpim
+     wget http://xen9.vandervlis.nl/files/development.py
+   fi
+"
+
+# Bad fix, because of a bug in bootrap.py:
+if test "$REMOVESETUPTOOLS" = "1"; then
+  rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+fi
+
+hi-upgrade
+
+# installeer SSL certificaat van e-hulp
+
+# apache modules
+a2enmod ssl
+a2enmod proxy
+a2enmod proxy_http
+service apache2 restart
+
