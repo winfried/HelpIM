@@ -10,7 +10,7 @@ else
 fi
 
 # kill bot when running
-killbot $chat
+hi-killbot $chat
 
 # delete apache-config and disable
 a2dissite $chat

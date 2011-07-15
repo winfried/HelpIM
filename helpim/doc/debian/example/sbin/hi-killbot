@@ -4,5 +4,5 @@ su $1 -c "killall runbotloop > /dev/null 2>&1"
 su $1 -c "killall django-admin.py > /dev/null 2>&1"
 echo
 echo now runs:
-chkbots
+helpim-chkbots
 echo

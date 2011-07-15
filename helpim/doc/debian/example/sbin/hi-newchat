@@ -123,7 +123,7 @@ cd /etc/helpim/sites/$chat
 PYTHONPATH="" \
   DJANGO_SETTINGS_MODULE=settings \
   ADMINPW="$adminpw" \
-  create-superuser.py
+  hi-superuser.py
 
 echo
 echo "Create Apache config...."

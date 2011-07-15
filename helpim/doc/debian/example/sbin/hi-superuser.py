@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# this script creates a superuser for a new chat
+# paul@vandervlis.nl
 
 import os
 from django.conf import settings

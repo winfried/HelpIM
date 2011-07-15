@@ -5,5 +5,5 @@ cd /etc/helpim/sites
 list=`ls -1d *`
 
 for chat in $list; do
-  /usr/local/sbin/runbot $chat
+  hi-runbot $chat
 done
