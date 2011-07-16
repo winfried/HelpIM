@@ -3,9 +3,8 @@
 # it needs the packages: rpl pwgen
 version="3"
 
-defaultip="91.198.178.29"
-defaultcert="e-hulp.nl_wildcard.pem"
-defaultdomain="e-hulp.nl"
+# get variables like "defaultip"
+. /etc/helpim/helpim.conf
 
 # ask questions
 echo
@@ -143,7 +142,7 @@ chown $chat /var/log/helpim/$chat.log
 
 echo
 echo "Starting chatbot..."
-/usr/local/sbin/runbot $chat
+hi-runbot $chat
 
 # rapportage
 echo "`date` created $chat version=$version adminpw=$adminpw" >> /var/log/newchat

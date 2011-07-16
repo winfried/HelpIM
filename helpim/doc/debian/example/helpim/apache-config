@@ -1,6 +1,6 @@
 <VirtualHost *:80>
         ServerName DOMAIN
-        Redirect / https://DOMAIN
+        Redirect / https://DOMAIN/
 </VirtualHost>
 
 <VirtualHost ADDRESS:443>

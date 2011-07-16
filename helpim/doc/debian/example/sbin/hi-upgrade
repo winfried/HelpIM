@@ -1,11 +1,12 @@
 #!/bin/bash
 # upgrades helpim
 
-USERX=buildout
+# get variables like "buildoutuser"
+. /etc/helpim/helpim.conf
 
-if ! test -e /home/$USERX/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
+if ! test -e /home/$buildoutuser/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
 
-su $USERX -c "   # do this as a normal user
+su $buildoutuser -c "   # do this as a normal user
    cd
    cd HelpIM/
    git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
