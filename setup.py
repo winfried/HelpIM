@@ -24,7 +24,6 @@ install_requires=[
    'django-rosetta==0.6.0',
    'pyxmpp==1.1.1',
    'libxml2-python==2.6.21',
-   'django-registration==0.8-alpha-1',
 ]
 
 static_files = []
