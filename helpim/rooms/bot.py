@@ -7,6 +7,7 @@ import traceback
 
 from time import sleep
 from signal import signal, alarm, SIGALRM
+from datetime import datetime, timedelta
 
 from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jid import JID
@@ -1076,15 +1077,22 @@ class Bot(JabberClient):
             try:
                 if accessToken.room and (
                     accessToken.room.status == 'lost' or accessToken.room.status == 'abandoned'):
+                    """ user had an access token with room already
+                    associated and it's still usable"""
                     room = accessToken.room
             except One2OneRoom.DoesNotExist:
                 pass
 
             if not room:
                 if accessToken.role == Participant.ROLE_STAFF:
-                    room = One2OneRoom.objects.filter(status__exact='available')[:1][0]
+                    """ get a new room for client with validated access token """
+                    room = One2OneRoom.objects.filter(status__exact='available')[0]
                 else:
-                    room = One2OneRoom.objects.filter(status__exact='staffWaiting')[:1][0]
+                    """ get a new room for client with validated access token """
+                    room = One2OneRoom.objects.filter(status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
+                    """ mark room as allocated by a client """
+                    room.client_allocated_at = datetime.now()
+                    room.save()
 
             accessToken.room = room
             accessToken.save()
