@@ -128,10 +128,7 @@ INSTALLED_APPS = (
     'south',
     'threadedcomments',
     'rosetta',
-    'registration',
 )
-
-ACCOUNT_ACTIVATION_DAYS = 7
 
 CHAT = {
     'mode': 'light',
