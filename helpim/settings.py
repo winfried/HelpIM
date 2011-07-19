@@ -159,7 +159,8 @@ BOT = {
         'history_maxchars': 2000,
         'history_maxstanzas': 10,
         'history_seconds': 120,
-        },
+        'allocation_timeout': 300, # how long a room will be reserved for a client
+        },    
     'mainloop': {
         'timeout': 1,
         'reconnectdelay': 5,
@@ -173,7 +174,7 @@ BOT = {
     }
 
 ROOMS = {
-    'access_token_timeout': 24*60*60
+    'access_token_timeout': 24*60*60,
     }
 
 # A sample logging configuration. The only tangible logging
