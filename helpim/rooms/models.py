@@ -349,6 +349,11 @@ class One2OneRoom(Room):
 
     client = models.ForeignKey(Participant, verbose_name=_('Client'), related_name='+', null = True, limit_choices_to={'role': 'CS'})
     client_nick = models.CharField(_('Client nickname'), max_length=64, null = True)
+    client_allocated_at = models.DateTimeField(
+        _('Allocated by client'),
+        null = False,
+        default = '1000-01-01 00:00:00'
+        )
 
     objects = One2OneRoomManager()
 
