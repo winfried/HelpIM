@@ -1071,12 +1071,15 @@ class Bot(JabberClient):
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
-
+            log.info("token: %s" % token_n.getContent())
             accessToken = AccessToken.objects.get(token=token_n.getContent())
             room = None
             try:
                 if accessToken.room and (
-                    accessToken.room.status == 'lost' or accessToken.room.status == 'abandoned'):
+                    accessToken.room.status == 'staffWaiting' or
+                    accessToken.room.status == 'lost' or
+                    accessToken.room.status == 'abandoned'):
+                    log.info("active token found")
                     """ user had an access token with room already
                     associated and it's still usable"""
                     room = accessToken.room
@@ -1088,6 +1091,7 @@ class Bot(JabberClient):
                     """ get a new room for client with validated access token """
                     room = One2OneRoom.objects.filter(status__exact='available')[0]
                 else:
+                    log.info("looking up room for client")
                     """ get a new room for client with validated access token """
                     room = One2OneRoom.objects.filter(status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
                     """ mark room as allocated by a client """
