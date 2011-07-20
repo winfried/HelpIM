@@ -214,7 +214,11 @@ class One2OneRoomHandler(RoomHandlerBase):
         elif user.nick == room.staff_nick:
             chatmessage.sender = room.client
 
-        chatmessage.save()
+        try:
+            chatmessage.save()
+        except:
+            """ don't wanna die tonight """
+            log.error("failed to save chatmessage for user with nick %s" % user.nick)
 
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
@@ -269,7 +273,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 chatmessage.sender = room.staff
             elif user.nick == room.staff_nick:
                 chatmessage.sender = room.client
-
+                
             if self.rejoinCount is not None:
                 self.rejoinCount += 1
                 if self.rejoinCount == 2:
@@ -283,7 +287,11 @@ class One2OneRoomHandler(RoomHandlerBase):
                 self.userkicked = user.nick
             return False
 
-        chatmessage.save()
+        try:
+            chatmessage.save()
+        except:
+            """ don't wanna die tonight """
+            log.error("failed to save chatmessage for joining user with nick %s" % user.nick)
 
         return False
 
@@ -336,7 +344,12 @@ class One2OneRoomHandler(RoomHandlerBase):
             elif user.nick == room.staff_nick:
                 chatmessage.sender = room.client
 
-            chatmessage.save()
+            try:
+                chatmessage.save()
+            except:
+                """ don't wanna die tonight """
+                log.error("failed to save chatmessage for leaving user with nick %s" % user.nick)
+                
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
@@ -352,7 +365,11 @@ class One2OneRoomHandler(RoomHandlerBase):
             elif user.nick == room.staff_nick:
                 chatmessage.sender = room.client
 
-            chatmessage.save()
+            try:
+                chatmessage.save()
+            except:
+                """ don't wanna die tonight """
+                log.error("failed to save chatmessage for leaving user with nick %s" % user.nick)
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'lost':
             if cleanexit:
