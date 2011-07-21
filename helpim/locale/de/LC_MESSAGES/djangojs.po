@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 17:12+0200\n"
+"POT-Creation-Date: 2011-07-21 11:21+0200\n"
 "PO-Revision-Date: 2011-06-30 14:58+0200\n"
 "Last-Translator: Stefan Strigler <stefan@strigler.de>\n"
 "Language-Team: Helpim <helpim@helpim.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,6 +19,10 @@ msgstr ""
 #: static/xmpptk/helpim/ui/client.js:50
 msgid "Stop Conversation"
 msgstr "Unterhaltung beenden"
+
+#: static/xmpptk/helpim/ui/client.js:72
+msgid "Join Chat"
+msgstr "Chat beitreten"
 
 #: static/xmpptk/helpim/ui/client.js:73
 msgid "Nickname"
@@ -51,6 +56,7 @@ msgstr ""
 msgid "Click to see even more emoticons"
 msgstr "Klicken um noch mehr emoticons zu sehen"
 
+#: static/xmpptk/helpim/ui/muc/room.js:84
 #: static/xmpptk/helpim/ui/muc/room.js:93
 msgid "more"
 msgstr "mehr"
