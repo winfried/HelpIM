@@ -66,7 +66,10 @@ class ConversationAdmin(admin.ModelAdmin):
         if (not restrict_to_own_conversations) or request.user.is_superuser:
             return qs
         else:
-            return qs.filter(participant=request.user)
+            return qs.filter(
+                     participant__name=request.user.username,
+                     participant__role=Participant.ROLE_STAFF
+                   )
 
 
 admin.site.register(Conversation, ConversationAdmin)
