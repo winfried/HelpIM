@@ -56,6 +56,16 @@ class ConversationAdmin(admin.ModelAdmin):
         MessageInline,
     ]
 
+    def get_changelist(self, request, **kwargs):
+        ChangeList = super(ConversationAdmin, self).get_changelist(request, **kwargs)
+
+        class SelectList(ChangeList):
+            def __init__(self, *args, **kwargs):
+                super(SelectList, self).__init__(*args, **kwargs)
+                self.title = _("Select Conversation")
+
+        return SelectList
+
     def queryset(self, request):
         qs = super(ConversationAdmin, self).queryset(request)
 
