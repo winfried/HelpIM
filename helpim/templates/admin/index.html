@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
+{% load flatpages %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css" />{% endblock %}
 
@@ -80,4 +81,11 @@
 </div>
 {% endblock %}
 
-{% block sidebar %}<!-- no sidebar -->{% endblock %}
+{% block sidebar %}
+
+{% get_flatpages '/welcome/' for user as flatpages %}
+  {% for page in flatpages %}
+    <h2>{{ page.title }}</h2>
+    <p>{{ page.content }}</p>
+  {% endfor %}
+{% endblock %}
