@@ -512,7 +512,7 @@ class AccessToken(models.Model):
 
         ip_hash = md5(ip).hexdigest()
 
-        if BlockList.objects.filter(ip_hash=ip_hash).count() is not 0:
+        if BlockedIP.objects.filter(ip_hash=ip_hash).count() is not 0:
             # this user is blocked
             return None
 
@@ -524,7 +524,7 @@ class AccessToken(models.Model):
         at.save()
         return at
 
-class BlockList(models.Model):
+class BlockedIP(models.Model):
     ip_hash = models.CharField(max_length=32, unique=True)
     created_by = models.ForeignKey(User, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
