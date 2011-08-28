@@ -11,11 +11,22 @@ su $buildoutuser -c "   # do this as a normal user
    cd HelpIM/
    git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
    git pull
+   if ( ! diff -q buildout.cfg /home/$buildoutuser/buildout.cfg ) then 
+      read -p 'Press return to see the diff.'
+      diff buildout.cfg /home/$buildoutuser/buildout.cfg | less
+      read -p 'Press return (give ctrl-c to stop)'
+   fi
+   if ( ! diff -q helpim/settings.py /home/$buildoutuser/settings.py ) then
+      read -p 'Press return to see the diff.'
+      diff settings.py /home/$buildoutuser/settings.py | less
+      read -p 'Press return (give ctrl-c to stop)'
+   fi
    python bootstrap.py --distribute
-   ./bin/buildout #-vv
+   ./bin/buildout  -vv
    cd parts/xmpptk/ && make
    cd ~/HelpIM/
    echo
+   read -p 'Press return (give ctrl-c to stop)'
    echo begin collectstatic
    rm -rf static
    ./bin/manage.py collectstatic --noinput
@@ -23,6 +34,7 @@ su $buildoutuser -c "   # do this as a normal user
    echo begin makemessages
    cd helpim
    ../bin/manage.py makemessages -a
+   ../bin/manage.py makemessages -a -d djangojs
    echo
    echo begin compilemessages
    ../bin/manage.py compilemessages
