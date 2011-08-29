@@ -159,6 +159,7 @@ BOT = {
         'history_maxchars': 2000,
         'history_maxstanzas': 10,
         'history_seconds': 120,
+        'allocation_timeout': 0, # how long a room will be reserved for a client
         },
     'mainloop': {
         'timeout': 1,
@@ -205,3 +206,4 @@ LOCALE_PATHS = (
 
 
 DEBUG = False
+HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS = True
