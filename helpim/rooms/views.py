@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from helpim.rooms.models import One2OneRoom, AccessToken, Participant
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.simplejson import dumps
 from django.db import transaction
@@ -8,6 +7,8 @@ from django.conf import settings
 from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
+
+from helpim.rooms.models import One2OneRoom, AccessToken, Participant
 
 @login_required
 def staff_join_chat(request, room_pk=None):
@@ -55,3 +56,12 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
                 'token': token,
       }.items() + settings.CHAT.items() + cfg.items()), indent=2)
     })
+
+@login_required
+def staff_block_participant(request, id):
+    try: 
+        participant = Participant.objects.get(pk=id)
+        return HttpResponse(participant.role, content_type="text/javascript")
+    except:
+        return HttpResponse('false', content_type="text/javascript")
+    
