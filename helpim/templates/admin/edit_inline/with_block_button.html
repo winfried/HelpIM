@@ -1,0 +1,30 @@
+{% load i18n %}
+{% include 'admin/edit_inline/tabular.html' %}
+
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $(".dynamic-participant_set").each(
+            function(i, row) {
+                if ($(row).find('.role p').text() == 'Client') {
+                    $('<button/>',
+                      {
+                          'text': '{% trans "block" %}',
+                          'class': 'participant_block_button',
+                          'click': function() {
+                              alert('yay');
+                              return false;
+                          }
+                      }
+                     ).appendTo($(row).find('.name p'));
+                }
+            }
+        )
+    });
+})(django.jQuery);
+</script>
+<style type="text/css">
+.participant_block_button {
+    margin-left: 10px;
+}
+</style>

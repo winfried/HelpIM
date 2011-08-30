@@ -30,6 +30,7 @@ class MessageInline(admin.StackedInline):
     verbose_name_plural = _("Messages")
 
 class ParticipantInline(admin.TabularInline):
+    template = 'admin/edit_inline/with_block_button.html'
     model = Participant
     can_delete = False
 
@@ -39,6 +40,7 @@ class ParticipantInline(admin.TabularInline):
 
     verbose_name = _("Participant")
     verbose_name_plural = _("Participants")
+
 
 class ConversationAdmin(admin.ModelAdmin):
 
