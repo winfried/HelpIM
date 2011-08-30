@@ -1,4 +1,5 @@
 import datetime
+
 from hashlib import md5
 
 from django.conf import settings
@@ -408,6 +409,13 @@ class One2OneRoom(Room):
                     conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
             client.save()
             self.client = client
+            try:
+                # store participant to access token so that we're able to block
+                accessToken = AccessToken.objects.filter(room=self).filter(role=Participant.ROLE_CLIENT)[0]
+                accessToken.owner = client
+                accessToken.save()
+            except:
+                pass
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
@@ -523,6 +531,9 @@ class AccessToken(models.Model):
             at.ip_hash = ip_hash
         at.save()
         return at
+
+    def __unicode__(self):
+        return self.token
 
 class BlockedIP(models.Model):
     ip_hash = models.CharField(max_length=32, unique=True)
