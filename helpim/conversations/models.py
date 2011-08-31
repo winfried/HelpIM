@@ -35,6 +35,12 @@ class Participant(models.Model):
 
     ip_hash = models.CharField(max_length=32, blank=True)
     blocked = models.BooleanField()
+    blocked_at = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        if self.blocked:
+            self.blocked_at = datetime.now()
+        super(Participant, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
