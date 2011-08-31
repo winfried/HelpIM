@@ -20,7 +20,7 @@
   title="click to mute" width="16" height="16" align="left"/>
   <div id="logoutButton"></div>
 {% if is_staff %}
-  <button id="blockParticipantButton">{% trans "Block Participant" %}</button>
+  <div id="blockParticipantButton"></div>
 {% endif %}
  <div id="tabBar"></div>
   <div class="goog-tab-bar-clear"></div>
@@ -35,7 +35,7 @@
   <div class="sendPanel"><textarea class="sendTextarea"></textarea></div>
 </div>
 
-<iframe src="{{ STATIC_PREFIX }}xmpptk/empty.html" id="soundIFrame" name="soundIFrame" style="border:0;width:0;height:0;"></iframe>
+<iframe src="{{ STATIC_PREFIX }}xmpptk/helpim/empty.html" id="soundIFrame" name="soundIFrame" style="border:0;width:0;height:0;"></iframe>
 <script>
   helpim.start({{ xmpptk_config|safe }});
 </script>
