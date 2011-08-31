@@ -19,6 +19,9 @@
   <img src="{{ STATIC_PREFIX }}{% if debug %}xmpptk/{% endif %}xmpptk/images/stock_volume.png" alt="sound button" id="soundButton"
   title="click to mute" width="16" height="16" align="left"/>
   <div id="logoutButton"></div>
+{% if is_staff %}
+  <button id="blockParticipantButton">{% trans "Block Participant" %}</button>
+{% endif %}
  <div id="tabBar"></div>
   <div class="goog-tab-bar-clear"></div>
   <div id="tab_content" class="goog-tab-content"></div>

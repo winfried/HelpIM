@@ -17,7 +17,6 @@ def staff_join_chat(request, room_pk=None):
         dict({
             'muc_nick': request.user.username,
             'logout_redirect': request.META.get('HTTP_REFERER'),
-            'is_staff': True,
             }),
         Participant.ROLE_STAFF
         )
@@ -28,7 +27,6 @@ def client_join_chat(request):
         dict({
                 'logout_redirect': '/logged_out/',
                 'unavailable_redirect': '/unavailable/',
-                'is_staff': False,
             })
         )
 
@@ -41,6 +39,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
     return render_to_response(
       'rooms/join_chat.html', {
       'debug': settings.DEBUG,
+      'is_staff': role is Participant.ROLE_STAFF,
       'xmpptk_config': dumps(dict({
                 'muc_nick': request.user.username,
                 'logout_redirect': request.META.get('HTTP_REFERER'),
@@ -48,7 +47,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
-                'is_staff': True,
+                'is_staff': role is Participant.ROLE_STAFF,
                 'token': token.token,
       }.items() + settings.CHAT.items() + cfg.items()), indent=2)
     })    
