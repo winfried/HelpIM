@@ -7,24 +7,18 @@
         $(".dynamic-participant_set").each(
             function(i, row) {
                 if ($(row).find('.role p').text() == 'Client') {
-                    $('<button/>',
-                      {
-                          'text': '{% trans "block" %}',
-                          'class': 'participant_block_button',
-                          'click': function() {
-                              alert('yay');
-                              return false;
-                          }
-                      }
-                     ).appendTo($(row).find('.name p'));
+                    // connect onchange handler to blocked checkbox to automatically submit form
+                    $('#id_participant_set-'+i+'-blocked').change(function() {
+                        var form = $(row).parents('form');
+                        $('<input type="hidden" name="_continue" value="1" />').appendTo(form);
+                        form.submit();
+                    });
+                } else {
+                    // hide blocked checkbox
+                    $('#id_participant_set-'+i+'-blocked').remove();
                 }
             }
         )
     });
 })(django.jQuery);
 </script>
-<style type="text/css">
-.participant_block_button {
-    margin-left: 10px;
-}
-</style>

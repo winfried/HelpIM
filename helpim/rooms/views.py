@@ -33,14 +33,10 @@ def client_join_chat(request):
         )
 
 def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
-    if request.COOKIES.has_key('room_token'):
-        token = request.COOKIES.get('room_token')
-    else:
-        token = AccessToken.create(role, request.META.get('REMOTE_ADDR'))
-        if token is None:
-            return render_to_response('rooms/blocked.html')
 
-        token = token.token
+    token = AccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
+    if token is None:
+        return render_to_response('rooms/blocked.html')
 
     return render_to_response(
       'rooms/join_chat.html', {
@@ -53,15 +49,6 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
                 'static_url': settings.STATIC_URL,
                 'is_one2one': True,
                 'is_staff': True,
-                'token': token,
+                'token': token.token,
       }.items() + settings.CHAT.items() + cfg.items()), indent=2)
-    })
-
-@login_required
-def staff_block_participant(request, id):
-    try: 
-        participant = Participant.objects.get(pk=id)
-        return HttpResponse(participant.role, content_type="text/javascript")
-    except:
-        return HttpResponse('false', content_type="text/javascript")
-    
+    })    

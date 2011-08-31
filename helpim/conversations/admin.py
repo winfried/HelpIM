@@ -31,12 +31,13 @@ class MessageInline(admin.StackedInline):
 
 class ParticipantInline(admin.TabularInline):
     template = 'admin/edit_inline/with_block_button.html'
+
     model = Participant
     can_delete = False
 
-    if not CONVERSATION_EDITABLE:
-        max_num = 0
-        readonly_fields = ('name', 'role')
+    max_num = 0
+    readonly_fields = ('name', 'role')
+    fields = ('name', 'role', 'blocked')
 
     verbose_name = _("Participant")
     verbose_name_plural = _("Participants")

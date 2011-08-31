@@ -33,6 +33,9 @@ class Participant(models.Model):
       (ROLE_STAFF, _('Staff')),
     ), null=True)
 
+    ip_hash = models.CharField(max_length=32, blank=True)
+    blocked = models.BooleanField()
+
     def __unicode__(self):
         return self.name
 

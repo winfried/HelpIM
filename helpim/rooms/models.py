@@ -407,15 +407,16 @@ class One2OneRoom(Room):
         if not self.client:
             client = Participant(
                     conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
-            client.save()
             self.client = client
             try:
                 # store participant to access token so that we're able to block
                 accessToken = AccessToken.objects.filter(room=self).filter(role=Participant.ROLE_CLIENT)[0]
                 accessToken.owner = client
                 accessToken.save()
+                client.ip_hash = accessToken.ip_hash
             except:
                 pass
+            client.save()
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
@@ -514,31 +515,25 @@ class AccessToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
-    def create(role=Participant.ROLE_CLIENT, ip=None):
+    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
         # delete outdated tokens
         AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
 
+        # check if remote IP is blocked
         ip_hash = md5(ip).hexdigest()
-
-        if BlockedIP.objects.filter(ip_hash=ip_hash).count() is not 0:
+        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=ip_hash).filter(blocked=True).count() is not 0:
             # this user is blocked
             return None
 
-        at = AccessToken()
-        at.token = newHash()
-        at.role = role
-        if ip is not None:
-            at.ip_hash = ip_hash
+        if token is not None:
+            try:
+                return AccessToken.objects.get(token=token)
+            except:
+                pass
+
+        at = AccessToken(token=newHash(), role=role, ip_hash=ip_hash)
         at.save()
         return at
 
     def __unicode__(self):
         return self.token
-
-class BlockedIP(models.Model):
-    ip_hash = models.CharField(max_length=32, unique=True)
-    created_by = models.ForeignKey(User, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return self.ip_hash
