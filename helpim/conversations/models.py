@@ -35,7 +35,7 @@ class Participant(models.Model):
 
     ip_hash = models.CharField(max_length=32, blank=True)
     blocked = models.BooleanField()
-    blocked_at = models.DateTimeField(null=True)
+    blocked_at = models.DateTimeField(null=True, default=None)
 
     def save(self, *args, **kwargs):
         if self.blocked:
