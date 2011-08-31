@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         
         # Adding field 'Participant.blocked_at'
-        db.add_column('conversations_participant', 'blocked_at', self.gf('django.db.models.fields.DateTimeField')(null=True), keep_default=False)
+        db.add_column('conversations_participant', 'blocked_at', self.gf('django.db.models.fields.DateTimeField')(default=None, null=True), keep_default=False)
 
 
     def backwards(self, orm):
@@ -83,7 +83,7 @@ class Migration(SchemaMigration):
         'conversations.participant': {
             'Meta': {'object_name': 'Participant'},
             'blocked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'blocked_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'blocked_at': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True'}),
             'conversation': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['conversations.Conversation']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ip_hash': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
