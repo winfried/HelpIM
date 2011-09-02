@@ -664,7 +664,7 @@ class Bot(JabberClient):
         self.stream.set_message_handler("normal", self.handle_message)
         self.stream.set_presence_handler("subscribe", self.handle_presence_control)
         self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_rooms)
-        self.stream.set_iq_get_handler("block", NS_HELPIM_ROOMS, self.handle_iq_block_participant)
+        self.stream.set_iq_set_handler("block", NS_HELPIM_ROOMS, self.handle_iq_set_block_participant)
 
     def getMucSettings(self, site):
         '''Return dict with global MUC-settings merged with site-specific MUC-settings'''
@@ -1139,17 +1139,18 @@ class Bot(JabberClient):
 
         self.stream.send(resIq)
 
-    def handle_iq_block_participant(self, iq):
+    def handle_iq_set_block_participant(self, iq):
         log.stanza(iq)
 
         try:
+            try:
+                client_nick = iq.xpath_eval('d:block/d:participant', {'d': NS_HELPIM_ROOMS})[0]
+            except IndexError:
+                raise BadRequestError()
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
-            query.newChild(None, 'room', room.getRoomId())
 
-
-            resIq = iq.make_error_response(u"not-authorized")
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
