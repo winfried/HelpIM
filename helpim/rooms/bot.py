@@ -664,6 +664,7 @@ class Bot(JabberClient):
         self.stream.set_message_handler("normal", self.handle_message)
         self.stream.set_presence_handler("subscribe", self.handle_presence_control)
         self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_rooms)
+        self.stream.set_iq_get_handler("conversationId", NS_HELPIM_ROOMS, self.handle_iq_get_conversationId)
         self.stream.set_iq_set_handler("block", NS_HELPIM_ROOMS, self.handle_iq_set_block_participant)
 
     def getMucSettings(self, site):
@@ -1136,6 +1137,20 @@ class Bot(JabberClient):
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
+
+        self.stream.send(resIq)
+
+    def handle_iq_get_conversationId(self, iq):
+        log.stanza(iq)
+
+        try:
+            room_jid = iq.get_from().bare()
+            room = One2OneRoom.objects.get(jid=room_jid)
+            resIq = iq.make_result_response()
+            query = resIq.new_query(NS_HELPIM_ROOMS)
+            query.newChild(None, 'conversationId', '%s'%room.chat.pk)
+        except:
+            resIq = iq.make_error_response(u"item-not-found")
 
         self.stream.send(resIq)
 
