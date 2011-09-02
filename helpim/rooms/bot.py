@@ -1140,6 +1140,10 @@ class Bot(JabberClient):
         self.stream.send(resIq)
 
     def handle_iq_set_block_participant(self, iq):
+
+        """ [TODO] actually this should be connected to a room so that
+        we know whether we are talking about a one2OneRoom or not """
+
         log.stanza(iq)
 
         try:
@@ -1148,8 +1152,31 @@ class Bot(JabberClient):
             except IndexError:
                 raise BadRequestError()
 
+            log.info("got block request from %s" % iq.get_from())
+            from_jid = iq.get_from()
+            
+            room_jid = from_jid.bare()
+            staff_nick = from_jid.resource
+
+            """ get associated room - as of now this can only be a One2OneRoom (see above) """
+            room = One2OneRoom.objects.get(jid=room_jid)
+
+            """ first check if sender is a staff member """
+            if room.staff_nick != staff_nick:
+                raise NotAuthorizedError()
+
+            client = Participant.objects.filter(conversation=room.chat).filter(role=Participant.ROLE_CLIENT)[0]
+            client.blocked = True
+            client.save()
+
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
+
+        except One2OneRoom.DoesNotExist:
+            resIq = iq.make_error_response(u"item-not-found")
+            
+        except NotAuthorizedError:
+            resIq = iq.make_error_response(u"not-authorized")
 
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
@@ -1186,6 +1213,12 @@ class BotError(Exception):
 
 class BadRequestError(Exception):
     def __init__(self, msg='bad request'):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class NotAuthorizedError(Exception):
+    def __init__(self, msg='not authorized'):
         self.msg = msg
     def __str__(self):
         return repr(self.msg)
