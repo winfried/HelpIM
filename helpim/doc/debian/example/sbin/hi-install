@@ -7,8 +7,7 @@ apt-get install apache2-mpm-worker libapache2-mod-wsgi
 apt-get install mysql-server mysql-client
 apt-get install openjdk-6-jdk  # for tigase
 apt-get install python2.6-dev libxml2-dev  # only needed for building
-# apt-get install python-setuptools # this is unclear, the latest setup idea
-   # depends on *not installing* this package. But it does not work well.
+apt-get install python-setuptools
 
 pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
 pip install --no-deps -f http://xen9.vandervlis.nl/django django
@@ -30,19 +29,15 @@ useradd -s /bin/bash buildout
 mkdir /home/buildout
 chown buildout:buildout /home/buildout
 
-# Bad fix, because of a bug in bootrap.py:
-touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+su buildout -c
+  git clone git://github.com/e-hulp/HelpIM.git
+  cd HelpIM/helpim
+  cp -a development.py.example development.py
+  pico development.py
+  # change database/user in existing database, I use "helpim31/helpim31"
+exit
 
-su buildout -c "   # do this as a normal user
-   cd
-   if ! test -e HelpIM; then
-     git clone git://github.com/e-hulp/HelpIM.git
-     cd HelpIM/helpim
-     wget http://xen9.vandervlis.nl/files/development.py
-   fi
-"
-# Bad fix, because of a bug in bootrap.py:
-rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+mysql  # create existing database, not used but needed for building.
 
 # install e-hulp certificate
 # todo
@@ -53,7 +48,18 @@ a2enmod proxy
 a2enmod proxy_http
 service apache2 restart
 
+# Bad fix, because of a bug in bootrap.py:
+touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+
+# you need to copy the hi-upgrade script 
+cd /usr/local/sbin/
+wget https://github.com/e-hulp/HelpIM/blob/master/helpim/doc/debian/example/sbin/hi-upgrade
+chown +x hi-upgrade
 hi-upgrade
+
+# Bad fix, because of a bug in bootrap.py:
+rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+
 hi-newchat
 
 # check init.d
@@ -83,13 +89,13 @@ d (done)
 Default plus extra components (=1)
 your xmpp jabber domains: localhost
 server administrators: admin@localhost
-geef een admin paswoord:    7ujgtrsd (xen9) 8yh3gbvs (chat1)
+geef een admin paswoord:
 mysql (=1)
 advanced: off
 mysql superuser account name: root
 mysql superuser password: het opgeschreven paswoord
 database account: tigase
-tigase user in mysql paswoord: 67y6erkkj (xen9) 7yeh5dca (chat1)
+tigase user in mysql paswoord:
   schrijf dat op, je hebt het nog nodig.
 databasenaam: tigasedb
 database host: localhost
@@ -101,8 +107,8 @@ deze zegt dat hij de user tigase niet kan vinden, maar maakt hem dan aan.
 verder zegt hij dat /usr/local/tigase/logs/ niet kan vinden maar maakt dan directories aan in /var/log/
 /etc/init.d/tigase start
 /usr/local/tigase/scripts/repo.sh moet gewijzigd, zoiets:
-  MYSQL_REP="-sc tigase.db.jdbc.JDBCRepository -su jdbc:mysql://localhost/tigasedb?user=tigase&password=67y6erkkj"
-echo "helpimbot@localhost,yhjeyt5f,,,," > /tmp/lijst  #(yhjeyt5f=xen9, ju8ehnsq=chat1)
+  MYSQL_REP="-sc tigase.db.jdbc.JDBCRepository -su jdbc:mysql://localhost/tigasedb?user=tigase&password=verysecret"
+echo "helpimbot@localhost,verysecret,,,," > /tmp/lijst
 cd /usr/local/tigase/
 ./scripts/repo.sh -import /tmp/lijst
 echo "bosh/max-inactivity[L]=90" >> /etc/tigase/init.properties
