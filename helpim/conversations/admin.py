@@ -65,7 +65,7 @@ class ConversationAdmin(admin.ModelAdmin):
         class SelectList(ChangeList):
             def __init__(self, *args, **kwargs):
                 super(SelectList, self).__init__(*args, **kwargs)
-                self.title = _("Select Conversation")
+                self.title = _("Conversations")
 
         return SelectList
 
