@@ -26,7 +26,7 @@ read -p "Certifcate, press return for '$defaultcert': " cert
 if test "$cert" = ""; then
   cert="$defaultcert"
 fi
-read -p "Test password, press "t" + return for 'secret28' as a password, only return is random password" testpw
+read -p "Password, specify a password (return=secret28, r=random) : " adminpw
 
 # some input checks (incomplete)
 chat=`echo $chat | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
@@ -42,10 +42,10 @@ password=`pwgen -s 8 1`
 # generate tigase password
 botpw=`pwgen -s 8 1`
 # generate admin password webinterface
-adminpw=`pwgen -A 8 1`
-
-# for testing is a fixed password easyer:
-if test "$testpw" = ""; then
+if test "$adminpw" = "r"; then 
+  adminpw=`pwgen -A 8 1`
+fi
+if test "$adminpw" = ""; then
   adminpw="secret28"
 fi
 
@@ -55,6 +55,7 @@ echo Chatname:         $chat
 echo Domain:           $domain
 echo IPv4 Address      $address
 echo Certificate:      $cert
+echo Pasword:          $adminpw
 echo
 read -p "Is this correct?  (give ctrl-c to stop)"
 
