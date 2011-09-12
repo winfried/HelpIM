@@ -1,6 +1,6 @@
 import sys
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import F
 
 from django.core.management.base import BaseCommand, CommandError
@@ -15,12 +15,15 @@ class Command(BaseCommand):
             print >> sys.stderr, "Usage: ./manage.py prune_conversations [days_to_keep]"
             sys.exit(1)
 
-        query = Conversation.objects.filter(
-                start_time__gt=F('start_time') + timedelta(days=days_to_keep))
+        up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
 
-        print "Deleting %d conversations .." % query.count(),
+        print >> sys.stderr, "Deleting everything before", up_for_deletion
+
+        query = Conversation.objects.filter(start_time__lt=up_for_deletion)
+
+        print >> sys.stderr, "Deleting %d conversations .." % query.count(),
 
         query.delete()
 
-        print "done."
+        print >> sys.stderr, "done."
 
