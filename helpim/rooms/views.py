@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
-from helpim.rooms.models import One2OneRoom, AccessToken, Participant
+from helpim.rooms.models import One2OneRoomAccessToken, LobbyRoomAccessToken, Participant
 
 @login_required
 def staff_join_chat(request, room_pk=None):
@@ -35,19 +35,27 @@ def client_join_chat(request):
 
 @login_required
 def join_lobby(request):
-    return join_chat(
-        request,
-        dict({
-                'muc_nick': request.user.username
-                }),
-        Participant.ROLE_STAFF,
-        False
-        )
+    token = LobbyRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
 
+    return render_to_response(
+      'rooms/join_chat.html', {
+      'debug': settings.DEBUG,
+      'is_staff': True,
+      'xmpptk_config': dumps(dict({
+                'muc_nick': request.user.username,
+                'logout_redirect': request.META.get('HTTP_REFERER'),
+                'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
+                'bot_nick': settings.BOT['muc']['nick'],
+                'static_url': settings.STATIC_URL,
+                'is_one2one': False,
+                'is_staff': True,
+                'token': token.token,
+      }.items() + settings.CHAT.items()), indent=2)
+    })
 
-def join_chat(request, cfg, role=Participant.ROLE_CLIENT, isOne2One=True):
+def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
 
-    token = AccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
+    token = One2OneRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
     if token is None:
         return render_to_response('rooms/blocked.html')
 
@@ -56,12 +64,11 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT, isOne2One=True):
       'debug': settings.DEBUG,
       'is_staff': role is Participant.ROLE_STAFF,
       'xmpptk_config': dumps(dict({
-                'muc_nick': request.user.username,
                 'logout_redirect': request.META.get('HTTP_REFERER'),
                 'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
-                'is_one2one': isOne2One,
+                'is_one2one': True,
                 'is_staff': role is Participant.ROLE_STAFF,
                 'token': token.token,
       }.items() + settings.CHAT.items() + cfg.items()), indent=2)

@@ -580,3 +580,6 @@ class One2OneRoomAccessToken(AccessToken):
 
 class GroupRoomAccessToken(AccessToken):
     room = models.ForeignKey(GroupRoom, null=True)
+
+class LobbyRoomAccessToken(AccessToken):
+    room = models.ForeignKey(LobbyRoom, null=True)
