@@ -502,6 +502,44 @@ class GroupRoom(Room):
             raise StatusError("Participant left clean while status was not chatting")
         self.setStatus('toDestroy')
 
+class LobbyRoom(Room):
+
+    STATUS_CHOICES = (
+        ('available', _('Available' )),
+        ('chatting',  _('Chatting'  )),
+        ('abandoned', _('Abandoned' )),
+        ('toDestroy', _('To Destroy')),
+        ('destroyed', _('Destroyed' )),
+        )
+
+    objects = RoomManager()
+
+    def userJoined(self):
+        """To be called after a client has joined
+           the room at the jabber-server.
+           """
+        status = self.getStatus()
+        if status in ("available", "abandoned"):
+            self.setStatus("chatting")
+        elif status == "chatting":
+            pass
+        else:
+            raise StatusError("client joining room while not room status is not 'available' or 'chatting'")
+
+    # ToDo: these functions need to be adapted!!!!!!!
+
+    def lastUserLeftDirty(self):
+        """To be called when the last participant has left the chat dirty."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left dirty while status was not chatting")
+        self.setStatus('abandoned')
+
+    def lastUserLeftClean(self):
+        """To be called when the last participant has left the chat clean."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left clean while status was not chatting")
+        self.setStatus('toDestroy')
+
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
     role = models.CharField(max_length=2,
@@ -509,7 +547,6 @@ class AccessToken(models.Model):
                                 (Participant.ROLE_CLIENT, _('Client')),
                                 (Participant.ROLE_STAFF, _('Staff')),
                                 ))
-    room = models.ForeignKey(One2OneRoom, null=True)
     owner = models.ForeignKey(Participant, null=True)
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -528,7 +565,7 @@ class AccessToken(models.Model):
         if token is not None:
             try:
                 return AccessToken.objects.get(token=token)
-            except:
+            except AccessToken.DoesNotExist:
                 pass
 
         at = AccessToken(token=newHash(), role=role, ip_hash=ip_hash)
@@ -537,3 +574,9 @@ class AccessToken(models.Model):
 
     def __unicode__(self):
         return self.token
+
+class One2OneRoomAccessToken(AccessToken):
+    room = models.ForeignKey(One2OneRoom, null=True)
+
+class GroupRoomAccessToken(AccessToken):
+    room = models.ForeignKey(GroupRoom, null=True)

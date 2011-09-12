@@ -17,10 +17,10 @@ def staff_join_chat(request, room_pk=None):
     return join_chat(
         request,
         dict({
-            'muc_nick': request.user.username,
-            'logout_redirect': ref,
-            'conversation_redirect': '%s://%s/admin/conversations/conversation/' % (proto, request.META.get('HTTP_HOST')),
-            }),
+                'muc_nick': request.user.username,
+                'logout_redirect': ref,
+                'conversation_redirect': '%s://%s/admin/conversations/conversation/' % (proto, request.META.get('HTTP_HOST')),
+                }),
         Participant.ROLE_STAFF
         )
 
@@ -30,10 +30,22 @@ def client_join_chat(request):
         dict({
                 'logout_redirect': '/logged_out/',
                 'unavailable_redirect': '/unavailable/',
-            })
+                })
         )
 
-def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
+@login_required
+def join_lobby(request):
+    return join_chat(
+        request,
+        dict({
+                'muc_nick': request.user.username
+                }),
+        Participant.ROLE_STAFF,
+        False
+        )
+
+
+def join_chat(request, cfg, role=Participant.ROLE_CLIENT, isOne2One=True):
 
     token = AccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
     if token is None:
@@ -49,7 +61,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
                 'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
                 'bot_nick': settings.BOT['muc']['nick'],
                 'static_url': settings.STATIC_URL,
-                'is_one2one': True,
+                'is_one2one': isOne2One,
                 'is_staff': role is Participant.ROLE_STAFF,
                 'token': token.token,
       }.items() + settings.CHAT.items() + cfg.items()), indent=2)

@@ -663,7 +663,7 @@ class Bot(JabberClient):
         self.todo.append((self.__rejoinRooms,))   # check DB for active room and rejoin/fix them.
         self.stream.set_message_handler("normal", self.handle_message)
         self.stream.set_presence_handler("subscribe", self.handle_presence_control)
-        self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_rooms)
+        self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_room)
         self.stream.set_iq_get_handler("conversationId", NS_HELPIM_ROOMS, self.handle_iq_get_conversationId)
         self.stream.set_iq_set_handler("block", NS_HELPIM_ROOMS, self.handle_iq_set_block_participant)
 
@@ -1084,7 +1084,7 @@ class Bot(JabberClient):
         self.printrooms()
         return True
 
-    def handle_iq_get_rooms(self, iq):
+    def handle_iq_get_room(self, iq):
         log.stanza(iq)
         try:
             try:
@@ -1093,33 +1093,44 @@ class Bot(JabberClient):
                 raise BadRequestError()
             log.info("token: %s" % token_n.getContent())
             accessToken = AccessToken.objects.get(token=token_n.getContent())
-            room = None
+
+
             try:
-                if accessToken.room and (
-                    accessToken.room.status == 'staffWaiting' or
-                    accessToken.room.status == 'lost' or
-                    accessToken.room.status == 'abandoned'):
-                    log.info("active token found")
-                    """ user had an access token with room already
-                    associated and it's still usable"""
-                    room = accessToken.room
+                one2onetoken = accessToken.one2oneroomaccesstoken
+
+                try:
+                    if one2onetoken.room and (
+                        one2onetoken.room.status == 'staffWaiting' or
+                        one2onetoken.room.status == 'lost' or
+                        one2onetoken.room.status == 'abandoned'):
+                        log.info("active token found")
+                        """ user had an access token with room already
+                        associated and it's still usable"""
+                        room = one2onetoken.room
+                except One2OneRoom.DoesNotExist:
+                    if accessToken.role == Participant.ROLE_STAFF:
+                        """ get a new room for client with validated access token """
+                        room = One2OneRoom.objects.filter(status__exact='available')[0]
+                    else:
+                        log.info("looking up room for client")
+                        """ get a new room for client with validated
+                        access token. we need to check if the room got
+                        allocated by some other user before (within a
+                        configurable timeout) """
+                        room = One2OneRoom.objects.filter(
+                            status__exact='staffWaiting').filter(
+                            client_allocated_at__lte=
+                            datetime.now()-timedelta(
+                                    seconds=self.conf.muc.allocation_timeout)
+                            )[0]
+                            """ mark room as allocated by a client """
+                            room.client_allocated_at = datetime.now()
+                            room.save()
+
+                    one2onetoken.room = room
+                    one2onetoken.save()
             except One2OneRoom.DoesNotExist:
-                pass
-
-            if not room:
-                if accessToken.role == Participant.ROLE_STAFF:
-                    """ get a new room for client with validated access token """
-                    room = One2OneRoom.objects.filter(status__exact='available')[0]
-                else:
-                    log.info("looking up room for client")
-                    """ get a new room for client with validated access token """
-                    room = One2OneRoom.objects.filter(status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
-                    """ mark room as allocated by a client """
-                    room.client_allocated_at = datetime.now()
-                    room.save()
-
-            accessToken.room = room
-            accessToken.save()
+                
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
@@ -1132,6 +1143,7 @@ class Bot(JabberClient):
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
         except IndexError:
+            """ is this the only index error that might appear? """
             log.info("No available room found")
             resIq = iq.make_error_response(u"item-not-found")
         except BadRequestError:
