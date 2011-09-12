@@ -26,6 +26,7 @@ read -p "Certifcate, press return for '$defaultcert': " cert
 if test "$cert" = ""; then
   cert="$defaultcert"
 fi
+read -p "Test password, press "t" + return for 'secret28' as a password, only return is random password" testpw
 
 # some input checks (incomplete)
 chat=`echo $chat | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
@@ -44,7 +45,9 @@ botpw=`pwgen -s 8 1`
 adminpw=`pwgen -A 8 1`
 
 # for testing is a fixed password easyer:
-adminpw="secret28"
+if test "$testpw" = ""; then
+  adminpw="secret28"
+fi
 
 # show result:
 echo
