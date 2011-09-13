@@ -35,7 +35,7 @@ def client_join_chat(request):
 
 @login_required
 def join_lobby(request):
-    token = LobbyRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
+    token = LobbyRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), Participant.ROLE_STAFF, request.COOKIES.get('room_token'))
 
     return render_to_response(
       'rooms/join_chat.html', {
