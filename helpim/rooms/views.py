@@ -35,7 +35,7 @@ def client_join_chat(request):
 
 @login_required
 def join_lobby(request):
-    token = LobbyRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), Participant.ROLE_STAFF, request.COOKIES.get('room_token'))
+    token = LobbyRoomAccessToken.get_or_create()
 
     return render_to_response(
       'rooms/join_chat.html', {
@@ -54,22 +54,23 @@ def join_lobby(request):
     })
 
 def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
+    try:
+        token = One2OneRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
 
-    token = One2OneRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'), role, request.COOKIES.get('room_token'))
-    if token is None:
+        return render_to_response(
+            'rooms/join_chat.html', {
+                'debug': settings.DEBUG,
+                'is_staff': role is Participant.ROLE_STAFF,
+                'xmpptk_config': dumps(dict({
+                            'logout_redirect': request.META.get('HTTP_REFERER'),
+                            'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
+                            'bot_nick': settings.BOT['muc']['nick'],
+                            'static_url': settings.STATIC_URL,
+                            'is_one2one': True,
+                            'is_staff': role is Participant.ROLE_STAFF,
+                            'token': token.token,
+                            }.items() + settings.CHAT.items() + cfg.items()), indent=2)
+                })
+    except IPBlockedException:
         return render_to_response('rooms/blocked.html')
 
-    return render_to_response(
-      'rooms/join_chat.html', {
-      'debug': settings.DEBUG,
-      'is_staff': role is Participant.ROLE_STAFF,
-      'xmpptk_config': dumps(dict({
-                'logout_redirect': request.META.get('HTTP_REFERER'),
-                'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
-                'bot_nick': settings.BOT['muc']['nick'],
-                'static_url': settings.STATIC_URL,
-                'is_one2one': True,
-                'is_staff': role is Participant.ROLE_STAFF,
-                'token': token.token,
-      }.items() + settings.CHAT.items() + cfg.items()), indent=2)
-    })    

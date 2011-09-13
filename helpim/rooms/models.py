@@ -539,6 +539,12 @@ class LobbyRoom(Room):
             raise StatusError("Participant left clean while status was not chatting")
         self.setStatus('toDestroy')
 
+class IPBlockedException(Exception):
+    def __init__(self, msg='ip blocked'):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
     role = models.CharField(max_length=2,
@@ -551,25 +557,21 @@ class AccessToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
-    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
+    def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
         # delete outdated tokens
         AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
 
         # check if remote IP is blocked
-        ip_hash = md5(ip).hexdigest()
-        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=ip_hash).filter(blocked=True).count() is not 0:
+        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
             # this user is blocked
-            return None
+            raise IPBlocked()
 
         if token is not None:
             try:
                 return AccessToken.objects.get(token=token)
             except AccessToken.DoesNotExist:
                 pass
-
-        at = AccessToken(token=newHash(), role=role, ip_hash=ip_hash)
-        at.save()
-        return at
+        return None
 
     def __unicode__(self):
         return self.token
@@ -577,8 +579,29 @@ class AccessToken(models.Model):
 class One2OneRoomAccessToken(AccessToken):
     room = models.ForeignKey(One2OneRoom, null=True)
 
+    @staticmethod
+    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
+        token = super(AccessToken).get_or_create(*args, **kwargs)
+        if token is None:
+            token = One2OneRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+        return token
+
 class GroupRoomAccessToken(AccessToken):
     room = models.ForeignKey(GroupRoom, null=True)
 
+    @staticmethod
+    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
+        token = super(AccessToken).get_or_create(*args, **kwargs)
+        if token is None:
+            token = GroupRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+        return token
+
 class LobbyRoomAccessToken(AccessToken):
     room = models.ForeignKey(LobbyRoom, null=True)
+
+    @staticmethod
+    def get_or_create():
+        token = super(AccessToken).get_or_create(Participant.ROLE_STAFF)
+        if token is None:
+            token = LobbyRoomAccessToken(token=newHash(), role=Participant.ROLE_STAFF, ip_hash=md5(ip).hexdigest())
+        return token
