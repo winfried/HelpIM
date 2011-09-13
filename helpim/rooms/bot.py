@@ -760,6 +760,13 @@ class Bot(JabberClient):
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixgrouproomstatus(room, mucstate)
+            for room in site.lobbyRooms.getNotDestroyed():
+                log.notice("Re-joining lobbyRoom '%s'." % room.jid)
+                jid = str2roomjid(room.jid)
+                mucstate = self.joinMucRoom(site, jid, room.password, LobbyRoomHandler, rejoining=True)
+                # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
+                if mucstate:
+                    self.fixlobbyroomstatus(room, mucstate)
 
     def fixroomstatus(self, room, mucstate):
         # Wait until all events are processed
@@ -971,6 +978,9 @@ class Bot(JabberClient):
         # Finished fixing, set rejoinCount to None
         room.rejoinCount = None
 
+    def fixlobbyroomstatus(self, room, mucstate):
+        """ [TODO] """
+        pass
 
     def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
         mucconf = self.getMucSettings(site.name)
