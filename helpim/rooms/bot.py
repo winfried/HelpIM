@@ -19,7 +19,7 @@ from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom
+from helpim.rooms.models import getSites, AccessToken, LobbyRoomAccessToken, One2OneRoomAccessToken, One2OneRoom, LobbyRoom, GroupRoom
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -524,8 +524,8 @@ class GroupRoomHandler(RoomHandlerBase):
 class LobbyRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
         RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
-        self.maxUsers = 30
         self.type = "LobbyRoom"
+        self.userCount = 0
 
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
@@ -542,6 +542,20 @@ class LobbyRoomHandler(RoomHandlerBase):
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
+    def user_joined(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        self.userCount += 1
+
+    def user_left(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        self.userCount -= 1
+        if self.userCount == 0:
+            room = self.get_helpim_room()
+            if room is None:
+                return
+            room.setStatus('toDestroy')
 
 class Bot(JabberClient):
     def __init__(self, conf):
@@ -1148,16 +1162,27 @@ class Bot(JabberClient):
                         allocated by some other user before (within a
                         configurable timeout) """
                         room = One2OneRoom.objects.filter(
-                            status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
+                            status__exact='staffWaiting'
+                            ).filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
                         """ mark room as allocated by a client """
                         room.client_allocated_at = datetime.now()
                         room.save()
 
                     one2onetoken.room = room
                     one2onetoken.save()
-            except One2OneRoom.DoesNotExist:
+            except One2OneRoomAccessToken.DoesNotExist:
                 """ assume we got a LobbyRoomAccessToken """
-                pass
+                try:
+                    lobbytoken = accessToken.lobbyroomaccesstoken
+                    try: 
+                        if lobbytoken.room and lobbytoken.room.status == 'available':
+                            room = lobbytoken.room
+                    except LobbyRoom.DoesNotExist:
+                        room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                        lobbytoken.room = room
+                        lobbytoken.save()
+                except LobbyRoomAccessToken.DoesNotExist:
+                    raise IndexError()
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
