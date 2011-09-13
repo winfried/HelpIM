@@ -507,8 +507,6 @@ class LobbyRoom(Room):
 
     STATUS_CHOICES = (
         ('available', _('Available' )),
-        ('chatting',  _('Chatting'  )),
-        ('abandoned', _('Abandoned' )),
         ('toDestroy', _('To Destroy')),
         ('destroyed', _('Destroyed' )),
         )
