@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from django.db.models import F
 
 from django.core.management.base import BaseCommand, CommandError
-from helpim.conversations.models import Conversation
+from helpim.conversations.models import Conversation, Message
 
 class Command(BaseCommand):
     def handle(self, days_to_keep, **options):
@@ -17,13 +17,19 @@ class Command(BaseCommand):
 
         up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
 
-        print >> sys.stderr, "Deleting everything before", up_for_deletion
+        print >> sys.stderr, "Deleting everything before", up_for_deletion, ".. \nthat is",
 
-        query = Conversation.objects.filter(start_time__lt=up_for_deletion)
+        conversations = Conversation.objects.filter(start_time__lt=up_for_deletion)
 
-        print >> sys.stderr, "Deleting %d conversations .." % query.count(),
+        messages = Message.objects.filter(conversation__in=conversations)
 
-        query.delete()
+        print >> sys.stderr, (
+              "%d conversations, that is %d messages .." % (
+                conversations.count(),
+                messages.count(),
+              )),
+
+        messages.delete()
 
         print >> sys.stderr, "done."
 
