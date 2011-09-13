@@ -20,6 +20,8 @@ urlpatterns += patterns(
 
     url(r'^$', 'helpim.rooms.views.client_join_chat', name='client_join_chat'),
 
+    url(r'^forms/', include('forms_builder.forms.urls')),
+
     url(r'^login/?$', redirect_to, {'url': '/admin/'}),
     url(r'^login/$', 'django.contrib.auth.views.login'),
     url(r'^admin/', include(admin.site.urls)),
