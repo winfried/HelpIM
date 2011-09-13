@@ -18,6 +18,7 @@ class Site:
         """ [FIXME] will it blend? """
         self.rooms = One2OneRoom.objects
         self.groupRooms = GroupRoom.objects
+        self.lobbyRooms = LobbyRoom.objects
 
 def getSites():
     """ this is a fake sites dict as we're not using real sites right now """
