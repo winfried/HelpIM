@@ -521,6 +521,28 @@ class GroupRoomHandler(RoomHandlerBase):
         #DBG log.user(user)
         return False
 
+class LobbyRoomHandler(RoomHandlerBase):
+    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+        self.maxUsers = 30
+        self.type = "LobbyRoom"
+
+    def room_configured(self):
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        self.site.lobbyRooms.newRoom(jidstr, self.password)
+        log.debug("MUC-Room for lobby '%s' created and configured successfully" % jidstr)
+        return True
+
+    def get_helpim_room(self):
+        '''Return the HelpIM-API room-object which this handler handles'''
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        try:
+            return self.site.lobbyRooms.getByJid(jidstr)
+        except KeyError:
+            log.error("Could not find room '%s' in database." % jidstr)
+            return None
+
+
 class Bot(JabberClient):
     def __init__(self, conf):
         self.stats = Stats()
@@ -693,9 +715,19 @@ class Bot(JabberClient):
         mucconf = self.getMucSettings(sitename)
         mucdomain = mucconf["domain"]
         poolsize = int(mucconf["poolsize"])
+
         # FIXME: only create rooms of the type(s) needed
-        # create One2OneRooms
-        nAvailable = len(site.rooms.getAvailable())
+        rooms = [{'nAvailable': len(site.rooms.getAvailable()),
+                  'handler': One2OneRoomHandler},
+                 {'nAvailable': len(site.groupRooms.getAvailable()),
+                  'handler': GroupRoomHandler},
+                 {'nAvailable': len(site.lobbyRooms.getAvailable()),
+                  'handler': LobbyRoomHandler}]
+        for room in rooms:
+            self.__createRooms(site, mucdomain, poolsize, room['nAvailable'], room['handler'])
+        
+    def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):    
+        sitename = site.name
         nToCreate =  poolsize - nAvailable
         log.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
         log.info("Creating %d new rooms for site '%s'." % (nToCreate, sitename))
@@ -703,19 +735,7 @@ class Bot(JabberClient):
             roomname = self.newRoomName(sitename)
             password = unicode(newHash())
             log.info("Creating MUC-room '%s@%s'." % (roomname, mucdomain))
-            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, One2OneRoomHandler)
-            if mucstate:
-                mucstate.request_configuration_form()
-        # create GroupRooms
-        nAvailable = len(site.groupRooms.getAvailable())
-        nToCreate =  poolsize - nAvailable
-        log.info("Pool size for site '%s' = %d.  Currently available groupRooms = %d." % (sitename, poolsize, nAvailable))
-        log.info("Creating %d new groupRooms for site '%s'." % (nToCreate, sitename))
-        for tmp in range(nToCreate):
-            roomname = self.newRoomName(sitename)
-            password = unicode(newHash())
-            log.info("Creating MUC-room for groupchat '%s@%s'." % (roomname, mucdomain))
-            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, GroupRoomHandler)
+            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, handler)
             if mucstate:
                 mucstate.request_configuration_form()
 
@@ -1118,19 +1138,16 @@ class Bot(JabberClient):
                         allocated by some other user before (within a
                         configurable timeout) """
                         room = One2OneRoom.objects.filter(
-                            status__exact='staffWaiting').filter(
-                            client_allocated_at__lte=
-                            datetime.now()-timedelta(
-                                    seconds=self.conf.muc.allocation_timeout)
-                            )[0]
-                            """ mark room as allocated by a client """
-                            room.client_allocated_at = datetime.now()
-                            room.save()
+                            status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
+                        """ mark room as allocated by a client """
+                        room.client_allocated_at = datetime.now()
+                        room.save()
 
                     one2onetoken.room = room
                     one2onetoken.save()
             except One2OneRoom.DoesNotExist:
-                
+                """ assume we got a LobbyRoomAccessToken """
+                pass
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
