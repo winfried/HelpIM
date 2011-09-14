@@ -39,7 +39,11 @@ class ParticipantInline(admin.TabularInline):
         max_num = 0
         readonly_fields = ('name', 'role')
         can_delete = False
-        fields = ('name', 'role', 'blocked')
+
+    fields = ['name', 'role', 'blocked']
+
+    if CONVERSATION_EDITABLE:
+        fields += ['user']
 
     verbose_name = _("Participant")
     verbose_name_plural = _("Participants")
