@@ -1,4 +1,4 @@
-from helpim.conversations.models import Conversation, Participant, Message
+from helpim.conversations.models import Conversation, Participant, ChatMessage
 from django.utils.translation import ugettext as _
 from django.contrib import admin
 from django import forms
@@ -11,23 +11,25 @@ CONVERSATION_EDITABLE = False
 class MessageInline(admin.StackedInline):
     template = 'admin/edit_inline/with_threadedcomments.html'
 
-    model = Message
     fieldsets = (
         (None, {
-            'fields': ('sender_name', 'time_sent', 'body',)
+            'fields': ('sender_name', 'time_sent', 'body', 'event')
         }),
     )
 
     can_delete = False
 
     if not CONVERSATION_EDITABLE:
-        readonly_fields = ('sender_name', 'time_sent', 'body',)
+        readonly_fields = ('sender_name', 'time_sent', 'body', 'event')
         max_num = 0
     else:
         fieldsets[0][1]['fields'] = tuple(['sender'] + list(fieldsets[0][1]['fields']))
 
     verbose_name = _("Message")
     verbose_name_plural = _("Messages")
+
+class ChatMessageInline(MessageInline):
+    model = ChatMessage
 
 class ParticipantInline(admin.TabularInline):
     template = 'admin/edit_inline/with_block_button.html'
@@ -56,7 +58,7 @@ class ConversationAdmin(admin.ModelAdmin):
 
     inlines = [
         ParticipantInline,
-        MessageInline,
+        ChatMessageInline,
     ]
 
     def get_changelist(self, request, **kwargs):
