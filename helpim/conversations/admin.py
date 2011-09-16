@@ -1,3 +1,4 @@
+from helpim.common.models import AdditionalUserInformation
 from helpim.conversations.models import Conversation, Participant, ChatMessage
 from django.utils.translation import ugettext as _
 from django.contrib import admin
@@ -75,17 +76,34 @@ class ConversationAdmin(admin.ModelAdmin):
     def queryset(self, request):
         qs = super(ConversationAdmin, self).queryset(request)
 
-        restrict_to_own_conversations = getattr(settings,
-            "HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS", False
-        )
-
-        if (not restrict_to_own_conversations) or request.user.is_superuser:
+        if request.user.is_superuser:
+            # don't restrict the super user
             return qs
-        else:
+
+        if request.user.has_perm('common.view_conversations_of_all_branch_offices'):
+            # don't restrict the user, can view all conversations
+            return qs
+
+        if request.user.has_perm('common.view_conversations_of_own_branch_office'):
+            # restrict user to conversations from same branch office
+
+            try:
+                users_office = request.user.additionaluserinformation.branch_office
+            except AdditionalUserInformation.DoesNotExist:
+                # no user metadata is created, thus no branch office, fallback
+                # to standard behaviour:
+                return qs
+
+
             return qs.filter(
-                     participant__name=request.user.username,
-                     participant__role=Participant.ROLE_STAFF
+                     participant__user__additionaluserinformation__branch_office=users_office
                    )
+
+        # restrict user to own conversations
+        return qs.filter(
+                 participant__user=request.user,
+                 participant__role=Participant.ROLE_STAFF,
+               )
 
 
 admin.site.register(Conversation, ConversationAdmin)
