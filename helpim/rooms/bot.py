@@ -334,16 +334,12 @@ class One2OneRoomHandler(RoomHandlerBase):
                 chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
                 log.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
 
-            try:
-                if user.nick == room.client_nick:
-                    chatmessage.sender = room.staff
-                elif user.nick == room.staff_nick:
-                    chatmessage.sender = room.client
+            if user.nick == room.client_nick:
+                chatmessage.sender = room.staff
+            elif user.nick == room.staff_nick:
+                chatmessage.sender = room.client
 
-                chatmessage.save()
-            except:
-                """ don't wanna die tonight """
-                log.error("failed to save chatmessage for leaving user with nick %s" % user.nick)
+            chatmessage.save()
                 
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
@@ -355,16 +351,14 @@ class One2OneRoomHandler(RoomHandlerBase):
                 room.userLeftDirty()
                 chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
                 log.info("A user left room '%s' while the other user already left clean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
-            try:
-                if user.nick == room.client_nick:
-                    chatmessage.sender = room.staff
-                elif user.nick == room.staff_nick:
-                    chatmessage.sender = room.client
 
-                chatmessage.save()
-            except:
-                """ don't wanna die tonight """
-                log.error("failed to save chatmessage for leaving user with nick %s" % user.nick)
+            if user.nick == room.client_nick:
+                chatmessage.sender = room.staff
+            elif user.nick == room.staff_nick:
+                chatmessage.sender = room.client
+
+            chatmessage.save()
+
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'lost':
             if cleanexit:
