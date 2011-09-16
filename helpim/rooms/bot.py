@@ -209,29 +209,26 @@ class One2OneRoomHandler(RoomHandlerBase):
 
         chatmessage = ChatMessage(event='message', conversation=room.chat, body=stanza.get_body(), sender_name=user.nick)
 
-        try:
+        if user.nick == room.client_nick:
+            chatmessage.sender = room.client
+        elif user.nick == room.staff_nick:
+            chatmessage.sender = room.staff
 
-            if user.nick == room.client_nick:
-                chatmessage.sender = room.staff
-            elif user.nick == room.staff_nick:
-                chatmessage.sender = room.client
-
-            chatmessage.save()
-        except:
-            """ don't wanna die tonight """
-            log.error("failed to save chatmessage for user with nick %s" % user.nick)
+        chatmessage.save()
 
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
+            log.info("user joined with self nick '%s'" % user.nick)
             return True
 
         room = self.get_helpim_room()
 
         if room is None:
+            log.info("get_helpim_room returned None")
             return
 
         status = room.getStatus()
-        log.debug("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
+        log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
         try:
             if status == 'available':
                 room.staffJoined(user.nick)
@@ -322,7 +319,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             else:
                 log.notice("Staffmember waiting for chat has disappeared from room '%s' (un-clean exit)." % roomname)
                 room.userLeftDirty()
-        if roomstatus == 'staffWaitingForInvitee':
+        elif roomstatus == 'staffWaitingForInvitee':
             if cleanexit:
                 log.notice("Staffmember waiting for invitation chat has left room '%s' (clean exit)." % roomname)
                 room.userLeftClean()
