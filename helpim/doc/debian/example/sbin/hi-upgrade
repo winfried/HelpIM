@@ -73,7 +73,7 @@ echo
 read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
 # django-admin.py migrate
 echo "Running django-admin.py migrate on all chats"
-/urs/local/sbin/hi-db-upgrade
+/usr/local/sbin/hi-db-upgrade
 
 
 # test situation:
@@ -82,6 +82,9 @@ rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
 # for chat in $list; do
 #   rsync -av --del /usr/local/share/helpim/locale $chat
 # done
+
+# reload apache
+/etc/init.d/apache2 reload
 
 echo
 if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
