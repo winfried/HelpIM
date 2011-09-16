@@ -229,67 +229,64 @@ class One2OneRoomHandler(RoomHandlerBase):
 
         status = room.getStatus()
         log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
-        try:
-            if status == 'available':
-                room.staffJoined(user.nick)
-                room.setStaffNick(user.nick)
-                chatmessage = ChatMessage(event='join', conversation=room.chat, sender=room.staff, sender_name=user.nick)
-                self.todo.append((self.fillMucRoomPool, self.site))
-                log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
-                self.rejoinCount = None
-            elif status == 'availableForInvitation':
-                room.staffJoined(user.nick)
-                room.setStaffNick(user.nick)
-                chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.staff)
-                self.todo.append((self.fillMucRoomPool, self.site))
-                log.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
-                self.rejoinCount = None
-            elif status == 'staffWaiting':
-                if self.rejoinCount is None:
-                    room.clientJoined(user.nick)
-                    room.setClientNick(user.nick)
-                    chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                    log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
-                else:
-                    self.rejoinCount = None
-                    chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                    log.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
-            elif status == 'staffWaitingForInvitee':
-                if self.rejoinCount is None:
-                    room.clientJoined(user.nick)
-                    room.setClientNick(user.nick)
-                    chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                    log.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
-                else:
-                    # hmmm... this should happen, doesn't it?
-                    self.rejoinCount = None
-                    chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                    log.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
-            elif status == 'chatting':
 
-                chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick)
-                if user.nick == room.client_nick:
-                    chatmessage.sender = room.staff
-                elif user.nick == room.staff_nick:
-                    chatmessage.sender = room.client
-
-                if self.rejoinCount is not None:
-                    self.rejoinCount += 1
-                    if self.rejoinCount == 2:
-                        self.rejoinCount = None
-                        log.info("The second user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+        if status == 'available':
+            room.staffJoined(user.nick)
+            room.setStaffNick(user.nick)
+            chatmessage = ChatMessage(event='join', conversation=room.chat, sender=room.staff, sender_name=user.nick)
+            self.todo.append((self.fillMucRoomPool, self.site))
+            log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
+            self.rejoinCount = None
+        elif status == 'availableForInvitation':
+            room.staffJoined(user.nick)
+            room.setStaffNick(user.nick)
+            chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.staff)
+            self.todo.append((self.fillMucRoomPool, self.site))
+            log.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+            self.rejoinCount = None
+        elif status == 'staffWaiting':
+            if self.rejoinCount is None:
+                room.clientJoined(user.nick)
+                room.setClientNick(user.nick)
+                chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
+                log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
-                if self.rejoinCount is not None:
-                    log.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
-                    log.error("Kicking user: Nick = '%s'" % user.nick)
-                    self.kick(self.room_state.room_jid.bare(), user.nick)
-                    self.userkicked = user.nick
-                return False
+                self.rejoinCount = None
+                chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
+                log.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+        elif status == 'staffWaitingForInvitee':
+            if self.rejoinCount is None:
+                room.clientJoined(user.nick)
+                room.setClientNick(user.nick)
+                chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
+                log.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+            else:
+                # hmmm... this should happen, doesn't it?
+                self.rejoinCount = None
+                chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
+                log.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+        elif status == 'chatting':
 
-            chatmessage.save()
-        except:
-            """ don't wanna die tonight """
-            log.error("failed to save chatmessage for joining user with nick %s" % user.nick)
+            chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick)
+            if user.nick == room.client_nick:
+                chatmessage.sender = room.staff
+            elif user.nick == room.staff_nick:
+                chatmessage.sender = room.client
+
+            if self.rejoinCount is not None:
+                self.rejoinCount += 1
+                if self.rejoinCount == 2:
+                    self.rejoinCount = None
+                    log.info("The second user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+        else:
+            if self.rejoinCount is not None:
+                log.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
+                log.error("Kicking user: Nick = '%s'" % user.nick)
+                self.kick(self.room_state.room_jid.bare(), user.nick)
+                self.userkicked = user.nick
+            return False
+
+        chatmessage.save()
 
         return False
 
