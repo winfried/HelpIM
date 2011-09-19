@@ -78,15 +78,24 @@ class ConversationAdmin(admin.ModelAdmin):
         return SelectList
 
     def queryset(self, request):
-        qs = super(ConversationAdmin, self).queryset(request)
+        all_conversations = super(ConversationAdmin, self).queryset(request)
+
+        own = all_conversations.filter(
+          participant__user=request.user,
+          participant__role=Participant.ROLE_STAFF,
+        )
+
+        same_branch_office = all_conversations.filter(
+          participant__user__additionaluserinformation__branch_office=users_office,
+        )
 
         if request.user.is_superuser:
             # don't restrict the super user
-            return qs
+            return all_conversations
 
         if request.user.has_perm('common.view_conversations_of_all_branch_offices'):
             # don't restrict the user, can view all conversations
-            return qs
+            return all_conversations
 
         if request.user.has_perm('common.view_conversations_of_own_branch_office'):
             # restrict user to conversations from same branch office
@@ -95,20 +104,13 @@ class ConversationAdmin(admin.ModelAdmin):
                 users_office = request.user.additionaluserinformation.branch_office
             except AdditionalUserInformation.DoesNotExist:
                 # no user metadata is created, thus no branch office, fallback
-                # to standard behaviour:
-                return qs
+                # to restrictive behaviour:
+                return own
 
-
-            return qs.filter(
-                     participant__user__additionaluserinformation__branch_office=users_office
-                   )
+            return same_branch_office
 
         # restrict user to own conversations
-        return qs.filter(
-                 participant__user=request.user,
-                 participant__role=Participant.ROLE_STAFF,
-               )
-
+        return own
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.disable_action('delete_selected')
