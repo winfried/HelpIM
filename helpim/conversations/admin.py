@@ -85,9 +85,6 @@ class ConversationAdmin(admin.ModelAdmin):
           participant__role=Participant.ROLE_STAFF,
         )
 
-        same_branch_office = all_conversations.filter(
-          participant__user__additionaluserinformation__branch_office=users_office,
-        )
 
         if request.user.is_superuser:
             # don't restrict the super user
@@ -107,7 +104,9 @@ class ConversationAdmin(admin.ModelAdmin):
                 # to restrictive behaviour:
                 return own
 
-            return same_branch_office
+            return all_conversations.filter(
+              participant__user__additionaluserinformation__branch_office=users_office,
+            )
 
         # restrict user to own conversations
         return own
