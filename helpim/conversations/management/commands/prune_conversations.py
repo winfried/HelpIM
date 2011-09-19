@@ -1,10 +1,10 @@
 import sys
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import F
 
 from django.core.management.base import BaseCommand, CommandError
-from helpim.conversations.models import Conversation
+from helpim.conversations.models import Conversation, Message
 
 class Command(BaseCommand):
     def handle(self, days_to_keep, **options):
@@ -15,12 +15,21 @@ class Command(BaseCommand):
             print >> sys.stderr, "Usage: ./manage.py prune_conversations [days_to_keep]"
             sys.exit(1)
 
-        query = Conversation.objects.filter(
-                start_time__gt=F('start_time') + timedelta(days=days_to_keep))
+        up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
 
-        print "Deleting %d conversations .." % query.count(),
+        print >> sys.stderr, "Deleting everything before", up_for_deletion, ".. \nthat is",
 
-        query.delete()
+        conversations = Conversation.objects.filter(start_time__lt=up_for_deletion)
 
-        print "done."
+        messages = Message.objects.filter(conversation__in=conversations)
+
+        print >> sys.stderr, (
+              "%d conversations, that is %d messages .." % (
+                conversations.count(),
+                messages.count(),
+              )),
+
+        messages.delete()
+
+        print >> sys.stderr, "done."
 

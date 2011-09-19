@@ -12,15 +12,13 @@ from helpim.rooms.models import One2OneRoomAccessToken, LobbyRoomAccessToken, Pa
 
 @login_required
 def staff_join_chat(request, room_pk=None):
-    ref = request.META.get('HTTP_REFERER')
-    proto = ref[:ref.find('://')]
     return join_chat(
         request,
         dict({
-                'muc_nick': request.user.username,
-                'logout_redirect': ref,
-                'conversation_redirect': '%s://%s/admin/conversations/conversation/' % (proto, request.META.get('HTTP_HOST')),
-                }),
+            'muc_nick': request.user.username,
+            'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
+            'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
+            }),
         Participant.ROLE_STAFF
         )
 

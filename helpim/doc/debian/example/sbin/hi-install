@@ -1,22 +1,75 @@
-# very basic setup, not ready
+# very basic setup, not well tested
 
-# not sure this is complete:
-apt-get install python-wsgi python-mysql python-pip python-xmpp python-mysqldb
-apt-get install python-dnspython python-libxml2 python-pyxmpp pyxmpp
+# first install packages for building:
+apt-get install python python2.6-dev libxml2-dev gcc make openjdk-6-jdk gettext libmysqlclient-dev
+apt-get install mysql-server mysql-client
+touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+
+# root may login without password in mysql. Change password.
+echo '
+[client]
+user     = "root"
+password = "secret"
+' > /root/.my.cnf
+chmod 600 /root/.my.cnf
+
+# dummy database/user for building:
+mysql -uroot <<EOD
+ create database helpim31;
+ grant all on helpim31.* to helpim31@'localhost' identified by 'helpim31';
+ flush privileges;
+EOD
+
+mkdir /etc/helpim/
+echo '
+# some variabeles used in scripts
+defaultip="91.198.178.29"
+defaultcert="e-hulp.nl_wildcard.pem"
+defaultdomain="e-hulp.nl"
+buildoutuser="buildout"
+' > /etc/helpim/helpim.conf
+
+useradd -s /bin/bash buildout
+mkdir /home/buildout
+cd /home/buildout/
+git clone git://github.com/e-hulp/HelpIM.git
+cp HelpIM/helpim/development.py.example HelpIM/helpim/development.py
+pico HelpIM/helpim/development.py
+# change database/user in existing database, I use "helpim31/helpim31/helpim31"
+cp -a HelpIM/buildout.cfg ./
+cp -a HelpIM/helpim/settings.py ./
+chown -R buildout:buildout /home/buildout
+
+# you need to copy the hi-upgrade script
+cd /usr/local/sbin/
+wget https://github.com/e-hulp/HelpIM/blob/master/helpim/doc/debian/example/sbin/hi-upgrade
+chown +x hi-upgrade
+
+# it's better to have no python modules in /usr/local/lib/python2.6/dist-packages/
+# during the first time running this script. Important: django_rosetta, south, django_threadedcomment
+ls /usr/local/lib/python2.6/dist-packages/
+# evt.: pip uninstall django_rosetta south django_threadedcomment
+
+hi-upgrade
+# evt.: pip install django_rosetta south django_threadedcomment
+
+# production (not sure debian packages are complete)
+apt-get install python python-mysqldb python-xmpp
+apt-get install python-dnspython python-libxml2 python-pyxmpp
 apt-get install apache2-mpm-worker libapache2-mod-wsgi
 apt-get install mysql-server mysql-client
-apt-get install openjdk-6-jdk  # for tigase
-apt-get install python2.6-dev libxml2-dev  # only needed for building
-apt-get install python-setuptools
-
+apt-get install python-setuptools python-pip
 pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
 pip install --no-deps -f http://xen9.vandervlis.nl/django django
-pip install --no-deps django-threadedcomments==0.5.3  # zit niet in stable, wel in testing.
-pip install --no-deps django-rosetta==0.6.2  # in stable zit 0.5.6, in testing zit 0.6.0, misschien kan die ook wel
-pip install --no-deps django-forms-builder==0.4.6 # waarom is er een vandervlis.nl/django-forms-builder ?  Zit helemaal niet in Debian.
-pip install --no-deps south==0.7.3 # 0.7.3 zit in testing, 0.7 zit in stable, het is mogelijk dat die ook werkt.
-pip install --no-deps pip==1.0.2   #nieuwe versie die ook kan verwijderen. 0.7.2 zit in stable, 1.0 zit in testing
+pip install --no-deps django-threadedcomments==0.5.3  # not in stable, but in testing.
+pip install --no-deps django-rosetta==0.6.2  # in stable is 0.5.6, in testing is 0.6.0, maybe that one is OK too.
+pip install --no-deps django-forms-builder==0.4.6 # is not in Debian
+pip install --no-deps south==0.7.3 # 0.7.3 is in testing, 0.7 is in stable, it's possible that it works too.
+pip install --no-deps pip==1.0.2   #new version what can remove. 0.7.2 is in stable, 1.0 is in testing
 apt-get remove python-pip   #you need to login and logout before this works well.
+
+# install e-hulp wildcard certificate
+# todo
 
 mkdir -p /etc/helpim/skel
 mkdir /etc/helpim/sites
@@ -25,45 +78,17 @@ mkdir -p /usr/local/share/helpim/static
 ln -s xmpptk/images /usr/local/share/helpim/static/images
 ln -s xmpptk/sounds /usr/local/share/helpim/static/sounds
 
-useradd -s /bin/bash buildout
-mkdir /home/buildout
-chown buildout:buildout /home/buildout
-
-su buildout -c
-  git clone git://github.com/e-hulp/HelpIM.git
-  cd HelpIM/helpim
-  cp -a development.py.example development.py
-  pico development.py
-  # change database/user in existing database, I use "helpim31/helpim31"
-exit
-
-mysql  # create existing database, not used but needed for building.
-
-# install e-hulp certificate
-# todo
-
 # apache modules
 a2enmod ssl
 a2enmod proxy
 a2enmod proxy_http
 service apache2 restart
 
-# Bad fix, because of a bug in bootrap.py:
-touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
-
-# you need to copy the hi-upgrade script 
-cd /usr/local/sbin/
-wget https://github.com/e-hulp/HelpIM/blob/master/helpim/doc/debian/example/sbin/hi-upgrade
-chown +x hi-upgrade
-hi-upgrade
-
-# Bad fix, because of a bug in bootrap.py:
-rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
-
+# create a chat
 hi-newchat
 
-# check init.d
 
+---------------------------
 # Tigase setup (in Dutch):
 schrijf vooraf mysql root paswoord op!
 cat /root/.my.cnf | grep password
@@ -113,8 +138,7 @@ cd /usr/local/tigase/
 ./scripts/repo.sh -import /tmp/lijst
 echo "bosh/max-inactivity[L]=90" >> /etc/tigase/init.properties
 echo 'HOME="/usr/local/tigase"' >> /etc/tigase/tigase.conf
-pico /etc/tigase/tigase.conf
- #change this variable:  JAVA_HOME="/usr/lib/jvm/java-6-openjdk/"
+rpl 'JAVA_HOME="/usr/local/tigase/"' 'JAVA_HOME="/usr/lib/jvm/java-6-openjdk/"' /etc/tigase/tigase.conf
 service tigase restart
 less /var/log/tigase/console.log  # check evt. voor problemen
 

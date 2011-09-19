@@ -11,15 +11,17 @@ su $buildoutuser -c "   # do this as a normal user
    cd HelpIM/
    git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
    git pull
-   if ( ! diff -q buildout.cfg /home/$buildoutuser/buildout.cfg ) then 
+   if ( ! diff -q buildout.cfg ../buildout.cfg ) then 
       read -p 'Press return to see the diff.'
-      diff buildout.cfg /home/$buildoutuser/buildout.cfg | less
+      diff ../buildout.cfg buildout.cfg | less
       read -p 'Press return (give ctrl-c to stop)'
+      cp -v buildout.cfg ../buildout.cfg
    fi
-   if ( ! diff -q helpim/settings.py /home/$buildoutuser/settings.py ) then
+   if ( ! diff -q helpim/settings.py ../settings.py ) then
       read -p 'Press return to see the diff.'
-      diff settings.py /home/$buildoutuser/settings.py | less
+      diff ../settings.py helpim/settings.py | less
       read -p 'Press return (give ctrl-c to stop)'
+      cp -v helpim/settings.py ../settings.py
    fi
    python bootstrap.py --distribute
    ./bin/buildout  -vv
@@ -67,12 +69,22 @@ rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
 echo "`date` files synced" >> /var/log/helpim-upgrade
 
+echo
+read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
+# django-admin.py migrate
+echo "Running django-admin.py migrate on all chats"
+/usr/local/sbin/hi-db-upgrade
+
+
 # test situation:
 rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
 # list=`ls -1d /etc/helpim/sites/*`
 # for chat in $list; do
 #   rsync -av --del /usr/local/share/helpim/locale $chat
 # done
+
+# reload apache
+/etc/init.d/apache2 reload
 
 echo
 if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
@@ -85,4 +97,3 @@ rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/init.d/helpim /e
 # must be checked for security and locale!
 chown -R root /etc/helpim
 chmod -R +rx /etc/helpim
-
