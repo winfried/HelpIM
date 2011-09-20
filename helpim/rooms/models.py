@@ -589,7 +589,7 @@ class One2OneRoomAccessToken(AccessToken):
 
     @staticmethod
     def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
-        token = super(AccessToken).get_or_create(*args, **kwargs)
+        token = AccessToken.get_or_create(ip, role, token)
         if token is None:
             token = One2OneRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
         return token
@@ -599,7 +599,7 @@ class GroupRoomAccessToken(AccessToken):
 
     @staticmethod
     def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
-        token = super(AccessToken).get_or_create(*args, **kwargs)
+        token = AccessToken.get_or_create(ip, role, token)
         if token is None:
             token = GroupRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
         return token
@@ -608,8 +608,8 @@ class LobbyRoomAccessToken(AccessToken):
     room = models.ForeignKey(LobbyRoom, null=True)
 
     @staticmethod
-    def get_or_create():
-        token = super(AccessToken).get_or_create(Participant.ROLE_STAFF)
+    def get_or_create(ip):
+        token = AccessToken.get_or_create(ip, Participant.ROLE_STAFF)
         if token is None:
             token = LobbyRoomAccessToken(token=newHash(), role=Participant.ROLE_STAFF, ip_hash=md5(ip).hexdigest())
         return token

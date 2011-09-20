@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
-from helpim.rooms.models import One2OneRoomAccessToken, LobbyRoomAccessToken, Participant
+from helpim.rooms.models import One2OneRoomAccessToken, LobbyRoomAccessToken, Participant, IPBlockedException
 
 @login_required
 def staff_join_chat(request, room_pk=None):
@@ -33,7 +33,7 @@ def client_join_chat(request):
 
 @login_required
 def join_lobby(request):
-    token = LobbyRoomAccessToken.get_or_create()
+    token = LobbyRoomAccessToken.get_or_create(request.META.get('REMOTE_ADDR'))
 
     return render_to_response(
       'rooms/join_chat.html', {
