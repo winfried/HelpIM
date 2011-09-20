@@ -6,6 +6,13 @@
 {% url 'admin:jsi18n' as jsi18nurl %}
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 {{ media }}
+<style>
+.user_permissions .selector select { width: 450px; }
+.user_permissions .selector { width: 1000px; }
+.user_permissions .selector-available, 
+.user_permissions .selector-chosen { width: 450px; }
+.user_permissions .selector .selector-available input { width: 410px; }
+</style>
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
