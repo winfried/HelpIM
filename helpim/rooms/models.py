@@ -592,6 +592,7 @@ class One2OneRoomAccessToken(AccessToken):
         token = AccessToken.get_or_create(ip, role, token)
         if token is None:
             token = One2OneRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+            token.save()
         return token
 
 class GroupRoomAccessToken(AccessToken):
@@ -602,6 +603,7 @@ class GroupRoomAccessToken(AccessToken):
         token = AccessToken.get_or_create(ip, role, token)
         if token is None:
             token = GroupRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+            token.save()
         return token
 
 class LobbyRoomAccessToken(AccessToken):
@@ -612,4 +614,5 @@ class LobbyRoomAccessToken(AccessToken):
         token = AccessToken.get_or_create(ip, Participant.ROLE_STAFF)
         if token is None:
             token = LobbyRoomAccessToken(token=newHash(), role=Participant.ROLE_STAFF, ip_hash=md5(ip).hexdigest())
+            token.save()
         return token
