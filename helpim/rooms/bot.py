@@ -1135,7 +1135,6 @@ class Bot(JabberClient):
             log.info("token: %s" % token_n.getContent())
             accessToken = AccessToken.objects.get(token=token_n.getContent())
 
-
             try:
                 one2onetoken = accessToken.one2oneroomaccesstoken
 
