@@ -598,6 +598,14 @@ class Bot(JabberClient):
                 log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.groupRooms.deleteClosed()
+            # LobbyRooms
+            for room in site.lobbyRooms.getToDestroy():
+                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                self.closeRoom(room)
+            for room in site.lobbyRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
+                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                self.closeRoom(room)
+            site.lobbyRooms.deleteClosed()
         #DBG: self.printrooms()
 
     def alarmHandler(self, signum, frame):
@@ -1056,9 +1064,9 @@ class Bot(JabberClient):
         site = self.sites[sitename]
 
         if roomstatus is None:
-            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed()
+            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed()
         else:
-            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus)
+            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus)
         for room in rooms:
             self.closeRoom(room)
 
