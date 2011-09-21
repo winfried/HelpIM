@@ -1160,17 +1160,20 @@ class Bot(JabberClient):
             except One2OneRoomAccessToken.DoesNotExist:
                 """ assume we got a LobbyRoomAccessToken """
                 try:
+                    log.info("probing for lobbytoken")
                     lobbytoken = accessToken.lobbyroomaccesstoken
-                    try: 
-                        if lobbytoken.room and lobbytoken.room.status == 'available':
-                            room = lobbytoken.room
-                    except LobbyRoom.DoesNotExist:
+                    log.info("lobby token found, now check for associated room")
+                    if lobbytoken.room and lobbytoken.room.status == 'available':
+                        room = lobbytoken.room
+                    else:
+                        log.info("no associated room found, grab a new one")
                         room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
                         lobbytoken.room = room
                         lobbytoken.save()
                 except LobbyRoomAccessToken.DoesNotExist:
                     raise IndexError()
 
+            log.info("got room: %s" % room)
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
             query.newChild(None, 'room', room.getRoomId())
