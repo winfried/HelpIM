@@ -39,6 +39,7 @@ def join_lobby(request):
       'rooms/join_chat.html', {
       'debug': settings.DEBUG,
       'is_staff': True,
+      'is_one2one': False,
       'xmpptk_config': dumps(dict({
                 'muc_nick': request.user.username,
                 'logout_redirect': request.META.get('HTTP_REFERER'),
@@ -59,6 +60,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
             'rooms/join_chat.html', {
                 'debug': settings.DEBUG,
                 'is_staff': role is Participant.ROLE_STAFF,
+                'is_one2one': True,
                 'xmpptk_config': dumps(dict({
                             'logout_redirect': request.META.get('HTTP_REFERER'),
                             'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),

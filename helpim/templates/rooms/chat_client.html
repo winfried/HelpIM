@@ -28,7 +28,7 @@
   <div class="subjectPanel">{% trans "Subject" %}: <span class="roomSubject"></span></div>
   <div class="rosterPanel"></div>
   <div class="messagesPanel"></div>
-{% if is_staff %}
+{% if is_staff and is_one2one %}
   <div class="blockParticipantButton"></div>
 {% endif %}
   <div class="emoticonsPanel"></div>
