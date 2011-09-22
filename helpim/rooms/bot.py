@@ -533,7 +533,13 @@ class LobbyRoomHandler(RoomHandlerBase):
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
+        if self.userCount == 0:
+            """ first user has joined """
+            room = self.get_helpim_room()
+            if not room is None:
+                room.setStatus('chatting')
         self.userCount += 1
+        self.todo.append((self.fillMucRoomPool, self.site))
 
     def user_left(self, user, stanza):
         if user.nick == self.nick:
@@ -1175,7 +1181,11 @@ class Bot(JabberClient):
                         room = lobbytoken.room
                     else:
                         log.info("no associated room found, grab a new one")
-                        room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                        """ first we try to find an already allocated room which has status 'chatting' """
+                        try:
+                            room = LobbyRoom.objects.filter(status='chatting')[0]
+                        except IndexError:
+                            room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
                         lobbytoken.room = room
                         lobbytoken.save()
                 except LobbyRoomAccessToken.DoesNotExist:

@@ -520,6 +520,7 @@ class LobbyRoom(Room):
 
     STATUS_CHOICES = (
         ('available', _('Available' )),
+        ('chatting', _('Chatting' )),
         ('toDestroy', _('To Destroy')),
         ('destroyed', _('Destroyed' )),
         )
@@ -544,7 +545,7 @@ class LobbyRoom(Room):
         """To be called when the last participant has left the chat dirty."""
         if not self.getStatus() == "chatting":
             raise StatusError("Participant left dirty while status was not chatting")
-        self.setStatus('abandoned')
+        self.setStatus('toDestroy')
 
     def lastUserLeftClean(self):
         """To be called when the last participant has left the chat clean."""
