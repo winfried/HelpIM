@@ -19,7 +19,7 @@ from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, LobbyRoomAccessToken, One2OneRoomAccessToken, One2OneRoom, LobbyRoom, GroupRoom
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, LobbyRoom, GroupRoom
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -1137,68 +1137,14 @@ class Bot(JabberClient):
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
+
             log.info("token: %s" % token_n.getContent())
-            accessToken = AccessToken.objects.get(token=token_n.getContent())
 
-            try:
-                one2onetoken = accessToken.one2oneroomaccesstoken
+            ac = AccessToken.objects.get(token=token_n.getContent())
+            log.info("got accessToken: %s" % ac)
 
-                try:
-                    if one2onetoken.room and (
-                        one2onetoken.room.status == 'staffWaiting' or
-                        one2onetoken.room.status == 'lost' or
-                        one2onetoken.room.status == 'abandoned'):
-                        log.info("active token found")
-                        """ user had an access token with room already
-                        associated and it's still usable"""
-                        room = one2onetoken.room
-                except One2OneRoom.DoesNotExist:
-                    if accessToken.role == Participant.ROLE_STAFF:
-                        """ get a new room for client with validated access token """
-                        room = One2OneRoom.objects.filter(status__exact='available')[0]
-                    else:
-                        log.info("looking up room for client")
-                        """ get a new room for client with validated
-                        access token. we need to check if the room got
-                        allocated by some other user before (within a
-                        configurable timeout) """
-                        room = One2OneRoom.objects.filter(
-                            status__exact='staffWaiting'
-                            ).filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
-                        """ mark room as allocated by a client """
-                        room.client_allocated_at = datetime.now()
-                        room.save()
-
-                    one2onetoken.room = room
-                    one2onetoken.save()
-            except One2OneRoomAccessToken.DoesNotExist:
-                """ assume we got a LobbyRoomAccessToken """
-                try:
-                    log.info("probing for lobbytoken")
-                    lobbytoken = accessToken.lobbyroomaccesstoken
-                    log.info("lobby token found, now check for associated room")
-                    if lobbytoken.room and lobbytoken.room.status == 'available':
-                        room = lobbytoken.room
-                    else:
-                        log.info("no associated room found, grab a new one")
-                        """ first we try to find an already allocated room which has status 'chatting' """
-                        try:
-                            room = LobbyRoom.objects.filter(status='chatting')[0]
-                        except IndexError:
-                            room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
-                        lobbytoken.room = room
-                        lobbytoken.save()
-                except LobbyRoomAccessToken.DoesNotExist:
-                    raise IndexError()
-
-            log.info("got room: %s" % room)
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
-            query.newChild(None, 'room', room.getRoomId())
-            query.newChild(None, 'service', room.getRoomService())
-            query.newChild(None, 'password', room.password)
-            if accessToken.role == Participant.ROLE_CLIENT and accessToken.room.client_nick is not '':
-                query.newChild(None, 'nick', accessToken.room.client_nick)
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
