@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
-from helpim.rooms.models import One2OneRoomAccessToken, LobbyRoomAccessToken, Participant, IPBlockedException
+from helpim.rooms.models import AccessToken, Participant, IPBlockedException
 
 @login_required
 def staff_join_chat(request, room_pk=None):
