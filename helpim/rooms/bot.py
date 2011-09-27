@@ -1132,6 +1132,7 @@ class Bot(JabberClient):
 
     def handle_iq_get_room(self, iq):
         log.stanza(iq)
+        xml = None
         try:
             try:
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
@@ -1145,6 +1146,20 @@ class Bot(JabberClient):
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
+
+            if ac.role == Participant.ROLE_CLIENT:
+                """ add to waiting queue """
+                pass
+            else:
+                """ send invite to lobby room """
+                """ first we try to find an already allocated room which has status 'chatting' """
+                try:
+                    room = LobbyRoom.objects.filter(status='chatting')[0]
+                except IndexError:
+                    room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+
+                xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite from='%s'/><password>%s</password></x></message>" % (iq.get_from(), room.jid, room.password)
+
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
@@ -1155,8 +1170,10 @@ class Bot(JabberClient):
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
-
+    
         self.stream.send(resIq)
+        if xml is not None:
+            self.stream.write_raw(xml)
 
     def handle_iq_get_conversationId(self, iq):
         log.stanza(iq)
