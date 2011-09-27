@@ -566,9 +566,12 @@ class AccessToken(models.Model):
                                 (Participant.ROLE_CLIENT, _('Client')),
                                 (Participant.ROLE_STAFF, _('Staff')),
                                 ))
-    owner = models.ForeignKey(Participant, null=True)
+
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    """ will be set later on by bot once room is assigned and user joined it """
+    owner = models.ForeignKey(Participant, null=True)
 
     @staticmethod
     def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
@@ -581,44 +584,11 @@ class AccessToken(models.Model):
             raise IPBlocked()
 
         if token is not None:
-            try:
-                return AccessToken.objects.get(token=token)
-            except AccessToken.DoesNotExist:
-                pass
-        return None
+            ac = AccessToken.objects.get(token=token)
+        else:
+            ac = AccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+            ac.save()
+        return ac
 
     def __unicode__(self):
         return self.token
-
-class One2OneRoomAccessToken(AccessToken):
-    room = models.ForeignKey(One2OneRoom, null=True)
-
-    @staticmethod
-    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
-        token = AccessToken.get_or_create(ip, role, token)
-        if token is None:
-            token = One2OneRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
-            token.save()
-        return token
-
-class GroupRoomAccessToken(AccessToken):
-    room = models.ForeignKey(GroupRoom, null=True)
-
-    @staticmethod
-    def get_or_create(ip, role=Participant.ROLE_CLIENT, token=None):
-        token = AccessToken.get_or_create(ip, role, token)
-        if token is None:
-            token = GroupRoomAccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
-            token.save()
-        return token
-
-class LobbyRoomAccessToken(AccessToken):
-    room = models.ForeignKey(LobbyRoom, null=True)
-
-    @staticmethod
-    def get_or_create(ip):
-        token = AccessToken.get_or_create(ip, Participant.ROLE_STAFF)
-        if token is None:
-            token = LobbyRoomAccessToken(token=newHash(), role=Participant.ROLE_STAFF, ip_hash=md5(ip).hexdigest())
-            token.save()
-        return token

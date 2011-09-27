@@ -24,7 +24,7 @@ urlpatterns += patterns(
     url(r'^admin/threadedcomments/', include('threadedcomments.urls')),
     url(r'^admin/rooms/join/one2oneroom/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_next_available_chat'),
     url(r'^admin/rooms/join/one2oneroom/(\d+)/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_specific_chat'),
-    url(r'^admin/rooms/lobby/$', 'helpim.rooms.views.join_lobby', name='staff_join_lobby'),
+    url(r'^admin/rooms/lobby/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_lobby'),
 
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
 )
