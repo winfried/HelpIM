@@ -179,7 +179,7 @@ class RoomHandlerBase(MucRoomHandler):
         #DBG log.stanza(stanza)
         #DBG log.user(user)
         room = self.get_helpim_room()
-        if not room is None:
+        if not room is None and not room.chat is None:
             chat = room.chat
             chat.subject = stanza.get_subject()
             chat.save()
