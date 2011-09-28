@@ -600,10 +600,13 @@ class AccessToken(models.Model):
             raise IPBlocked()
 
         if token is not None:
-            ac = AccessToken.objects.get(token=token)
-        else:
-            ac = AccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
-            ac.save()
+            try: 
+                return AccessToken.objects.get(token=token)
+            except AccessToken.DoesNotExist:
+                pass
+        """ well then we just create a new one """
+        ac = AccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
+        ac.save()
         return ac
 
     def __unicode__(self):
