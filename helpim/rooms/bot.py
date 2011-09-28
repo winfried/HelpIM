@@ -538,6 +538,12 @@ class LobbyRoomHandler(RoomHandlerBase):
             room = self.get_helpim_room()
             if not room is None:
                 room.setStatus('chatting')
+
+                """ now get a waiting room to be associated with this lobby """
+                waitingroom = WaitingRoom.objects.filter(status='available')[0]
+                waitingroom.lobbyroom = room
+                waitingroom.setStatus('abandoned')
+
         self.userCount += 1
         self.todo.append((self.fillMucRoomPool, self.site))
 
@@ -549,9 +555,15 @@ class LobbyRoomHandler(RoomHandlerBase):
             room = self.get_helpim_room()
             if room is None:
                 return
-            room.setStatus('toDestroy')
+            """ if associated waitingroom is empty too it's save to remove all """
+            try:
+                waitingroom = WaitingRoom.objects.filter(lobbyroom=room).filter(status='abandoned')[0]
+                room.setStatus('toDestroy')
+                waitingroom.setStatus('toDestroy')
+            except IndexError:
+                room.setStatus('abandoned')
 
-class WaitingRoomHandler(LobbyRoomHandler):
+class WaitingRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
         RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
         self.type = "WaitingRoom"
@@ -571,6 +583,23 @@ class WaitingRoomHandler(LobbyRoomHandler):
         except KeyError:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
+
+    def user_joined(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        self.userCount += 1
+
+    def user_left(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        self.userCount -= 1
+        if self.userCount == 0:
+            room = self.get_helpim_room()
+            if room is None:
+                return
+            if room.lobbyroom.getStatus() == 'abandoned':
+                room.lobbyroom.setStatus('toDestroy')
+                room.setStatus('toDestroy')
 
 class Bot(JabberClient):
     def __init__(self, conf):
@@ -1192,11 +1221,13 @@ class Bot(JabberClient):
             if ac.role == Participant.ROLE_CLIENT:
                 """ send invite to waiting room """
                 log.info("got a client, sending to waiting room")
-                """ first we try to find an already allocated room which has status 'chatting' """
                 try:
-                    room = WaitingRoom.objects.filter(status='chatting')[0]
+                    room = WaitingRoom.objects.filter(status='abandoned')[0]
                 except IndexError:
-                    room = WaitingRoom.objects.filter(status='available').order_by('pk')[0]
+                    room = WaitingRoom.objects.filter(status='chatting')[0]
+                if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
+                    room.setStatus('toDestroy');
+                    raise IndexError()
 
             else:
                 """ send invite to lobby room """

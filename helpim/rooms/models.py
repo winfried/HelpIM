@@ -548,6 +548,7 @@ class LobbyRoom(Room):
         ('chatting', _('Chatting' )),
         ('toDestroy', _('To Destroy')),
         ('destroyed', _('Destroyed' )),
+        ('abandoned', _('Abandoned')),
         )
 
     objects = RoomManager()
@@ -560,6 +561,7 @@ class WaitingRoom(Room):
         ('chatting', _('Chatting' )),
         ('toDestroy', _('To Destroy')),
         ('destroyed', _('Destroyed' )),
+        ('abandoned', _('Abandoned')),
         )
 
     lobbyroom = models.ForeignKey(LobbyRoom,
