@@ -611,6 +611,8 @@ class WaitingRoomHandler(RoomHandlerBase):
             if room.lobbyroom.getStatus() == 'abandoned':
                 room.lobbyroom.setStatus('toDestroy')
                 room.setStatus('toDestroy')
+            else:
+                room.setStatus('abandoned')
 
 class Bot(JabberClient):
     def __init__(self, conf):
