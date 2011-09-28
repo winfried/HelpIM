@@ -1191,6 +1191,7 @@ class Bot(JabberClient):
 
             if ac.role == Participant.ROLE_CLIENT:
                 """ send invite to waiting room """
+                log.info("got a client, sending to waiting room")
                 """ first we try to find an already allocated room which has status 'chatting' """
                 try:
                     room = WaitingRoom.objects.filter(status='chatting')[0]
@@ -1199,6 +1200,7 @@ class Bot(JabberClient):
 
             else:
                 """ send invite to lobby room """
+                log.info("got a staff member, sending to lobby room")
                 """ first we try to find an already allocated room which has status 'chatting' """
                 try:
                     room = LobbyRoom.objects.filter(status='chatting')[0]
