@@ -8,38 +8,47 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Deleting model 'GroupRoomAccessToken'
-        db.delete_table('rooms_grouproomaccesstoken')
+        # Adding model 'WaitingRoom'
+        db.create_table('rooms_waitingroom', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('jid', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='available', max_length=32)),
+            ('password', self.gf('django.db.models.fields.CharField')(max_length=64)),
+            ('chat', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['conversations.Chat'], null=True)),
+            ('web_clean_exit', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('status_timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('modified_timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('lobbyroom', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.LobbyRoom'], null=True)),
+        ))
+        db.send_create_signal('rooms', ['WaitingRoom'])
 
-        # Deleting model 'One2OneRoomAccessToken'
-        db.delete_table('rooms_one2oneroomaccesstoken')
+        # Adding model 'LobbyRoom'
+        db.create_table('rooms_lobbyroom', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('jid', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='available', max_length=32)),
+            ('password', self.gf('django.db.models.fields.CharField')(max_length=64)),
+            ('chat', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['conversations.Chat'], null=True)),
+            ('web_clean_exit', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('status_timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('modified_timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+        ))
+        db.send_create_signal('rooms', ['LobbyRoom'])
 
-        # Deleting model 'LobbyRoomAccessToken'
-        db.delete_table('rooms_lobbyroomaccesstoken')
+        # Deleting field 'AccessToken.room'
+        db.delete_column('rooms_accesstoken', 'room_id')
 
 
     def backwards(self, orm):
         
-        # Adding model 'GroupRoomAccessToken'
-        db.create_table('rooms_grouproomaccesstoken', (
-            ('accesstoken_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['rooms.AccessToken'], unique=True, primary_key=True)),
-            ('room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.GroupRoom'], null=True)),
-        ))
-        db.send_create_signal('rooms', ['GroupRoomAccessToken'])
+        # Deleting model 'WaitingRoom'
+        db.delete_table('rooms_waitingroom')
 
-        # Adding model 'One2OneRoomAccessToken'
-        db.create_table('rooms_one2oneroomaccesstoken', (
-            ('accesstoken_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['rooms.AccessToken'], unique=True, primary_key=True)),
-            ('room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.One2OneRoom'], null=True)),
-        ))
-        db.send_create_signal('rooms', ['One2OneRoomAccessToken'])
+        # Deleting model 'LobbyRoom'
+        db.delete_table('rooms_lobbyroom')
 
-        # Adding model 'LobbyRoomAccessToken'
-        db.create_table('rooms_lobbyroomaccesstoken', (
-            ('accesstoken_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['rooms.AccessToken'], unique=True, primary_key=True)),
-            ('room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.LobbyRoom'], null=True)),
-        ))
-        db.send_create_signal('rooms', ['LobbyRoomAccessToken'])
+        # Adding field 'AccessToken.room'
+        db.add_column('rooms_accesstoken', 'room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rooms.One2OneRoom'], null=True), keep_default=False)
 
 
     models = {
@@ -143,6 +152,18 @@ class Migration(SchemaMigration):
             'password': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'staff': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['conversations.Participant']"}),
             'staff_nick': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'available'", 'max_length': '32'}),
+            'status_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'web_clean_exit': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+        },
+        'rooms.waitingroom': {
+            'Meta': {'object_name': 'WaitingRoom'},
+            'chat': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['conversations.Chat']", 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'jid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
+            'lobbyroom': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rooms.LobbyRoom']", 'null': 'True'}),
+            'modified_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'available'", 'max_length': '32'}),
             'status_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'web_clean_exit': ('django.db.models.fields.BooleanField', [], {'default': 'False'})

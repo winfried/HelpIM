@@ -296,6 +296,30 @@ class Room(models.Model):
     def destroyed(self):
         self.setStatus('destroyed')
 
+    def userJoined(self):
+        """To be called after a client has joined
+           the room at the jabber-server.
+           """
+        status = self.getStatus()
+        if status in ("available", "abandoned"):
+            self.setStatus("chatting")
+        elif status == "chatting":
+            pass
+        else:
+            raise StatusError("client joining room while not room status is not 'available' or 'chatting'")
+
+    def lastUserLeftDirty(self):
+        """To be called when the last participant has left the chat dirty."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left dirty while status was not chatting")
+        self.setStatus('toDestroy')
+
+    def lastUserLeftClean(self):
+        """To be called when the last participant has left the chat clean."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left clean while status was not chatting")
+        self.setStatus('toDestroy')
+
 class One2OneRoom(Room):
     """Chatroom for having one-to-one chats.
        When created, it is just an empty object with the status:
@@ -528,33 +552,8 @@ class LobbyRoom(Room):
 
     objects = RoomManager()
 
-    def userJoined(self):
-        """To be called after a client has joined
-           the room at the jabber-server.
-           """
-        status = self.getStatus()
-        if status in ("available", "abandoned"):
-            self.setStatus("chatting")
-        elif status == "chatting":
-            pass
-        else:
-            raise StatusError("client joining room while not room status is not 'available' or 'chatting'")
 
-    # ToDo: these functions need to be adapted!!!!!!!
-
-    def lastUserLeftDirty(self):
-        """To be called when the last participant has left the chat dirty."""
-        if not self.getStatus() == "chatting":
-            raise StatusError("Participant left dirty while status was not chatting")
-        self.setStatus('toDestroy')
-
-    def lastUserLeftClean(self):
-        """To be called when the last participant has left the chat clean."""
-        if not self.getStatus() == "chatting":
-            raise StatusError("Participant left clean while status was not chatting")
-        self.setStatus('toDestroy')
-
-class WaitingRoom(LobbyRoom):
+class WaitingRoom(Room):
 
     STATUS_CHOICES = (
         ('available', _('Available' )),
@@ -564,8 +563,7 @@ class WaitingRoom(LobbyRoom):
         )
 
     lobbyroom = models.ForeignKey(LobbyRoom,
-                                  null=True,
-                                  related_name='+')
+                                  null=True)
 
     objects = RoomManager()
 
