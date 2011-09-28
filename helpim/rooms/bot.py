@@ -14,8 +14,8 @@ from pyxmpp.jid import JID
 from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 
-from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler, MucRoomUser
-from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
+from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
+from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem, MucStanzaExt, MucXBase, MucItemBase
 
 from django.utils.translation import ugettext as _
 
@@ -595,7 +595,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if not room is None and not room.lobbyroom is None:
             log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-            self.get_other_room(room.lobbyroom.jid).send_message(_("%s joined the waiting queue" % user.nick));
+            self.get_other_room(room.lobbyroom.jid).send_join(_("%s joined the waiting queue" % user.nick), user.nick);
         else:
             log.error("lobby not found for %s" % room.jid)
         self.userCount += 1
@@ -614,7 +614,85 @@ class WaitingRoomHandler(RoomHandlerBase):
             else:
                 room.setStatus('abandoned')
 
+class HelpimMucMessage(Message, MucStanzaExt):
+    def __init__(self, xmlnode = None, from_jid = None, to_jid = None, stanza_type = None, stanza_id = None,
+                 subject = None, body = None, thread = None, error = None, error_cond = None, stream = None):
+
+        MucStanzaExt.__init__(self)
+        Message.__init__(self, xmlnode, from_jid=from_jid, to_jid=to_jid, stanza_type=stanza_type, stanza_id=stanza_id,
+                         subject=subject, body=body, thread=thread, error=error, error_cond=error_cond, stream=stream)
+
+    def copy(self):
+        """ Return a copy of `self`.  """
+        return HelpimMucMessage(self)
+
+    def make_join_message(self, nick):
+        self.clear_muc_child()
+        self.muc_child=HelpimMucRooms(parent=self.xmlnode)
+
+        item=MucItem("none","none",nick=nick)
+        self.muc_child.add_item(item)
+
+        return self.muc_child
+
+    def free(self):
+        self.muc_free()
+        Message.free(self)
+
+class HelpimMucRooms(MucXBase):
+    """
+    Wrapper for http://www.jabber.org/protocol/muc#admin namespaced
+    IQ stanza payload "query" elements and usually describing
+    administrative actions or their results.
+
+    Not implemented yet.
+    """
+    ns=NS_HELPIM_ROOMS
+    element="x"
+
+    def add_item(self,item):
+        """Add an item to `self`.
+
+        :Parameters:
+            - `item`: the item to add.
+        :Types:
+            - `item`: `MucItemBase`
+        """
+        if not isinstance(item,MucItemBase):
+            raise TypeError,"Bad item type for muc#user"
+        item.as_xml(self.xmlnode)
+
+class HelpimMucRoomState(MucRoomState):
+    def send_join(self, body, nick):
+        log.info("****************************")
+        m=HelpimMucMessage(to_jid=self.room_jid.bare(),stanza_type="groupchat",body=body)
+        m.make_join_message(nick)
+        log.info(m.serialize())
+        self.manager.stream.send(m)
+
+class HelpimMucRoomManager(MucRoomManager):
+    """ this is overriden because we want to have our enhanced room states """
+    def join(self, room, nick, handler, password = None, history_maxchars = None,
+            history_maxstanzas = None, history_seconds = None, history_since = None):
+
+        if not room.node or room.resource:
+            raise ValueError,"Invalid room JID"
+
+        room_jid = JID(room.node, room.domain, nick)
+
+        cur_rs = self.rooms.get(room_jid.bare().as_unicode())
+        if cur_rs and cur_rs.joined:
+            raise RuntimeError,"Room already joined"
+
+        rs=HelpimMucRoomState(self, self.stream.me, room_jid, handler)
+        self.rooms[room_jid.bare().as_unicode()]=rs
+        rs.join(password, history_maxchars, history_maxstanzas,
+            history_seconds, history_since)
+        return rs
+
+
 class Bot(JabberClient):
+
     def __init__(self, conf):
         self.stats = Stats()
         self.__last_room_basename = None
@@ -767,7 +845,7 @@ class Bot(JabberClient):
         else:
             error = self.set_mucRoomPoolSize(self.conf.muc.poolsize)
             if error: raise BotError(error)
-            self.mucmanager = MucRoomManager(self.stream)
+            self.mucmanager = HelpimMucRoomManager(self.stream)
             self.mucmanager.set_handlers(1)
         self.todo.append((self.__rejoinRooms,))   # check DB for active room and rejoin/fix them.
         self.stream.set_message_handler("normal", self.handle_message)
