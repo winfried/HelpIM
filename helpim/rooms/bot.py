@@ -1205,7 +1205,7 @@ class Bot(JabberClient):
                 except IndexError:
                     room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
 
-            xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite from='%s'/><password>%s</password></x></message>" % (iq.get_from(), room.jid, room.password)
+            xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/><password>%s</password></x></message>" % (room.jid, iq.get_from(), room.password)
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
