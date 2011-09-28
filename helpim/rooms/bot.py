@@ -19,7 +19,7 @@ from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom, LobbyRoom, GroupRoom
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -551,6 +551,27 @@ class LobbyRoomHandler(RoomHandlerBase):
                 return
             room.setStatus('toDestroy')
 
+class WaitingRoomHandler(LobbyRoomHandler):
+    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+        self.type = "WaitingRoom"
+        self.userCount = 0
+
+    def room_configured(self):
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        self.site.waitingRooms.newRoom(jidstr, self.password)
+        log.debug("MUC-Room for waiting room '%s' created and configured successfully" % jidstr)
+        return True
+
+    def get_helpim_room(self):
+        '''Return the HelpIM-API room-object which this handler handles'''
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        try:
+            return self.site.waitingRooms.getByJid(jidstr)
+        except KeyError:
+            log.error("Could not find room '%s' in database." % jidstr)
+            return None
+
 class Bot(JabberClient):
     def __init__(self, conf):
         self.stats = Stats()
@@ -612,6 +633,14 @@ class Bot(JabberClient):
                 log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.lobbyRooms.deleteClosed()
+            # LobbyRooms
+            for room in site.waitingRooms.getToDestroy():
+                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                self.closeRoom(room)
+            for room in site.waitingRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
+                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                self.closeRoom(room)
+            site.waitingRooms.deleteClosed()
         #DBG: self.printrooms()
 
     def alarmHandler(self, signum, frame):
@@ -738,7 +767,9 @@ class Bot(JabberClient):
                  {'nAvailable': len(site.groupRooms.getAvailable()),
                   'handler': GroupRoomHandler},
                  {'nAvailable': len(site.lobbyRooms.getAvailable()),
-                  'handler': LobbyRoomHandler}]
+                  'handler': LobbyRoomHandler},
+                 {'nAvailable': len(site.waitingRooms.getAvailable()),
+                  'handler': WaitingRoomHandler}]
         for room in rooms:
             self.__createRooms(site, mucdomain, poolsize, room['nAvailable'], room['handler'])
         
@@ -783,6 +814,13 @@ class Bot(JabberClient):
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixlobbyroomstatus(room, mucstate)
+            for room in site.waitingRooms.getNotDestroyed():
+                log.notice("Re-joining waitingRoom '%s'." % room.jid)
+                jid = str2roomjid(room.jid)
+                mucstate = self.joinMucRoom(site, jid, room.password, WaitingRoomHandler, rejoining=True)
+                # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
+                if mucstate:
+                    self.fixwaitingroomstatus(room, mucstate)
 
     def fixroomstatus(self, room, mucstate):
         # Wait until all events are processed
@@ -998,6 +1036,10 @@ class Bot(JabberClient):
         """ [TODO] """
         pass
 
+    def fixwaitingroomstatus(self, room, mucstate):
+        """ [TODO] """
+        pass
+
     def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
         mucconf = self.getMucSettings(site.name)
         nick = mucconf["nick"].strip() or self.nick
@@ -1070,9 +1112,9 @@ class Bot(JabberClient):
         site = self.sites[sitename]
 
         if roomstatus is None:
-            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed()
+            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed() + site.waitingRooms.getNotDestroyed()
         else:
-            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus)
+            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus)
         for room in rooms:
             self.closeRoom(room)
 
@@ -1148,8 +1190,13 @@ class Bot(JabberClient):
             query = resIq.new_query(NS_HELPIM_ROOMS)
 
             if ac.role == Participant.ROLE_CLIENT:
-                """ add to waiting queue """
-                pass
+                """ send invite to waiting room """
+                """ first we try to find an already allocated room which has status 'chatting' """
+                try:
+                    room = WaitingRoom.objects.filter(status='chatting')[0]
+                except IndexError:
+                    room = WaitingRoom.objects.filter(status='available').order_by('pk')[0]
+
             else:
                 """ send invite to lobby room """
                 """ first we try to find an already allocated room which has status 'chatting' """
@@ -1158,7 +1205,7 @@ class Bot(JabberClient):
                 except IndexError:
                     room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
 
-                xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite from='%s'/><password>%s</password></x></message>" % (iq.get_from(), room.jid, room.password)
+            xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite from='%s'/><password>%s</password></x></message>" % (iq.get_from(), room.jid, room.password)
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())

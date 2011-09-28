@@ -19,10 +19,11 @@ logger = logging.getLogger("helpim.rooms.models")
 class Site:
     def __init__(self, name):
         self.name = name
-        """ [FIXME] will it blend? """
-        self.rooms = One2OneRoom.objects
-        self.groupRooms = GroupRoom.objects
-        self.lobbyRooms = LobbyRoom.objects
+
+        self.rooms        = One2OneRoom.objects
+        self.groupRooms   = GroupRoom.objects
+        self.lobbyRooms   = LobbyRoom.objects
+        self.waitingRooms = WaitingRoom.objects
 
 def getSites():
     """ this is a fake sites dict as we're not using real sites right now """
@@ -552,6 +553,21 @@ class LobbyRoom(Room):
         if not self.getStatus() == "chatting":
             raise StatusError("Participant left clean while status was not chatting")
         self.setStatus('toDestroy')
+
+class WaitingRoom(LobbyRoom):
+
+    STATUS_CHOICES = (
+        ('available', _('Available' )),
+        ('chatting', _('Chatting' )),
+        ('toDestroy', _('To Destroy')),
+        ('destroyed', _('Destroyed' )),
+        )
+
+    lobbyroom = models.ForeignKey(LobbyRoom,
+                                  null=True,
+                                  related_name='+')
+
+    objects = RoomManager()
 
 class IPBlockedException(Exception):
     def __init__(self, msg='ip blocked'):
