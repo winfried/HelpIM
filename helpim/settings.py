@@ -129,8 +129,8 @@ INSTALLED_APPS = (
     'south',
     'threadedcomments',
     'rosetta',
-    'forms_builder.forms',
     'helpim.common',
+    'helpim.questionnaire',
 )
 
 CHAT = {
@@ -200,3 +200,4 @@ LOGGING = {
     }
 }
 
+FORMS_BUILDER_USE_SITES = False
