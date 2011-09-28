@@ -17,6 +17,8 @@ from pyxmpp.presence import Presence
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler, MucRoomUser
 from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
 
+from django.utils.translation import ugettext as _
+
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom
@@ -184,6 +186,9 @@ class RoomHandlerBase(MucRoomHandler):
             chat.subject = stanza.get_subject()
             chat.save()
         return True
+
+    def get_other_room(self, jid):
+        return self.room_state.manager.rooms[jid]
 
 class One2OneRoomHandler(RoomHandlerBase):
 
@@ -587,6 +592,12 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
+        room = self.get_helpim_room()
+        if not room is None and not room.lobbyroom is None:
+            log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
+            self.get_other_room(room.lobbyroom.jid).send_message(_("%s joined the waiting queue" % user.nick));
+        else:
+            log.error("lobby not found for %s" % room.jid)
         self.userCount += 1
 
     def user_left(self, user, stanza):
