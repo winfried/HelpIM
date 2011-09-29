@@ -531,7 +531,7 @@ class LobbyRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.lobbyRooms.getByJid(jidstr)
-        except KeyError:
+        except LobbyRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -585,7 +585,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.waitingRooms.getByJid(jidstr)
-        except KeyError:
+        except WaitingRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
