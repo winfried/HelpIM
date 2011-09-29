@@ -595,7 +595,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if not room is None and not room.lobbyroom is None:
             log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-            self.get_other_room(room.lobbyroom.jid).send_join(_("%s joined the waiting queue" % user.nick), user.nick);
+            self.get_other_room(room.lobbyroom.jid).send_join(user.nick);
         else:
             log.error("lobby not found for %s" % room.jid)
         self.userCount += 1
@@ -614,32 +614,27 @@ class WaitingRoomHandler(RoomHandlerBase):
             else:
                 room.setStatus('abandoned')
 
-class HelpimMucMessage(Message, MucStanzaExt):
-    def __init__(self, xmlnode = None, from_jid = None, to_jid = None, stanza_type = None, stanza_id = None,
-                 subject = None, body = None, thread = None, error = None, error_cond = None, stream = None):
+class MucRoomsClient():
+    def __init__(self, nick):
+        self.nick = nick
 
-        MucStanzaExt.__init__(self)
-        Message.__init__(self, xmlnode, from_jid=from_jid, to_jid=to_jid, stanza_type=stanza_type, stanza_id=stanza_id,
-                         subject=subject, body=body, thread=thread, error=error, error_cond=error_cond, stream=stream)
+    def as_xml(self,parent):
+        """
+        Create XML representation of `self`.
 
-    def copy(self):
-        """ Return a copy of `self`.  """
-        return HelpimMucMessage(self)
+        :Parameters:
+            - `parent`: the element to which the created node should be linked to.
+        :Types:
+            - `parent`: `libxml2.xmlNode`
 
-    def make_join_message(self, nick):
-        self.clear_muc_child()
-        self.muc_child=HelpimMucRooms(parent=self.xmlnode)
+        :return: an XML node.
+        :returntype: `libxml2.xmlNode`
+        """
+        n=parent.newChild(None,"client",None)
+        n.setProp("nick", self.nick)
+        return n
 
-        item=MucItem("none","none",nick=nick)
-        self.muc_child.add_item(item)
-
-        return self.muc_child
-
-    def free(self):
-        self.muc_free()
-        Message.free(self)
-
-class HelpimMucRooms(MucXBase):
+class MucRooms(MucXBase):
     """
     Wrapper for http://www.jabber.org/protocol/muc#admin namespaced
     IQ stanza payload "query" elements and usually describing
@@ -650,7 +645,7 @@ class HelpimMucRooms(MucXBase):
     ns=NS_HELPIM_ROOMS
     element="x"
 
-    def add_item(self,item):
+    def add_client(self,client):
         """Add an item to `self`.
 
         :Parameters:
@@ -658,15 +653,39 @@ class HelpimMucRooms(MucXBase):
         :Types:
             - `item`: `MucItemBase`
         """
-        if not isinstance(item,MucItemBase):
-            raise TypeError,"Bad item type for muc#user"
-        item.as_xml(self.xmlnode)
+        client.as_xml(self.xmlnode)
+
+class MucRoomsPresence(Presence, MucStanzaExt):
+    def __init__(self, xmlnode = None, from_jid = None, to_jid = None, stanza_type = None, 
+                 stanza_id = None, show = None, status = None, priority = 0,
+                 error = None, error_cond = None, stream = None):
+
+        MucStanzaExt.__init__(self)
+        Presence.__init__(self, xmlnode = xmlnode, from_jid = from_jid, to_jid = to_jid, stanza_type = stanza_type, 
+                          stanza_id = stanza_id, show = show, status = status, priority = priority,
+                          error = error, error_cond = error_cond, stream = stream)
+
+    def copy(self):
+        """ Return a copy of `self`.  """
+        return MucRoomsPresence(self)
+
+    def make_join_presence(self, nick):
+        self.clear_muc_child()
+        self.muc_child=MucRooms(parent=self.xmlnode)
+
+        client = MucRoomsClient(nick)
+        self.muc_child.add_client(client)
+
+        return self.muc_child
+
+    def free(self):
+        self.muc_free()
+        Presence.free(self)
 
 class HelpimMucRoomState(MucRoomState):
-    def send_join(self, body, nick):
-        log.info("****************************")
-        m=HelpimMucMessage(to_jid=self.room_jid.bare(),stanza_type="groupchat",body=body)
-        m.make_join_message(nick)
+    def send_join(self, nick):
+        m=MucRoomsPresence(to_jid=self.room_jid)
+        m.make_join_presence(nick)
         log.info(m.serialize())
         self.manager.stream.send(m)
 
@@ -689,7 +708,6 @@ class HelpimMucRoomManager(MucRoomManager):
         rs.join(password, history_maxchars, history_maxstanzas,
             history_seconds, history_since)
         return rs
-
 
 class Bot(JabberClient):
 
