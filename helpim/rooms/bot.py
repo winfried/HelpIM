@@ -601,22 +601,31 @@ class WaitingRoomHandler(RoomHandlerBase):
         self.userCount += 1
 
     def user_left(self, user, stanza):
+        log.debug("user left waiting room: %s" % user.nick)
         if user.nick == self.nick:
             return True
         self.userCount -= 1
+        room = self.get_helpim_room()
+        if not room is None and not room.lobbyroom is None:
+            log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
+            self.get_other_room(room.lobbyroom.jid).send_left(user.nick);
+        else:
+            log.error("lobby not found for %s" % room.jid)
+
+        if room is None:
+            return
+            
         if self.userCount == 0:
-            room = self.get_helpim_room()
-            if room is None:
-                return
-            if room.lobbyroom.getStatus() == 'abandoned':
+            if not room.lobbyroom is None and room.lobbyroom.getStatus() == 'abandoned':
                 room.lobbyroom.setStatus('toDestroy')
                 room.setStatus('toDestroy')
             else:
                 room.setStatus('abandoned')
 
 class MucRoomsClient():
-    def __init__(self, nick):
+    def __init__(self, nick, status=None):
         self.nick = nick
+        self.status = status
 
     def as_xml(self,parent):
         """
@@ -632,6 +641,8 @@ class MucRoomsClient():
         """
         n=parent.newChild(None,"client",None)
         n.setProp("nick", self.nick)
+        if not self.status is None:
+            n.setProp('status', self.status)
         return n
 
 class MucRooms(MucXBase):
@@ -669,11 +680,11 @@ class MucRoomsPresence(Presence, MucStanzaExt):
         """ Return a copy of `self`.  """
         return MucRoomsPresence(self)
 
-    def make_join_presence(self, nick):
+    def make_roomsclient_presence(self, nick, status=None):
         self.clear_muc_child()
         self.muc_child=MucRooms(parent=self.xmlnode)
 
-        client = MucRoomsClient(nick)
+        client = MucRoomsClient(nick, status)
         self.muc_child.add_client(client)
 
         return self.muc_child
@@ -685,9 +696,16 @@ class MucRoomsPresence(Presence, MucStanzaExt):
 class HelpimMucRoomState(MucRoomState):
     def send_join(self, nick):
         m=MucRoomsPresence(to_jid=self.room_jid)
-        m.make_join_presence(nick)
+        m.make_roomsclient_presence(nick)
         log.info(m.serialize())
         self.manager.stream.send(m)
+
+    def send_left(self, nick):
+        m=MucRoomsPresence(to_jid=self.room_jid)
+        m.make_roomsclient_presence(nick, 'unavailable')
+        log.info(m.serialize())
+        self.manager.stream.send(m)
+        
 
 class HelpimMucRoomManager(MucRoomManager):
     """ this is overriden because we want to have our enhanced room states """
