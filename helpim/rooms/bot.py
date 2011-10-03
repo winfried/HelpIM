@@ -15,7 +15,7 @@ from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
-from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem, MucStanzaExt, MucXBase, MucItemBase
+from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
 
 from django.utils.translation import ugettext as _
 
@@ -590,11 +590,12 @@ class WaitingRoomHandler(RoomHandlerBase):
         if user.nick == self.nick:
             return True
         room = self.get_helpim_room()
-        if not room is None and not room.lobbyroom is None:
-            log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-        else:
-            log.error("lobby not found for %s" % room.jid)
+        if room is None:
+            return
+        if self.userCount == 0:
+            room.setStatus('chatting')
         self.userCount += 1
+        self.todo.append((self.fillMucRoomPool, self.site))
 
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
@@ -602,20 +603,17 @@ class WaitingRoomHandler(RoomHandlerBase):
             return True
         self.userCount -= 1
         room = self.get_helpim_room()
-        if not room is None and not room.lobbyroom is None:
-            log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-        else:
-            log.error("lobby not found for %s" % room.jid)
-
         if room is None:
             return
-            
-        if self.userCount == 0:
-            if not room.lobbyroom is None and room.lobbyroom.getStatus() == 'abandoned':
+        if self.userCount > 0:
+            return
+        if not room.lobbyroom is None:
+            if room.lobbyroom.getStatus() == 'abandoned':
                 room.lobbyroom.setStatus('toDestroy')
                 room.setStatus('toDestroy')
-            else:
-                room.setStatus('abandoned')
+        else:
+            log.error("lobby not found for %s" % room.jid)
+            room.setStatus('abandoned')
 
 class Bot(JabberClient):
 
