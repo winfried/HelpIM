@@ -361,7 +361,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 chatmessage.sender = room.client
 
             chatmessage.save()
-                
+
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
@@ -846,8 +846,8 @@ class Bot(JabberClient):
                   'handler': WaitingRoomHandler}]
         for room in rooms:
             self.__createRooms(site, mucdomain, poolsize, room['nAvailable'], room['handler'])
-        
-    def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):    
+
+    def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):
         sitename = site.name
         nToCreate =  poolsize - nAvailable
         log.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
@@ -1317,7 +1317,7 @@ class Bot(JabberClient):
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
-    
+
         self.stream.send(resIq)
         if xml is not None:
             self.stream.write_raw(xml)
@@ -1351,7 +1351,7 @@ class Bot(JabberClient):
 
             log.info("got block request from %s" % iq.get_from())
             from_jid = iq.get_from()
-            
+
             room_jid = from_jid.bare()
             staff_nick = from_jid.resource
 
@@ -1371,7 +1371,7 @@ class Bot(JabberClient):
 
         except One2OneRoom.DoesNotExist:
             resIq = iq.make_error_response(u"item-not-found")
-            
+
         except NotAuthorizedError:
             resIq = iq.make_error_response(u"not-authorized")
 
