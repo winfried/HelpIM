@@ -1292,15 +1292,20 @@ class Bot(JabberClient):
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
                         room = One2OneRoom.objects.filter(status='available')[0]
 
-                except LobbyRoomToken.DoesNotExist:
+                except (LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
                     try:
+                        try:
+                            LobbyRoomToken.objects.get(token=ac).delete()
+                        except LobbyRoomToken.DoesNotExist:
+                            """ just in case delete this bad ref """
+                            pass
                         room = LobbyRoom.objects.filter(status='chatting')[0]
                     except IndexError:
                         room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
-                    """ save token to lobby """    
-                    LobbyRoomToken(token=ac, lobby=room).save() 
+                    """ save token to lobby """
+                    LobbyRoomToken(token=ac, lobby=room).save()
 
-            xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/><password>%s</password></x></message>" % (room.jid, iq.get_from(), room.password)
+            self.sendInvite(room, iq.get_from())
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
