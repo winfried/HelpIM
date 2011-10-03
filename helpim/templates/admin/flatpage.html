@@ -6,10 +6,9 @@
 {% load flatpages %}
 {% get_flatpages '/admin/' for user as admin_flat_pages %}
 
-  {% block content %}
-  
+{% block content %}
+
   <h1>{{ flatpage.title }}</h1>
-  
-  {{ flatpage.content }}
+  {{ flatpage.content|safe }}
 
 {% endblock %}

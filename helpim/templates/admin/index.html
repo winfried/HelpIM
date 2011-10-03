@@ -86,6 +86,6 @@
 {% get_flatpages '/welcome/' for user as flatpages %}
   {% for page in flatpages %}
     <h2>{{ page.title }}</h2>
-    <p>{{ page.content }}</p>
+    <p>{{ page.content|safe }}</p>
   {% endfor %}
 {% endblock %}

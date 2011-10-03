@@ -5,4 +5,4 @@
 #
 # ./bin/dump_setup_data.sh > helpim/fixtures/setup_data.json
 
-`dirname $0`/manage.py dumpdata flatpages auth.group conversations --indent 4 --natural
+`dirname $0`/manage.py dumpdata flatpages common.branchoffice auth.group --indent 4 --natural
