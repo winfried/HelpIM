@@ -450,9 +450,6 @@ class One2OneRoom(Room):
 
             client.save()
 
-            accessToken.owner = client
-            accessToken.save()
-
             self.client = client
         else:
             logger.info("NOT creating participant for client with nick %s" % nick)
@@ -586,9 +583,6 @@ class AccessToken(models.Model):
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    """ will be set later on by bot once room is assigned and user joined it """
-    owner = models.ForeignKey(Participant, null=True)
-
     @staticmethod
     def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
         # delete outdated tokens
@@ -611,3 +605,8 @@ class AccessToken(models.Model):
 
     def __unicode__(self):
         return self.token
+
+class LobbyRoomToken(models.Model):
+    """ remember for which lobby an AccessToken has been used """
+    lobby = models.ForeignKey(LobbyRoom)
+    token = models.ForeignKey(AccessToken, unique=True)

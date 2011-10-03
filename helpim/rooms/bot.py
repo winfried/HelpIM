@@ -21,7 +21,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -1245,13 +1245,25 @@ class Bot(JabberClient):
                     raise IndexError()
 
             else:
-                """ send invite to lobby room """
-                log.info("got a staff member, sending to lobby room")
+                log.info("got token from staff member")
                 """ first we try to find an already allocated room which has status 'chatting' """
+
                 try:
-                    room = LobbyRoom.objects.filter(status='chatting')[0]
-                except IndexError:
-                    room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                    room = LobbyRoomToken.objects.get(token=ac).lobby
+
+                    """ staff has already acquired a lobby. now check
+                    if he's really in there. if not send to room, send
+                    to one2one room otherwise """
+                    if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
+                        room = One2OneRoom.objects.filter(status='available')[0]
+
+                except LobbyRoomToken.DoesNotExist:
+                    try:
+                        room = LobbyRoom.objects.filter(status='chatting')[0]
+                    except IndexError:
+                        room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                    """ save token to lobby """    
+                    LobbyRoomToken(token=ac, lobby=room).save() 
 
             xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/><password>%s</password></x></message>" % (room.jid, iq.get_from(), room.password)
 
