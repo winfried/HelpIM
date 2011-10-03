@@ -240,6 +240,24 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
+            """ send invite to a client """
+
+            """ TODO it's unclear how to pick the right waiting room
+            here. so for now I'm picking just the first one. """
+            try:
+                waitingRoom = WaitingRoom.objects.filter(status='chatting')[0]
+                client = self.room_state.manager.get_room_state(JID(waitingRoom.jid)).handler.get_next_client()
+                if not client is None:
+                    log.info("got client %s" % client)
+                    self.sendInvite(room, client.real_jid)
+                else:
+                    log.info("got no client for %s" % waitingRoom.jid)
+
+            except IndexError, AttributeError:
+                """ well, there's no client waiting. they'll get invites later on """
+                log.info("not sending invite")
+                pass
+
         elif status == 'availableForInvitation':
             room.staffJoined(user.nick)
             room.setStaffNick(user.nick)
