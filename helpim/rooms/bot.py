@@ -187,9 +187,6 @@ class RoomHandlerBase(MucRoomHandler):
             chat.save()
         return True
 
-    def get_other_room(self, jid):
-        return self.room_state.manager.rooms[jid]
-
 class One2OneRoomHandler(RoomHandlerBase):
 
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -595,7 +592,6 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if not room is None and not room.lobbyroom is None:
             log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-            self.get_other_room(room.lobbyroom.jid).send_join(user.nick);
         else:
             log.error("lobby not found for %s" % room.jid)
         self.userCount += 1
@@ -608,7 +604,6 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if not room is None and not room.lobbyroom is None:
             log.debug("sending message to lobby room %s" % room.lobbyroom.jid)
-            self.get_other_room(room.lobbyroom.jid).send_left(user.nick);
         else:
             log.error("lobby not found for %s" % room.jid)
 
@@ -621,111 +616,6 @@ class WaitingRoomHandler(RoomHandlerBase):
                 room.setStatus('toDestroy')
             else:
                 room.setStatus('abandoned')
-
-class MucRoomsClient():
-    def __init__(self, nick, status=None):
-        self.nick = nick
-        self.status = status
-
-    def as_xml(self,parent):
-        """
-        Create XML representation of `self`.
-
-        :Parameters:
-            - `parent`: the element to which the created node should be linked to.
-        :Types:
-            - `parent`: `libxml2.xmlNode`
-
-        :return: an XML node.
-        :returntype: `libxml2.xmlNode`
-        """
-        n=parent.newChild(None,"client",None)
-        n.setProp("nick", self.nick)
-        if not self.status is None:
-            n.setProp('status', self.status)
-        return n
-
-class MucRooms(MucXBase):
-    """
-    Wrapper for http://www.jabber.org/protocol/muc#admin namespaced
-    IQ stanza payload "query" elements and usually describing
-    administrative actions or their results.
-
-    Not implemented yet.
-    """
-    ns=NS_HELPIM_ROOMS
-    element="x"
-
-    def add_client(self,client):
-        """Add an item to `self`.
-
-        :Parameters:
-            - `item`: the item to add.
-        :Types:
-            - `item`: `MucItemBase`
-        """
-        client.as_xml(self.xmlnode)
-
-class MucRoomsPresence(Presence, MucStanzaExt):
-    def __init__(self, xmlnode = None, from_jid = None, to_jid = None, stanza_type = None, 
-                 stanza_id = None, show = None, status = None, priority = 0,
-                 error = None, error_cond = None, stream = None):
-
-        MucStanzaExt.__init__(self)
-        Presence.__init__(self, xmlnode = xmlnode, from_jid = from_jid, to_jid = to_jid, stanza_type = stanza_type, 
-                          stanza_id = stanza_id, show = show, status = status, priority = priority,
-                          error = error, error_cond = error_cond, stream = stream)
-
-    def copy(self):
-        """ Return a copy of `self`.  """
-        return MucRoomsPresence(self)
-
-    def make_roomsclient_presence(self, nick, status=None):
-        self.clear_muc_child()
-        self.muc_child=MucRooms(parent=self.xmlnode)
-
-        client = MucRoomsClient(nick, status)
-        self.muc_child.add_client(client)
-
-        return self.muc_child
-
-    def free(self):
-        self.muc_free()
-        Presence.free(self)
-
-class HelpimMucRoomState(MucRoomState):
-    def send_join(self, nick):
-        m=MucRoomsPresence(to_jid=self.room_jid)
-        m.make_roomsclient_presence(nick)
-        log.info(m.serialize())
-        self.manager.stream.send(m)
-
-    def send_left(self, nick):
-        m=MucRoomsPresence(to_jid=self.room_jid)
-        m.make_roomsclient_presence(nick, 'unavailable')
-        log.info(m.serialize())
-        self.manager.stream.send(m)
-        
-
-class HelpimMucRoomManager(MucRoomManager):
-    """ this is overriden because we want to have our enhanced room states """
-    def join(self, room, nick, handler, password = None, history_maxchars = None,
-            history_maxstanzas = None, history_seconds = None, history_since = None):
-
-        if not room.node or room.resource:
-            raise ValueError,"Invalid room JID"
-
-        room_jid = JID(room.node, room.domain, nick)
-
-        cur_rs = self.rooms.get(room_jid.bare().as_unicode())
-        if cur_rs and cur_rs.joined:
-            raise RuntimeError,"Room already joined"
-
-        rs=HelpimMucRoomState(self, self.stream.me, room_jid, handler)
-        self.rooms[room_jid.bare().as_unicode()]=rs
-        rs.join(password, history_maxchars, history_maxstanzas,
-            history_seconds, history_since)
-        return rs
 
 class Bot(JabberClient):
 
@@ -881,7 +771,7 @@ class Bot(JabberClient):
         else:
             error = self.set_mucRoomPoolSize(self.conf.muc.poolsize)
             if error: raise BotError(error)
-            self.mucmanager = HelpimMucRoomManager(self.stream)
+            self.mucmanager = MucRoomManager(self.stream)
             self.mucmanager.set_handlers(1)
         self.todo.append((self.__rejoinRooms,))   # check DB for active room and rejoin/fix them.
         self.stream.set_message_handler("normal", self.handle_message)
