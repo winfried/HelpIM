@@ -589,6 +589,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
         self.type = "WaitingRoom"
         self.userCount = 0
+        self.clients = []
 
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
@@ -605,9 +606,15 @@ class WaitingRoomHandler(RoomHandlerBase):
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
+    def get_next_client(self):
+        """ TODO later on we must make sure to actually return only a user that has filled in a questionnair """
+        log.info(self.clients)
+        return self.clients.pop(0)
+
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
+        self.clients.append(user)
         room = self.get_helpim_room()
         if room is None:
             return
@@ -621,6 +628,10 @@ class WaitingRoomHandler(RoomHandlerBase):
         if user.nick == self.nick:
             return True
         self.userCount -= 1
+        for client in self.clients:
+            if client.nick == user.nick:
+                self.clients.remove(user)
+                break
         room = self.get_helpim_room()
         if room is None:
             return
