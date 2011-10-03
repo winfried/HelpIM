@@ -34,6 +34,7 @@ class RoomHandlerBase(MucRoomHandler):
         self.todo = bot.todo
         self.closeRooms = bot.closeRooms
         self.fillMucRoomPool = bot.fillMucRoomPool
+        self.sendInvite = bot.sendInvite
         self.site = site
         self.mucconf = mucconf
         self.password = password
@@ -1139,6 +1140,11 @@ class Bot(JabberClient):
 
         xml = "<iq to='%s' type='set' id='mod'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, nick)
         log.debug(xml)
+        self.stream.write_raw(xml)
+
+    def sendInvite(self, room, to):
+        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/><password>%s</password></x></message>" % (room.jid, to, room.password)
+        log.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
     def closeRooms(self, roomstatus=None, site=None):
