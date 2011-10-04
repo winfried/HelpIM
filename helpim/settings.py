@@ -134,7 +134,6 @@ INSTALLED_APPS = (
 )
 
 CHAT = {
-    'mode': 'light',
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
