@@ -399,7 +399,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.rooms.getByJid(jidstr)
-        except KeyError:
+        except One2OneRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -436,7 +436,7 @@ class GroupRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.groupRooms.getByJid(jidstr)
-        except KeyError:
+        except GroupRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
