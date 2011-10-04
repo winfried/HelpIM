@@ -267,7 +267,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
-                room.clientJoined(user.nick)
+                room.clientJoined(user.nick, user.real_jid)
                 room.setClientNick(user.nick)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
@@ -1278,7 +1278,9 @@ class Bot(JabberClient):
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
-
+                """ save jid """
+                ac.jid = iq.get_from()
+                ac.save()
             else:
                 log.info("got token from staff member")
                 """ first we try to find an already allocated room which has status 'chatting' """

@@ -429,7 +429,7 @@ class One2OneRoom(Room):
         else:
             raise StatusError("staff joining room while not room status is not 'available' or 'availableForInvitation'")
 
-    def clientJoined(self, nick):
+    def clientJoined(self, nick, jid):
         """To be called after a client has joined
            the room at the jabber-server.
            """
@@ -445,7 +445,7 @@ class One2OneRoom(Room):
                 conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
             
             # store participant to access token so that we're able to block
-            accessToken = AccessToken.objects.filter(room=self).filter(role=Participant.ROLE_CLIENT)[0]
+            accessToken = AccessToken.objects.filter(jid=jid).filter(role=Participant.ROLE_CLIENT)[0]
             client.ip_hash = accessToken.ip_hash
 
             client.save()
@@ -554,11 +554,11 @@ class LobbyRoom(Room):
 class WaitingRoom(Room):
 
     STATUS_CHOICES = (
-        ('available', _('Available' )),
-        ('chatting', _('Chatting' )),
-        ('toDestroy', _('To Destroy')),
-        ('destroyed', _('Destroyed' )),
-        ('abandoned', _('Abandoned')),
+        ('available', _('Available'  )),
+        ('chatting' , _('Chatting'   )),
+        ('toDestroy', _('To Destroy' )),
+        ('destroyed', _('Destroyed'  )),
+        ('abandoned', _('Abandoned'  )),
         )
 
     lobbyroom = models.ForeignKey(LobbyRoom,
@@ -579,6 +579,8 @@ class AccessToken(models.Model):
                                 (Participant.ROLE_CLIENT, _('Client')),
                                 (Participant.ROLE_STAFF, _('Staff')),
                                 ))
+
+    jid = models.CharField(max_length=64, null=True)
 
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
