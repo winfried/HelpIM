@@ -614,7 +614,13 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
-        self.clients.append(user)
+
+        try:
+            one2oneRoom = One2OneRoom.objects.filter(status='staffWaiting')[0]
+            """ we got a waiting staff member, send client directly to this room """
+            self.sendInvite(one2oneRoom, user.real_jid)
+        except IndexError:
+            self.clients.append(user)
         room = self.get_helpim_room()
         if room is None:
             return
