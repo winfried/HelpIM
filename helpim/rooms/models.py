@@ -14,8 +14,6 @@ from django.contrib.auth.models import User
 from helpim.conversations.models import Chat, Participant
 from helpim.utils import newHash
 
-logger = logging.getLogger("helpim.rooms.models")
-
 class Site:
     def __init__(self, name):
         self.name = name
@@ -440,7 +438,6 @@ class One2OneRoom(Room):
             self.chat = chat
 
         if not self.client:
-            logger.info("creating participant for client with nick %s" % nick)
             client = Participant(
                 conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
             
@@ -451,8 +448,6 @@ class One2OneRoom(Room):
             client.save()
 
             self.client = client
-        else:
-            logger.info("NOT creating participant for client with nick %s" % nick)
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
