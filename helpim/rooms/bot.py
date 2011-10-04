@@ -645,11 +645,15 @@ class WaitingRoomHandler(RoomHandlerBase):
             return
         if not room.lobbyroom is None:
             if room.lobbyroom.getStatus() == 'abandoned':
+                """ both rooms are abandoned """
                 room.lobbyroom.setStatus('toDestroy')
                 room.setStatus('toDestroy')
+            elif room.lobbyroom.getStatus() == 'chatting':
+                room.setStatus('abandoned')
+            else:
+                room.setStatus('toDestroy')
         else:
-            log.error("lobby not found for %s" % room.jid)
-            room.setStatus('abandoned')
+            room.setStatus('toDestroy')
 
 class Bot(JabberClient):
 
