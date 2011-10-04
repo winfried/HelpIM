@@ -1278,9 +1278,9 @@ class Bot(JabberClient):
                 """ send invite to waiting room """
                 log.info("got a client, sending to waiting room")
                 try:
-                    room = WaitingRoom.objects.filter(status='abandoned')[0]
-                except IndexError:
                     room = WaitingRoom.objects.filter(status='chatting')[0]
+                except IndexError:
+                    room = WaitingRoom.objects.filter(status='abandoned')[0]
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
