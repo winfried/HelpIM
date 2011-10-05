@@ -399,7 +399,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.rooms.getByJid(jidstr)
-        except KeyError:
+        except One2OneRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -436,7 +436,7 @@ class GroupRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.groupRooms.getByJid(jidstr)
-        except KeyError:
+        except GroupRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -645,11 +645,15 @@ class WaitingRoomHandler(RoomHandlerBase):
             return
         if not room.lobbyroom is None:
             if room.lobbyroom.getStatus() == 'abandoned':
+                """ both rooms are abandoned """
                 room.lobbyroom.setStatus('toDestroy')
                 room.setStatus('toDestroy')
+            elif room.lobbyroom.getStatus() == 'chatting':
+                room.setStatus('abandoned')
+            else:
+                room.setStatus('toDestroy')
         else:
-            log.error("lobby not found for %s" % room.jid)
-            room.setStatus('abandoned')
+            room.setStatus('toDestroy')
 
 class Bot(JabberClient):
 
@@ -1278,9 +1282,9 @@ class Bot(JabberClient):
                 """ send invite to waiting room """
                 log.info("got a client, sending to waiting room")
                 try:
-                    room = WaitingRoom.objects.filter(status='abandoned')[0]
-                except IndexError:
                     room = WaitingRoom.objects.filter(status='chatting')[0]
+                except IndexError:
+                    room = WaitingRoom.objects.filter(status='abandoned')[0]
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
@@ -1300,7 +1304,7 @@ class Bot(JabberClient):
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
                         room = One2OneRoom.objects.filter(status='available')[0]
 
-                except (LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
+                except (AttributeError, LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
                     try:
                         try:
                             LobbyRoomToken.objects.get(token=ac).delete()
@@ -1313,7 +1317,6 @@ class Bot(JabberClient):
                     """ save token to lobby """
                     LobbyRoomToken(token=ac, lobby=room).save()
 
-            self.sendInvite(room, iq.get_from())
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
@@ -1327,8 +1330,8 @@ class Bot(JabberClient):
             resIq = iq.make_error_response(u"bad-request")
 
         self.stream.send(resIq)
-        if xml is not None:
-            self.stream.write_raw(xml)
+        if not room is None:
+            self.sendInvite(room, iq.get_from())
 
     def handle_iq_get_conversationId(self, iq):
         log.stanza(iq)

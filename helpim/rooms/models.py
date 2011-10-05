@@ -588,7 +588,7 @@ class AccessToken(models.Model):
         # check if remote IP is blocked
         if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
             # this user is blocked
-            raise IPBlocked()
+            raise IPBlockedException()
 
         if token is not None:
             try: 
