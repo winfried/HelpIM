@@ -114,6 +114,11 @@ class RoomHandlerBase(MucRoomHandler):
                 field.value = False
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
+
+        # prosody misses this one from its configuration form
+        # form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
+        #                value=True)
+
         log.form(form)
         form = form.make_submit(True)
         self.room_state.configure_room(form)
