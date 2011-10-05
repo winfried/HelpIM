@@ -1304,7 +1304,7 @@ class Bot(JabberClient):
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
                         room = One2OneRoom.objects.filter(status='available')[0]
 
-                except (LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
+                except (AttributeError, LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
                     try:
                         try:
                             LobbyRoomToken.objects.get(token=ac).delete()
