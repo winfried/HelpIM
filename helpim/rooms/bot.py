@@ -1317,7 +1317,6 @@ class Bot(JabberClient):
                     """ save token to lobby """
                     LobbyRoomToken(token=ac, lobby=room).save()
 
-            self.sendInvite(room, iq.get_from())
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
@@ -1331,8 +1330,8 @@ class Bot(JabberClient):
             resIq = iq.make_error_response(u"bad-request")
 
         self.stream.send(resIq)
-        if xml is not None:
-            self.stream.write_raw(xml)
+        if not room is None:
+            self.sendInvite(room, iq.get_from())
 
     def handle_iq_get_conversationId(self, iq):
         log.stanza(iq)
