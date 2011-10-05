@@ -1268,7 +1268,7 @@ class Bot(JabberClient):
 
     def handle_iq_get_room(self, iq):
         log.stanza(iq)
-        xml = None
+        room = None
         try:
             try:
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
