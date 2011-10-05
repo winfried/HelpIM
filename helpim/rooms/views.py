@@ -42,7 +42,9 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
                 'is_one2one': True,
                 'xmpptk_config': dumps(dict({
                             'logout_redirect': request.META.get('HTTP_REFERER'),
-                            'bot_jid': '%s@%s' % (settings.BOT['connection']['username'], settings.BOT['connection']['domain']),
+                            'bot_jid': '%s@%s/%s' % (settings.BOT['connection']['username'],
+                                                     settings.BOT['connection']['domain'],
+                                                     settings.BOT['connection']['resource']),
                             'bot_nick': settings.BOT['muc']['nick'],
                             'static_url': settings.STATIC_URL,
                             'is_staff': role is Participant.ROLE_STAFF,
