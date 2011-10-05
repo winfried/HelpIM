@@ -1182,7 +1182,7 @@ class Bot(JabberClient):
         self.stream.write_raw(xml)
 
     def sendInvite(self, room, to):
-        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/><password>%s</password></x></message>" % (room.jid, to, room.password)
+        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid, to)
         log.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
