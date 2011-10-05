@@ -62,7 +62,7 @@ class RoomHandlerBase(MucRoomHandler):
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
             elif field.name == u'muc#roomconfig_passwordprotectedroom':
-                field.value = True
+                field.value = 1
             elif field.name == u'muc#roomconfig_roomsecret':
                 field.value = self.password
                 log.debug("Setting MUC-room password to: '%s'" % self.password)
