@@ -607,3 +607,7 @@ class LobbyRoomToken(models.Model):
     """ remember for which lobby an AccessToken has been used """
     lobby = models.ForeignKey(LobbyRoom)
     token = models.ForeignKey(AccessToken, unique=True)
+
+class One2OneRoomToken(models.Model):
+    room = models.ForeignKey(One2OneRoom)
+    token = models.ForeignKey(AccessToken)
