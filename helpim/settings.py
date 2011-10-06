@@ -130,6 +130,7 @@ INSTALLED_APPS = (
     'threadedcomments',
     'rosetta',
     'helpim.common',
+    'forms_builder.forms',
     'helpim.questionnaire',
 )
 
