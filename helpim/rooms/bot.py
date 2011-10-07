@@ -21,7 +21,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -1307,7 +1307,14 @@ class Bot(JabberClient):
                     if he's really in there. if not send to room, send
                     to one2one room otherwise """
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
-                        room = One2OneRoom.objects.filter(status='available')[0]
+                        if One2OneRoomToken.objects.filter(token=ac).filter(room__status__in=['staffWaiting', 'chatting']).count() < self.conf.muc.max_chats_per_staff:
+                            log.info("assigning new one2one room to token %s" % ac.token)
+                            room = One2OneRoom.objects.filter(status='available')[0]
+                            One2OneRoomToken(token=ac, room=room).save()
+                        else:
+                            log.info("user exceeded one2oneroom limit with token %s" % ac.token)
+                            room = None
+                            raise NotAllowedError()
 
                 except (AttributeError, LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
                     try:
@@ -1333,6 +1340,9 @@ class Bot(JabberClient):
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
+        except NotAllowedError:
+            log.info("not allowed to join more rooms with token %s" % ac.token)
+            resIq = iq.make_error_response(u"not-allowed")
 
         self.stream.send(resIq)
         if not room is None:
@@ -1432,6 +1442,12 @@ class BadRequestError(Exception):
 
 class NotAuthorizedError(Exception):
     def __init__(self, msg='not authorized'):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class NotAllowedError(Exception):
+    def __init__(self, msg='not allowed'):
         self.msg = msg
     def __str__(self):
         return repr(self.msg)
