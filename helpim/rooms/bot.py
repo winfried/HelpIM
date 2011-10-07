@@ -1307,7 +1307,7 @@ class Bot(JabberClient):
                     if he's really in there. if not send to room, send
                     to one2one room otherwise """
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
-                        if One2OneRoomToken.objects.filter(token=ac).count() < self.conf.muc.max_chats_per_staff:
+                        if One2OneRoomToken.objects.filter(token=ac).filter(room__status__in=['staffWaiting', 'chatting']).count() < self.conf.muc.max_chats_per_staff:
                             log.info("assigning new one2one room to token %s" % ac.token)
                             room = One2OneRoom.objects.filter(status='available')[0]
                             One2OneRoomToken(token=ac, room=room).save()
