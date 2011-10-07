@@ -14,12 +14,14 @@ from pyxmpp.jid import JID
 from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 
-from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler, MucRoomUser
-from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery, MucItem
+from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
+from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
+
+from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -32,6 +34,7 @@ class RoomHandlerBase(MucRoomHandler):
         self.todo = bot.todo
         self.closeRooms = bot.closeRooms
         self.fillMucRoomPool = bot.fillMucRoomPool
+        self.sendInvite = bot.sendInvite
         self.site = site
         self.mucconf = mucconf
         self.password = password
@@ -59,7 +62,7 @@ class RoomHandlerBase(MucRoomHandler):
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
             elif field.name == u'muc#roomconfig_passwordprotectedroom':
-                field.value = True
+                field.value = 1
             elif field.name == u'muc#roomconfig_roomsecret':
                 field.value = self.password
                 log.debug("Setting MUC-room password to: '%s'" % self.password)
@@ -111,6 +114,11 @@ class RoomHandlerBase(MucRoomHandler):
                 field.value = False
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
+
+        # prosody misses this one from its configuration form
+        # form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
+        #                value=True)
+
         log.form(form)
         form = form.make_submit(True)
         self.room_state.configure_room(form)
@@ -179,7 +187,7 @@ class RoomHandlerBase(MucRoomHandler):
         #DBG log.stanza(stanza)
         #DBG log.user(user)
         room = self.get_helpim_room()
-        if not room is None:
+        if not room is None and not room.chat is None:
             chat = room.chat
             chat.subject = stanza.get_subject()
             chat.save()
@@ -237,6 +245,24 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
+            """ send invite to a client """
+
+            """ TODO it's unclear how to pick the right waiting room
+            here. so for now I'm picking just the first one. """
+            try:
+                waitingRoom = WaitingRoom.objects.filter(status='chatting')[0]
+                client = self.room_state.manager.get_room_state(JID(waitingRoom.jid)).handler.get_next_client()
+                if not client is None:
+                    log.info("got client %s" % client)
+                    self.sendInvite(room, client.real_jid)
+                else:
+                    log.info("got no client for %s" % waitingRoom.jid)
+
+            except IndexError, AttributeError:
+                """ well, there's no client waiting. they'll get invites later on """
+                log.info("not sending invite")
+                pass
+
         elif status == 'availableForInvitation':
             room.staffJoined(user.nick)
             room.setStaffNick(user.nick)
@@ -246,7 +272,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
-                room.clientJoined(user.nick)
+                room.clientJoined(user.nick, user.real_jid)
                 room.setClientNick(user.nick)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
@@ -340,7 +366,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 chatmessage.sender = room.client
 
             chatmessage.save()
-                
+
             log.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
@@ -378,7 +404,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.rooms.getByJid(jidstr)
-        except KeyError:
+        except One2OneRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -415,7 +441,7 @@ class GroupRoomHandler(RoomHandlerBase):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         try:
             return self.site.groupRooms.getByJid(jidstr)
-        except KeyError:
+        except GroupRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
@@ -509,7 +535,133 @@ class GroupRoomHandler(RoomHandlerBase):
         #DBG log.user(user)
         return False
 
+class LobbyRoomHandler(RoomHandlerBase):
+    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+        self.type = "LobbyRoom"
+        self.userCount = 0
+
+    def room_configured(self):
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        self.site.lobbyRooms.newRoom(jidstr, self.password)
+        log.debug("MUC-Room for lobby '%s' created and configured successfully" % jidstr)
+        return True
+
+    def get_helpim_room(self):
+        '''Return the HelpIM-API room-object which this handler handles'''
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        try:
+            return self.site.lobbyRooms.getByJid(jidstr)
+        except LobbyRoom.DoesNotExist:
+            log.error("Could not find room '%s' in database." % jidstr)
+            return None
+
+    def user_joined(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        if self.userCount == 0:
+            """ first user has joined """
+            room = self.get_helpim_room()
+            if not room is None:
+                room.setStatus('chatting')
+
+                """ now get a waiting room to be associated with this lobby """
+                waitingroom = WaitingRoom.objects.filter(status='available')[0]
+                waitingroom.lobbyroom = room
+                waitingroom.setStatus('abandoned')
+
+        self.userCount += 1
+        self.todo.append((self.fillMucRoomPool, self.site))
+
+    def user_left(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+        self.userCount -= 1
+        if self.userCount == 0:
+            room = self.get_helpim_room()
+            if room is None:
+                return
+            """ if associated waitingroom is empty too it's save to remove all """
+            try:
+                waitingroom = WaitingRoom.objects.filter(lobbyroom=room).filter(status='abandoned')[0]
+                room.setStatus('toDestroy')
+                waitingroom.setStatus('toDestroy')
+            except IndexError:
+                room.setStatus('abandoned')
+
+class WaitingRoomHandler(RoomHandlerBase):
+    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+        self.type = "WaitingRoom"
+        self.userCount = 0
+        self.clients = []
+
+    def room_configured(self):
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        self.site.waitingRooms.newRoom(jidstr, self.password)
+        log.debug("MUC-Room for waiting room '%s' created and configured successfully" % jidstr)
+        return True
+
+    def get_helpim_room(self):
+        '''Return the HelpIM-API room-object which this handler handles'''
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        try:
+            return self.site.waitingRooms.getByJid(jidstr)
+        except WaitingRoom.DoesNotExist:
+            log.error("Could not find room '%s' in database." % jidstr)
+            return None
+
+    def get_next_client(self):
+        """ TODO later on we must make sure to actually return only a user that has filled in a questionnair """
+        log.info(self.clients)
+        return self.clients.pop(0)
+
+    def user_joined(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+
+        try:
+            one2oneRoom = One2OneRoom.objects.filter(status='staffWaiting')[0]
+            """ we got a waiting staff member, send client directly to this room """
+            self.sendInvite(one2oneRoom, user.real_jid)
+        except IndexError:
+            self.clients.append(user)
+        room = self.get_helpim_room()
+        if room is None:
+            return
+        if self.userCount == 0:
+            room.setStatus('chatting')
+        self.userCount += 1
+        self.todo.append((self.fillMucRoomPool, self.site))
+
+    def user_left(self, user, stanza):
+        log.debug("user left waiting room: %s" % user.nick)
+        if user.nick == self.nick:
+            return True
+        self.userCount -= 1
+        for client in self.clients:
+            if client.nick == user.nick:
+                self.clients.remove(user)
+                break
+        room = self.get_helpim_room()
+        if room is None:
+            return
+        if self.userCount > 0:
+            return
+        if not room.lobbyroom is None:
+            if room.lobbyroom.getStatus() == 'abandoned':
+                """ both rooms are abandoned """
+                room.lobbyroom.setStatus('toDestroy')
+                room.setStatus('toDestroy')
+            elif room.lobbyroom.getStatus() == 'chatting':
+                room.setStatus('abandoned')
+            else:
+                room.setStatus('toDestroy')
+        else:
+            room.setStatus('toDestroy')
+
 class Bot(JabberClient):
+
     def __init__(self, conf):
         self.stats = Stats()
         self.__last_room_basename = None
@@ -562,6 +714,22 @@ class Bot(JabberClient):
                 log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.groupRooms.deleteClosed()
+            # LobbyRooms
+            for room in site.lobbyRooms.getToDestroy():
+                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                self.closeRoom(room)
+            for room in site.lobbyRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
+                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                self.closeRoom(room)
+            site.lobbyRooms.deleteClosed()
+            # LobbyRooms
+            for room in site.waitingRooms.getToDestroy():
+                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                self.closeRoom(room)
+            for room in site.waitingRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
+                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                self.closeRoom(room)
+            site.waitingRooms.deleteClosed()
         #DBG: self.printrooms()
 
     def alarmHandler(self, signum, frame):
@@ -651,7 +819,7 @@ class Bot(JabberClient):
         self.todo.append((self.__rejoinRooms,))   # check DB for active room and rejoin/fix them.
         self.stream.set_message_handler("normal", self.handle_message)
         self.stream.set_presence_handler("subscribe", self.handle_presence_control)
-        self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_rooms)
+        self.stream.set_iq_get_handler("query", NS_HELPIM_ROOMS, self.handle_iq_get_room)
         self.stream.set_iq_get_handler("conversationId", NS_HELPIM_ROOMS, self.handle_iq_get_conversationId)
         self.stream.set_iq_set_handler("block", NS_HELPIM_ROOMS, self.handle_iq_set_block_participant)
 
@@ -681,9 +849,21 @@ class Bot(JabberClient):
         mucconf = self.getMucSettings(sitename)
         mucdomain = mucconf["domain"]
         poolsize = int(mucconf["poolsize"])
+
         # FIXME: only create rooms of the type(s) needed
-        # create One2OneRooms
-        nAvailable = len(site.rooms.getAvailable())
+        rooms = [{'nAvailable': len(site.rooms.getAvailable()),
+                  'handler': One2OneRoomHandler},
+                 {'nAvailable': len(site.groupRooms.getAvailable()),
+                  'handler': GroupRoomHandler},
+                 {'nAvailable': len(site.lobbyRooms.getAvailable()),
+                  'handler': LobbyRoomHandler},
+                 {'nAvailable': len(site.waitingRooms.getAvailable()),
+                  'handler': WaitingRoomHandler}]
+        for room in rooms:
+            self.__createRooms(site, mucdomain, poolsize, room['nAvailable'], room['handler'])
+
+    def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):
+        sitename = site.name
         nToCreate =  poolsize - nAvailable
         log.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
         log.info("Creating %d new rooms for site '%s'." % (nToCreate, sitename))
@@ -691,19 +871,7 @@ class Bot(JabberClient):
             roomname = self.newRoomName(sitename)
             password = unicode(newHash())
             log.info("Creating MUC-room '%s@%s'." % (roomname, mucdomain))
-            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, One2OneRoomHandler)
-            if mucstate:
-                mucstate.request_configuration_form()
-        # create GroupRooms
-        nAvailable = len(site.groupRooms.getAvailable())
-        nToCreate =  poolsize - nAvailable
-        log.info("Pool size for site '%s' = %d.  Currently available groupRooms = %d." % (sitename, poolsize, nAvailable))
-        log.info("Creating %d new groupRooms for site '%s'." % (nToCreate, sitename))
-        for tmp in range(nToCreate):
-            roomname = self.newRoomName(sitename)
-            password = unicode(newHash())
-            log.info("Creating MUC-room for groupchat '%s@%s'." % (roomname, mucdomain))
-            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, GroupRoomHandler)
+            mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, handler)
             if mucstate:
                 mucstate.request_configuration_form()
 
@@ -728,6 +896,20 @@ class Bot(JabberClient):
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixgrouproomstatus(room, mucstate)
+            for room in site.lobbyRooms.getNotDestroyed():
+                log.notice("Re-joining lobbyRoom '%s'." % room.jid)
+                jid = str2roomjid(room.jid)
+                mucstate = self.joinMucRoom(site, jid, room.password, LobbyRoomHandler, rejoining=True)
+                # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
+                if mucstate:
+                    self.fixlobbyroomstatus(room, mucstate)
+            for room in site.waitingRooms.getNotDestroyed():
+                log.notice("Re-joining waitingRoom '%s'." % room.jid)
+                jid = str2roomjid(room.jid)
+                mucstate = self.joinMucRoom(site, jid, room.password, WaitingRoomHandler, rejoining=True)
+                # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
+                if mucstate:
+                    self.fixwaitingroomstatus(room, mucstate)
 
     def fixroomstatus(self, room, mucstate):
         # Wait until all events are processed
@@ -939,6 +1121,13 @@ class Bot(JabberClient):
         # Finished fixing, set rejoinCount to None
         room.rejoinCount = None
 
+    def fixlobbyroomstatus(self, room, mucstate):
+        """ [TODO] """
+        pass
+
+    def fixwaitingroomstatus(self, room, mucstate):
+        """ [TODO] """
+        pass
 
     def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
         mucconf = self.getMucSettings(site.name)
@@ -997,6 +1186,11 @@ class Bot(JabberClient):
         log.debug(xml)
         self.stream.write_raw(xml)
 
+    def sendInvite(self, room, to):
+        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid, to)
+        log.info("sending invite: %s" % xml)
+        self.stream.write_raw(xml)
+
     def closeRooms(self, roomstatus=None, site=None):
         if site is None:
             # Resursively do all sites
@@ -1012,9 +1206,9 @@ class Bot(JabberClient):
         site = self.sites[sitename]
 
         if roomstatus is None:
-            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed()
+            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed() + site.waitingRooms.getNotDestroyed()
         else:
-            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus)
+            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus)
         for room in rooms:
             self.closeRoom(room)
 
@@ -1072,61 +1266,87 @@ class Bot(JabberClient):
         self.printrooms()
         return True
 
-    def handle_iq_get_rooms(self, iq):
+    def handle_iq_get_room(self, iq):
         log.stanza(iq)
+        room = None
         try:
             try:
                 token_n = iq.xpath_eval('d:query/d:token', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
+
             log.info("token: %s" % token_n.getContent())
-            accessToken = AccessToken.objects.get(token=token_n.getContent())
-            room = None
-            try:
-                if accessToken.room and (
-                    accessToken.room.status == 'staffWaiting' or
-                    accessToken.room.status == 'lost' or
-                    accessToken.room.status == 'abandoned'):
-                    log.info("active token found")
-                    """ user had an access token with room already
-                    associated and it's still usable"""
-                    room = accessToken.room
-            except One2OneRoom.DoesNotExist:
-                pass
 
-            if not room:
-                if accessToken.role == Participant.ROLE_STAFF:
-                    """ get a new room for client with validated access token """
-                    room = One2OneRoom.objects.filter(status__exact='available')[0]
-                else:
-                    log.info("looking up room for client")
-                    """ get a new room for client with validated access token """
-                    room = One2OneRoom.objects.filter(status__exact='staffWaiting').filter(client_allocated_at__lte=datetime.now()-timedelta(seconds=self.conf.muc.allocation_timeout))[0]
-                    """ mark room as allocated by a client """
-                    room.client_allocated_at = datetime.now()
-                    room.save()
-
-            accessToken.room = room
-            accessToken.save()
+            ac = AccessToken.objects.get(token=token_n.getContent())
+            log.info("got accessToken: %s" % ac)
 
             resIq = iq.make_result_response()
             query = resIq.new_query(NS_HELPIM_ROOMS)
-            query.newChild(None, 'room', room.getRoomId())
-            query.newChild(None, 'service', room.getRoomService())
-            query.newChild(None, 'password', room.password)
-            if accessToken.role == Participant.ROLE_CLIENT and accessToken.room.client_nick is not '':
-                query.newChild(None, 'nick', accessToken.room.client_nick)
+
+            if ac.role == Participant.ROLE_CLIENT:
+                """ send invite to waiting room """
+                log.info("got a client, sending to waiting room")
+                try:
+                    room = WaitingRoom.objects.filter(status='chatting')[0]
+                except IndexError:
+                    room = WaitingRoom.objects.filter(status='abandoned')[0]
+                if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
+                    room.setStatus('toDestroy');
+                    raise IndexError()
+                """ save jid """
+                ac.jid = iq.get_from()
+                ac.save()
+            else:
+                log.info("got token from staff member")
+                """ first we try to find an already allocated room which has status 'chatting' """
+
+                try:
+                    room = LobbyRoomToken.objects.get(token=ac).lobby
+
+                    """ staff has already acquired a lobby. now check
+                    if he's really in there. if not send to room, send
+                    to one2one room otherwise """
+                    if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
+                        if One2OneRoomToken.objects.filter(token=ac).count() < self.conf.muc.max_chats_per_staff:
+                            log.info("assigning new one2one room to token %s" % ac.token)
+                            room = One2OneRoom.objects.filter(status='available')[0]
+                            One2OneRoomToken(token=ac, room=room).save()
+                        else:
+                            log.info("user exceeded one2oneroom limit with token %s" % ac.token)
+                            room = None
+                            raise NotAllowedError()
+
+                except (AttributeError, LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
+                    try:
+                        try:
+                            LobbyRoomToken.objects.get(token=ac).delete()
+                        except LobbyRoomToken.DoesNotExist:
+                            """ just in case delete this bad ref """
+                            pass
+                        room = LobbyRoom.objects.filter(status='chatting')[0]
+                    except IndexError:
+                        room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                    """ save token to lobby """
+                    LobbyRoomToken(token=ac, lobby=room).save()
+
+
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
         except IndexError:
+            """ is this the only index error that might appear? """
             log.info("No available room found")
             resIq = iq.make_error_response(u"item-not-found")
         except BadRequestError:
             log.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
+        except NotAllowedError:
+            log.info("not allowed to join more rooms with token %s" % ac.token)
+            resIq = iq.make_error_response(u"not-allowed")
 
         self.stream.send(resIq)
+        if not room is None:
+            self.sendInvite(room, iq.get_from())
 
     def handle_iq_get_conversationId(self, iq):
         log.stanza(iq)
@@ -1157,7 +1377,7 @@ class Bot(JabberClient):
 
             log.info("got block request from %s" % iq.get_from())
             from_jid = iq.get_from()
-            
+
             room_jid = from_jid.bare()
             staff_nick = from_jid.resource
 
@@ -1177,7 +1397,7 @@ class Bot(JabberClient):
 
         except One2OneRoom.DoesNotExist:
             resIq = iq.make_error_response(u"item-not-found")
-            
+
         except NotAuthorizedError:
             resIq = iq.make_error_response(u"not-authorized")
 
@@ -1222,6 +1442,12 @@ class BadRequestError(Exception):
 
 class NotAuthorizedError(Exception):
     def __init__(self, msg='not authorized'):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class NotAllowedError(Exception):
+    def __init__(self, msg='not allowed'):
         self.msg = msg
     def __str__(self):
         return repr(self.msg)

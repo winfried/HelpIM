@@ -134,7 +134,6 @@ INSTALLED_APPS = (
 )
 
 CHAT = {
-    'mode': 'light',
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
@@ -160,6 +159,7 @@ BOT = {
         'history_maxstanzas': 10,
         'history_seconds': 120,
         'allocation_timeout': 300, # how long a room will be reserved for a client
+        'max_chats_per_staff': 3,
         },    
     'mainloop': {
         'timeout': 1,
