@@ -275,7 +275,7 @@ class Room(models.Model):
         self.status = status
         self.save()
 
-    def setChatId(slef, chatId):
+    def setChatId(self, chatId):
         chat = Chat.objects.get(pk=chatId)
         self.chat = chat
         self.save()
