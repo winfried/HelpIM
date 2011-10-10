@@ -1293,9 +1293,6 @@ class Bot(JabberClient):
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
-                """ save jid """
-                ac.jid = iq.get_from()
-                ac.save()
             else:
                 log.info("got token from staff member")
                 """ first we try to find an already allocated room which has status 'chatting' """
@@ -1329,6 +1326,9 @@ class Bot(JabberClient):
                     """ save token to lobby """
                     LobbyRoomToken(token=ac, lobby=room).save()
 
+            """ save jid """
+            ac.jid = iq.get_from()
+            ac.save()
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
