@@ -612,7 +612,7 @@ class One2OneRoomToken(models.Model):
     room = models.ForeignKey(One2OneRoom)
     token = models.ForeignKey(AccessToken)
 
-class WaitingRoomToken(model.Model):
+class WaitingRoomToken(models.Model):
     room = models.ForeignKey(WaitingRoom)
     token = models.ForeignKey(AccessToken, unique=True)
     ready = models.BooleanField(default=True)
