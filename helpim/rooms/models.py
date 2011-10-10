@@ -1,7 +1,5 @@
 import datetime
 
-from hashlib import md5
-
 import logging
 
 from django.conf import settings
@@ -576,16 +574,19 @@ class IPBlockedException(Exception):
         return repr(self.msg)
 
 class AccessTokenManager(models.Manager):
-    def get_or_create(role=Participant.ROLE_CLIENT, token=newHash(), ip=None):
+    def get_or_create(self, **kwargs):
         # delete outdated tokens
         self.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
 
         # check if remote IP is blocked
-        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
+        if kwargs['role'] is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=kwargs['ip_hash']).filter(blocked=True).count() is not 0:
             # this user is blocked
             raise IPBlockedException()
 
-        return super(AccessTokenManager, self).get_or_create(token=token, role=role, ip_hash=md5(ip).hexdigest())
+        if kwargs['token'] is None:
+            kwargs['token'] = newHash()
+
+        return super(AccessTokenManager, self).get_or_create(**kwargs)
 
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
