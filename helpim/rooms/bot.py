@@ -23,17 +23,21 @@ from helpim.conversations.models import Chat, Participant, ChatMessage
 
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken
 
+from helpim.questionnaires.models import Questionnaire
+
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
 class RoomHandlerBase(MucRoomHandler):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
         MucRoomHandler.__init__(self)
+        self.client = bot
         self.mucmanager = bot.mucmanager
         self.kick = bot.kick
         self.makeModerator = bot.makeModerator
         self.todo = bot.todo
         self.closeRooms = bot.closeRooms
         self.fillMucRoomPool = bot.fillMucRoomPool
+        self.stream = bot.stream
         self.sendInvite = bot.sendInvite
         self.site = site
         self.mucconf = mucconf
@@ -619,13 +623,38 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
-
         try:
-            one2oneRoom = One2OneRoom.objects.filter(status='staffWaiting')[0]
-            """ we got a waiting staff member, send client directly to this room """
-            self.sendInvite(one2oneRoom, user.real_jid)
-        except IndexError:
+            questionnair = Questionnaire.objects.filter(position=Questionnaire.POSITION_CHOICES.CB)[0]
+
+            # send iq set to client to inform about questionnaire. we
+            # set him to not being ready first and to True once he's
+            # finished with the questionnaire.
+
+            waitingLobbyToken = WaitingRoomToken.objects.get(token__jid==user.jid)
+            waitingLobbyToken.ready = False
+            waitingLobbyToken.save()
+
+            iq = Iq(stanza_type='set')
+            iq.set_to(user.jid)
+            iq.new_query(NS_HELPIM_ROOMS)
+            # setup result handler
+            self.client.stream.set_response_handlers(
+                iq,
+                self.__questionnaire_result,
+                self.__questionnaire_error,
+                )
+
+            self.client.stream.send(iq)
+
             self.clients.append(user)
+        except IndexError:
+            # no questionnaire no fun!
+            try:
+                one2oneRoom = One2OneRoom.objects.filter(status='staffWaiting')[0]
+                """ we got a waiting staff member, send client directly to this room """
+                self.sendInvite(one2oneRoom, user.real_jid)
+            except IndexError:
+                self.clients.append(user)
         room = self.get_helpim_room()
         if room is None:
             return
@@ -659,6 +688,20 @@ class WaitingRoomHandler(RoomHandlerBase):
                 room.setStatus('toDestroy')
         else:
             room.setStatus('toDestroy')
+
+    def __questionnaire_result(self, user, stanza):
+        log.stanza(stanza)
+        log.user(user) 
+        # set user ready
+        token = WaitingRoomToken.objects.get(token__jid=user.jid)
+        token.ready = True
+        token.save()
+
+   def __questionnaire_error(self, user, stanza):
+        log.stanza(stanza)
+        log.user(user)
+
+
 
 class Bot(JabberClient):
 
@@ -1293,12 +1336,15 @@ class Bot(JabberClient):
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
+
+                WaitingRoomToken.objects.create(token=ac, room=room)
+
             else:
                 log.info("got token from staff member")
                 """ first we try to find an already allocated room which has status 'chatting' """
 
                 try:
-                    room = LobbyRoomToken.objects.get(token=ac).lobby
+                    room = LobbyRoomToken.objects.get(token=ac).room
 
                     """ staff has already acquired a lobby. now check
                     if he's really in there. if not send to room, send
@@ -1307,7 +1353,7 @@ class Bot(JabberClient):
                         if One2OneRoomToken.objects.filter(token=ac).filter(room__status__in=['staffWaiting', 'chatting']).count() < self.conf.muc.max_chats_per_staff:
                             log.info("assigning new one2one room to token %s" % ac.token)
                             room = One2OneRoom.objects.filter(status='available')[0]
-                            One2OneRoomToken(token=ac, room=room).save()
+                            One2OneRoomToken.objects.create(token=ac, room=room)
                         else:
                             log.info("user exceeded one2oneroom limit with token %s" % ac.token)
                             room = None
@@ -1324,7 +1370,7 @@ class Bot(JabberClient):
                     except IndexError:
                         room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
                     """ save token to lobby """
-                    LobbyRoomToken(token=ac, lobby=room).save()
+                    LobbyRoomToken.objects.create(token=ac, room=room)
 
             """ save jid """
             ac.jid = iq.get_from()
