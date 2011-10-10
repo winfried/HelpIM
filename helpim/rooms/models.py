@@ -575,6 +575,18 @@ class IPBlockedException(Exception):
     def __str__(self):
         return repr(self.msg)
 
+class AccessTokenManager(models.Manager):
+    def get_or_create(role=Participant.ROLE_CLIENT, token=newHash(), ip=None):
+        # delete outdated tokens
+        self.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
+
+        # check if remote IP is blocked
+        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
+            # this user is blocked
+            raise IPBlockedException()
+
+        return super(AccessTokenManager, self).get_or_create(token=token, role=role, ip_hash=md5(ip).hexdigest())
+
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
     role = models.CharField(max_length=2,
@@ -588,26 +600,7 @@ class AccessToken(models.Model):
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # TODO move this to manager
-    @staticmethod
-    def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
-        # delete outdated tokens
-        AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
-
-        # check if remote IP is blocked
-        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
-            # this user is blocked
-            raise IPBlockedException()
-
-        if token is not None:
-            try: 
-                return AccessToken.objects.get(token=token)
-            except AccessToken.DoesNotExist:
-                pass
-        """ well then we just create a new one """
-        ac = AccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
-        ac.save()
-        return ac
+    objects = AccessTokenManager()
 
     def __unicode__(self):
         return self.token

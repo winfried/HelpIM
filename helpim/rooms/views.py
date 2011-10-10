@@ -33,7 +33,7 @@ def client_join_chat(request):
 
 def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
     try:
-        token = AccessToken.get_or_create(role, request.META.get('REMOTE_ADDR'), request.COOKIES.get('room_token'))
+        token = AccessToken.objects.get_or_create(role=role, token=request.COOKIES.get('room_token'), ip=request.META.get('REMOTE_ADDR'))
 
         return render_to_response(
             'rooms/join_chat.html', {
