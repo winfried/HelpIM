@@ -559,7 +559,15 @@ class WaitingRoom(Room):
     lobbyroom = models.ForeignKey(LobbyRoom,
                                   null=True)
 
+    clients = []
+
     objects = RoomManager()
+
+    def getNextClient(self):
+        for client in self.clients:
+            token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
+            if token.ready:
+                return client
 
 class IPBlockedException(Exception):
     def __init__(self, msg='ip blocked'):
@@ -580,6 +588,7 @@ class AccessToken(models.Model):
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # TODO move this to manager
     @staticmethod
     def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
         # delete outdated tokens

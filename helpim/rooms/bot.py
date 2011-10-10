@@ -21,9 +21,9 @@ from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
 
-from helpim.questionnaires.models import Questionnaire
+from helpim.questionnaire.models import Questionnaire
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
@@ -37,8 +37,8 @@ class RoomHandlerBase(MucRoomHandler):
         self.todo = bot.todo
         self.closeRooms = bot.closeRooms
         self.fillMucRoomPool = bot.fillMucRoomPool
+        self.inviteClients = bot.inviteClients
         self.stream = bot.stream
-        self.sendInvite = bot.sendInvite
         self.site = site
         self.mucconf = mucconf
         self.password = password
@@ -249,23 +249,11 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
+
             """ send invite to a client """
-
-            """ TODO it's unclear how to pick the right waiting room
-            here. so for now I'm picking just the first one. """
-            try:
-                waitingRoom = WaitingRoom.objects.filter(status='chatting')[0]
-                client = self.room_state.manager.get_room_state(JID(waitingRoom.jid)).handler.get_next_client()
-                if not client is None:
-                    log.info("got client %s" % client)
-                    self.sendInvite(room, client.real_jid)
-                else:
-                    log.info("got no client for %s" % waitingRoom.jid)
-
-            except IndexError, AttributeError:
-                """ well, there's no client waiting. they'll get invites later on """
-                log.info("not sending invite")
-                pass
+            token = LobbyRoomToken.objects.get(token__jid=user.real_jid)
+            waitingRoom = WaitingRoom.objects.get(lobbyroom=token.room) # probably this could be done in one step
+            self.todo.append((self.inviteClients, waitingRoom))
 
         elif status == 'availableForInvitation':
             room.staffJoined(user.nick)
@@ -598,7 +586,6 @@ class WaitingRoomHandler(RoomHandlerBase):
         RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
         self.type = "WaitingRoom"
         self.userCount = 0
-        self.clients = []
 
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
@@ -615,24 +602,24 @@ class WaitingRoomHandler(RoomHandlerBase):
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
-    def get_next_client(self):
-        """ TODO later on we must make sure to actually return only a user that has filled in a questionnair """
-        log.info(self.clients)
-        return self.clients.pop(0)
-
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             return True
+
+        room = self.get_helpim_room()
+        if room is None:
+            return
+
         try:
-            questionnair = Questionnaire.objects.filter(position=Questionnaire.POSITION_CHOICES.CB)[0]
+            questionnair = Questionnaire.objects.filter(position='CB')[0]
 
             # send iq set to client to inform about questionnaire. we
             # set him to not being ready first and to True once he's
             # finished with the questionnaire.
 
-            waitingLobbyToken = WaitingRoomToken.objects.get(token__jid==user.jid)
-            waitingLobbyToken.ready = False
-            waitingLobbyToken.save()
+            waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
+            waitingRoomToken.ready = False
+            waitingRoomToken.save()
 
             iq = Iq(stanza_type='set')
             iq.set_to(user.jid)
@@ -646,18 +633,12 @@ class WaitingRoomHandler(RoomHandlerBase):
 
             self.client.stream.send(iq)
 
-            self.clients.append(user)
         except IndexError:
             # no questionnaire no fun!
-            try:
-                one2oneRoom = One2OneRoom.objects.filter(status='staffWaiting')[0]
-                """ we got a waiting staff member, send client directly to this room """
-                self.sendInvite(one2oneRoom, user.real_jid)
-            except IndexError:
-                self.clients.append(user)
-        room = self.get_helpim_room()
-        if room is None:
-            return
+            pass
+
+        room.clients.append(user)
+        self.todo.append((self.inviteClients, room))
         if self.userCount == 0:
             room.setStatus('chatting')
         self.userCount += 1
@@ -697,7 +678,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         token.ready = True
         token.save()
 
-   def __questionnaire_error(self, user, stanza):
+    def __questionnaire_error(self, user, stanza):
         log.stanza(stanza)
         log.user(user)
 
@@ -1234,6 +1215,16 @@ class Bot(JabberClient):
         log.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
+    def inviteClients(self, waitingRoom):
+        rooms = One2OneRoom.objects.filter(status='staffWaiting')
+        for room in rooms:
+            client = waitingRoom.getNextClient()
+            if not client is None:
+                self.sendInvite(room, client.real_jid)
+            else:
+                # no more waiting clients
+                break
+            
     def closeRooms(self, roomstatus=None, site=None):
         if site is None:
             # Resursively do all sites
