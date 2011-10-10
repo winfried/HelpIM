@@ -13,6 +13,7 @@ from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jid import JID
 from pyxmpp.message import Message
 from pyxmpp.presence import Presence
+from pyxmpp.iq import Iq
 
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
 from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
@@ -622,7 +623,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             waitingRoomToken.save()
 
             iq = Iq(stanza_type='set')
-            iq.set_to(user.jid)
+            iq.set_to(user.real_jid)
             iq.new_query(NS_HELPIM_ROOMS)
             # setup result handler
             self.client.stream.set_response_handlers(
