@@ -678,10 +678,17 @@ class WaitingRoomHandler(RoomHandlerBase):
     def __questionnaire_result(self, user, stanza):
         log.stanza(stanza)
         log.user(user) 
+
         # set user ready
         token = WaitingRoomToken.objects.get(token__jid=user.jid)
         token.ready = True
         token.save()
+
+        room = self.get_helpim_room()
+        if room is None:
+            return
+
+        self.todo.append((self.inviteClients, room))
 
     def __questionnaire_error(self, user, stanza):
         log.stanza(stanza)
