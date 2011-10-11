@@ -1337,11 +1337,11 @@ class Bot(JabberClient):
                     room.setStatus('toDestroy');
                     raise IndexError()
                 
-                waitingRoomToken =  WaitingRoomToken.objects.get(token=ac)
-                if not waitingRoomToken is None:
+                try:
+                    waitingRoomToken =  WaitingRoomToken.objects.get(token=ac)
                     waitingRoomToken.room = room
                     waitingRoomToken.save()
-                else:
+                except WaitingRoomToken.DoesNotExist:
                     WaitingRoomToken.objects.create(token=ac, room=room)
 
             else:
