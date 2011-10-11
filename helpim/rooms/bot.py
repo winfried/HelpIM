@@ -612,7 +612,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             return
 
         try:
-            questionnair = Questionnaire.objects.filter(position='CB')[0]
+            questionnaire = Questionnaire.objects.filter(position='CB')[0]
 
             # send iq set to client to inform about questionnaire. we
             # set him to not being ready first and to True once he's
@@ -624,7 +624,11 @@ class WaitingRoomHandler(RoomHandlerBase):
 
             iq = Iq(stanza_type='set')
             iq.set_to(user.real_jid)
-            iq.new_query(NS_HELPIM_ROOMS)
+            query = iq.new_query(NS_HELPIM_ROOMS)
+            n = query.newChild(None, 'questionnaire', None)
+            n.setProp('url', questionnaire.get_absolute_url())
+            query.addChild(n)
+
             # setup result handler
             self.client.stream.set_response_handlers(
                 iq,
