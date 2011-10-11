@@ -654,13 +654,13 @@ class WaitingRoomHandler(RoomHandlerBase):
         if user.nick == self.nick:
             return True
         self.userCount -= 1
-        for client in self.clients:
-            if client.nick == user.nick:
-                self.clients.remove(user)
-                break
         room = self.get_helpim_room()
         if room is None:
             return
+        for client in room.clients:
+            if client.nick == user.nick:
+                room.clients.remove(client)
+                break
         if self.userCount > 0:
             return
         if not room.lobbyroom is None:
@@ -675,12 +675,11 @@ class WaitingRoomHandler(RoomHandlerBase):
         else:
             room.setStatus('toDestroy')
 
-    def __questionnaire_result(self, user, stanza):
+    def __questionnaire_result(self, stanza):
         log.stanza(stanza)
-        log.user(user) 
 
         # set user ready
-        token = WaitingRoomToken.objects.get(token__jid=user.jid)
+        token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
         token.ready = True
         token.save()
 
@@ -690,10 +689,8 @@ class WaitingRoomHandler(RoomHandlerBase):
 
         self.todo.append((self.inviteClients, room))
 
-    def __questionnaire_error(self, user, stanza):
+    def __questionnaire_error(self, stanza):
         log.stanza(stanza)
-        log.user(user)
-
 
 
 class Bot(JabberClient):
