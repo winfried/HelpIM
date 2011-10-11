@@ -1336,8 +1336,13 @@ class Bot(JabberClient):
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
-
-                WaitingRoomToken.objects.create(token=ac, room=room)
+                
+                waitingRoomToken =  WaitingRoomToken.objects.get(token=ac)
+                if not waitingRoomToken is None:
+                    waitingRoomToken.room = room
+                    waitingRoomToken.save()
+                else:
+                    WaitingRoomToken.objects.create(token=ac, room=room)
 
             else:
                 log.info("got token from staff member")
