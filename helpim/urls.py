@@ -20,7 +20,6 @@ urlpatterns += patterns(
 
     url(r'^$', 'helpim.rooms.views.client_join_chat', name='client_join_chat'),
 
-    url(r'^forms/', include('forms_builder.forms.urls')),
 
     url(r'^login/?$', redirect_to, {'url': '/admin/'}),
     url(r'^login/$', 'django.contrib.auth.views.login'),
@@ -31,4 +30,10 @@ urlpatterns += patterns(
     url(r'^admin/rooms/join/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_room'),
 
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+)
+
+urlpatterns += patterns(
+    'forms_builder.forms.views',
+    url(r"^forms/(?P<slug>.*)/sent/$", "form_sent", kwargs={'template':'questionnaire/form_sent.html'}, name="form_sent"),
+    url(r"^forms/(?P<slug>.*)/$", "form_detail", name="form_detail"),
 )
