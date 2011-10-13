@@ -583,10 +583,13 @@ class AccessTokenManager(models.Manager):
             # this user is blocked
             raise IPBlockedException()
 
-        if kwargs['token'] is None:
+        try:
+            token = super(AccessTokenManager, self).get(token=kwargs['token'])
+        except AccessToken.DoesNotExist:
             kwargs['token'] = newHash()
+            token = super(AccessTokenManager, self).create(**kwargs)
 
-        return super(AccessTokenManager, self).get_or_create(**kwargs)
+        return token
 
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
