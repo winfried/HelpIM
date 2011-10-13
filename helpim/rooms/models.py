@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from forms_builder.forms.models import FormEntry
 
 from helpim.conversations.models import Chat, Participant
+from helpim.questionnaire.models import ConversationFormEntry
 from helpim.utils import newHash
 
 class Site:
@@ -440,10 +441,17 @@ class One2OneRoom(Room):
         if not self.client:
             client = Participant(
                 conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
-            
+
             # store participant to access token so that we're able to block
             accessToken = AccessToken.objects.filter(jid=jid).filter(role=Participant.ROLE_CLIENT)[0]
             client.ip_hash = accessToken.ip_hash
+
+            # link form entry from questionnaire to participant
+            ConversationFormEntry.objects.create(
+                entry=WaitingRoomToken.objects.get(token=accessToken).questionnaire_before,
+                conversation=self.chat,
+                position='CB'
+                )
 
             client.save()
 
