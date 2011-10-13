@@ -20,10 +20,10 @@ from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
 
 from django.utils.translation import ugettext as _
 
+from forms_builder.forms.models import FormEntry
+
 from helpim.conversations.models import Chat, Participant, ChatMessage
-
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
-
 from helpim.questionnaire.models import Questionnaire
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
@@ -678,15 +678,28 @@ class WaitingRoomHandler(RoomHandlerBase):
     def __questionnaire_result(self, stanza):
         log.stanza(stanza)
 
-        # set user ready
-        token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
-        token.ready = True
-        token.save()
-
         room = self.get_helpim_room()
         if room is None:
             return
 
+        token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
+
+        # set user ready
+        token.ready = True
+
+        # link questionnaire to token
+        try:
+            entry_id = stanza.xpath_eval('d:query/d:questionnaire', {'d': NS_HELPIM_ROOMS})[0]
+            entry_id = entry_id.getContent()
+            log.debug(entry_id)
+            entry = FormEntry.objects.get(pk=entry_id)
+            token.questionnaire_before = entry
+        except FormEntry.DoesNotExist:
+            log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
+        except IndexError:
+            log.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
+            
+        token.save()
         self.todo.append((self.inviteClients, room))
 
     def __questionnaire_error(self, stanza):
