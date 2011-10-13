@@ -1,7 +1,5 @@
 import datetime
 
-from hashlib import md5
-
 import logging
 
 from django.conf import settings
@@ -11,7 +9,10 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from forms_builder.forms.models import FormEntry
+
 from helpim.conversations.models import Chat, Participant
+from helpim.questionnaire.models import ConversationFormEntry
 from helpim.utils import newHash
 
 class Site:
@@ -275,7 +276,7 @@ class Room(models.Model):
         self.status = status
         self.save()
 
-    def setChatId(slef, chatId):
+    def setChatId(self, chatId):
         chat = Chat.objects.get(pk=chatId)
         self.chat = chat
         self.save()
@@ -440,10 +441,17 @@ class One2OneRoom(Room):
         if not self.client:
             client = Participant(
                 conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
-            
+
             # store participant to access token so that we're able to block
             accessToken = AccessToken.objects.filter(jid=jid).filter(role=Participant.ROLE_CLIENT)[0]
             client.ip_hash = accessToken.ip_hash
+
+            # link form entry from questionnaire to participant
+            ConversationFormEntry.objects.create(
+                entry=WaitingRoomToken.objects.get(token=accessToken).questionnaire_before,
+                conversation=self.chat,
+                position='CB'
+                )
 
             client.save()
 
@@ -559,13 +567,42 @@ class WaitingRoom(Room):
     lobbyroom = models.ForeignKey(LobbyRoom,
                                   null=True)
 
+    clients = []
+
     objects = RoomManager()
+
+    def getNextClient(self):
+        for client in self.clients:
+            try:
+                token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
+                if token.ready:
+                    return client
+            except WaitinRoomToken.DoesNotExist:
+                pass
 
 class IPBlockedException(Exception):
     def __init__(self, msg='ip blocked'):
         self.msg = msg
     def __str__(self):
         return repr(self.msg)
+
+class AccessTokenManager(models.Manager):
+    def get_or_create(self, **kwargs):
+        # delete outdated tokens
+        self.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
+
+        # check if remote IP is blocked
+        if kwargs['role'] is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=kwargs['ip_hash']).filter(blocked=True).count() is not 0:
+            # this user is blocked
+            raise IPBlockedException()
+
+        try:
+            token = super(AccessTokenManager, self).get(token=kwargs['token'])
+        except AccessToken.DoesNotExist:
+            kwargs['token'] = newHash()
+            token = super(AccessTokenManager, self).create(**kwargs)
+
+        return token
 
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
@@ -580,34 +617,22 @@ class AccessToken(models.Model):
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    @staticmethod
-    def get_or_create(role=Participant.ROLE_CLIENT, ip=None, token=None):
-        # delete outdated tokens
-        AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
-
-        # check if remote IP is blocked
-        if role is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=md5(ip).hexdigest()).filter(blocked=True).count() is not 0:
-            # this user is blocked
-            raise IPBlockedException()
-
-        if token is not None:
-            try: 
-                return AccessToken.objects.get(token=token)
-            except AccessToken.DoesNotExist:
-                pass
-        """ well then we just create a new one """
-        ac = AccessToken(token=newHash(), role=role, ip_hash=md5(ip).hexdigest())
-        ac.save()
-        return ac
+    objects = AccessTokenManager()
 
     def __unicode__(self):
         return self.token
 
 class LobbyRoomToken(models.Model):
     """ remember for which lobby an AccessToken has been used """
-    lobby = models.ForeignKey(LobbyRoom)
+    room = models.ForeignKey(LobbyRoom)
     token = models.ForeignKey(AccessToken, unique=True)
 
 class One2OneRoomToken(models.Model):
     room = models.ForeignKey(One2OneRoom)
     token = models.ForeignKey(AccessToken)
+
+class WaitingRoomToken(models.Model):
+    room = models.ForeignKey(WaitingRoom)
+    token = models.ForeignKey(AccessToken, unique=True)
+    questionnaire_before = models.ForeignKey(FormEntry, null=True)
+    ready = models.BooleanField(default=True)

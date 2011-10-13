@@ -1,3 +1,5 @@
+from hashlib import md5
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.simplejson import dumps
@@ -33,7 +35,7 @@ def client_join_chat(request):
 
 def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
     try:
-        token = AccessToken.get_or_create(role, request.META.get('REMOTE_ADDR'), request.COOKIES.get('room_token'))
+        token = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest())
 
         return render_to_response(
             'rooms/join_chat.html', {
