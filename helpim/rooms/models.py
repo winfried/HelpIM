@@ -565,9 +565,12 @@ class WaitingRoom(Room):
 
     def getNextClient(self):
         for client in self.clients:
-            token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
-            if token.ready:
-                return client
+            try:
+                token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
+                if token.ready:
+                    return client
+            except WaitinRoomToken.DoesNotExist:
+                pass
 
 class IPBlockedException(Exception):
     def __init__(self, msg='ip blocked'):
