@@ -16,3 +16,5 @@ helpim.egg-info/
 dist/
 helpim/RELEASE-VERSION
 helpim/static/xmpptk
+prosody.log
+prosody.err
