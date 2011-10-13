@@ -8,12 +8,12 @@
 		.errorlist {color:#f00;}
 	</style>
 	<script type="text/javascript">
-	  parent.helpim.call('questionnaire_submitted');
+	  parent.helpim.call('questionnaire_submitted', {{ entry.pk }});
 	</script>
 </head>
 
 <body>
-	
+
 	<h1>{{ form.title }}</h1>
 	{% if form.response %}
 	<p>{{ form.response }}</p>
