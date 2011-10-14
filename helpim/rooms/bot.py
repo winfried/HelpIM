@@ -227,7 +227,6 @@ class RoomHandlerBase(MucRoomHandler):
     def __questionnaire_error(self, stanza):
         log.stanza(stanza)
 
-
 class One2OneRoomHandler(RoomHandlerBase):
 
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -356,6 +355,12 @@ class One2OneRoomHandler(RoomHandlerBase):
         else:
             cleanexit = False
 
+        # TODO somehow unify setting sender and dealing with exceptions
+        # if is_staff:
+        #     sender = room.staff
+        # else:
+        #     sender = room.client
+
         if room is None:
             return False
         if roomstatus == 'staffWaiting':
@@ -423,11 +428,27 @@ class One2OneRoomHandler(RoomHandlerBase):
 
         # request questionnaire from client if any
         # determine type of user
+        is_staff = False
+        if user.nick == room.staff_nick:
+            is_staff = True
+        if is_staff:
+            position = 'SA'
+            result_handler = self.__questionnaire_result_for_staff
+        else:
+            position = 'CA'
+            result_handler = self.__questionnaire_result_for_client
 
         # check for questionnaire
-
-        # send along
-
+        try:
+            questionnaire = Questionnaire.objects.filter(position=position)[0]
+        
+            # send along
+            self.send_questionnaire(user_jid=user.real_jid,
+                                    questionnaire_url=questionnaire.get_absolute_url(),
+                                    result_handler=result_handler)
+        except IndexError:
+            # no milk today
+            pass
         return False
 
     def get_helpim_room(self):
@@ -438,6 +459,24 @@ class One2OneRoomHandler(RoomHandlerBase):
         except One2OneRoom.DoesNotExist:
             log.error("Could not find room '%s' in database." % jidstr)
             return None
+
+    def __questionnaire_result_for_staff(self, stanza):
+        self.__create_conversation_form_entry(stanza, 'SA')
+
+    def __questionnaire_result_for_client(self, stanza):
+        self.__create_conversation_form_entry(stanza, 'CA')
+
+    def __create_conversation_form_entry(self, stanza, position):
+        try:
+            entry_id = get_questionnaire_entry_id(stanza)
+            entry = FormEntry.objects.get(pk=entry_id)
+            ConversationFormEntry.objects.create(
+                entry = entry,
+                conversation = self.chat,
+                position = position)
+        except FormEntry.DoesNotExist:
+            log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
+
 
 
 class GroupRoomHandler(RoomHandlerBase):
@@ -715,15 +754,11 @@ class WaitingRoomHandler(RoomHandlerBase):
 
         # link questionnaire to token
         try:
-            entry_id = stanza.xpath_eval('d:query/d:questionnaire', {'d': NS_HELPIM_ROOMS})[0]
-            entry_id = entry_id.getContent()
-            log.debug(entry_id)
+            entry_id = get_questionnaire_entry_id(stanza)
             entry = FormEntry.objects.get(pk=entry_id)
             token.questionnaire_before = entry
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
-        except IndexError:
-            log.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
             
         token.save()
         self.todo.append((self.inviteClients, room))
@@ -1708,3 +1743,13 @@ def newHash():
     string = str(datetime.datetime.now()) + str(random.random())
     hash = sha256(string).hexdigest()
     return hash
+
+def get_questionnaire_entry_id(stanza):
+    try:
+        entry_id = stanza.xpath_eval('d:query/d:questionnaire',
+                                     {'d': NS_HELPIM_ROOMS})[0]
+        entry_id = entry_id.getContent()
+        log.debug("got entry id: %s" % entry_id)
+        return entry_id
+    except IndexError:
+        log.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
