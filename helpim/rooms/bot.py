@@ -198,6 +198,36 @@ class RoomHandlerBase(MucRoomHandler):
             chat.save()
         return True
 
+    def send_questionnaire(self, user_jid, questionnaire_url, 
+                           result_handler=None, error_handler=None):
+        iq = Iq(stanza_type='set')
+        iq.set_to(user_jid)
+        query = iq.new_query(NS_HELPIM_ROOMS)
+        n = query.newChild(None, 'questionnaire', None)
+        n.setProp('url', questionnaire_url)
+        query.addChild(n)
+
+        if result_handler is None:
+            result_handler = self.__questionnaire_result
+        if error_handler is None:
+            error_handler = self.__questionnaire_error
+
+        # setup result handler
+        self.client.stream.set_response_handlers(
+            iq,
+            result_handler,
+            error_handler,
+            )
+
+        self.client.stream.send(iq)
+
+    def __questionnaire_result(self, stanza):
+        log.stanza(stanza)
+
+    def __questionnaire_error(self, stanza):
+        log.stanza(stanza)
+
+
 class One2OneRoomHandler(RoomHandlerBase):
 
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -390,6 +420,14 @@ class One2OneRoomHandler(RoomHandlerBase):
         else:
             log.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
             log.info("User was: Nick = '%s'." % user.nick)
+
+        # request questionnaire from client if any
+        # determine type of user
+
+        # check for questionnaire
+
+        # send along
+
         return False
 
     def get_helpim_room(self):
@@ -622,21 +660,9 @@ class WaitingRoomHandler(RoomHandlerBase):
             waitingRoomToken.ready = False
             waitingRoomToken.save()
 
-            iq = Iq(stanza_type='set')
-            iq.set_to(user.real_jid)
-            query = iq.new_query(NS_HELPIM_ROOMS)
-            n = query.newChild(None, 'questionnaire', None)
-            n.setProp('url', questionnaire.get_absolute_url())
-            query.addChild(n)
-
-            # setup result handler
-            self.client.stream.set_response_handlers(
-                iq,
-                self.__questionnaire_result,
-                self.__questionnaire_error,
-                )
-
-            self.client.stream.send(iq)
+            self.send_questionnaire(user_jid=user.real_jid,
+                                    questionnaire_url=questionnaire.get_absolute_url(),
+                                    result_handler=self.__questionnaire_result)
 
         except IndexError:
             # no questionnaire no fun!
@@ -701,10 +727,6 @@ class WaitingRoomHandler(RoomHandlerBase):
             
         token.save()
         self.todo.append((self.inviteClients, room))
-
-    def __questionnaire_error(self, stanza):
-        log.stanza(stanza)
-
 
 class Bot(JabberClient):
 
