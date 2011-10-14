@@ -131,10 +131,12 @@ INSTALLED_APPS = (
     'south',
     'threadedcomments',
     'rosetta',
+    'helpim.common',
+    'helpim.questionnaire',
 )
 
 CHAT = {
-    'mode': 'light',
+#    'mode': 'light',
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
@@ -206,4 +208,4 @@ LOCALE_PATHS = (
 
 
 DEBUG = False
-HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS = True
+FORMS_BUILDER_USE_SITES = False
