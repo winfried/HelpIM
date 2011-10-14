@@ -7,7 +7,6 @@ from forms_builder.forms.models import Form, FormEntry
 
 POSITION_CHOICES = (
   ('CB', _('Client, before chat')),
-  ('SB', _('Staff, before chat')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
 )
