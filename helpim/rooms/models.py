@@ -447,12 +447,18 @@ class One2OneRoom(Room):
             client.ip_hash = accessToken.ip_hash
 
             # link form entry from questionnaire to participant
-            ConversationFormEntry.objects.create(
-                entry=WaitingRoomToken.objects.get(token=accessToken).questionnaire_before,
-                conversation=self.chat,
-                position='CB'
-                )
-
+            try:
+                waitingRoomToken = WaitingRoomToken.objects.get(token=accessToken)
+                if not waitingRoomToken.questionnaire_before is None:
+                    ConversationFormEntry.objects.create(
+                        entry=waitingRoomToken.questionnaire_before,
+                        conversation=self.chat,
+                        position='CB'
+                        )
+            except WaitingRoomToken.DoesNotExist:
+                # HU! - can't do logging here :'(
+                pass
+                
             client.save()
 
             self.client = client
