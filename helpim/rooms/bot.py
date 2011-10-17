@@ -24,7 +24,7 @@ from forms_builder.forms.models import FormEntry
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
-from helpim.questionnaire.models import Questionnaire
+from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
