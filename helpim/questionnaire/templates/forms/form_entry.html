@@ -1,0 +1,8 @@
+<h1>Answers</h1>
+
+<dl>
+{% for entry in entries %}
+  <dt>{{ entry.field_id }}</dt>
+  <dd>{{ entry.value }}</dd>
+{% endfor %}
+</dl>
