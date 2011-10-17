@@ -198,6 +198,12 @@ class RoomHandlerBase(MucRoomHandler):
             chat.save()
         return True
 
+    # TODO that should rather go to our own subclassed MucRoomState
+    def send_private_message(self, nick, body):
+        to_jid = self.room_state.get_room_jid(nick)
+        m = Message(to_jid=to_jid, stanza_type='chat', body=body)
+        self.client.stream.send(m)
+
     def send_questionnaire(self, user_jid, questionnaire_url, 
                            result_handler=None, error_handler=None):
         iq = Iq(stanza_type='set')
@@ -292,8 +298,11 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
-                room.clientJoined(user)
+                formEntry = room.clientJoined(user)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
+                # if not formEntry is None:
+                #     # tell staff about
+                #     self.send_private_message(room.staff_nick, "%s filled in a questionnaire: %s" % (user.nick, formEntry.get_absolute_url()))
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
                 self.rejoinCount = None
