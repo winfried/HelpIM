@@ -473,11 +473,17 @@ class One2OneRoomHandler(RoomHandlerBase):
 
     def __create_conversation_form_entry(self, stanza, position):
         try:
+            room = self.get_helpim_room()
+            if room is None:
+                log.warning("get_helpim_room couldn't find a room")
+                return
+
             entry_id = get_questionnaire_entry_id(stanza)
-            entry = FormEntry.objects.get(pk=entry_id)
+            entry = FormEntry.objects.get(pk=entry_id)            
+
             ConversationFormEntry.objects.create(
                 entry = entry,
-                conversation = self.chat,
+                conversation = room.chat,
                 position = position)
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
