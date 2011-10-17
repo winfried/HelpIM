@@ -70,3 +70,9 @@ def form_sent(request, slug, entry=None, template="forms/form_sent.html"):
     context = {"form": form, "entry": entry}
     return render_to_response(template, context, RequestContext(request))
 
+def form_entry(request, form_entry_id, template="forms/form_entry.html"):
+    form_entry = get_object_or_404(FormEntry, id=form_entry_id)
+    context = {
+      "entries": form_entry.fields.all(),
+    }
+    return render_to_response(template, context, RequestContext(request))
