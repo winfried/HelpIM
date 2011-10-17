@@ -392,7 +392,7 @@ class One2OneRoom(Room):
         self.client = client
         self.save()
 
-    def staffJoined(self, user):
+    def staffJoined(self, muc_user):
         """To be called after the staffmember has joined
         the room at the jabber-server.
         """
@@ -403,17 +403,17 @@ class One2OneRoom(Room):
             self.chat = chat
 
         if not self.staff:
-            user = User.objects.get(username=user.nick)
+            user = User.objects.get(username=muc_user.nick)
             staff = Participant(
                 conversation=self.chat,
-                name=user.nick,
+                name=muc_user.nick,
                 user=user,
                 role=Participant.ROLE_STAFF
             )
             staff.save()
             self.staff = staff
 
-        self.staff_nick = user.nick
+        self.staff_nick = muc_user.nick
 
         if self.getStatus() == "available":
             self.setStatus("staffWaiting")
@@ -422,7 +422,7 @@ class One2OneRoom(Room):
         else:
             raise StatusError("staff joining room while not room status is not 'available' or 'availableForInvitation'")
 
-    def clientJoined(self, user):
+    def clientJoined(self, muc_user):
         """To be called after a client has joined
            the room at the jabber-server.
            """
@@ -434,10 +434,10 @@ class One2OneRoom(Room):
 
         if not self.client:
             client = Participant(
-                conversation=self.chat, name=user.nick, role=Participant.ROLE_CLIENT)
+                conversation=self.chat, name=muc_user.nick, role=Participant.ROLE_CLIENT)
 
             # store participant to access token so that we're able to block
-            accessToken = AccessToken.objects.filter(jid=user.real_jid).filter(role=Participant.ROLE_CLIENT)[0]
+            accessToken = AccessToken.objects.filter(jid=muc_user.real_jid).filter(role=Participant.ROLE_CLIENT)[0]
             client.ip_hash = accessToken.ip_hash
 
             # link form entry from questionnaire to participant
@@ -451,7 +451,7 @@ class One2OneRoom(Room):
             client.save()
 
             self.client = client
-            self.client_nick = user.nick
+            self.client_nick = muc_user.nick
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
