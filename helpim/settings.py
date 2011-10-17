@@ -164,7 +164,8 @@ BOT = {
         'history_seconds': 120,
         'allocation_timeout': 300, # how long a room will be reserved for a client
         'max_chats_per_staff': 3,
-        },    
+        'http_domain': 'http://127.0.0.1:8000',
+        },
     'mainloop': {
         'timeout': 1,
         'reconnectdelay': 5,
