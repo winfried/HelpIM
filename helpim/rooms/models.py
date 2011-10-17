@@ -392,15 +392,7 @@ class One2OneRoom(Room):
         self.client = client
         self.save()
 
-    def setStaffNick(self, nick):
-        self.staff_nick = nick
-        self.save()
-
-    def setClientNick(self, nick):
-        self.client_nick = nick
-        self.save()
-
-    def staffJoined(self, nick):
+    def staffJoined(self, user):
         """To be called after the staffmember has joined
         the room at the jabber-server.
         """
@@ -411,15 +403,17 @@ class One2OneRoom(Room):
             self.chat = chat
 
         if not self.staff:
-            user = User.objects.get(username=nick)
+            user = User.objects.get(username=user.nick)
             staff = Participant(
                 conversation=self.chat,
-                name=nick,
+                name=user.nick,
                 user=user,
                 role=Participant.ROLE_STAFF
             )
             staff.save()
             self.staff = staff
+
+        self.staff_nick = user.nick
 
         if self.getStatus() == "available":
             self.setStatus("staffWaiting")
@@ -428,7 +422,7 @@ class One2OneRoom(Room):
         else:
             raise StatusError("staff joining room while not room status is not 'available' or 'availableForInvitation'")
 
-    def clientJoined(self, nick, jid):
+    def clientJoined(self, user):
         """To be called after a client has joined
            the room at the jabber-server.
            """
@@ -440,31 +434,34 @@ class One2OneRoom(Room):
 
         if not self.client:
             client = Participant(
-                conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
+                conversation=self.chat, name=user.nick, role=Participant.ROLE_CLIENT)
 
             # store participant to access token so that we're able to block
-            accessToken = AccessToken.objects.filter(jid=jid).filter(role=Participant.ROLE_CLIENT)[0]
+            accessToken = AccessToken.objects.filter(jid=user.real_jid).filter(role=Participant.ROLE_CLIENT)[0]
             client.ip_hash = accessToken.ip_hash
 
             # link form entry from questionnaire to participant
+            formEntry = None
             try:
-                waitingRoomToken = WaitingRoomToken.objects.get(token=accessToken)
-                if not waitingRoomToken.questionnaire_before is None:
-                    ConversationFormEntry.objects.create(
-                        entry=waitingRoomToken.questionnaire_before,
-                        conversation=self.chat,
-                        position='CB'
-                        )
+                formEntry = WaitingRoomToken.objects.get(token=accessToken).questionnaire_before
             except WaitingRoomToken.DoesNotExist:
-                # HU! - can't do logging here :'(
+                # HU!
                 pass
                 
             client.save()
 
             self.client = client
+            self.client_nick = user.nick
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
+            if not formEntry is None:
+                ConversationFormEntry.objects.create(
+                    entry=formEntry,
+                    conversation=self.chat,
+                    position='CB'
+                    )
+            return formEntry
         else:
             raise StatusError("client joining room while not room status is not 'staffWaiting' or 'staffWaitingForInvitee'")
 

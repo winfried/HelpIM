@@ -273,8 +273,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
 
         if status == 'available':
-            room.staffJoined(user.nick)
-            room.setStaffNick(user.nick)
+            room.staffJoined(user)
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender=room.staff, sender_name=user.nick)
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
@@ -286,16 +285,14 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.todo.append((self.inviteClients, waitingRoom))
 
         elif status == 'availableForInvitation':
-            room.staffJoined(user.nick)
-            room.setStaffNick(user.nick)
+            room.staffJoined(user)
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.staff)
             self.todo.append((self.fillMucRoomPool, self.site))
             log.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
-                room.clientJoined(user.nick, user.real_jid)
-                room.setClientNick(user.nick)
+                room.clientJoined(user)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
@@ -304,8 +301,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 log.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'staffWaitingForInvitee':
             if self.rejoinCount is None:
-                room.clientJoined(user.nick)
-                room.setClientNick(user.nick)
+                room.clientJoined(user)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
                 log.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             else:
