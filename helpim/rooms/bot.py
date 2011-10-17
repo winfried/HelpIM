@@ -300,9 +300,9 @@ class One2OneRoomHandler(RoomHandlerBase):
             if self.rejoinCount is None:
                 formEntry = room.clientJoined(user)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                # if not formEntry is None:
-                #     # tell staff about
-                #     self.send_private_message(room.staff_nick, "%s filled in a questionnaire: %s" % (user.nick, formEntry.get_absolute_url()))
+                if not formEntry is None:
+                    # tell staff about
+                    self.send_private_message(room.staff_nick, "%s filled in a questionnaire: %s/forms/entry/%d/" % (user.nick, self.mucconf.http_domain, formEntry.pk))
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
                 self.rejoinCount = None
