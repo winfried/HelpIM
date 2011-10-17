@@ -8,6 +8,9 @@ from django.forms.models import inlineformset_factory
 from django.conf import settings
 
 CONVERSATION_EDITABLE = False
+from forms_builder.forms.models import FormEntry
+from helpim.questionnaire.models import ConversationFormEntry
+
 
 class MessageInline(admin.StackedInline):
     template = 'admin/edit_inline/with_threadedcomments.html'
@@ -50,6 +53,10 @@ class ParticipantInline(admin.TabularInline):
     verbose_name = _("Participant")
     verbose_name_plural = _("Participants")
 
+class ConversationFormEntryInline(admin.StackedInline):
+    model = ConversationFormEntry
+    readonly_fields = ('entry', 'position')
+    max_num = 0
 
 class ConversationAdmin(admin.ModelAdmin):
 
@@ -65,6 +72,7 @@ class ConversationAdmin(admin.ModelAdmin):
     inlines = [
         ParticipantInline,
         ChatMessageInline,
+        ConversationFormEntryInline,
     ]
 
     def get_changelist(self, request, **kwargs):

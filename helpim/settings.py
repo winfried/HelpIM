@@ -130,10 +130,11 @@ INSTALLED_APPS = (
     'threadedcomments',
     'rosetta',
     'helpim.common',
+    'forms_builder.forms',
+    'helpim.questionnaire',
 )
 
 CHAT = {
-    'mode': 'light',
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
@@ -159,6 +160,7 @@ BOT = {
         'history_maxstanzas': 10,
         'history_seconds': 120,
         'allocation_timeout': 300, # how long a room will be reserved for a client
+        'max_chats_per_staff': 3,
         },    
     'mainloop': {
         'timeout': 1,
@@ -199,3 +201,4 @@ LOGGING = {
     }
 }
 
+FORMS_BUILDER_USE_SITES = False
