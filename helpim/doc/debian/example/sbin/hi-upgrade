@@ -77,7 +77,7 @@ echo "Running django-admin.py migrate on all chats"
 
 
 # test situation:
-rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
+# rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
 # list=`ls -1d /etc/helpim/sites/*`
 # for chat in $list; do
 #   rsync -av --del /usr/local/share/helpim/locale $chat

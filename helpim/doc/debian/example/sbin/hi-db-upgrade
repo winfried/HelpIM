@@ -5,6 +5,7 @@ export PYTHONPATH=""
 list=`ls -1d /etc/helpim/sites/*`
 
 for chat in $list; do
+  echo
   echo $chat
   cd $chat
   DJANGO_SETTINGS_MODULE=settings django-admin.py syncdb
