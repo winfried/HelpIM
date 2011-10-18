@@ -26,9 +26,12 @@ su $buildoutuser -c "   # do this as a normal user
    python bootstrap.py --distribute
    ./bin/buildout  -vv
    cd parts/xmpptk/ && make
+"
+echo
+read -p 'Press return (give ctrl-c to stop)'
+
+su $buildoutuser -c "   # do this as a normal user
    cd ~/HelpIM/
-   echo
-   read -p 'Press return (give ctrl-c to stop)'
    echo begin collectstatic
    rm -rf static
    ./bin/manage.py collectstatic --noinput
