@@ -285,6 +285,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
 
+            """ send invite to a client """
             try:
                 # probably this could be done in one step
                 token = LobbyRoomToken.objects.get(token__jid=user.real_jid)
