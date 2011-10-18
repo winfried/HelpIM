@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.utils.http import urlquote
 
 from forms_builder.forms.forms import FormForForm
-from forms_builder.forms.models import Form, FormEntry
+from forms_builder.forms.models import Form, FormEntry, Field
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
 
@@ -71,8 +71,13 @@ def form_sent(request, slug, entry=None, template="forms/form_sent.html"):
     return render_to_response(template, context, RequestContext(request))
 
 def form_entry(request, form_entry_id, template="forms/form_entry.html"):
+
     form_entry = get_object_or_404(FormEntry, id=form_entry_id)
-    context = {
-      "entries": form_entry.fields.all(),
-    }
-    return render_to_response(template, context, RequestContext(request))
+
+    form_entries = form_entry.fields.all()
+
+    fields = Field.objects.filter(pk__in=[form_entry.field_id for form_entry in form_entries])
+
+    return render_to_response(template, {
+      "fields_and_entries": zip(fields, form_entries),
+    }, RequestContext(request))
