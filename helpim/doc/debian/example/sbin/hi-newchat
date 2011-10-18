@@ -48,6 +48,8 @@ fi
 if test "$adminpw" = ""; then
   adminpw="secret28"
 fi
+# generate key
+secretkey=`pwgen -s 50 1`
 
 # show result:
 echo
@@ -95,8 +97,10 @@ cp -a ../skel $chat
 chown -R $chat:www-data $chat
 chmod -R 750 $chat
 rpl -R CHATX $chat $chat
-rpl -R PASSWD $password $chat
-rpl -R BOTPW $botpw $chat
+rpl PASSWD $password $chat/settings.py
+rpl BOTPW $botpw $chat/settings.py
+rpl SECRETKEY $secretkey $chat/settings.py
+rpl MAILRECIPIENT $mailrecipient $chat/settings.py
 #cp -r /home/buildout/HelpIM/helpim/fixtures $chat/
 #cp -r /home/buildout/HelpIM/helpim/templates $chat/
 #cp -r /home/buildout/HelpIM/helpim/rooms/static/helpim/ $chat/static
@@ -104,10 +108,13 @@ rpl -R BOTPW $botpw $chat
 echo
 echo "Create Database..."
 mysql <<EOD
-create database $chat;
+create database $chat CHARACTER SET utf8;
 grant all on $chat.* to $chat@localhost identified by '$password';
 flush privileges;
 EOD
+
+cd /etc/helpim/sites/
+rpl "'OPTIONS'" "#'OPTIONS'" $chat/settings.py
 
 echo
 echo "Running django-admin.py...."

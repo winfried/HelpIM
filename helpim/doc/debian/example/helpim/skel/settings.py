@@ -8,6 +8,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+SERVER_EMAIL = 'MAILRECIPIENT'
 
 DATABASES = {
     'default': {
@@ -88,7 +89,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'j%z#^ei+ul19uwepv=kr8ng8%m*e6hdbaomcmqagznu81ka*%b'
+SECRET_KEY = 'SECRETKEY'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
