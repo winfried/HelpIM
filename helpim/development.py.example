@@ -9,9 +9,6 @@ DATABASES = {
         'NAME': 'helpim31',
         'USER': 'root',
         'PASSWORD': 'password',
-        'OPTIONS': {
-            'init_command': 'SET storage_engine=INNODB',
-        },
     }
 }
 
