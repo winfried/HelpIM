@@ -11,6 +11,7 @@ CONVERSATION_EDITABLE = False
 from forms_builder.forms.models import FormEntry
 from helpim.questionnaire.models import ConversationFormEntry
 
+from helpim.conversations.widgets import IframeReadonlyWidget
 
 class MessageInline(admin.StackedInline):
     template = 'admin/edit_inline/with_threadedcomments.html'
@@ -54,8 +55,14 @@ class ParticipantInline(admin.TabularInline):
     verbose_name_plural = _("Participants")
 
 class ConversationFormEntryInline(admin.StackedInline):
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'entry':
+            kwargs['widget'] = IframeReadonlyWidget
+            return super(admin.StackedInline, self).formfield_for_dbfield(db_field,**kwargs)
+
     model = ConversationFormEntry
-    readonly_fields = ('entry', 'position')
+    readonly_fields = ('position',)
     max_num = 0
 
 class ConversationAdmin(admin.ModelAdmin):

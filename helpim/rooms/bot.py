@@ -286,9 +286,15 @@ class One2OneRoomHandler(RoomHandlerBase):
             self.rejoinCount = None
 
             """ send invite to a client """
-            token = LobbyRoomToken.objects.get(token__jid=user.real_jid)
-            waitingRoom = WaitingRoom.objects.get(lobbyroom=token.room) # probably this could be done in one step
-            self.todo.append((self.inviteClients, waitingRoom))
+            try:
+                # probably this could be done in one step
+                token = LobbyRoomToken.objects.get(token__jid=user.real_jid)
+                waitingRoom = WaitingRoom.objects.filter(status__in=['available', 'abandonned']).filter(lobbyroom=token.room)[0] 
+                self.todo.append((self.inviteClients, waitingRoom))
+            except IndexError:
+                log.warning("no waiting room found for lobby with jid %s" % token.room.jid)
+                # wheee
+                pass
 
         elif status == 'availableForInvitation':
             room.staffJoined(user)

@@ -8,96 +8,131 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-21 11:21+0200\n"
+"POT-Creation-Date: 2011-10-19 14:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
-#: static/xmpptk/helpim/ui/client.js:50
-msgid "Stop Conversation"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:72
-msgid "Join Chat"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:73
-msgid "Nickname"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:73
-msgid "Subject"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:86
-msgid "Please provide a nickname!"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:134
-msgid "Sorry, you're not allowed to access this service"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client.js:139
-#: static/xmpptk/helpim/ui/client_running.js:22
-msgid "An error occured"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/client_running.js:23
-msgid "Sorry, there's already a conversation active at some other window."
-msgstr ""
-
-#: static/xmpptk/helpim/ui/muc/room.js:83
-#: static/xmpptk/helpim/ui/muc/room.js:94
-msgid "Click to see even more emoticons"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/muc/room.js:84
-#: static/xmpptk/helpim/ui/muc/room.js:93
+#: static/helpim.js:168
 msgid "more"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:97
-msgid "less"
-msgstr ""
-
-#: static/xmpptk/helpim/ui/muc/room.js:98
+#: static/helpim.js:168
 msgid "Click to collapse emoticons"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:265
+#: static/helpim.js:170
+msgid "Block Participant"
+msgstr ""
+
+#: static/helpim.js:171
+msgid "Block participant"
+msgstr ""
+
+#: static/helpim.js:171
+msgid "Error"
+msgstr ""
+
+#: static/helpim.js:171
+msgid "Request Client"
+msgstr ""
+
+#: static/helpim.js:175
 #, perl-format
 msgid "%s has entered the conversation"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:276
+#: static/helpim.js:176
 msgid "Ring! Ring!"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:319
+#: static/helpim.js:176
 #, perl-format
 msgid "Welcome %s, now wait for a client to join!"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:324
+#: static/helpim.js:177
 #, perl-format
 msgid "%s has disappeared from the conversation"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:327
+#: static/helpim.js:177
 #, perl-format
 msgid "%s has ended the conversation"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:372
+#: static/helpim.js:179
 #, perl-format
 msgid "%s stopped composing"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/room.js:375
+#: static/helpim.js:179
 #, perl-format
 msgid "%s is composing a message"
+msgstr ""
+
+#: static/helpim.js:180
+msgid "clickt to close"
+msgstr ""
+
+#: static/helpim.js:180
+msgid "Stop Conversation"
+msgstr ""
+
+#: static/helpim.js:181
+msgid "Sorry, you're not allowed to access this service"
+msgstr ""
+
+#: static/helpim.js:181
+msgid "Sorry, you're not allowed to request more chats"
+msgstr ""
+
+#: static/helpim.js:181 static/helpim.js.py:187
+msgid "An error occured"
+msgstr ""
+
+#: static/helpim.js:182
+msgid "Join Chat"
+msgstr ""
+
+#: static/helpim.js:182
+msgid "Nickname"
+msgstr ""
+
+#: static/helpim.js:182
+msgid "Subject"
+msgstr ""
+
+#: static/helpim.js:183
+msgid "Please provide a nickname!"
+msgstr ""
+
+#: static/helpim.js:183
+msgid "Questionnaire"
+msgstr ""
+
+#: static/helpim.js:185
+msgid "staff"
+msgstr ""
+
+#: static/helpim.js:185
+msgid "waiting..."
+msgstr ""
+
+#: static/helpim.js:186
+msgid "Please wait!"
+msgstr ""
+
+#: static/helpim.js:186
+msgid ""
+"Please wait while we're acquiring a conversation for you! This can take some "
+"time."
+msgstr ""
+
+#: static/helpim.js:187
+msgid "Sorry, there's already a conversation active at some other window."
 msgstr ""
