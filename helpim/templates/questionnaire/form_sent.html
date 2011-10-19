@@ -7,12 +7,15 @@
 		label {display:block; float:left; width:10em;}
 		.errorlist {color:#f00;}
 	</style>
+	<link type="text/css" rel="stylesheet" href="{{ STATIC_PREFIX }}helpim/custom.css">
 	<script type="text/javascript">
-	  parent.helpim.call('questionnaire_submitted', {{ entry.pk }});
+	  try {
+	    parent.helpim.call('questionnaire_submitted', {{ entry.pk }});
+	  } catch(e) { }
 	</script>
 </head>
 
-<body>
+<body id="form_sent">
 
 	<h1>{{ form.title }}</h1>
 	{% if form.response %}
