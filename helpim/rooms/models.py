@@ -579,6 +579,7 @@ class WaitingRoom(Room):
             try:
                 token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
                 if token.ready:
+                    self.clients.remove(client)
                     return client
             except WaitinRoomToken.DoesNotExist:
                 pass
