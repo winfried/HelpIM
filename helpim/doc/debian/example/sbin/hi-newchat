@@ -94,13 +94,14 @@ echo
 echo "Create config..."
 cd /etc/helpim/sites/
 cp -a ../skel $chat
-chown -R $chat:www-data $chat
-chmod -R 750 $chat
+chown $chat:www-data $chat
+chmod 750 $chat
 rpl -R CHATX $chat $chat
 rpl PASSWD $password $chat/settings.py
 rpl BOTPW $botpw $chat/settings.py
 rpl SECRETKEY $secretkey $chat/settings.py
 rpl MAILRECIPIENT $mailrecipient $chat/settings.py
+rpl DOMAIN https://$domain $chat/settings.py
 #cp -r /home/buildout/HelpIM/helpim/fixtures $chat/
 #cp -r /home/buildout/HelpIM/helpim/templates $chat/
 #cp -r /home/buildout/HelpIM/helpim/rooms/static/helpim/ $chat/static

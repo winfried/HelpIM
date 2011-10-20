@@ -9,6 +9,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 SERVER_EMAIL = 'MAILRECIPIENT'
+SEND_BROKEN_LINK_EMAILS = True
 
 DATABASES = {
     'default': {
@@ -133,6 +134,7 @@ INSTALLED_APPS = (
     'threadedcomments',
     'rosetta',
     'helpim.common',
+    'forms_builder.forms',
     'helpim.questionnaire',
 )
 
@@ -163,6 +165,7 @@ BOT = {
         'history_maxstanzas': 10,
         'history_seconds': 120,
         'allocation_timeout': 0, # how long a room will be reserved for a client
+        'http_domain': 'DOMAIN',
         },
     'mainloop': {
         'timeout': 1,

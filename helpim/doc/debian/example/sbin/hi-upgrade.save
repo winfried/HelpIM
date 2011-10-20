@@ -26,12 +26,9 @@ su $buildoutuser -c "   # do this as a normal user
    python bootstrap.py --distribute
    ./bin/buildout  -vv
    cd parts/xmpptk/ && make
-"
-echo
-read -p 'Press return (give ctrl-c to stop)'
-
-su $buildoutuser -c "   # do this as a normal user
    cd ~/HelpIM/
+   echo
+   read -p 'Press return (give ctrl-c to stop)'
    echo begin collectstatic
    rm -rf static
    ./bin/manage.py collectstatic --noinput
@@ -70,7 +67,6 @@ rsync -av --del /home/buildout/HelpIM/helpim/locale /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
-rsync -av --del /home/buildout/HelpIM/helpim/questionnaire/templates/forms /usr/local/share/helpim/templates/
 echo "`date` files synced" >> /var/log/helpim-upgrade
 
 echo
@@ -81,7 +77,7 @@ echo "Running django-admin.py migrate on all chats"
 
 
 # test situation:
-# rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
+#rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6
 # list=`ls -1d /etc/helpim/sites/*`
 # for chat in $list; do
 #   rsync -av --del /usr/local/share/helpim/locale $chat

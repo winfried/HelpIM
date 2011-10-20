@@ -169,3 +169,5 @@ truncate rooms_one2oneroomtoken;
 truncate rooms_waitingroom;
 truncate rooms_waitingroomtoken;
 
+drop table questionnaire_conversationformentry;
+drop table questionnaire_questionnaire;
