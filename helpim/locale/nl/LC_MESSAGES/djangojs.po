@@ -28,19 +28,19 @@ msgstr "Klik om de emoticons in te klappen"
 
 #: static/helpim.js:170
 msgid "Block Participant"
-msgstr ""
+msgstr "Blokkeer Hulpvrager"
 
 #: static/helpim.js:171
 msgid "Block participant"
-msgstr ""
+msgstr "Blokkeer hulpvrager"
 
 #: static/helpim.js:171
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 #: static/helpim.js:171
 msgid "Request Client"
-msgstr ""
+msgstr "Open Hulpchat"
 
 #: static/helpim.js:175
 #, perl-format
@@ -78,7 +78,7 @@ msgstr "%s is aan het typen"
 
 #: static/helpim.js:180
 msgid "clickt to close"
-msgstr ""
+msgstr "Klik om te sluiten"
 
 #: static/helpim.js:180
 msgid "Stop Conversation"
@@ -115,25 +115,25 @@ msgstr "Geef AUB een nicknaam op!"
 
 #: static/helpim.js:183
 msgid "Questionnaire"
-msgstr ""
+msgstr "Vragenlijst"
 
 #: static/helpim.js:185
 msgid "staff"
-msgstr ""
+msgstr "hulpvrager"
 
 #: static/helpim.js:185
 msgid "waiting..."
-msgstr ""
+msgstr "wachten..."
 
 #: static/helpim.js:186
 msgid "Please wait!"
-msgstr ""
+msgstr "Een ogenblik!"
 
 #: static/helpim.js:186
 msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
-msgstr ""
+msgstr "Wacht op verbinding, dit kan even duren."
 
 #: static/helpim.js:187
 msgid "Sorry, there's already a conversation active at some other window."

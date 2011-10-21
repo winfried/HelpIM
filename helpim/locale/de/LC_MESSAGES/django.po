@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-19 13:03+0200\n"
+"POT-Creation-Date: 2011-10-21 15:36+0200\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,11 +72,11 @@ msgstr "\"%(subject)s\" um %(start_time)s"
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:614
+#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:615
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:35 rooms/models.py:615
+#: conversations/models.py:35 rooms/models.py:616
 msgid "Staff"
 msgstr "Mitarbeiter"
 
@@ -299,7 +299,7 @@ msgstr "Seite nicht gefunden"
 msgid "Internal server error"
 msgstr "Interner Server-Fehler"
 
-#: templates/base.html:15
+#: templates/base.html:16
 #, python-format
 msgid "Welcome, %(name)s!"
 msgstr "Willkommen, %(name)s!"
@@ -386,7 +386,7 @@ msgid "Sorry, but your IP address is blocked from using this service."
 msgstr ""
 "Entschuldigung, aber deine IP-Adresse wurde von diesem Dienst blockiert."
 
-#: templates/rooms/chat_client.html:28
+#: templates/rooms/chat_client.html:29
 msgid "Subject"
 msgstr "Betreff"
 
