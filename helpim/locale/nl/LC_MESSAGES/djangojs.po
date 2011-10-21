@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-21 16:34+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2011-10-21 17:00+0200\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -111,12 +111,11 @@ msgstr "wachten..."
 
 #: static/helpim.js:185
 msgid "Confirm"
-msgstr ""
+msgstr "Bevestigen"
 
 #: static/helpim.js:186
-#, fuzzy
 msgid "Are you sure you want to end this conversation?"
-msgstr "%s heeft de conversatie beëindigd"
+msgstr "Weet u zeker dat u het gesprek wilt beëindigen?"
 
 #: static/helpim.js:186
 msgid "Please wait!"
@@ -142,7 +141,7 @@ msgstr "Sorry, er is al een gesprek actief in een ander venster."
 #~ msgstr "Onderwerp"
 
 #~ msgid "Please provide a nickname!"
-#~ msgstr "Geef AUB een nicknaam op!"
+#~ msgstr "Geef alstublieft een nicknaam op!"
 
 #~ msgid "Click to see even more emoticons"
 #~ msgstr "Klik om nog meer emoticons te zien"
