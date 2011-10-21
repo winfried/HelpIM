@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-19 14:49+0200\n"
+"POT-Creation-Date: 2011-10-21 16:34+0200\n"
 "PO-Revision-Date: 2011-06-30 14:58+0200\n"
 "Last-Translator: Stefan Strigler <stefan@strigler.de>\n"
 "Language-Team: Helpim <helpim@helpim.org>\n"
@@ -95,22 +95,6 @@ msgstr "Leider darfst Du nicht auf diesen Dienst zugreifen"
 msgid "An error occured"
 msgstr "Es ist ein Fehler aufgetreten"
 
-#: static/helpim.js:182
-msgid "Join Chat"
-msgstr "Chat beitreten"
-
-#: static/helpim.js:182
-msgid "Nickname"
-msgstr "Spitzname"
-
-#: static/helpim.js:182
-msgid "Subject"
-msgstr "Betreff"
-
-#: static/helpim.js:183
-msgid "Please provide a nickname!"
-msgstr "Du musst einen Spitznamen angeben"
-
 #: static/helpim.js:183
 msgid "Questionnaire"
 msgstr ""
@@ -122,6 +106,15 @@ msgstr ""
 #: static/helpim.js:185
 msgid "waiting..."
 msgstr ""
+
+#: static/helpim.js:185
+msgid "Confirm"
+msgstr ""
+
+#: static/helpim.js:186
+#, fuzzy
+msgid "Are you sure you want to end this conversation?"
+msgstr "%s hat die Unterhaltung beendet"
 
 #: static/helpim.js:186
 msgid "Please wait!"
@@ -138,6 +131,18 @@ msgid "Sorry, there's already a conversation active at some other window."
 msgstr ""
 "Entschuldigung, es scheint als liefe bereits ein Chat in einem anderen "
 "Fenster."
+
+#~ msgid "Join Chat"
+#~ msgstr "Chat beitreten"
+
+#~ msgid "Nickname"
+#~ msgstr "Spitzname"
+
+#~ msgid "Subject"
+#~ msgstr "Betreff"
+
+#~ msgid "Please provide a nickname!"
+#~ msgstr "Du musst einen Spitznamen angeben"
 
 #~ msgid "Click to see even more emoticons"
 #~ msgstr "Klicken um noch mehr emoticons zu sehen"
