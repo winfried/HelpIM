@@ -601,7 +601,7 @@ class AccessTokenManager(models.Manager):
             raise IPBlockedException()
 
         try:
-            token = super(AccessTokenManager, self).get(token=kwargs['token'])
+            token = super(AccessTokenManager, self).get(**kwargs)
         except AccessToken.DoesNotExist:
             kwargs['token'] = newHash()
             token = super(AccessTokenManager, self).create(**kwargs)
