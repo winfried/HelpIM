@@ -437,12 +437,20 @@ class One2OneRoomHandler(RoomHandlerBase):
             log.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
             log.info("User was: Nick = '%s'." % user.nick)
 
-        # request questionnaire from client if any
+        # request questionnaire from participant
+
         # determine type of user
         is_staff = False
         if user.nick == room.staff_nick:
             is_staff = True
+
+        # set position and callback for questionnaire results (formEntry)
         if is_staff:
+
+            # first check if we had a client in the room otherwise we don't need to ask anything
+            if room.client is None:
+                return
+
             position = 'SA'
             result_handler = self.__questionnaire_result_for_staff
         else:
