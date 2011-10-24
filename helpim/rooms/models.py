@@ -581,7 +581,7 @@ class WaitingRoom(Room):
                 if token.ready:
                     self.clients.remove(client)
                     return client
-            except WaitinRoomToken.DoesNotExist:
+            except WaitingRoomToken.DoesNotExist:
                 pass
 
 class IPBlockedException(Exception):
