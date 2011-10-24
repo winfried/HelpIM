@@ -103,7 +103,7 @@ msgstr "Vragenlijst"
 
 #: static/helpim.js:185
 msgid "staff"
-msgstr "hulpvrager"
+msgstr "hulpverlener"
 
 #: static/helpim.js:185
 msgid "waiting..."
