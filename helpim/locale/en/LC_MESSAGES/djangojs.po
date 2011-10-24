@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-19 14:49+0200\n"
+"POT-Creation-Date: 2011-10-21 16:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,22 +95,6 @@ msgstr ""
 msgid "An error occured"
 msgstr ""
 
-#: static/helpim.js:182
-msgid "Join Chat"
-msgstr ""
-
-#: static/helpim.js:182
-msgid "Nickname"
-msgstr ""
-
-#: static/helpim.js:182
-msgid "Subject"
-msgstr ""
-
-#: static/helpim.js:183
-msgid "Please provide a nickname!"
-msgstr ""
-
 #: static/helpim.js:183
 msgid "Questionnaire"
 msgstr ""
@@ -121,6 +105,14 @@ msgstr ""
 
 #: static/helpim.js:185
 msgid "waiting..."
+msgstr ""
+
+#: static/helpim.js:185
+msgid "Confirm"
+msgstr ""
+
+#: static/helpim.js:186
+msgid "Are you sure you want to end this conversation?"
 msgstr ""
 
 #: static/helpim.js:186

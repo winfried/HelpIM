@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-19 14:49+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2011-10-21 16:34+0200\n"
+"PO-Revision-Date: 2011-10-21 17:00+0200\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -28,19 +28,19 @@ msgstr "Klik om de emoticons in te klappen"
 
 #: static/helpim.js:170
 msgid "Block Participant"
-msgstr ""
+msgstr "Blokkeer Hulpvrager"
 
 #: static/helpim.js:171
 msgid "Block participant"
-msgstr ""
+msgstr "Blokkeer hulpvrager"
 
 #: static/helpim.js:171
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 #: static/helpim.js:171
 msgid "Request Client"
-msgstr ""
+msgstr "Open Hulpchat"
 
 #: static/helpim.js:175
 #, perl-format
@@ -78,7 +78,7 @@ msgstr "%s is aan het typen"
 
 #: static/helpim.js:180
 msgid "clickt to close"
-msgstr ""
+msgstr "Klik om te sluiten"
 
 #: static/helpim.js:180
 msgid "Stop Conversation"
@@ -97,47 +97,51 @@ msgstr "Sorry, u heeft geen toegang tot deze service"
 msgid "An error occured"
 msgstr "Er is een fout opgetreden"
 
-#: static/helpim.js:182
-msgid "Join Chat"
-msgstr "Verbind met chat"
-
-#: static/helpim.js:182
-msgid "Nickname"
-msgstr "Nicknaam"
-
-#: static/helpim.js:182
-msgid "Subject"
-msgstr "Onderwerp"
-
-#: static/helpim.js:183
-msgid "Please provide a nickname!"
-msgstr "Geef AUB een nicknaam op!"
-
 #: static/helpim.js:183
 msgid "Questionnaire"
-msgstr ""
+msgstr "Vragenlijst"
 
 #: static/helpim.js:185
 msgid "staff"
-msgstr ""
+msgstr "hulpvrager"
 
 #: static/helpim.js:185
 msgid "waiting..."
-msgstr ""
+msgstr "wachten..."
+
+#: static/helpim.js:185
+msgid "Confirm"
+msgstr "Bevestigen"
+
+#: static/helpim.js:186
+msgid "Are you sure you want to end this conversation?"
+msgstr "Weet u zeker dat u het gesprek wilt beëindigen?"
 
 #: static/helpim.js:186
 msgid "Please wait!"
-msgstr ""
+msgstr "Een ogenblik!"
 
 #: static/helpim.js:186
 msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
-msgstr ""
+msgstr "Wacht op verbinding, dit kan even duren."
 
 #: static/helpim.js:187
 msgid "Sorry, there's already a conversation active at some other window."
 msgstr "Sorry, er is al een gesprek actief in een ander venster."
+
+#~ msgid "Join Chat"
+#~ msgstr "Verbind met chat"
+
+#~ msgid "Nickname"
+#~ msgstr "Nicknaam"
+
+#~ msgid "Subject"
+#~ msgstr "Onderwerp"
+
+#~ msgid "Please provide a nickname!"
+#~ msgstr "Geef alstublieft een nicknaam op!"
 
 #~ msgid "Click to see even more emoticons"
 #~ msgstr "Klik om nog meer emoticons te zien"

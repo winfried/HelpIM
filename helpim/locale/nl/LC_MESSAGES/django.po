@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-19 13:03+0200\n"
+"POT-Creation-Date: 2011-10-21 16:50+0200\n"
 "PO-Revision-Date: 2011-10-19 13:40+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,11 +72,11 @@ msgstr "\"%(subject)s\" om %(start_time)s"
 msgid "Conversation"
 msgstr "Gesprek"
 
-#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:614
+#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:615
 msgid "Client"
 msgstr "Hulpvrager"
 
-#: conversations/models.py:35 rooms/models.py:615
+#: conversations/models.py:35 rooms/models.py:616
 msgid "Staff"
 msgstr "Hulpverlener"
 
@@ -220,7 +220,8 @@ msgstr "Gegevens"
 #: rooms/bot.py:311
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
-msgstr "%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
+msgstr ""
+"%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
 
 #: rooms/models.py:270
 msgid "Room status"
@@ -307,7 +308,7 @@ msgstr "Pagina niet gevonden"
 msgid "Internal server error"
 msgstr "Interne server fout"
 
-#: templates/base.html:15
+#: templates/base.html:16
 #, fuzzy, python-format
 msgid "Welcome, %(name)s!"
 msgstr "Voeg %(name)s toe"
@@ -394,7 +395,7 @@ msgstr "Geblokkeerd"
 msgid "Sorry, but your IP address is blocked from using this service."
 msgstr "Sorry, je IP address is geblokkeerd voor deze service."
 
-#: templates/rooms/chat_client.html:28
+#: templates/rooms/chat_client.html:29
 msgid "Subject"
 msgstr "Onderwerp"
 
