@@ -1,6 +1,6 @@
 #!/bin/bash
 
-su $1 -c "killall hi-runbotu > /dev/null 2>&1"
+su $1 -c "killall -9 hi-runbotu > /dev/null 2>&1"
 su $1 -c "killall django-admin.py > /dev/null 2>&1"
 echo
 echo now runs:
