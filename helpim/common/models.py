@@ -34,3 +34,5 @@ class AdditionalUserInformation(models.Model):
 
     branch_office = models.ForeignKey(BranchOffice, null=False)
 
+    chat_nick = models.CharField(max_length=64, unique=True, null=True)
+
