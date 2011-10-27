@@ -42,7 +42,8 @@ def staff_join_chat(request, room_pk=None):
             'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
             'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
             }),
-        Participant.ROLE_STAFF
+        Participant.ROLE_STAFF,
+        request.user
         )
 
 def client_join_chat(request):
@@ -54,9 +55,9 @@ def client_join_chat(request):
                 })
         )
 
-def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
+def join_chat(request, cfg, role=Participant.ROLE_CLIENT, user=None):
     try:
-        token = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=request.user)
+        token = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=user)
 
         return render_to_response(
             'rooms/join_chat.html', {
