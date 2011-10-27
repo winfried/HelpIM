@@ -14,7 +14,7 @@ from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
 
 
-def form_detail(request, slug, template="forms/form_detail.html"):
+def form_detail(request, slug, template="questionnaire/form_detail.html"):
     """
     Display a built form and handle submission.
     """
