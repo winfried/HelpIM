@@ -134,6 +134,8 @@ INSTALLED_APPS = (
     'helpim.questionnaire',
 )
 
+AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
+
 CHAT = {
     'domain': 'localhost',
     'httpbase': '/http-bind/',

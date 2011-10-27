@@ -11,17 +11,39 @@ from django.forms import Form, CharField
 from django.core.context_processors import csrf
 
 from helpim.rooms.models import AccessToken, Participant, IPBlockedException
+from helpim.common.models import AdditionalUserInformation
+
 
 @login_required
 def staff_join_chat(request, room_pk=None):
+    
+    # for staff the muc_nick will be determined either by the settings
+    # in additional profile information (chat_nick property) by a site
+    # wide default or as a fallback by the username of the user object
+    muc_nick = None
+    try:
+        muc_nick = request.user.get_profile().chat_nick
+    except AdditionalUserInformation.DoesNotExist:
+        pass
+
+    if muc_nick is None:
+        try:
+            muc_nick = settings.CHAT['muc_nick']
+        except:
+            pass
+            
+    if muc_nick is None:
+        muc_nick = request.user.username
+
     return join_chat(
         request,
         dict({
-            'muc_nick': request.user.username,
+            'muc_nick': muc_nick,
             'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
             'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
             }),
-        Participant.ROLE_STAFF
+        Participant.ROLE_STAFF,
+        request.user
         )
 
 def client_join_chat(request):
@@ -33,9 +55,9 @@ def client_join_chat(request):
                 })
         )
 
-def join_chat(request, cfg, role=Participant.ROLE_CLIENT):
+def join_chat(request, cfg, role=Participant.ROLE_CLIENT, user=None):
     try:
-        token = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest())
+        token = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=user)
 
         return render_to_response(
             'rooms/join_chat.html', {

@@ -403,7 +403,7 @@ class One2OneRoom(Room):
             self.chat = chat
 
         if not self.staff:
-            user = User.objects.get(username=muc_user.nick)
+            user = AccessToken.objects.get(jid=muc_user.real_jid).created_by
             staff = Participant(
                 conversation=self.chat,
                 name=muc_user.nick,
@@ -620,6 +620,7 @@ class AccessToken(models.Model):
 
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, null=True)
 
     objects = AccessTokenManager()
 
