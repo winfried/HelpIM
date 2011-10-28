@@ -579,7 +579,7 @@ class WaitingRoom(Room):
 
     def getNextClient(self):
         client = self.getWaitingClients()[0]
-        client._ready = False
+        self.clients.remove(client)
         return client
 
     def setClientReady(self, user, ready=True):
