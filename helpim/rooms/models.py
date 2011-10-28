@@ -574,15 +574,19 @@ class WaitingRoom(Room):
 
     objects = RoomManager()
 
+    def getWaitingClients(self):
+        return [client for client in self.clients if client._ready]
+
     def getNextClient(self):
-        for client in self.clients:
-            try:
-                token = WaitingRoomToken.objects.get(token__jid=client.real_jid)
-                if token.ready:
-                    self.clients.remove(client)
-                    return client
-            except WaitingRoomToken.DoesNotExist:
-                pass
+        client = self.getWaitingClients()[0]
+        client._ready = False
+        return client
+
+    def setClientReady(self, user, ready=True):
+        user._ready = ready
+
+    def getWaitingPos(self, user):
+        return self.getWaitingClients().index(user)+1
 
 class IPBlockedException(Exception):
     def __init__(self, msg='ip blocked'):
