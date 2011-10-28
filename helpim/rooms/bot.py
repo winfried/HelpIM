@@ -204,7 +204,10 @@ class RoomHandlerBase(MucRoomHandler):
         m = Message(to_jid=to_jid, stanza_type='chat', body=body)
         self.client.stream.send(m)
 
-    def send_questionnaire(self, user_jid, questionnaire_url, 
+    def send_queue_update(self, nick, pos):
+        self.send_private_message(nick, "You're at position %d of the waiting queue." % pos)
+
+    def send_questionnaire(self, user_jid, questionnaire_url,
                            result_handler=None, error_handler=None):
         iq = Iq(stanza_type='set')
         iq.set_to(user_jid)
@@ -289,7 +292,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             try:
                 # probably this could be done in one step
                 token = LobbyRoomToken.objects.get(token__jid=user.real_jid)
-                waitingRoom = WaitingRoom.objects.filter(status='chatting').filter(lobbyroom=token.room)[0] 
+                waitingRoom = WaitingRoom.objects.filter(status='chatting').filter(lobbyroom=token.room)[0]
                 self.todo.append((self.inviteClients, waitingRoom))
             except IndexError:
                 log.warning("no waiting room found for lobby with jid %s" % token.room.jid)
@@ -460,7 +463,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         # check for questionnaire
         try:
             questionnaire = Questionnaire.objects.filter(position=position)[0]
-        
+
             # send along
             self.send_questionnaire(user_jid=user.real_jid,
                                     questionnaire_url=questionnaire.get_absolute_url(),
@@ -493,7 +496,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 return
 
             entry_id = get_questionnaire_entry_id(stanza)
-            entry = FormEntry.objects.get(pk=entry_id)            
+            entry = FormEntry.objects.get(pk=entry_id)
 
             ConversationFormEntry.objects.create(
                 entry = entry,
@@ -713,6 +716,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         if room is None:
             return
 
+        ready = True
         try:
             questionnaire = Questionnaire.objects.filter(position='CB')[0]
 
@@ -724,6 +728,8 @@ class WaitingRoomHandler(RoomHandlerBase):
             waitingRoomToken.ready = False
             waitingRoomToken.save()
 
+            ready = False
+
             self.send_questionnaire(user_jid=user.real_jid,
                                     questionnaire_url=questionnaire.get_absolute_url(),
                                     result_handler=self.__questionnaire_result)
@@ -733,6 +739,10 @@ class WaitingRoomHandler(RoomHandlerBase):
             pass
 
         room.clients.append(user)
+        room.setClientReady(user, ready)
+        if ready:
+            self.send_queue_update(user.nick, room.getWaitingPos(user))
+
         self.todo.append((self.inviteClients, room))
         if self.userCount == 0:
             room.setStatus('chatting')
@@ -747,10 +757,11 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if room is None:
             return
-        for client in room.clients:
-            if client.nick == user.nick:
-                room.clients.remove(client)
-                break
+
+        for client in room.getWaitingClients():
+            log.debug("sending update to %s" % client.nick)
+            self.send_queue_update(client.nick, room.getWaitingPos(client))
+
         if self.userCount > 0:
             return
         if not room.lobbyroom is None:
@@ -772,9 +783,12 @@ class WaitingRoomHandler(RoomHandlerBase):
         if room is None:
             return
 
+        user = self.room_state.get_user(stanza.get_from())
+        room.setClientReady(user, True)
+        self.send_queue_update(user.nick, room.getWaitingPos(user))
+
         token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
 
-        # set user ready
         token.ready = True
 
         # link questionnaire to token
@@ -784,7 +798,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             token.questionnaire_before = entry
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
-            
+
         token.save()
         self.todo.append((self.inviteClients, room))
 
@@ -1328,7 +1342,7 @@ class Bot(JabberClient):
             else:
                 # no more waiting clients
                 break
-            
+
     def closeRooms(self, roomstatus=None, site=None):
         if site is None:
             # Resursively do all sites
@@ -1431,7 +1445,7 @@ class Bot(JabberClient):
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
                     raise IndexError()
-                
+
                 try:
                     waitingRoomToken =  WaitingRoomToken.objects.get(token=ac)
                     waitingRoomToken.room = room
