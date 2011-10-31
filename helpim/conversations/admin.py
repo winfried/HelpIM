@@ -68,8 +68,15 @@ class ConversationFormEntryInline(admin.StackedInline):
 class ConversationAdmin(admin.ModelAdmin):
 
     date_hierarchy = 'start_time'
-    list_display = ('subject', 'start_time')
-
+    list_display = (
+      'pk',
+      'start_time',
+      'duration',
+      'client_nickname',
+      'staff_nickname',
+      'subject',
+    )
+    list_display_links = ('pk', 'start_time', 'subject')
 
     fields = ('start_time', 'subject')
 

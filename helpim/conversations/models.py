@@ -15,6 +15,22 @@ class Conversation(models.Model):
           'start_time': self.start_time.strftime('%c'),
         }
 
+    def client_nickname(self):
+        try:
+          return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0].name
+        except:
+          return _('(None)')
+
+    def staff_nickname(self):
+        try:
+          return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0].name
+        except:
+          return _('(None)')
+
+    def duration(self):
+        messages = Message.objects.filter(conversation=self).order_by('created_at')
+        return messages[1].created_at - messages[0].created_at
+
     class Meta:
         ordering = ['start_time']
         verbose_name = _("Conversation")
