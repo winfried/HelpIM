@@ -29,7 +29,10 @@ class Conversation(models.Model):
 
     def duration(self):
         messages = Message.objects.filter(conversation=self).order_by('created_at')
-        return messages[1].created_at - messages[0].created_at
+        try:
+          return messages[1].created_at - messages[0].created_at
+        except:
+          return _('(unknown)')
 
     class Meta:
         ordering = ['start_time']
