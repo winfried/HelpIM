@@ -31,7 +31,6 @@ read -p "Admin password, specify a password (return=secret28, r=random) : " admi
 # some input checks (incomplete)
 chat=`echo $chat | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
 domain=`echo $domain | tr '[A-Z]' '[a-z]'` # lowercase
-#string="/var/www/$chat";    if test -e $string; then echo "There is allready a $string"; exit; fi
 string="/etc/helpim/sites/$chat"; if test -e $string; then echo "There is allready a $string"; exit; fi
 if test `grep -i "^$chat:" /etc/passwd`; then echo "This user does excist in /etc/passwd"; exit; fi
 # todo: does the user excist in mysql?
@@ -65,30 +64,14 @@ echo
 echo "Create user/group/homedir..."
 useradd -d /etc/helpim/sites/$chat $chat
 
-# cp -a /var/www/skel /var/www/$chat  # this skel is empty at the moment
-# chown -R $chat:$chat /var/www/$chat
-# chmod -R 755 /var/www/$chat
-# cp -a /usr/local/lib/python2.6/dist-packages/helpim/templates/ /var/www/$chat/
-# cp -a /usr/local/lib/python2.6/dist-packages/helpim/locale/ /var/www/$chat/
-# cp -a /usr/local/lib/python2.6/dist-packages/helpim/fixtures/ /var/www/$chat/
-# cp -a /home/buildout/HelpIM/helpim/templates /var/www/$chat/
-# cp -a /home/buildout/HelpIM/helpim/fixtures /var/www/$chat/
-# cp -a /home/buildout/HelpIM/helpim/locale /var/www/$chat/
-
-# the locale directory has to be writeable by the webserver:
-#chown -R $chat:$chat /var/www/$chat/locale
-
 echo
 echo "Create Tigase user..."
-botpw=`pwgen -s 8 1`
 cd /usr/local/tigase/
 touch /tmp/file.txt
 chmod 600 /tmp/file.txt
 echo "$chat@localhost,$botpw,,,," >> /tmp/file.txt
 ./scripts/repo.sh -import /tmp/file.txt
 rm /tmp/file.txt
-#werkt niet:
-#./scripts/repo.sh -u $chat:$botpw@localhost -add
 
 echo
 echo "Create config..."

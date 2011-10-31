@@ -138,6 +138,8 @@ INSTALLED_APPS = (
     'helpim.questionnaire',
 )
 
+AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
+
 CHAT = {
 #    'mode': 'light',
     'domain': 'localhost',
@@ -165,6 +167,7 @@ BOT = {
         'history_maxstanzas': 10,
         'history_seconds': 120,
         'allocation_timeout': 0, # how long a room will be reserved for a client
+        'max_chats_per_staff': 3,
         'http_domain': 'DOMAIN',
         },
     'mainloop': {

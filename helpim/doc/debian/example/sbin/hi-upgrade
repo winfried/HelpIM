@@ -11,16 +11,14 @@ su $buildoutuser -c "   # do this as a normal user
    cd HelpIM/
    git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
    git pull
-   if ( ! diff -q buildout.cfg ../buildout.cfg ) then 
-      read -p 'Press return to see the diff.'
-      diff ../buildout.cfg buildout.cfg | less
-      read -p 'Press return (give ctrl-c to stop)'
+   if ( ! diff -q ../buildout.cfg buildout.cfg ) then 
+      diff ../buildout.cfg buildout.cfg | mail -s buildout.cfg helpdesk@e-hulp.nl
+      read -p 'buildout.cfg has changed. Read the mail in the helpdesk mailbox. Press return or ctr-c to stop'
       cp -v buildout.cfg ../buildout.cfg
    fi
-   if ( ! diff -q helpim/settings.py ../settings.py ) then
-      read -p 'Press return to see the diff.'
-      diff ../settings.py helpim/settings.py | less
-      read -p 'Press return (give ctrl-c to stop)'
+   if ( ! diff -q ../settings.py helpim/settings.py ) then
+      diff ../settings.py helpim/settings.py | mail -s settings.py helpdesk@e-hulp.nl
+      read -p 'settings.py has changed. Read the mail in the helpdesk mailbox. Press return or ctr-c to stop'
       cp -v helpim/settings.py ../settings.py
    fi
    python bootstrap.py --distribute
@@ -52,17 +50,17 @@ su $buildoutuser -c "   # do this as a normal user
 
 # rapportage
 version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
-echo "`date` buildout2 and build an egg $version" >> /var/log/helpim-upgrade
+echo "`date` buildout2 and build an egg $version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to copy the egg to the repository (give ctrl-c to stop)"
 mv /home/$buildoutuser/HelpIM/dist/* /var/www/helpim/
-echo "`date` copy egg to repository $version" >> /var/log/helpim-upgrade
+echo "`date` copy egg to repository $version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to install the egg  (give ctrl-c to stop)"
 pip install --upgrade --no-deps -f http://localhost/helpim helpim
-echo "`date` upgrade to new helpim version" >> /var/log/helpim-upgrade
+echo "`date` upgrade to new helpim version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to sync the files (give ctrl-c to stop)"
@@ -71,7 +69,7 @@ rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
 rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
 rsync -av --del /home/buildout/HelpIM/helpim/questionnaire/templates/forms /usr/local/share/helpim/templates/
-echo "`date` files synced" >> /var/log/helpim-upgrade
+echo "`date` files synced" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
