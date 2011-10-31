@@ -23,6 +23,11 @@
         WSGIScriptAlias / /etc/helpim/sites/CHAT/django.wsgi
 
         Alias /static/ /usr/local/share/helpim/static/
+        Alias /custom/ /etc/helpim/sites/CHAT/custom_htdocs/
+        <Location /custom/>
+                Options -Indexes
+        </Location>
+
 
         # proxy BOSH connections
         ProxyRequests Off
