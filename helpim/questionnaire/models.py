@@ -3,6 +3,9 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Conversation
+
+import helpim.questionnaire.fields
+
 from forms_builder.forms.models import Form, FormEntry
 
 POSITION_CHOICES = (
