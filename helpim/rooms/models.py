@@ -578,9 +578,12 @@ class WaitingRoom(Room):
         return [client for client in self.clients if client._ready]
 
     def getNextClient(self):
-        client = self.getWaitingClients()[0]
-        self.clients.remove(client)
-        return client
+        try:
+            client = self.getWaitingClients()[0]
+            self.clients.remove(client)
+            return client
+        except IndexError:
+            pass
 
     def setClientReady(self, user, ready=True):
         user._ready = ready
