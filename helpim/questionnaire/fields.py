@@ -80,5 +80,3 @@ class ScaleWidget(forms.RadioSelect):
                 "<li>" +
                 lower_label +
                 "</li></ul></div>")
-
-register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)
