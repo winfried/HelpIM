@@ -205,7 +205,7 @@ class RoomHandlerBase(MucRoomHandler):
         self.client.stream.send(m)
 
     def send_queue_update(self, nick, pos):
-        self.send_private_message(nick, "You're at position %d of the waiting queue." % pos)
+        self.send_private_message(nick, _("You're at position %(pos)d of the waiting queue.") % {'pos': pos})
 
     def send_questionnaire(self, user_jid, questionnaire_url,
                            result_handler=None, error_handler=None):

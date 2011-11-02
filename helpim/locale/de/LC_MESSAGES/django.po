@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-24 11:36+0200\n"
+"POT-Creation-Date: 2011-11-02 12:44+0100\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: common/models.py:13
@@ -42,6 +42,10 @@ msgstr ""
 msgid "Additional user information"
 msgstr ""
 
+#: common/models.py:37
+msgid "Chatname"
+msgstr "Chatname"
+
 #: conversations/admin.py:33
 msgid "Message"
 msgstr "Nachricht"
@@ -50,15 +54,15 @@ msgstr "Nachricht"
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: conversations/admin.py:54 conversations/models.py:51
+#: conversations/admin.py:54 conversations/models.py:70
 msgid "Participant"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:55 conversations/models.py:52
+#: conversations/admin.py:55 conversations/models.py:71
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:91 conversations/models.py:21
+#: conversations/admin.py:98 conversations/models.py:40
 #: templates/admin/base_site.html:28 templates/admin/index.html:37
 msgid "Conversations"
 msgstr "Unterhaltungen"
@@ -68,39 +72,47 @@ msgstr "Unterhaltungen"
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr "\"%(subject)s\" um %(start_time)s"
 
-#: conversations/models.py:20
+#: conversations/models.py:22 conversations/models.py:28
+msgid "(None)"
+msgstr ""
+
+#: conversations/models.py:35
+msgid "(unknown)"
+msgstr ""
+
+#: conversations/models.py:39
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:615
+#: conversations/models.py:53 rooms/models.py:380 rooms/models.py:622
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:35 rooms/models.py:616
+#: conversations/models.py:54 rooms/models.py:623
 msgid "Staff"
 msgstr "Mitarbeiter"
 
-#: conversations/models.py:57
+#: conversations/models.py:76
 msgid "Sender"
 msgstr "Absender"
 
-#: conversations/models.py:77
+#: conversations/models.py:96
 msgid "Chat message"
 msgstr "Chatnachricht"
 
-#: conversations/models.py:78
+#: conversations/models.py:97
 msgid "Chat joining"
 msgstr "Chat betreten"
 
-#: conversations/models.py:79
+#: conversations/models.py:98
 msgid "Chat rejoining"
 msgstr "Chat wiederbetreten"
 
-#: conversations/models.py:80
+#: conversations/models.py:99
 msgid "Chat exit"
 msgstr "Chat verlassen"
 
-#: conversations/models.py:81
+#: conversations/models.py:100
 msgid "Chat end"
 msgstr "Chat beendet"
 
@@ -213,7 +225,12 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:311
+#: rooms/bot.py:208
+#, python-format
+msgid "You're at position %(pos)d of the waiting queue."
+msgstr ""
+
+#: rooms/bot.py:314
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""

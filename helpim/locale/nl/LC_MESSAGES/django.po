@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-24 11:36+0200\n"
+"POT-Creation-Date: 2011-11-02 12:44+0100\n"
 "PO-Revision-Date: 2011-10-19 13:40+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: nl_NL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: common/models.py:13
@@ -42,6 +42,11 @@ msgstr "Extra informatie over gebruiker %s"
 msgid "Additional user information"
 msgstr "Extra gebruiker informatie"
 
+#: common/models.py:37
+#, fuzzy
+msgid "Chatname"
+msgstr "Aan het chatten"
+
 #: conversations/admin.py:33
 msgid "Message"
 msgstr "Bericht"
@@ -50,15 +55,15 @@ msgstr "Bericht"
 msgid "Messages"
 msgstr "Berichten"
 
-#: conversations/admin.py:54 conversations/models.py:51
+#: conversations/admin.py:54 conversations/models.py:70
 msgid "Participant"
 msgstr "Deelnemer"
 
-#: conversations/admin.py:55 conversations/models.py:52
+#: conversations/admin.py:55 conversations/models.py:71
 msgid "Participants"
 msgstr "Deelnemers"
 
-#: conversations/admin.py:91 conversations/models.py:21
+#: conversations/admin.py:98 conversations/models.py:40
 #: templates/admin/base_site.html:28 templates/admin/index.html:37
 msgid "Conversations"
 msgstr "Gesprekken"
@@ -68,42 +73,50 @@ msgstr "Gesprekken"
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr "\"%(subject)s\" om %(start_time)s"
 
-#: conversations/models.py:20
+#: conversations/models.py:22 conversations/models.py:28
+msgid "(None)"
+msgstr ""
+
+#: conversations/models.py:35
+msgid "(unknown)"
+msgstr ""
+
+#: conversations/models.py:39
 msgid "Conversation"
 msgstr "Gesprek"
 
-#: conversations/models.py:34 rooms/models.py:380 rooms/models.py:615
+#: conversations/models.py:53 rooms/models.py:380 rooms/models.py:622
 msgid "Client"
 msgstr "Hulpvrager"
 
-#: conversations/models.py:35 rooms/models.py:616
+#: conversations/models.py:54 rooms/models.py:623
 msgid "Staff"
 msgstr "Hulpverlener"
 
-#: conversations/models.py:57
+#: conversations/models.py:76
 msgid "Sender"
 msgstr "Afzender"
 
-#: conversations/models.py:77
+#: conversations/models.py:96
 #, fuzzy
 msgid "Chat message"
 msgstr "Bericht"
 
-#: conversations/models.py:78
+#: conversations/models.py:97
 #, fuzzy
 msgid "Chat joining"
 msgstr "Aan het chatten"
 
-#: conversations/models.py:79
+#: conversations/models.py:98
 #, fuzzy
 msgid "Chat rejoining"
 msgstr "Aan het chatten"
 
-#: conversations/models.py:80
+#: conversations/models.py:99
 msgid "Chat exit"
 msgstr "Stop chat"
 
-#: conversations/models.py:81
+#: conversations/models.py:100
 #, fuzzy
 msgid "Chat end"
 msgstr "Chat einde"
@@ -217,7 +230,12 @@ msgstr "Export CSV"
 msgid "Entries"
 msgstr "Gegevens"
 
-#: rooms/bot.py:311
+#: rooms/bot.py:208
+#, python-format
+msgid "You're at position %(pos)d of the waiting queue."
+msgstr ""
+
+#: rooms/bot.py:314
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
