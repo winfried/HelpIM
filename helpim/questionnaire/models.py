@@ -3,9 +3,6 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Conversation
-
-import helpim.questionnaire.fields
-
 from forms_builder.forms.models import Form, FormEntry
 
 POSITION_CHOICES = (
@@ -36,3 +33,5 @@ class ConversationFormEntry(models.Model):
         verbose_name = _("Questionnaire answer for conversation")
         verbose_name_plural = _("Questionnaire answers for conversation")
 
+from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget
+register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)
