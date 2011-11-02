@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-02 12:06+0100\n"
-"PO-Revision-Date: 2011-10-24 13:50+0200\n"
+"POT-Creation-Date: 2011-11-02 12:50+0100\n"
+"PO-Revision-Date: 2011-11-02 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: static/xmpptk/helpim/ui/client.js:56
@@ -146,13 +146,13 @@ msgstr "Klik om de emoticons in te klappen"
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:53
 msgid "Please wait!"
-msgstr ""
+msgstr "Wacht alstublieft!"
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:54
 msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
-msgstr ""
+msgstr "Wacht alstublieft tot u aan de beurt bent. Dat kan even duren."
 
 #~ msgid "click to close"
 #~ msgstr "Klik om te sluiten"

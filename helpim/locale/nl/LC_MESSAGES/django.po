@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-02 12:44+0100\n"
-"PO-Revision-Date: 2011-10-19 13:40+0000\n"
+"PO-Revision-Date: 2011-11-02 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -233,7 +233,7 @@ msgstr "Gegevens"
 #: rooms/bot.py:208
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
-msgstr ""
+msgstr "U bent op positie %(pos)d van de wachtrij."
 
 #: rooms/bot.py:314
 #, python-format
