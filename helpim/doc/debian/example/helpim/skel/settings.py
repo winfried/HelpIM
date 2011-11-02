@@ -8,6 +8,8 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+SERVER_EMAIL = 'MAILRECIPIENT'
+SEND_BROKEN_LINK_EMAILS = True
 
 DATABASES = {
     'default': {
@@ -88,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'j%z#^ei+ul19uwepv=kr8ng8%m*e6hdbaomcmqagznu81ka*%b'
+SECRET_KEY = 'SECRETKEY'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -126,14 +128,17 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'helpim.conversations',
-    'helpim.groups',
+    #'helpim.groups',
     'helpim.rooms',
     'south',
     'threadedcomments',
     'rosetta',
     'helpim.common',
+    'forms_builder.forms',
     'helpim.questionnaire',
 )
+
+AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
 
 CHAT = {
 #    'mode': 'light',
@@ -162,6 +167,8 @@ BOT = {
         'history_maxstanzas': 10,
         'history_seconds': 120,
         'allocation_timeout': 0, # how long a room will be reserved for a client
+        'max_chats_per_staff': 3,
+        'http_domain': 'DOMAIN',
         },
     'mainloop': {
         'timeout': 1,

@@ -33,3 +33,5 @@ class ConversationFormEntry(models.Model):
         verbose_name = _("Questionnaire answer for conversation")
         verbose_name_plural = _("Questionnaire answers for conversation")
 
+from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget
+register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)

@@ -13,4 +13,4 @@ if adminpw == '':
   print "no ADMINPW"
 else:
   auth_models.User.objects.create_superuser('admin', 
-         'helpdesk@e-hulp', adminpw)
+         'helpdesk@e-hulp.nl', adminpw)

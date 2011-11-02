@@ -100,13 +100,16 @@ class ConversationAdmin(admin.ModelAdmin):
         return SelectList
 
     def queryset(self, request):
-        all_conversations = super(ConversationAdmin, self).queryset(request)
+        all_conversations = super(ConversationAdmin, self).queryset(
+          request
+        ).filter(
+          participant__role=Participant.ROLE_CLIENT,
+        )
 
         own = all_conversations.filter(
           participant__user=request.user,
           participant__role=Participant.ROLE_STAFF,
         )
-
 
         if request.user.is_superuser:
             # don't restrict the super user
