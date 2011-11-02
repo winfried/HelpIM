@@ -8,8 +8,11 @@ import forms_builder.forms.fields
 
 def register_forms_builder_field_type(identifier, name, field_class, widget_class=None):
 
-    forms_builder.forms.fields.NAMES += ((identifier, name),)
+    if identifier in forms_builder.forms.fields.CHOICES:
+        return # already added
+
     forms_builder.forms.fields.CHOICES += (identifier,)
+    forms_builder.forms.fields.NAMES += ((identifier, name),)
     forms_builder.forms.fields.CLASSES[identifier] = field_class
 
     if widget_class:
