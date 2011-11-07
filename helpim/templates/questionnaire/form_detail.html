@@ -3,14 +3,48 @@
 <head>
 	<title>{{ form.title }}</title>
 	<style>
-		body {background-color:#FFFFFF; font:10pt Arial,sans-serif;}
-		p,ul {width:100%; padding: 0.2em; margin: 0 0.2em 0.2em 0;}
-		label {display:inline;}
-		label.upper_label {margin-top: 1em;}
-		input[type="text"],textarea {width:100%;}
-		li {list-style-type:none;}
-		li label {width:auto; cursor:pointer;}
-		.errorlist {color:#f00; margin-top: 3em;}
+		body {
+		    background-color: #FFFFFF;
+		    font: 10pt Arial,sans-serif;
+		}
+		form p, ul,li {
+		    margin: 0;
+		    padding: 0.1em;
+		    background-color: #F0F0F0;
+		}
+		label {
+		    display: block;
+		    padding: 0.2em;
+		    margin-top: 1.4em;
+		    background-color: #F0F0F0;
+		    font-weight: bold;
+		}
+		form p, ul {
+		    padding-left: 0.8em;
+		}
+		input, textarea {
+		    margin: 0;
+		    padding: 0.2em;
+		}
+		input[type="text"], textarea {
+		    width: 100%;
+		    display: block;
+		}
+		li {
+		    list-style-type: none;
+		}
+		li label {
+		    cursor: pointer;
+		}
+		p label, ul label {
+		    display: inline;
+		    margin: 0;
+		    font-weight: normal;
+		}
+		.errorlist {
+		    color: #FF0000;
+		    margin-top: 3em;
+		}
 	</style>
 	<link type="text/css" rel="stylesheet" href="/custom/custom_frame.css">
 </head>
