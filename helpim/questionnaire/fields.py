@@ -49,7 +49,7 @@ class ScaleWidget(forms.RadioSelect):
 
     """
 
-    def render(self, name, value, attrs=None, choices=None):
+    def render(self, name, value, attrs={}, choices=None):
 
         try:
           scaling = int(self.choices[0][1], 10)
@@ -66,6 +66,8 @@ class ScaleWidget(forms.RadioSelect):
         except ValueError:
           lower_label = _("Disagree")
 
+        attrs["class"]="scalefield"
+
         choices = [(i, '') for i in xrange(1, scaling + 1)]
 
         rendered = RadioFieldRenderer(
@@ -77,8 +79,8 @@ class ScaleWidget(forms.RadioSelect):
 
         return mark_safe(
             "<p>" +
-            '<label class="upper_label">' + upper_label + "</label>" +
+            '<label class="scaleupper">' + upper_label + "</label>" +
             rendered +
-            "<label>" + lower_label + "</label><br>"
+            '<label class="scalelower">' + lower_label + "</label></p>"
         )
 
