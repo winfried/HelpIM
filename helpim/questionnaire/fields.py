@@ -77,7 +77,7 @@ class ScaleWidget(forms.RadioSelect):
 
         return mark_safe(
             "<p>" +
-            "<label class="upper_label">" + upper_label + "</label>" +
+            '<label class="upper_label">' + upper_label + "</label>" +
             rendered +
             "<label>" + lower_label + "</label><br>"
         )
