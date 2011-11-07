@@ -67,16 +67,17 @@ class ScaleWidget(forms.RadioSelect):
 
         choices = [(i, '') for i in xrange(1, scaling + 1)]
 
-        return ("<div class='helpim-questionnaire-scale'><ul><li>" +
-                upper_label +
-                "</li>" +
-                re.sub(
-                    "<\/?ul>",
-                    "",
-                    RadioFieldRenderer(
+        rendered = RadioFieldRenderer(
                       name, value, attrs, choices
                     ).render()
-                ) +
-                "<li>" +
-                lower_label +
-                "</li></ul></div>")
+
+        rendered = re.sub("<\/?ul>", "", rendered)
+        rendered = re.sub("<\/?li>", "", rendered)
+
+        return (
+            "<p>" +
+            "<label>" + upper_label + "</label>" +
+            rendered +
+            "<label>" + lower_label + "</label><br>"
+        )
+
