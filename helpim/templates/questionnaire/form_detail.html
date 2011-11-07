@@ -26,7 +26,15 @@
 	<form method="post"{% if form_for_form.is_multipart %} 
 	    enctype="multipart/form-data"{% endif %}>
 	    {% csrf_token %}
-		{{ form_for_form.as_p }}
+        {% for field in form_for_form %}
+          {% if field.errors %}
+            <ul class="errorlist">{{ field.errors }}</ul>
+          {% endif %}
+          {% if field.label != "..." %}
+            {{ field.label_tag }}
+          {% endif %}
+          {{ field }}
+        {% endfor %}
 		<div style="clear:left;">&nbsp;</div>
 		<input type="submit" value="{{ form.button_text }}" />
 	</form>

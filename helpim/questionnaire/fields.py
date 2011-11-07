@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.forms.widgets import RadioFieldRenderer
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 
 import forms_builder.forms.fields
 
@@ -74,7 +75,7 @@ class ScaleWidget(forms.RadioSelect):
         rendered = re.sub("<\/?ul>", "", rendered)
         rendered = re.sub("<\/?li>", "", rendered)
 
-        return (
+        return mark_safe(
             "<p>" +
             "<label>" + upper_label + "</label>" +
             rendered +
