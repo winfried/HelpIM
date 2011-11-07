@@ -27,7 +27,7 @@ CHAT['log_level'] = 'ALL'
 
 CHAT['mode'] = 'light'
 
-#CHAT['muc_nick'] = 'foobar'
+#CHAT['staff_muc_nick'] = 'foobar'
 
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
 

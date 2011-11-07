@@ -28,7 +28,7 @@ def staff_join_chat(request, room_pk=None):
 
     if muc_nick is None:
         try:
-            muc_nick = settings.CHAT['muc_nick']
+            muc_nick = settings.CHAT['staff_muc_nick']
         except:
             pass
             
