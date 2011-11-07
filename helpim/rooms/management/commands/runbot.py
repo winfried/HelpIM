@@ -2,6 +2,7 @@ from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import translation
 
 from helpim.rooms.bot import Bot
 
@@ -46,6 +47,9 @@ class Command(BaseCommand):
         make_option('-t', '--log-destination',
                     dest='log_destination',
                     help='Override log-destination from configuration file.'),
+        make_option('-L', '--lang',
+                    dest='language',
+                    help='Override bot\s language for l10n'),
         )
 
     def handle(self, *args, **options):
@@ -63,6 +67,8 @@ class Command(BaseCommand):
                     setattr(conf.muc, key, val)
                 else:
                     setattr(conf, key, val)
+
+        translation.activate(conf.language)
 
         """ pass config to bot """
         bot = Bot(conf)
