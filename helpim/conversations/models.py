@@ -28,9 +28,11 @@ class Conversation(models.Model):
           return _('(None)')
 
     def duration(self):
-        messages = Message.objects.filter(conversation=self).order_by('created_at')
+        # duration is defined as time between first and last real
+        # message sent. a real message must contain a body
+        messages = Message.objects.filter(conversation=self).exclude(body__exact='').order_by('created_at')
         try:
-          return messages[1].created_at - messages[0].created_at
+          return messages[len(messages)-1].created_at - messages[0].created_at
         except:
           return _('(unknown)')
 
