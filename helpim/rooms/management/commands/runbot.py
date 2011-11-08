@@ -68,7 +68,13 @@ class Command(BaseCommand):
                 else:
                     setattr(conf, key, val)
 
-        translation.activate(conf.language)
+        try:
+            translation.activate(conf.language)
+        except AttributeError:
+            try:
+                translation.activate(settings.LANGUAGE_CODE)
+            except:
+                pass
 
         """ pass config to bot """
         bot = Bot(conf)
