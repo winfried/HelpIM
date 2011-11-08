@@ -1476,13 +1476,16 @@ class Bot(JabberClient):
                 except (AttributeError, LobbyRoomToken.DoesNotExist, LobbyRoom.DoesNotExist):
                     try:
                         try:
+                            """ just in case delete this bad ref """
                             LobbyRoomToken.objects.get(token=ac).delete()
                         except LobbyRoomToken.DoesNotExist:
-                            """ just in case delete this bad ref """
                             pass
                         room = LobbyRoom.objects.filter(status='chatting')[0]
                     except IndexError:
-                        room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
+                        try:
+                            room = LobbyRoom.objects.filter(status='abandoned').order_by('pk')[0]
+                        except IndexError:
+                            room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
                     """ save token to lobby """
                     LobbyRoomToken.objects.create(token=ac, room=room)
 
