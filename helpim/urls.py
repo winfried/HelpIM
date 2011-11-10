@@ -15,6 +15,9 @@ js_info_dict = {
     'packages': ('helpim',),
 }
 
+if 'helpim.buddychat' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('', url(r'^$', 'helpim.buddychat.views.welcome'))
+
 urlpatterns += patterns(
     '',
 
