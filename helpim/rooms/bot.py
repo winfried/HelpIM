@@ -494,14 +494,23 @@ class One2OneRoomHandler(RoomHandlerBase):
             if room is None:
                 log.warning("get_helpim_room couldn't find a room")
                 return
+            # For now we assume that the questionnaire hasn't changed
+            # in between sending and receiving it. The correct
+            # solution would be to store the ConversationFormEntry
+            # when sending the quesitonnaire and to only attach the
+            # entry when receiving the result. This could be done by
+            # storing the ConversationFormEntry with the user's token.x
+            questionnaire = Questionnaire.objects.filter(position=position)[0]
 
             entry_id = get_questionnaire_entry_id(stanza)
             entry = FormEntry.objects.get(pk=entry_id)
 
             ConversationFormEntry.objects.create(
+                questionnaire = questionnaire,
                 entry = entry,
                 conversation = room.chat,
                 position = position)
+
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
