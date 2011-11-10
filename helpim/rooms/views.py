@@ -1,14 +1,9 @@
 from hashlib import md5
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
 from django.utils.simplejson import dumps
-from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.shortcuts import render_to_response
-from django.forms import Form, CharField
-from django.core.context_processors import csrf
 
 from helpim.rooms.models import AccessToken, Participant, IPBlockedException
 from helpim.common.models import AdditionalUserInformation
