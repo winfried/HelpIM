@@ -798,10 +798,10 @@ class WaitingRoomHandler(RoomHandlerBase):
         try:
             entry_id = get_questionnaire_entry_id(stanza)
             entry = FormEntry.objects.get(pk=entry_id)
-            token.conversation_form_entry.entry = entry
-            token.conversation_form_entry.entry_at = datetime.now()
-            token.conversation_form_entry.save()
-            
+            conversationFormEntry = token.conversation_form_entry
+            conversationFormEntry.entry = entry
+            conversationFormEntry.entry_at = datetime.now()
+            conversationFormEntry.save()
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 

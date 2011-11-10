@@ -23,12 +23,12 @@ class Questionnaire(Form):
         verbose_name_plural = _("Questionnaires")
 
 class ConversationFormEntry(models.Model):
-    entry = models.ForeignKey(FormEntry)
+    entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
-    conversation = models.ForeignKey(Conversation)
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES, blank=False)
+    conversation = models.ForeignKey(Conversation, blank=True, null=True)
+    position = models.CharField(max_length=3, choices=POSITION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
-    entry_at = models.DateTimeField()
+    entry_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         unique_together = (("conversation", "position"),)
