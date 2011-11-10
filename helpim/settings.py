@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'south',
     'threadedcomments',
     'rosetta',
+    'registration',
     'helpim.common',
     'forms_builder.forms',
     'helpim.questionnaire',
