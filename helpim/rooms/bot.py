@@ -727,7 +727,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
             waitingRoomToken.ready = False
 
-            conversation_form_entry = ConversationFormEntry.objects.create(questionnaire=questionnaire)
+            conversation_form_entry = ConversationFormEntry.objects.create(questionnaire=questionnaire, position='CB')
             waitingRoomToken.conversation_form_entry = conversation_form_entry
             waitingRoomToken.save()
 
