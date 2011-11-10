@@ -18,7 +18,7 @@
 {% endblock %}
 {% block branding %}
 <h1 id="site-name">
-  <a href="/admin/">{% trans "HelpIM administration" %}</a>
+  <a href="/admin/">{% trans "HelpIM" %}</a>
 </h1>
 {% endblock %}
 
@@ -26,7 +26,7 @@
 <div id="navigation">
   <ul>
     <li><a href="/admin/conversations/conversation/">{% trans "Conversations" %}</a></li>
-    <li><a href="/admin/rooms/join/one2oneroom/">{% trans "Next available One2One chatroom" %}</a></li>
+    <li><a href="{% url staff_join_room %}">{% trans "Chat!" %}</a></li>
     {% if user %}
       {% get_flatpages '/admin/' for user as admin_flat_pages %}
       {% for page in admin_flat_pages  %}

@@ -1,0 +1,25 @@
+<html>
+<head>
+	<title>{{ form.title }}</title>
+	<style>
+		body {background-color: #FFFFFF;font: 10pt Arial,sans-serif;}
+		p {width:50em;}
+		label {display:block;}
+		.errorlist {color:#f00;}
+	</style>
+	<link type="text/css" rel="stylesheet" href="/custom/custom_frame.css">
+	<script type="text/javascript">
+	  try {
+	    parent.helpim.call('questionnaire_submitted', {{ entry.pk }});
+	  } catch(e) { }
+	</script>
+</head>
+
+<body id="form_sent">
+
+	<h1>{{ form.title }}</h1>
+	{% if form.response %}
+	<p>{{ form.response }}</p>
+	{% endif %}
+	
+</body>

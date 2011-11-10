@@ -25,6 +25,10 @@ CHAT['debug'] = DEBUG
  # * FINEST  (lowest value)
 CHAT['log_level'] = 'ALL'
 
+CHAT['mode'] = 'light'
+
+#CHAT['staff_muc_nick'] = 'foobar'
+
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
 
 INTERNAL_IPS = ('127.0.0.1',)
@@ -51,4 +55,5 @@ if DEBUG:
        ("xmpptk/closure", abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'closure-library', 'closure'))),
        ("xmpptk/jsjac",   abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'jsjac'))),
     ]
+
 

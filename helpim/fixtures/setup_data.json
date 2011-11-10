@@ -1,40 +1,167 @@
 [
     {
+        "pk": 4, 
+        "model": "flatpages.flatpage", 
         "fields": {
-            "content": "Thanks for using our service!",
-            "enable_comments": false,
-            "registration_required": false,
+            "registration_required": true, 
+            "title": "Documentation", 
+            "url": "/doc/", 
+            "template_name": "", 
             "sites": [
                 1
-            ],
-            "template_name": "",
-            "title": "Logged Out",
-            "url": "/logged_out/"
-        },
-        "model": "flatpages.flatpage",
-        "pk": 2
-    },
+            ], 
+            "content": "Documentation to follow", 
+            "enable_comments": false
+        }
+    }, 
     {
+        "pk": 2, 
+        "model": "flatpages.flatpage", 
         "fields": {
-            "content": "Sorry, currently there is no chat available for conversation. Please try again later!",
-            "enable_comments": false,
-            "registration_required": false,
+            "registration_required": false, 
+            "title": "Logged Out", 
+            "url": "/logged_out/", 
+            "template_name": "", 
             "sites": [
                 1
-            ],
-            "template_name": "",
-            "title": "Unavailable",
-            "url": "/unavailable/"
-        },
-        "model": "flatpages.flatpage",
-        "pk": 1
-    },
+            ], 
+            "content": "Thanks for using our service!", 
+            "enable_comments": false
+        }
+    }, 
     {
+        "pk": 1, 
+        "model": "flatpages.flatpage", 
         "fields": {
-            "name": "volunteers",
-            "permissions": []
-        },
-        "model": "auth.group",
-        "pk": 1
+            "registration_required": false, 
+            "title": "Unavailable", 
+            "url": "/unavailable/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Sorry, currently there is no chat available for conversation. Please try again later!", 
+            "enable_comments": false
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "flatpages.flatpage", 
+        "fields": {
+            "registration_required": true, 
+            "title": "Welcome", 
+            "url": "/welcome/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Welcome in HelpIM!", 
+            "enable_comments": false
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "common.branchoffice", 
+        "fields": {
+            "name": "overig"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "volunteers", 
+            "permissions": [
+                [
+                    "change_chat", 
+                    "conversations", 
+                    "chat"
+                ], 
+                [
+                    "change_chatmessage", 
+                    "conversations", 
+                    "chatmessage"
+                ], 
+                [
+                    "change_conversation", 
+                    "conversations", 
+                    "conversation"
+                ], 
+                [
+                    "change_message", 
+                    "conversations", 
+                    "message"
+                ]
+            ]
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "coordinators", 
+            "permissions": [
+                [
+                    "add_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "change_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "delete_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "add_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "change_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "delete_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "view_conversations_of_own_branch_office", 
+                    "common", 
+                    "branchoffice"
+                ], 
+                [
+                    "change_chat", 
+                    "conversations", 
+                    "chat"
+                ], 
+                [
+                    "change_chatmessage", 
+                    "conversations", 
+                    "chatmessage"
+                ], 
+                [
+                    "change_conversation", 
+                    "conversations", 
+                    "conversation"
+                ], 
+                [
+                    "change_message", 
+                    "conversations", 
+                    "message"
+                ], 
+                [
+                    "change_flatpage", 
+                    "flatpages", 
+                    "flatpage"
+                ]
+            ]
+        }
     }
 ]

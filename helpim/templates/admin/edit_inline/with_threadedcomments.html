@@ -57,7 +57,7 @@
                 {{ tree|length }} comment{{ tree|pluralize }}
               </a>
               &nbsp;
-              <a class='add_comment' id='replylink_m{{ inline_admin_form.original.pk }}' href="javascript:django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').show();show_reply_form('m{{ inline_admin_form.original.pk }}', {{ inline_admin_form.original.pk }}, 1, null, '{% get_comment_url_json inline_admin_form.original %}')">Reply</a>
+              <a class='add_comment' id='replylink_m{{ inline_admin_form.original.pk }}' href="javascript:django.jQuery('.commentrow-for-{{ inline_admin_form.original.pk }}').show();show_reply_form('m{{ inline_admin_form.original.pk }}', {{ inline_admin_form.original.pk }}, 1, null, '{% get_comment_url_json inline_admin_form.original %}')">{% trans "Reply" %}</a>
             </p></td>
           {% endif %}
         {% endfor %}
@@ -112,7 +112,7 @@
         </p>
       </td>
       <td> <p class=comment>
-          <a class='add_comment' id="replylink_c{{ comment.id }}" href="javascript:show_reply_form('c{{ comment.id }}', {{ inline_admin_form.original.pk }},{{ comment.depth|add:2 }}, '{{ comment.id }}', '{% get_comment_url_json inline_admin_form.original comment %}')">Reply</a>
+          <a class='add_comment' id="replylink_c{{ comment.id }}" href="javascript:show_reply_form('c{{ comment.id }}', {{ inline_admin_form.original.pk }},{{ comment.depth|add:2 }}, '{{ comment.id }}', '{% get_comment_url_json inline_admin_form.original comment %}')">{% trans "Reply" %}</a>
       </p></td>
     </tr>
     {% endfor %}
@@ -127,7 +127,9 @@
          <input class=commenttext>
          </p>
        </td>
-       <td><p><input formaction="{% get_comment_url_json inline_admin_form.original %}" class=commentsubmit type="submit" value="Send reply" /></p></td>
+       <td><p><input formaction="{% get_comment_url_json
+       inline_admin_form.original %}" class=commentsubmit
+       type="submit" value={% trans "Send reply"} /></p></td>
      </tr>
     {% endcomment %}
 

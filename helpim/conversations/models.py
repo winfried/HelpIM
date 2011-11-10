@@ -15,6 +15,27 @@ class Conversation(models.Model):
           'start_time': self.start_time.strftime('%c'),
         }
 
+    def client_nickname(self):
+        try:
+          return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0].name
+        except:
+          return _('(None)')
+
+    def staff_nickname(self):
+        try:
+          return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0].name
+        except:
+          return _('(None)')
+
+    def duration(self):
+        # duration is defined as time between first and last real
+        # message sent. a real message must contain a body
+        messages = Message.objects.filter(conversation=self).exclude(body__exact='').order_by('created_at')
+        try:
+          return messages[len(messages)-1].created_at - messages[0].created_at
+        except:
+          return _('(unknown)')
+
     class Meta:
         ordering = ['start_time']
         verbose_name = _("Conversation")
@@ -28,10 +49,21 @@ class Participant(models.Model):
     conversation = models.ForeignKey(Conversation)
     name = models.CharField(max_length=64)
 
+    user = models.ForeignKey(User, null=True)
+
     role = models.CharField(max_length=2, choices=(
       (ROLE_CLIENT, _('Client')),
       (ROLE_STAFF, _('Staff')),
     ), null=True)
+
+    ip_hash = models.CharField(max_length=32, blank=True)
+    blocked = models.BooleanField()
+    blocked_at = models.DateTimeField(null=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if self.blocked:
+            self.blocked_at = datetime.now()
+        super(Participant, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name

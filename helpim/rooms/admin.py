@@ -1,4 +1,4 @@
-from helpim.rooms.models import One2OneRoom, BlockList
+from helpim.rooms.models import One2OneRoom
 from django.contrib import admin
 
 class One2OneRoomAdmin(admin.ModelAdmin):
@@ -9,7 +9,3 @@ class One2OneRoomAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(One2OneRoom, One2OneRoomAdmin)
-
-class BlockListAdmin(admin.ModelAdmin):
-    model = BlockList
-admin.site.register(BlockList, BlockListAdmin)

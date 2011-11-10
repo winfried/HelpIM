@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 17:13+0200\n"
+"POT-Creation-Date: 2011-11-02 12:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,20 +17,54 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: conversations/admin.py:28
+#: common/models.py:13
+msgid "Branch office"
+msgstr ""
+
+#: common/models.py:14
+msgid "Branch offices"
+msgstr ""
+
+#: common/models.py:19
+msgid "View all conversations in own branch office"
+msgstr ""
+
+#: common/models.py:22
+msgid "View all conversations in all branch offices"
+msgstr ""
+
+#: common/models.py:27
+#, python-format
+msgid "Additional information about user %s"
+msgstr ""
+
+#: common/models.py:30 common/models.py:31
+msgid "Additional user information"
+msgstr ""
+
+#: common/models.py:37
+msgid "Chatname"
+msgstr ""
+
+#: conversations/admin.py:33
 msgid "Message"
 msgstr ""
 
-#: conversations/admin.py:29
+#: conversations/admin.py:34
 msgid "Messages"
 msgstr ""
 
-#: conversations/admin.py:39 conversations/models.py:40
+#: conversations/admin.py:54 conversations/models.py:70
 msgid "Participant"
 msgstr ""
 
-#: conversations/admin.py:40 conversations/models.py:41
+#: conversations/admin.py:55 conversations/models.py:71
 msgid "Participants"
+msgstr ""
+
+#: conversations/admin.py:98 conversations/models.py:40
+#: templates/admin/base_site.html:28 templates/admin/index.html:37
+msgid "Conversations"
 msgstr ""
 
 #: conversations/models.py:13
@@ -38,44 +72,47 @@ msgstr ""
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr ""
 
-#: conversations/models.py:20
+#: conversations/models.py:22 conversations/models.py:28
+msgid "(None)"
+msgstr ""
+
+#: conversations/models.py:35
+msgid "(unknown)"
+msgstr ""
+
+#: conversations/models.py:39
 msgid "Conversation"
 msgstr ""
 
-#: conversations/models.py:21 templates/admin/base_site.html:28
-#: templates/admin/index.html:36
-msgid "Conversations"
-msgstr ""
-
-#: conversations/models.py:32 rooms/models.py:350 rooms/models.py:495
+#: conversations/models.py:53 rooms/models.py:380 rooms/models.py:622
 msgid "Client"
 msgstr ""
 
-#: conversations/models.py:33 rooms/models.py:496
+#: conversations/models.py:54 rooms/models.py:623
 msgid "Staff"
 msgstr ""
 
-#: conversations/models.py:46
+#: conversations/models.py:76
 msgid "Sender"
 msgstr ""
 
-#: conversations/models.py:63
+#: conversations/models.py:96
 msgid "Chat message"
 msgstr ""
 
-#: conversations/models.py:64
+#: conversations/models.py:97
 msgid "Chat joining"
 msgstr ""
 
-#: conversations/models.py:65
+#: conversations/models.py:98
 msgid "Chat rejoining"
 msgstr ""
 
-#: conversations/models.py:66
+#: conversations/models.py:99
 msgid "Chat exit"
 msgstr ""
 
-#: conversations/models.py:67
+#: conversations/models.py:100
 msgid "Chat end"
 msgstr ""
 
@@ -111,67 +148,163 @@ msgstr ""
 msgid "Meetings"
 msgstr ""
 
-#: rooms/models.py:264
+#: questionnaire/admin.py:8 templates/admin/base_site.html:21
+msgid "HelpIM"
+msgstr ""
+
+#: questionnaire/models.py:9
+msgid "Client, before chat"
+msgstr ""
+
+#: questionnaire/models.py:10
+msgid "Client, after chat"
+msgstr ""
+
+#: questionnaire/models.py:11
+msgid "Staff, after chat"
+msgstr ""
+
+#: questionnaire/models.py:22
+msgid "Questionnaire"
+msgstr ""
+
+#: questionnaire/models.py:23
+msgid "Questionnaires"
+msgstr ""
+
+#: questionnaire/models.py:33
+msgid "Questionnaire answer for conversation"
+msgstr ""
+
+#: questionnaire/models.py:34
+msgid "Questionnaire answers for conversation"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/change_form.html:8
+msgid "Export entries"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/change_form.html:9
+msgid "History"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/change_form.html:10
+#: templates/admin/change_form.html:38
+msgid "View on site"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:63
+msgid "Field"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:64
+msgid "Include"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:65
+msgid "Filter by"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:83
+msgid "All"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:91
+msgid "Back to form"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:92
+msgid "View entries"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:93
+msgid "Export CSV"
+msgstr ""
+
+#: questionnaire/templates/admin/forms/export.html:97
+msgid "Entries"
+msgstr ""
+
+#: rooms/bot.py:208
+#, python-format
+msgid "You're at position %(pos)d of the waiting queue."
+msgstr ""
+
+#: rooms/bot.py:314
+#, python-format
+msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
+msgstr ""
+
+#: rooms/models.py:270
 msgid "Room status"
 msgstr ""
 
-#: rooms/models.py:329
+#: rooms/models.py:359
 msgid "One2One Room"
 msgstr ""
 
-#: rooms/models.py:335 rooms/models.py:456
+#: rooms/models.py:365 rooms/models.py:512 rooms/models.py:550
+#: rooms/models.py:563
 msgid "Available"
 msgstr ""
 
-#: rooms/models.py:336
+#: rooms/models.py:366
 msgid "Available for Invitation"
 msgstr ""
 
-#: rooms/models.py:337
+#: rooms/models.py:367
 msgid "Staff Waiting"
 msgstr ""
 
-#: rooms/models.py:338
+#: rooms/models.py:368
 msgid "Staff Waiting for Invitee"
 msgstr ""
 
-#: rooms/models.py:339 rooms/models.py:457
+#: rooms/models.py:369 rooms/models.py:513 rooms/models.py:551
+#: rooms/models.py:564
 msgid "Chatting"
 msgstr ""
 
-#: rooms/models.py:340
+#: rooms/models.py:370
 msgid "Closing Chat"
 msgstr ""
 
-#: rooms/models.py:341 rooms/models.py:458
+#: rooms/models.py:371 rooms/models.py:514 rooms/models.py:552
+#: rooms/models.py:565
 msgid "To Destroy"
 msgstr ""
 
-#: rooms/models.py:342 rooms/models.py:459
+#: rooms/models.py:372 rooms/models.py:515 rooms/models.py:553
+#: rooms/models.py:566
 msgid "Destroyed"
 msgstr ""
 
-#: rooms/models.py:343
+#: rooms/models.py:373
 msgid "Lost"
 msgstr ""
 
-#: rooms/models.py:344 rooms/models.py:460
+#: rooms/models.py:374 rooms/models.py:516 rooms/models.py:554
+#: rooms/models.py:567
 msgid "Abandoned"
 msgstr ""
 
-#: rooms/models.py:347
+#: rooms/models.py:377
 msgid "Staff member"
 msgstr ""
 
-#: rooms/models.py:348
+#: rooms/models.py:378
 msgid "Staff nickname"
 msgstr ""
 
-#: rooms/models.py:351
+#: rooms/models.py:381
 msgid "Client nickname"
 msgstr ""
 
-#: rooms/models.py:374 rooms/models.py:397
+#: rooms/models.py:383
+msgid "Allocated by client"
+msgstr ""
+
+#: rooms/models.py:401 rooms/models.py:431
 msgid "Chat"
 msgstr ""
 
@@ -183,7 +316,7 @@ msgstr ""
 msgid "Internal server error"
 msgstr ""
 
-#: templates/base.html:15
+#: templates/base.html:16
 #, python-format
 msgid "Welcome, %(name)s!"
 msgstr ""
@@ -192,37 +325,43 @@ msgstr ""
 msgid "Django site admin"
 msgstr ""
 
-#: templates/admin/base_site.html:21
-msgid "HelpIM administration"
+#: templates/admin/base_site.html:29 templates/admin/index.html:41
+msgid "Chat!"
 msgstr ""
 
-#: templates/admin/base_site.html:29 templates/admin/index.html:40
-msgid "Next available One2One chatroom"
+#: templates/admin/change_form.html:26
+msgid "Home"
 msgstr ""
 
-#: templates/admin/index.html:33
+#: templates/admin/change_form.html:29 templates/admin/index.html:62
+msgid "Add"
+msgstr ""
+
+#: templates/admin/change_form.html:49
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/admin/index.html:34
 msgid "Quick access"
-msgstr ""
-
-#: templates/admin/index.html:50
-#, python-format
-msgid "Models available in the %(name)s application."
 msgstr ""
 
 #: templates/admin/index.html:51
 #, python-format
+msgid "Models available in the %(name)s application."
+msgstr ""
+
+#: templates/admin/index.html:52
+#, python-format
 msgid "%(name)s"
 msgstr ""
 
-#: templates/admin/index.html:61
-msgid "Add"
-msgstr ""
-
-#: templates/admin/index.html:67
+#: templates/admin/index.html:68
 msgid "Change"
 msgstr ""
 
-#: templates/admin/index.html:77
+#: templates/admin/index.html:78
 msgid "You don't have permission to edit anything."
 msgstr ""
 
@@ -230,12 +369,17 @@ msgstr ""
 msgid "Delete?"
 msgstr ""
 
-#: templates/admin/edit_inline/with_threadedcomments.html:263
+#: templates/admin/edit_inline/with_threadedcomments.html:60
+#: templates/admin/edit_inline/with_threadedcomments.html:115
+msgid "Reply"
+msgstr ""
+
+#: templates/admin/edit_inline/with_threadedcomments.html:265
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr ""
 
-#: templates/admin/edit_inline/with_threadedcomments.html:266
+#: templates/admin/edit_inline/with_threadedcomments.html:268
 msgid "Remove"
 msgstr ""
 
@@ -257,7 +401,7 @@ msgstr ""
 msgid "Sorry, but your IP address is blocked from using this service."
 msgstr ""
 
-#: templates/rooms/chat_client.html:28
+#: templates/rooms/chat_client.html:29
 msgid "Subject"
 msgstr ""
 

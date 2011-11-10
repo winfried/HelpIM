@@ -1,0 +1,39 @@
+<style>
+body, html {
+  padding: 0;
+  margin: 0;
+}
+
+dl.table-display {
+  width: 100%;
+  float: left;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #EEE;
+}
+
+.table-display dt {
+  clear: left;
+  float: left;
+  width: 40%;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #EEE;
+  font-weight: bold;
+}
+
+.table-display dd {
+  float: left;
+  width: 58%;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #EEE;
+}
+</style>
+
+<dl class=table-display>
+{% for field, entry in fields_and_entries %}
+  <dt>{{ field.label}}</dt>
+  <dd>{{ entry.value }}</dd>
+{% endfor %}
+</dl>

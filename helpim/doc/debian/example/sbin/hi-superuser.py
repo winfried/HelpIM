@@ -10,7 +10,7 @@ from django.contrib.auth.management import create_superuser
 adminpw = os.environ.get('ADMINPW')
 
 if adminpw == '':
-    print "no ADMINPW"
+  print "no ADMINPW"
 else:
-    auth_models.User.objects.create_superuser('admin',
-           'helpdesk@e-hulp', adminpw)
+  auth_models.User.objects.create_superuser('admin', 
+         'helpdesk@e-hulp.nl', adminpw)

@@ -16,7 +16,7 @@ DATABASES = {
         'PASSWORD': 'topSecret',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
+    },
 }
 
 # Add fixtures dir for fixtures over al submodules
@@ -116,25 +116,27 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django.contrib.flatpages',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'helpim.conversations',
-    'helpim.groups',
+#    'helpim.groups',
     'helpim.rooms',
     'helpim',
     'south',
     'threadedcomments',
     'rosetta',
-    'registration',
+    'helpim.common',
+    'forms_builder.forms',
+    'helpim.questionnaire',
 )
 
-ACCOUNT_ACTIVATION_DAYS = 7
+AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
 
 CHAT = {
-    'mode': 'light',
     'domain': 'localhost',
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
@@ -159,12 +161,16 @@ BOT = {
         'history_maxchars': 2000,
         'history_maxstanzas': 10,
         'history_seconds': 120,
+        'allocation_timeout': 300, # how long a room will be reserved for a client
+        'max_chats_per_staff': 3,
+        'http_domain': 'http://127.0.0.1:8000',
         },
     'mainloop': {
         'timeout': 1,
         'reconnectdelay': 5,
         'cleanup': 600,
         },
+    'language': 'en-us',
     'logging': {
         'destination': 'file:/var/log/HelpIM/helpim31.log',
         'level': 'debug',
@@ -173,7 +179,7 @@ BOT = {
     }
 
 ROOMS = {
-    'access_token_timeout': 24*60*60
+    'access_token_timeout': 24*60*60,
     }
 
 # A sample logging configuration. The only tangible logging
@@ -199,4 +205,4 @@ LOGGING = {
     }
 }
 
-HELPIM_RESTRICT_VOLUNTEER_TO_OWN_CONVERSATIONS = False
+FORMS_BUILDER_USE_SITES = False

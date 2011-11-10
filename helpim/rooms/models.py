@@ -1,5 +1,6 @@
 import datetime
-from hashlib import md5
+
+import logging
 
 from django.conf import settings
 from django.db import models
@@ -8,15 +9,20 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from forms_builder.forms.models import FormEntry
+
 from helpim.conversations.models import Chat, Participant
+from helpim.questionnaire.models import ConversationFormEntry
 from helpim.utils import newHash
 
 class Site:
     def __init__(self, name):
         self.name = name
-        """ [FIXME] will it blend? """
-        self.rooms = One2OneRoom.objects
-        self.groupRooms = GroupRoom.objects
+
+        self.rooms        = One2OneRoom.objects
+        self.groupRooms   = GroupRoom.objects
+        self.lobbyRooms   = LobbyRoom.objects
+        self.waitingRooms = WaitingRoom.objects
 
 def getSites():
     """ this is a fake sites dict as we're not using real sites right now """
@@ -270,7 +276,7 @@ class Room(models.Model):
         self.status = status
         self.save()
 
-    def setChatId(slef, chatId):
+    def setChatId(self, chatId):
         chat = Chat.objects.get(pk=chatId)
         self.chat = chat
         self.save()
@@ -288,6 +294,30 @@ class Room(models.Model):
 
     def destroyed(self):
         self.setStatus('destroyed')
+
+    def userJoined(self):
+        """To be called after a client has joined
+           the room at the jabber-server.
+           """
+        status = self.getStatus()
+        if status in ("available", "abandoned"):
+            self.setStatus("chatting")
+        elif status == "chatting":
+            pass
+        else:
+            raise StatusError("client joining room while not room status is not 'available' or 'chatting'")
+
+    def lastUserLeftDirty(self):
+        """To be called when the last participant has left the chat dirty."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left dirty while status was not chatting")
+        self.setStatus('toDestroy')
+
+    def lastUserLeftClean(self):
+        """To be called when the last participant has left the chat clean."""
+        if not self.getStatus() == "chatting":
+            raise StatusError("Participant left clean while status was not chatting")
+        self.setStatus('toDestroy')
 
 class One2OneRoom(Room):
     """Chatroom for having one-to-one chats.
@@ -349,6 +379,11 @@ class One2OneRoom(Room):
 
     client = models.ForeignKey(Participant, verbose_name=_('Client'), related_name='+', null = True, limit_choices_to={'role': 'CS'})
     client_nick = models.CharField(_('Client nickname'), max_length=64, null = True)
+    client_allocated_at = models.DateTimeField(
+        _('Allocated by client'),
+        null = False,
+        default = '1000-01-01 00:00:00'
+        )
 
     objects = One2OneRoomManager()
 
@@ -357,15 +392,7 @@ class One2OneRoom(Room):
         self.client = client
         self.save()
 
-    def setStaffNick(self, nick):
-        self.staff_nick = nick
-        self.save()
-
-    def setClientNick(self, nick):
-        self.client_nick = nick
-        self.save()
-
-    def staffJoined(self, nick):
+    def staffJoined(self, muc_user):
         """To be called after the staffmember has joined
         the room at the jabber-server.
         """
@@ -376,10 +403,17 @@ class One2OneRoom(Room):
             self.chat = chat
 
         if not self.staff:
+            user = AccessToken.objects.get(jid=muc_user.real_jid).created_by
             staff = Participant(
-                conversation=self.chat, name=nick, role=Participant.ROLE_STAFF)
+                conversation=self.chat,
+                name=muc_user.nick,
+                user=user,
+                role=Participant.ROLE_STAFF
+            )
             staff.save()
             self.staff = staff
+
+        self.staff_nick = muc_user.nick
 
         if self.getStatus() == "available":
             self.setStatus("staffWaiting")
@@ -388,7 +422,7 @@ class One2OneRoom(Room):
         else:
             raise StatusError("staff joining room while not room status is not 'available' or 'availableForInvitation'")
 
-    def clientJoined(self, nick):
+    def clientJoined(self, muc_user):
         """To be called after a client has joined
            the room at the jabber-server.
            """
@@ -400,12 +434,34 @@ class One2OneRoom(Room):
 
         if not self.client:
             client = Participant(
-                    conversation=self.chat, name=nick, role=Participant.ROLE_CLIENT)
+                conversation=self.chat, name=muc_user.nick, role=Participant.ROLE_CLIENT)
+
+            # store participant to access token so that we're able to block
+            accessToken = AccessToken.objects.filter(jid=muc_user.real_jid).filter(role=Participant.ROLE_CLIENT)[0]
+            client.ip_hash = accessToken.ip_hash
+
+            # link form entry from questionnaire to participant
+            formEntry = None
+            try:
+                formEntry = WaitingRoomToken.objects.get(token=accessToken).questionnaire_before
+            except WaitingRoomToken.DoesNotExist:
+                # HU!
+                pass
+                
             client.save()
+
             self.client = client
+            self.client_nick = muc_user.nick
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
+            if not formEntry is None:
+                ConversationFormEntry.objects.create(
+                    entry=formEntry,
+                    conversation=self.chat,
+                    position='CB'
+                    )
+            return formEntry
         else:
             raise StatusError("client joining room while not room status is not 'staffWaiting' or 'staffWaitingForInvitee'")
 
@@ -488,6 +544,77 @@ class GroupRoom(Room):
             raise StatusError("Participant left clean while status was not chatting")
         self.setStatus('toDestroy')
 
+class LobbyRoom(Room):
+
+    STATUS_CHOICES = (
+        ('available', _('Available' )),
+        ('chatting', _('Chatting' )),
+        ('toDestroy', _('To Destroy')),
+        ('destroyed', _('Destroyed' )),
+        ('abandoned', _('Abandoned')),
+        )
+
+    objects = RoomManager()
+
+
+class WaitingRoom(Room):
+
+    STATUS_CHOICES = (
+        ('available', _('Available'  )),
+        ('chatting' , _('Chatting'   )),
+        ('toDestroy', _('To Destroy' )),
+        ('destroyed', _('Destroyed'  )),
+        ('abandoned', _('Abandoned'  )),
+        )
+
+    lobbyroom = models.ForeignKey(LobbyRoom,
+                                  null=True)
+
+    clients = []
+
+    objects = RoomManager()
+
+    def getWaitingClients(self):
+        return [client for client in self.clients if client._ready]
+
+    def getNextClient(self):
+        try:
+            client = self.getWaitingClients()[0]
+            self.clients.remove(client)
+            return client
+        except IndexError:
+            pass
+
+    def setClientReady(self, user, ready=True):
+        user._ready = ready
+
+    def getWaitingPos(self, user):
+        return self.getWaitingClients().index(user)+1
+
+class IPBlockedException(Exception):
+    def __init__(self, msg='ip blocked'):
+        self.msg = msg
+    def __str__(self):
+        return repr(self.msg)
+
+class AccessTokenManager(models.Manager):
+    def get_or_create(self, **kwargs):
+        # delete outdated tokens
+        self.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
+
+        # check if remote IP is blocked
+        if kwargs['role'] is Participant.ROLE_CLIENT and Participant.objects.filter(ip_hash=kwargs['ip_hash']).filter(blocked=True).count() is not 0:
+            # this user is blocked
+            raise IPBlockedException()
+
+        try:
+            token = super(AccessTokenManager, self).get(**kwargs)
+        except AccessToken.DoesNotExist:
+            kwargs['token'] = newHash()
+            token = super(AccessTokenManager, self).create(**kwargs)
+
+        return token
+
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
     role = models.CharField(max_length=2,
@@ -495,34 +622,29 @@ class AccessToken(models.Model):
                                 (Participant.ROLE_CLIENT, _('Client')),
                                 (Participant.ROLE_STAFF, _('Staff')),
                                 ))
-    room = models.ForeignKey(One2OneRoom, null=True)
-    owner = models.ForeignKey(Participant, null=True)
+
+    jid = models.CharField(max_length=64, null=True)
+
     ip_hash = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    @staticmethod
-    def create(role=Participant.ROLE_CLIENT, ip=None):
-        # delete outdated tokens
-        AccessToken.objects.filter(created_at__lte=datetime.datetime.now()-datetime.timedelta(seconds=settings.ROOMS['access_token_timeout'])).delete()
-
-        ip_hash = md5(ip).hexdigest()
-
-        if BlockList.objects.filter(ip_hash=ip_hash).count() is not 0:
-            # this user is blocked
-            return None
-
-        at = AccessToken()
-        at.token = newHash()
-        at.role = role
-        if ip is not None:
-            at.ip_hash = ip_hash
-        at.save()
-        return at
-
-class BlockList(models.Model):
-    ip_hash = models.CharField(max_length=32, unique=True)
     created_by = models.ForeignKey(User, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = AccessTokenManager()
 
     def __unicode__(self):
-        return self.ip_hash
+        return self.token
+
+class LobbyRoomToken(models.Model):
+    """ remember for which lobby an AccessToken has been used """
+    room = models.ForeignKey(LobbyRoom)
+    token = models.ForeignKey(AccessToken, unique=True)
+
+class One2OneRoomToken(models.Model):
+    room = models.ForeignKey(One2OneRoom)
+    token = models.ForeignKey(AccessToken)
+
+class WaitingRoomToken(models.Model):
+    room = models.ForeignKey(WaitingRoom)
+    token = models.ForeignKey(AccessToken, unique=True)
+    questionnaire_before = models.ForeignKey(FormEntry, null=True)
+    ready = models.BooleanField(default=True)

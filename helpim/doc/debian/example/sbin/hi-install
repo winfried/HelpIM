@@ -1,4 +1,82 @@
-# very basic setup, not ready
+# very basic setup, not well tested
+
+# first install packages for building:
+apt-get install python python2.6-dev libxml2-dev gcc make openjdk-6-jdk gettext libmysqlclient-dev
+apt-get install mysql-server mysql-client
+touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
+
+# root may login without password in mysql. Change password.
+echo '
+[client]
+user     = "root"
+password = "secret"
+' > /root/.my.cnf
+chmod 600 /root/.my.cnf
+
+# change my.cnf to use innodb ??
+
+
+# dummy database/user for building:
+mysql -uroot <<EOD
+ create database helpim31;
+ grant all on helpim31.* to helpim31@'localhost' identified by 'helpim31';
+ flush privileges;
+EOD
+
+mkdir /etc/helpim/
+echo '
+# some variabeles used in scripts
+defaultip="91.198.178.29"
+defaultcert="e-hulp.nl_wildcard.pem"
+defaultdomain="e-hulp.nl"
+buildoutuser="buildout"
+' > /etc/helpim/helpim.conf
+
+useradd -s /bin/bash buildout
+mkdir /home/buildout
+cd /home/buildout/
+git clone git://github.com/e-hulp/HelpIM.git
+cp HelpIM/helpim/development.py.example HelpIM/helpim/development.py
+pico HelpIM/helpim/development.py
+# change database/user in existing database, I use "helpim31/helpim31/helpim31"
+cp -a HelpIM/buildout.cfg ./
+cp -a HelpIM/helpim/settings.py ./
+# if you want to use the testing branche
+cd HelpIM; git checkout testing
+# change rights
+chown -R buildout:buildout /home/buildout
+
+# you need to copy the hi-upgrade script
+cd /usr/local/sbin/
+wget https://github.com/e-hulp/HelpIM/blob/master/helpim/doc/debian/example/sbin/hi-upgrade
+chown +x hi-upgrade
+
+# it's better to have no python modules in /usr/local/lib/python2.6/dist-packages/
+# during the first time running this script. Important: django_rosetta, south, django_threadedcomment
+ls /usr/local/lib/python2.6/dist-packages/
+# evt.: pip uninstall django_rosetta south django_threadedcomment
+
+hi-upgrade
+# evt.: pip install django_rosetta south django_threadedcomment
+
+# production (not sure debian packages are complete)
+apt-get install python python-mysqldb python-xmpp
+apt-get install python-dnspython python-libxml2 python-pyxmpp
+apt-get install apache2-mpm-worker libapache2-mod-wsgi
+apt-get install mysql-server mysql-client
+apt-get install python-setuptools python-pip
+pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
+#pip install --no-deps -f http://xen9.vandervlis.nl/django django
+pip install --no-deps django==1.3.1
+pip install --no-deps django-threadedcomments==0.5.3  # not in stable, but in testing.
+pip install --no-deps django-rosetta==0.6.0  # in stable is 0.5.6, in testing is 0.6.0.
+pip install --no-deps django-forms-builder==0.4.8 # is not in Debian
+pip install --no-deps south==0.7.3 # 0.7.3 is in testing, 0.7 is in stable.
+pip install --no-deps pip==1.0.2   #new version what can remove. 0.7.2 is in stable, 1.0 is in testing
+apt-get remove python-pip   #you need to login and logout before this works well.
+
+# install e-hulp wildcard certificate
+# todo
 
 mkdir -p /etc/helpim/skel
 mkdir /etc/helpim/sites
@@ -7,40 +85,89 @@ mkdir -p /usr/local/share/helpim/static
 ln -s xmpptk/images /usr/local/share/helpim/static/images
 ln -s xmpptk/sounds /usr/local/share/helpim/static/sounds
 
-useradd -s /bin/bash buildout
-mkdir /home/buildout
-chown buildout:buildout /home/buildout
-
-# Bad fix, because of a bug in bootrap.py:
-if ! test -e /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info; then
-   if test -e /home/$USERX/HelpIM; then
-     touch /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
-     REMOVESETUPTOOLS="1"
-   fi
-fi
-
-USERX=buildout
-su $USERX -c "   # do this as a normal user
-   cd
-   if ! test -e HelpIM; then
-     git clone git://github.com/e-hulp/HelpIM.git
-     cd HelpIM/helpim
-     wget http://xen9.vandervlis.nl/files/development.py
-   fi
-"
-
-# Bad fix, because of a bug in bootrap.py:
-if test "$REMOVESETUPTOOLS" = "1"; then
-  rm /usr/local/lib/python2.6/dist-packages/setuptools-0.6c11-py2.6.egg-info
-fi
-
-hi-upgrade
-
-# installeer SSL certificaat van e-hulp
-
 # apache modules
 a2enmod ssl
 a2enmod proxy
 a2enmod proxy_http
 service apache2 restart
 
+# create a chat
+hi-newchat
+
+
+---------------------------
+# Tigase setup (in Dutch):
+schrijf vooraf mysql root paswoord op!
+cat /root/.my.cnf | grep password
+apt-get install openjdk-6-jdk
+cd
+wget http://www.vandervlis.nl/tigase-server-4.3.1-b1858.jar
+java -jar tigase-server-4.3.1-b1858.jar -console
+als je ziet "press 1 to continue, 2 to quit, 3 to redisplay" dan druk je op 1.
+als je ziet "--- Press ENTER to continue ---" dan druk je op enter
+path jdk: /usr/lib/jvm/java-6-openjdk/
+wizzards 
+- installation on 
+- configuaration on 
+veel enters, 
+1 accept
+veel enters
+1 accept
+target path: /usr/local/tigase
+select the packs you want to install:
+niet: derby, postgresql, sql server, sources.  (dus: 6 8 9)
+weL: docs, extras, groovy, mysql (hoeft niet want staat default alles al aan)
+d (done)
+Default plus extra components (=1)
+your xmpp jabber domains: localhost
+server administrators: admin@localhost
+geef een admin paswoord:
+mysql (=1)
+advanced: off
+mysql superuser account name: root
+mysql superuser password: het opgeschreven paswoord
+database account: tigase
+tigase user in mysql paswoord:
+  schrijf dat op, je hebt het nog nodig.
+databasenaam: tigasedb
+database host: localhost
+additional database parameters []
+klaar, verder met configureren:
+wget http://www.helpim.org/subversion/HelpIM3/branches/chatgroups/tigase_setup.sh
+bash tigase_setup.sh
+deze zegt dat hij de user tigase niet kan vinden, maar maakt hem dan aan.
+verder zegt hij dat /usr/local/tigase/logs/ niet kan vinden maar maakt dan directories aan in /var/log/
+/etc/init.d/tigase start
+/usr/local/tigase/scripts/repo.sh moet gewijzigd, zoiets:
+  MYSQL_REP="-sc tigase.db.jdbc.JDBCRepository -su jdbc:mysql://localhost/tigasedb?user=tigase&password=verysecret"
+echo "helpimbot@localhost,verysecret,,,," > /tmp/lijst
+cd /usr/local/tigase/
+./scripts/repo.sh -import /tmp/lijst
+echo "bosh/max-inactivity[L]=90" >> /etc/tigase/init.properties
+echo 'HOME="/usr/local/tigase"' >> /etc/tigase/tigase.conf
+rpl 'JAVA_HOME="/usr/local/tigase/"' 'JAVA_HOME="/usr/lib/jvm/java-6-openjdk/"' /etc/tigase/tigase.conf
+service tigase restart
+less /var/log/tigase/console.log  # check evt. voor problemen
+-----------
+upgrade django 1.4 on xen9:
+cd /var/www/django/
+mv Django-1.4-pre-alpha.tar.gz Django-1.4-pre-alpha.tar.gz-backup
+svn co http://code.djangoproject.com/svn/django/trunk/
+cd trunk
+python setup.py sdist
+mv dist/* ../
+then upgrade the eggs on all machines:
+pip install --no-deps --upgrade -f http://xen9.vandervlis.nl/django django
+
+use ggdamsterdam;
+truncate rooms_accesstoken;
+truncate rooms_grouproom;
+truncate rooms_lobbyroom;
+truncate rooms_lobbyroomtoken;
+truncate rooms_one2oneroom;
+truncate rooms_one2oneroomtoken;
+truncate rooms_waitingroom;
+truncate rooms_waitingroomtoken;
+
+drop table questionnaire_conversationformentry;
+drop table questionnaire_questionnaire;
