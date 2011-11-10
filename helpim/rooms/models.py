@@ -439,9 +439,11 @@ class One2OneRoom(Room):
             client.ip_hash = accessToken.ip_hash
 
             # link form entry from questionnaire to participant
-            formEntry = None
+            conversationFormEntry = None
             try:
-                formEntry = WaitingRoomToken.objects.get(token=accessToken).questionnaire_before
+                conversationFormEntry = WaitingRoomToken.objects.get(token=accessToken).conversation_form_entry
+                conversationFormEntry.conversation=self.chat
+                conversationFormEntry.save()
             except WaitingRoomToken.DoesNotExist:
                 # HU!
                 pass
@@ -453,13 +455,8 @@ class One2OneRoom(Room):
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
-            if not formEntry is None:
-                ConversationFormEntry.objects.create(
-                    entry=formEntry,
-                    conversation=self.chat,
-                    position='CB'
-                    )
-            return formEntry
+            if not conversationFormEntry is None:
+                return conversationFormEntry.entry
         else:
             raise StatusError("client joining room while not room status is not 'staffWaiting' or 'staffWaitingForInvitee'")
 
@@ -642,5 +639,5 @@ class One2OneRoomToken(models.Model):
 class WaitingRoomToken(models.Model):
     room = models.ForeignKey(WaitingRoom)
     token = models.ForeignKey(AccessToken, unique=True)
-    conversation_form_entry = models.ForeignKey(ConversationFormEntry, null=True)
+    conversation_form_entry = models.ForeignKey(ConversationFormEntry, blank=True, null=True)
     ready = models.BooleanField(default=True)
