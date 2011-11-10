@@ -9,8 +9,6 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from forms_builder.forms.models import FormEntry
-
 from helpim.conversations.models import Chat, Participant
 from helpim.questionnaire.models import ConversationFormEntry
 from helpim.utils import newHash
@@ -646,5 +644,5 @@ class One2OneRoomToken(models.Model):
 class WaitingRoomToken(models.Model):
     room = models.ForeignKey(WaitingRoom)
     token = models.ForeignKey(AccessToken, unique=True)
-    questionnaire_before = models.ForeignKey(FormEntry, null=True)
+    conversation_form_entry = models.ForeignKey(ConversationFormEntry, null=True)
     ready = models.BooleanField(default=True)

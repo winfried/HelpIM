@@ -726,6 +726,9 @@ class WaitingRoomHandler(RoomHandlerBase):
 
             waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
             waitingRoomToken.ready = False
+
+            conversation_form_entry = ConversationFormEntry.objects.create(questionnaire=questionnaire)
+            waitingRoomToken.conversation_form_entry = conversation_form_entry
             waitingRoomToken.save()
 
             ready = False
@@ -795,7 +798,10 @@ class WaitingRoomHandler(RoomHandlerBase):
         try:
             entry_id = get_questionnaire_entry_id(stanza)
             entry = FormEntry.objects.get(pk=entry_id)
-            token.questionnaire_before = entry
+            token.conversation_form_entry.entry = entry
+            token.conversation_form_entry.entry_at = datetime.now()
+            token.conversation_form_entry.save()
+            
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 

@@ -24,9 +24,11 @@ class Questionnaire(Form):
 
 class ConversationFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry)
-
-    conversation = models.ForeignKey(Conversation, blank=False)
+    questionnaire = models.ForeignKey(Questionnaire)
+    conversation = models.ForeignKey(Conversation)
     position = models.CharField(max_length=3, choices=POSITION_CHOICES, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    entry_at = models.DateTimeField()
 
     class Meta:
         unique_together = (("conversation", "position"),)
