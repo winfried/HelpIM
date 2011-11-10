@@ -28,7 +28,6 @@ class ConversationFormEntry(models.Model):
     conversation = models.ForeignKey(Conversation, blank=True, null=True)
     position = models.CharField(max_length=3, choices=POSITION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
-    entry_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         unique_together = (("conversation", "position"),)
