@@ -88,7 +88,7 @@ class Conversation(models.Model):
     def hasInteraction(self):
         """Returns true if both client and staff Participants chatted during this Conversation"""
         clientChatted = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT).exclude(body__exact='').count() > 0
-        staffChatted = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF).exclude(body__exact='') > 0
+        staffChatted = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF).exclude(body__exact='').count() > 0
         
         return clientChatted and staffChatted
 
