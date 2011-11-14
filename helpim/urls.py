@@ -26,6 +26,8 @@ urlpatterns += patterns(
 
     url(r'^login/?$', redirect_to, {'url': '/admin/'}),
     url(r'^login/$', 'django.contrib.auth.views.login'),
+    url(r'^admin/stats/(?P<year>\d{4})$', 'helpim.conversations.views.stats_overview', name='stats_overview'),
+    url(r'^admin/stats/$', 'helpim.conversations.views.stats_overview', name='stats_overview'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/threadedcomments/', include('threadedcomments.urls')),

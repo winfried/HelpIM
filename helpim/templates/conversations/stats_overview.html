@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+
+
+<ul>
+    {% if prevYear %}
+        <li><a href="{% url stats_overview prevYear.year %}">&laquo; {{ prevYear.year }} ({{ prevYear.count }})</a></li>
+    {% endif %}
+
+    <li>
+        {% for el in conversationYears %}
+            {% if forloop.first %}
+                <select onchange="if(options[selectedIndex].value) window.location.href='{% url stats_overview %}' + (options[selectedIndex].value)">
+            {% endif %}
+
+                {% if el.year == currentYear.year %}
+                    <option value="{{ el.year }}" selected="selected">{{ el.year }} ({{ el.count }})</option>
+                {% else %}
+                    <option value="{{ el.year }}">{{ el.year }} ({{ el.count }})</option>
+                {% endif %}
+
+            {% if forloop.last %}
+                </select>
+            {% endif %}
+        {% endfor %}
+    </li>
+
+    {% if nextYear %}
+        <li><a href="{% url stats_overview nextYear.year %}">{{ nextYear.year }} ({{ nextYear.count }}) &raquo;</a></li>
+    {% endif %}
+</ul>
+
+{% blocktrans with year=currentYear.year %}
+<h1>Stats for {{ year }}</h1>
+{% endblocktrans %}
+
+<table>
+    <thead>
+        <tr>
+            <td>Date</td>
+            <td>Hour</td>
+            <td>Unique IPs</td>
+            <td>Questionnaires</td>
+            <td>Blocked</td>
+            <td>Full</td>
+            <td>Queued</td>
+            <td>Assigned</td>
+            <td>Interaction</td>
+            <td>Avg. wait time</td>
+            <td>Avg. chat time</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for hourAgg, data in conversationStats.items %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+                <td>{{ data.date }}</td>
+                <td>{{ data.hour }}</td>
+                <td>{{ data.uniqueIPs }}</td>
+                <td>{{ data.questionnairesSubmitted }}</td>
+                <td>{{ data.blocked }}</td>
+                <td>{{ data.full }}</td>
+                <td>{{ data.queue }}</td>
+                <td>{{ data.assigned }}</td>
+                <td>{{ data.interaction }}</td>
+                <td>{{ data.avgWaitTime }}</td>
+                <td>{{ data.avgChatTime }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

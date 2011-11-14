@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from helpim.conversations.models import Conversation
 from forms_builder.forms.models import Form, FormEntry
 
 POSITION_CHOICES = (
@@ -25,7 +24,7 @@ class Questionnaire(Form):
 class ConversationFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
-    conversation = models.ForeignKey(Conversation, blank=True, null=True)
+    conversation = models.ForeignKey('conversations.Conversation', blank=True, null=True)
     position = models.CharField(max_length=3, choices=POSITION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
