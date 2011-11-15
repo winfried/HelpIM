@@ -21,7 +21,7 @@ def staff_join_chat(request, room_pk=None):
     except AdditionalUserInformation.DoesNotExist:
         pass
 
-    if muc_nick is None:
+    if muc_nick is None or muc_nick == '':
         try:
             muc_nick = settings.CHAT['staff_muc_nick']
         except:
@@ -30,9 +30,14 @@ def staff_join_chat(request, room_pk=None):
     if muc_nick is None:
         muc_nick = request.user.username
 
+    lobby_nick = request.user.get_full_name()
+    if lobby_nick == '':
+        lobby_nick = request.user.username
+
     return join_chat(
         request,
         dict({
+            'lobby_nick': lobby_nick,
             'muc_nick': muc_nick,
             'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
             'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
