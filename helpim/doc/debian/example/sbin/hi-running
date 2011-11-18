@@ -1,0 +1,2 @@
+# test bosh connections:
+netstat -tn | grep 5280
