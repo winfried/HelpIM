@@ -82,6 +82,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_DIRS = [
     ("xmpptk", abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'htdocs'))),
+    ("javascript", abspath(join(dirname(__file__), 'javascript', 'htdocs'))),
 ]
 
 # Make this unique, and don't share it with anybody.

@@ -189,11 +189,11 @@ class DoubleDropWidget(forms.MultiWidget):
             pass
 
         renderedSelects = super(DoubleDropWidget, self).render(name, value, attrs)
-        renderedJavascript = self._renderJavascript(attrs['id'])
+        renderedJavascript = self._renderJavascript(attrs['id'] + '_0', attrs['id'] + '_1')
 
         return renderedSelects + renderedJavascript
 
-    def _renderJavascript(self, comboIdPrefix):
+    def _renderJavascript(self, mainListId, subListId):
         output = []
 
         output.append(u'<script type="text/javascript">')
@@ -201,11 +201,12 @@ class DoubleDropWidget(forms.MultiWidget):
 
         for k, v in self.choicesDict.iteritems():
             if len(v) > 0:
-                output.append(u'subList.push(%s);' % (', '.join(['"%s"' % (el) for el in v])))
+                output.append(u'subList.push([%s]);' % (', '.join(['"%s"' % (el) for el in v])))
             else:
-                output.append(u'subList.push("---");')
+                output.append(u'subList.push(["---"]);')
 
-        output.append(u'//app.doubleDrop("%s", subList);' % (comboIdPrefix))
+        output.append(u'var dd = new helpim.DoubleDrop("%s", "%s", subList);' % (mainListId, subListId))
+        output.append(u'dd.start();');
         output.append(u'</script>')
 
         return mark_safe(u'\n'.join(output))

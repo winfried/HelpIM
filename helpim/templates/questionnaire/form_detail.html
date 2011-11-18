@@ -47,6 +47,16 @@
 		}
 	</style>
 	<link type="text/css" rel="stylesheet" href="/custom/custom_frame.css">
+
+	{% load static %}
+	{% get_static_prefix as STATIC_PREFIX %}
+	{% if debug %}
+	<script src="{{ STATIC_PREFIX }}xmpptk/closure/goog/base.js"></script>
+	<script src="{{ STATIC_PREFIX }}javascript/deps.js"></script>
+	<script> goog.require('helpim'); </script>
+	{% else %}
+	<script src="{{ STATIC_PREFIX }}javascript/helpim.base.js"></script>
+	{% endif %}
 </head>
 
 <body>
