@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
 import forms_builder.forms.fields
+from collections import OrderedDict
 
 def register_forms_builder_field_type(identifier, name, field_class, widget_class=None):
 
@@ -84,3 +85,127 @@ class ScaleWidget(forms.RadioSelect):
             '<label class="scalelower">' + lower_label + "</label></p>"
         )
 
+
+class DoubleDropField(forms.MultiValueField):
+    """
+    >>> from helpim.questionnaire.fields import DoubleDropField
+    >>> ddf = DoubleDropField()
+    >>> ddf._parseChoices('one(),two(A,B,C),three')
+    OrderedDict([('one', ['---']), ('two', ['A', 'B', 'C']), ('three', ['---'])])
+    >>> ddf._parseChoices('one, two,      three')
+    OrderedDict([('one', ['---']), ('two', ['---']), ('three', ['---'])])
+    >>> ddf._parseChoices('one(1,2),two,three()')
+    OrderedDict([('one', ['1', '2']), ('two', ['---']), ('three', ['---'])])
+    >>> ddf._parseChoices('one(1,2),two(X,Y),three(C)')
+    OrderedDict([('one', ['1', '2']), ('two', ['X', 'Y']), ('three', ['C'])])
+    """
+
+    def __init__(self, choices={}, *args, **kwargs):
+        choicesText = ",".join([c[0] for c in choices])
+        self.choicesDict = self._parseChoices(choicesText)
+        mainChoices = [(c, c) for c in self.choicesDict.keys()]
+
+        fields = [forms.ChoiceField(choices=mainChoices), forms.ChoiceField()]
+        super(DoubleDropField, self).__init__(fields, *args, **kwargs)
+
+        self.widget.choicesDict = self.choicesDict
+
+    def compress(self, data_list):
+        return "%s>>>%s" % (data_list[0], data_list[1])
+
+    def clean(self, value):
+        # set choices for second combobox according to what is selected in first combobox
+        if len(value) == 2 and self.choicesDict.has_key(value[0]):
+            self.fields[1].choices = [(c, c) for c in self.choicesDict[value[0]]]
+
+        return super(DoubleDropField, self).clean(value)
+
+    def _parseChoices(self, inputText):
+        result = OrderedDict()
+        read = ""
+        mainCat = ''
+        subList = False
+
+        for char in inputText:
+            if char == '(' and not subList:
+                subList = True
+
+                read = read.strip()
+                if read:
+                    result[read] = []
+                    mainCat = read
+                    read = ""
+            elif char == ')' and subList:
+                subList = False
+
+                read = read.strip()
+                if read:
+                    result[mainCat] += [read]
+                    mainCat = ''
+                    read = ''
+                else:
+                    result[mainCat] += ['---']
+            elif char == ',':
+                read = read.strip()
+                if read:
+                    if subList:
+                        result[mainCat] += [read]
+                        read = ""
+                    else:
+                        result[read] = ['---']
+                        mainCat = read
+                        read = ""
+            else:
+                read += char
+
+        # add last item
+        read = read.strip()
+        if read:
+            if subList:
+                result[mainCat] += [read]
+            else:
+                result[read] = ['---']
+
+        return result
+
+class DoubleDropWidget(forms.MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = [forms.Select(), forms.Select()]
+        super(DoubleDropWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            return value.split(">>>")
+        else:
+            return [None, None]
+
+    def render(self, name, value, attrs=None):
+        # set choices for combo boxes
+        mainChoices = [(c, c) for c in self.choicesDict.keys()]
+        self.widgets[0].choices = mainChoices
+        try:
+            self.widgets[1].choices = [(c, c) for c in self.choicesDict.iteritems().next()[1]]
+        except:
+            pass
+
+        renderedSelects = super(DoubleDropWidget, self).render(name, value, attrs)
+        renderedJavascript = self._renderJavascript(attrs['id'])
+
+        return renderedSelects + renderedJavascript
+
+    def _renderJavascript(self, comboIdPrefix):
+        output = []
+
+        output.append(u'<script type="text/javascript">')
+        output.append(u'var subList = new Array();')
+
+        for k, v in self.choicesDict.iteritems():
+            if len(v) > 0:
+                output.append(u'subList.push(%s);' % (', '.join(['"%s"' % (el) for el in v])))
+            else:
+                output.append(u'subList.push("---");')
+
+        output.append(u'//app.doubleDrop("%s", subList);' % (comboIdPrefix))
+        output.append(u'</script>')
+
+        return mark_safe(u'\n'.join(output))
