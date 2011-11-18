@@ -9,6 +9,15 @@ else
   echo "Chatname: $chat"
 fi
 
+# mysqldump
+mysqldump $chat rooms_accesstoken rooms_grouproom rooms_lobbyroom \
+ rooms_lobbyroomtoken rooms_one2oneroom rooms_one2oneroomtoken \
+ rooms_waitingroom rooms_waitingroomtoken | mail -s hi-truncate helpdesk@e-hulp.nl
+
+# stop bot
+hi-killbot $chat
+
+# truncate
 mysql <<EOD
 use $chat;
 truncate rooms_accesstoken;
@@ -20,6 +29,9 @@ truncate rooms_one2oneroomtoken;
 truncate rooms_waitingroom;
 truncate rooms_waitingroomtoken;
 EOD
+
+# start bot
+hi-runbot $chat
 
 echo Done.
 echo

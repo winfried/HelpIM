@@ -27,6 +27,7 @@ su $buildoutuser -c "   # do this as a normal user
 "
 echo
 read -p 'Press return (give ctrl-c to stop)'
+echo "`date` Buildout, bootstrap, xmpptk make" >> /var/log/hi-upgrade.log
 
 su $buildoutuser -c "   # do this as a normal user
    cd ~/HelpIM/
@@ -50,7 +51,7 @@ su $buildoutuser -c "   # do this as a normal user
 
 # rapportage
 version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
-echo "`date` buildout2 and build an egg $version" >> /var/log/hi-upgrade.log
+echo "`date` collectstatic, makemessages, $version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to copy the egg to the repository (give ctrl-c to stop)"
@@ -97,5 +98,5 @@ rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/sbin/hi-* /usr/l
 rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/init.d/helpim /etc/init.d/
 
 # must be checked for security and locale!
-chown -R root /etc/helpim
-chmod -R +rx /etc/helpim
+#chown -R root /etc/helpim
+#chmod -R +rx /etc/helpim
