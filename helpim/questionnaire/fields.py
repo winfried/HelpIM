@@ -205,8 +205,7 @@ class DoubleDropWidget(forms.MultiWidget):
             else:
                 output.append(u'subList.push(["---"]);')
 
-        output.append(u'var dd = new helpim.DoubleDrop("%s", "%s", subList);' % (mainListId, subListId))
-        output.append(u'dd.start();');
+        output.append(u'new helpim.DoubleDrop("%s", "%s", subList).start();' % (mainListId, subListId))
         output.append(u'</script>')
 
         return mark_safe(u'\n'.join(output))
