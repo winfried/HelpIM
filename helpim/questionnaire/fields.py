@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
 import forms_builder.forms.fields
-from collections import OrderedDict
+from helpim.utils import OrderedDict
 
 def register_forms_builder_field_type(identifier, name, field_class, widget_class=None):
 
@@ -169,6 +169,19 @@ class DoubleDropField(forms.MultiValueField):
         return result
 
 class DoubleDropWidget(forms.MultiWidget):
+    """
+    >>> from helpim.questionnaire.fields import DoubleDropWidget
+    >>> from helpim.questionnaire.fields import DoubleDropField
+    >>> ddw = DoubleDropWidget()
+    >>> ddf = DoubleDropField()
+    >>> ddw.choicesDict = ddf._parseChoices('one(),two(A,B,C),three(X)')
+    >>> result = ddw._renderJavascript('mainId', 'subId')
+    >>> 'subList.push(["A", "B", "C"]);' in result
+    True
+    >>> 'subList.push(["X"]);' in result
+    True
+    """
+    
     def __init__(self, attrs=None):
         widgets = [forms.Select(), forms.Select()]
         super(DoubleDropWidget, self).__init__(widgets, attrs)
