@@ -136,21 +136,7 @@ class RoomHandlerBase(MucRoomHandler):
         stanzaclass = stanza.__class__.__name__
         errortype = str(errnode.get_type().lower())
         errormsg = errnode.get_message()
-
-        # If our limit of presences in MUC-rooms is exceeded
-        #
-        if errortype == "cancel" and stanzaclass == "Presence":
-            log.error("Could not create room '%s...'. Probably server limited number of presences in MUC-rooms."
-                      % self.room_state.room_jid.as_unicode().split('@')[0][:30]
-                      )
-            log.error("XMPP error message was: '%s: %s'." % (errortype, errormsg))
-        # FIXME:
-        # elif <other known combination that may occur> :
-        #    log.error(<message that makes sense>)
-
         log.debug("XMPP error type: '%s'.  PyXMPP error class: '%s'.  Message: '%s'." % (errortype, stanzaclass, errormsg))
-        self.room_state.leave()
-        self.mucmanager.forget(self.room_state)
         return True
 
     def nick_change(self, user, new_nick, stanza):
