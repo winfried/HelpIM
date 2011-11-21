@@ -736,8 +736,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             # no questionnaire no fun!
             pass
 
-        room.clients.append(user)
-        room.setClientReady(user, ready)
+        room.addClient(user, ready)
         if ready:
             self.send_queue_update(user.nick, room.getWaitingPos(user))
 
@@ -755,6 +754,8 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if room is None:
             return
+
+        room.removeClient(user)
 
         for client in room.getWaitingClients():
             log.debug("sending update to %s" % client.nick)
