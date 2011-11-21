@@ -8,6 +8,7 @@ all: clean deps build
 
 build:
 	@echo "building jsapp";
+	@mkdir -p htdocs
 	@../../parts/xmpptk/lib/closure-library/closure/bin/build/closurebuilder.py --root=../../parts/xmpptk/lib/closure-library/ --root=$(SOURCEDIR) --namespace="helpim" --output_mode=compiled -f '--compilation_level=ADVANCED_OPTIMIZATIONS' -f '--define=goog.DEBUG=false' --compiler_jar=../../parts/xmpptk/utils/compiler/compiler.jar > $(OUTFILE)
 
 clean:
