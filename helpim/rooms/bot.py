@@ -61,12 +61,17 @@ class RoomHandlerBase(MucRoomHandler):
         log.debug("MUC-Room callback: configuration_form_received(%s)" % (form))
         log.debug("Configuring MUC-room '%s'" % self.room_state.room_jid.as_unicode())
 
+        # prosody as of 0.8.2 misses a field in its configuration - we
+        # check for it manually to fix this client side
+        field_passwordprotectedroom_beenthere_donethat = False
+        
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
             elif field.name == u'muc#roomconfig_passwordprotectedroom':
+                field_passwordprotectedroom_beenthere_donethat = True
                 field.value = 1
             elif field.name == u'muc#roomconfig_roomsecret':
                 field.value = self.password
@@ -121,8 +126,9 @@ class RoomHandlerBase(MucRoomHandler):
                 field.value = False
 
         # prosody misses this one from its configuration form
-        # form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
-        #                value=True)
+        if not field_passwordprotectedroom_beenthere_donethat:
+            form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
+                           value=True)
 
         log.form(form)
         form = form.make_submit(True)
