@@ -32,7 +32,7 @@ class AdditionalUserInformation(models.Model):
 
     user = models.OneToOneField(User, unique=True)
 
-    branch_office = models.ForeignKey(BranchOffice, null=False)
+    branch_office = models.ForeignKey(BranchOffice, null=True, blank=True)
 
-    chat_nick = models.CharField(_("Chatname"), max_length=64, unique=True, null=True)
+    chat_nick = models.CharField(_("Chatname"), max_length=64, unique=True, null=True, blank=True)
 

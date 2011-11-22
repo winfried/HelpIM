@@ -9,8 +9,6 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from forms_builder.forms.models import FormEntry
-
 from helpim.conversations.models import Chat, Participant
 from helpim.questionnaire.models import ConversationFormEntry
 from helpim.utils import newHash
@@ -441,13 +439,15 @@ class One2OneRoom(Room):
             client.ip_hash = accessToken.ip_hash
 
             # link form entry from questionnaire to participant
-            formEntry = None
+            conversationFormEntry = None
             try:
-                formEntry = WaitingRoomToken.objects.get(token=accessToken).questionnaire_before
+                conversationFormEntry = WaitingRoomToken.objects.get(token=accessToken).conversation_form_entry
+                conversationFormEntry.conversation=self.chat
+                conversationFormEntry.save()
             except WaitingRoomToken.DoesNotExist:
                 # HU!
                 pass
-                
+
             client.save()
 
             self.client = client
@@ -455,13 +455,8 @@ class One2OneRoom(Room):
 
         if self.getStatus() in ("staffWaiting", "staffWaitingForInvitee"):
             self.setStatus("chatting")
-            if not formEntry is None:
-                ConversationFormEntry.objects.create(
-                    entry=formEntry,
-                    conversation=self.chat,
-                    position='CB'
-                    )
-            return formEntry
+            if not conversationFormEntry is None:
+                return conversationFormEntry.entry
         else:
             raise StatusError("client joining room while not room status is not 'staffWaiting' or 'staffWaitingForInvitee'")
 
@@ -580,11 +575,26 @@ class WaitingRoom(Room):
     def getNextClient(self):
         try:
             client = self.getWaitingClients()[0]
+            # we remove the client here manually to make sure we don't
+            # have to rely on it leaving the room. so we're better in
+            # control who's to be served and who's not.
             self.clients.remove(client)
             return client
         except IndexError:
             pass
 
+    def addClient(self, user, ready=True):
+        user._ready = ready
+        self.clients.append(user)
+
+    def removeClient(self, user):
+        try:
+            self.clients.remove(user)
+        except ValueError:
+            # client probably has been removed already (e.g. at
+            # getNextClient - see above)
+            pass
+        
     def setClientReady(self, user, ready=True):
         user._ready = ready
 
@@ -608,12 +618,10 @@ class AccessTokenManager(models.Manager):
             raise IPBlockedException()
 
         try:
-            token = super(AccessTokenManager, self).get(**kwargs)
+            return self.get(**kwargs)
         except AccessToken.DoesNotExist:
             kwargs['token'] = newHash()
-            token = super(AccessTokenManager, self).create(**kwargs)
-
-        return token
+            return self.create(**kwargs)
 
 class AccessToken(models.Model):
     token = models.CharField(max_length=64, unique=True)
@@ -646,5 +654,5 @@ class One2OneRoomToken(models.Model):
 class WaitingRoomToken(models.Model):
     room = models.ForeignKey(WaitingRoom)
     token = models.ForeignKey(AccessToken, unique=True)
-    questionnaire_before = models.ForeignKey(FormEntry, null=True)
+    conversation_form_entry = models.ForeignKey(ConversationFormEntry, blank=True, null=True)
     ready = models.BooleanField(default=True)

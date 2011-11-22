@@ -23,15 +23,17 @@ class Questionnaire(Form):
         verbose_name_plural = _("Questionnaires")
 
 class ConversationFormEntry(models.Model):
-    entry = models.ForeignKey(FormEntry)
-
-    conversation = models.ForeignKey(Conversation, blank=False)
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES, blank=False)
+    entry = models.ForeignKey(FormEntry, blank=True, null=True)
+    questionnaire = models.ForeignKey(Questionnaire)
+    conversation = models.ForeignKey(Conversation, blank=True, null=True)
+    position = models.CharField(max_length=3, choices=POSITION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = (("conversation", "position"),)
         verbose_name = _("Questionnaire answer for conversation")
         verbose_name_plural = _("Questionnaire answers for conversation")
 
-from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget
+from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget, DoubleDropField, DoubleDropWidget
 register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)
+register_forms_builder_field_type(101, _('Double drop'), DoubleDropField, DoubleDropWidget)
