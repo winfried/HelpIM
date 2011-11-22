@@ -447,7 +447,7 @@ class One2OneRoom(Room):
             except WaitingRoomToken.DoesNotExist:
                 # HU!
                 pass
-                
+
             client.save()
 
             self.client = client
@@ -575,11 +575,26 @@ class WaitingRoom(Room):
     def getNextClient(self):
         try:
             client = self.getWaitingClients()[0]
+            # we remove the client here manually to make sure we don't
+            # have to rely on it leaving the room. so we're better in
+            # control who's to be served and who's not.
             self.clients.remove(client)
             return client
         except IndexError:
             pass
 
+    def addClient(self, user, ready=True):
+        user._ready = ready
+        self.clients.append(user)
+
+    def removeClient(self, user):
+        try:
+            self.clients.remove(user)
+        except ValueError:
+            # client probably has been removed already (e.g. at
+            # getNextClient - see above)
+            pass
+        
     def setClientReady(self, user, ready=True):
         user._ready = ready
 

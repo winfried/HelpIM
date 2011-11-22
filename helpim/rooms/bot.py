@@ -61,12 +61,17 @@ class RoomHandlerBase(MucRoomHandler):
         log.debug("MUC-Room callback: configuration_form_received(%s)" % (form))
         log.debug("Configuring MUC-room '%s'" % self.room_state.room_jid.as_unicode())
 
+        # prosody as of 0.8.2 misses a field in its configuration - we
+        # check for it manually to fix this client side
+        field_passwordprotectedroom_beenthere_donethat = False
+        
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
             elif field.name == u'muc#roomconfig_allowinvites':
                 field.value = False
             elif field.name == u'muc#roomconfig_passwordprotectedroom':
+                field_passwordprotectedroom_beenthere_donethat = True
                 field.value = 1
             elif field.name == u'muc#roomconfig_roomsecret':
                 field.value = self.password
@@ -121,8 +126,9 @@ class RoomHandlerBase(MucRoomHandler):
                 field.value = False
 
         # prosody misses this one from its configuration form
-        # form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
-        #                value=True)
+        if not field_passwordprotectedroom_beenthere_donethat:
+            form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
+                           value=True)
 
         log.form(form)
         form = form.make_submit(True)
@@ -136,21 +142,7 @@ class RoomHandlerBase(MucRoomHandler):
         stanzaclass = stanza.__class__.__name__
         errortype = str(errnode.get_type().lower())
         errormsg = errnode.get_message()
-
-        # If our limit of presences in MUC-rooms is exceeded
-        #
-        if errortype == "cancel" and stanzaclass == "Presence":
-            log.error("Could not create room '%s...'. Probably server limited number of presences in MUC-rooms."
-                      % self.room_state.room_jid.as_unicode().split('@')[0][:30]
-                      )
-            log.error("XMPP error message was: '%s: %s'." % (errortype, errormsg))
-        # FIXME:
-        # elif <other known combination that may occur> :
-        #    log.error(<message that makes sense>)
-
         log.debug("XMPP error type: '%s'.  PyXMPP error class: '%s'.  Message: '%s'." % (errortype, stanzaclass, errormsg))
-        self.room_state.leave()
-        self.mucmanager.forget(self.room_state)
         return True
 
     def nick_change(self, user, new_nick, stanza):
@@ -750,8 +742,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             # no questionnaire no fun!
             pass
 
-        room.clients.append(user)
-        room.setClientReady(user, ready)
+        room.addClient(user, ready)
         if ready:
             self.send_queue_update(user.nick, room.getWaitingPos(user))
 
@@ -769,6 +760,8 @@ class WaitingRoomHandler(RoomHandlerBase):
         room = self.get_helpim_room()
         if room is None:
             return
+
+        room.removeClient(user)
 
         for client in room.getWaitingClients():
             log.debug("sending update to %s" % client.nick)
