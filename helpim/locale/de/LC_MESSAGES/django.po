@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-02 12:44+0100\n"
+"POT-Creation-Date: 2011-11-22 14:56+0100\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: common/models.py:13
@@ -54,15 +54,15 @@ msgstr "Nachricht"
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: conversations/admin.py:54 conversations/models.py:70
+#: conversations/admin.py:54 conversations/models.py:72
 msgid "Participant"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:55 conversations/models.py:71
+#: conversations/admin.py:55 conversations/models.py:73
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:98 conversations/models.py:40
+#: conversations/admin.py:98 conversations/models.py:42
 #: templates/admin/base_site.html:28 templates/admin/index.html:37
 msgid "Conversations"
 msgstr "Unterhaltungen"
@@ -76,43 +76,43 @@ msgstr "\"%(subject)s\" um %(start_time)s"
 msgid "(None)"
 msgstr ""
 
-#: conversations/models.py:35
+#: conversations/models.py:37
 msgid "(unknown)"
 msgstr ""
 
-#: conversations/models.py:39
+#: conversations/models.py:41
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:53 rooms/models.py:380 rooms/models.py:622
+#: conversations/models.py:55 rooms/models.py:378 rooms/models.py:630
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:54 rooms/models.py:623
+#: conversations/models.py:56 rooms/models.py:631
 msgid "Staff"
 msgstr "Mitarbeiter"
 
-#: conversations/models.py:76
+#: conversations/models.py:78
 msgid "Sender"
 msgstr "Absender"
 
-#: conversations/models.py:96
+#: conversations/models.py:98
 msgid "Chat message"
 msgstr "Chatnachricht"
 
-#: conversations/models.py:97
+#: conversations/models.py:99
 msgid "Chat joining"
 msgstr "Chat betreten"
 
-#: conversations/models.py:98
+#: conversations/models.py:100
 msgid "Chat rejoining"
 msgstr "Chat wiederbetreten"
 
-#: conversations/models.py:99
+#: conversations/models.py:101
 msgid "Chat exit"
 msgstr "Chat verlassen"
 
-#: conversations/models.py:100
+#: conversations/models.py:102
 msgid "Chat end"
 msgstr "Chat beendet"
 
@@ -152,6 +152,14 @@ msgstr "Treffen"
 msgid "HelpIM"
 msgstr ""
 
+#: questionnaire/fields.py:63
+msgid "Agree"
+msgstr ""
+
+#: questionnaire/fields.py:68
+msgid "Disagree"
+msgstr ""
+
 #: questionnaire/models.py:9
 msgid "Client, before chat"
 msgstr ""
@@ -172,12 +180,20 @@ msgstr ""
 msgid "Questionnaires"
 msgstr ""
 
-#: questionnaire/models.py:33
+#: questionnaire/models.py:34
 msgid "Questionnaire answer for conversation"
 msgstr ""
 
-#: questionnaire/models.py:34
+#: questionnaire/models.py:35
 msgid "Questionnaire answers for conversation"
+msgstr ""
+
+#: questionnaire/models.py:38
+msgid "Scale"
+msgstr ""
+
+#: questionnaire/models.py:39
+msgid "Double droplist"
 msgstr ""
 
 #: questionnaire/templates/admin/forms/change_form.html:8
@@ -225,86 +241,86 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:208
+#: rooms/bot.py:200
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:314
+#: rooms/bot.py:306
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
 
-#: rooms/models.py:270
+#: rooms/models.py:268
 msgid "Room status"
 msgstr "Raumstatus"
 
-#: rooms/models.py:359
+#: rooms/models.py:357
 msgid "One2One Room"
 msgstr "Eins-zu-eins-Raum"
 
-#: rooms/models.py:365 rooms/models.py:512 rooms/models.py:550
-#: rooms/models.py:563
+#: rooms/models.py:363 rooms/models.py:507 rooms/models.py:545
+#: rooms/models.py:558
 msgid "Available"
 msgstr "Verfügbar"
 
-#: rooms/models.py:366
+#: rooms/models.py:364
 msgid "Available for Invitation"
 msgstr "Verfügbar für Einladung"
 
-#: rooms/models.py:367
+#: rooms/models.py:365
 msgid "Staff Waiting"
 msgstr "Mitarbeiter wartet"
 
-#: rooms/models.py:368
+#: rooms/models.py:366
 msgid "Staff Waiting for Invitee"
 msgstr "Mitarbeiter wartet auf Eingeladenen"
 
-#: rooms/models.py:369 rooms/models.py:513 rooms/models.py:551
-#: rooms/models.py:564
+#: rooms/models.py:367 rooms/models.py:508 rooms/models.py:546
+#: rooms/models.py:559
 msgid "Chatting"
 msgstr "Chattend"
 
-#: rooms/models.py:370
+#: rooms/models.py:368
 msgid "Closing Chat"
 msgstr "Beende Chat"
 
-#: rooms/models.py:371 rooms/models.py:514 rooms/models.py:552
-#: rooms/models.py:565
+#: rooms/models.py:369 rooms/models.py:509 rooms/models.py:547
+#: rooms/models.py:560
 msgid "To Destroy"
 msgstr "Zu löschen"
 
-#: rooms/models.py:372 rooms/models.py:515 rooms/models.py:553
-#: rooms/models.py:566
+#: rooms/models.py:370 rooms/models.py:510 rooms/models.py:548
+#: rooms/models.py:561
 msgid "Destroyed"
 msgstr "Gelöscht"
 
-#: rooms/models.py:373
+#: rooms/models.py:371
 msgid "Lost"
 msgstr "Abhanden gekommen"
 
-#: rooms/models.py:374 rooms/models.py:516 rooms/models.py:554
-#: rooms/models.py:567
+#: rooms/models.py:372 rooms/models.py:511 rooms/models.py:549
+#: rooms/models.py:562
 msgid "Abandoned"
 msgstr "Verlassen"
 
-#: rooms/models.py:377
+#: rooms/models.py:375
 msgid "Staff member"
 msgstr "Mitarbeiter"
 
-#: rooms/models.py:378
+#: rooms/models.py:376
 msgid "Staff nickname"
 msgstr "Mitarbeiter-Spitzname"
 
-#: rooms/models.py:381
+#: rooms/models.py:379
 msgid "Client nickname"
 msgstr "Klienten-Spitzname"
 
-#: rooms/models.py:383
+#: rooms/models.py:381
 msgid "Allocated by client"
 msgstr ""
 
-#: rooms/models.py:401 rooms/models.py:431
+#: rooms/models.py:399 rooms/models.py:429
 msgid "Chat"
 msgstr "Chat"
 
