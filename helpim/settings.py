@@ -2,6 +2,9 @@
 
 from os.path import dirname, join, abspath
 
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
+
 ADMINS = (
 #    ('Stefan Strigler', 'stefan@strigler.de'),
 )
@@ -82,7 +85,7 @@ STATICFILES_FINDERS = (
 
 STATICFILES_DIRS = [
     ("xmpptk", abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'htdocs'))),
-    ("javascript", abspath(join(dirname(__file__), 'javascript', 'htdocs'))),
+    ("javascript", abspath(join(dirname(__file__), '..', 'javascript', 'htdocs'))),
 ]
 
 # Make this unique, and don't share it with anybody.
@@ -141,6 +144,7 @@ CHAT = {
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
     'composing_timeout': 10,
+    'debug': DEBUG,
     }
 
 BOT = {

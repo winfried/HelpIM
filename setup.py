@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+import sys, os
 from setuptools import setup, find_packages
 from os.path import join, dirname, relpath
+from version import get_git_version
 
-import sys
 sys.path.append(join(dirname(__file__), 'helpim'))
 
 long_description=(
@@ -24,19 +25,25 @@ install_requires=[
    'django-rosetta==0.6.0',
    'pyxmpp==1.1.1',
    'libxml2-python==2.6.21',
-]
+   ]
+
+include_dirs = [
+    'static',
+    'helpim/locale',
+    'helpim/templates',
+    'helpim/fixtures',
+    'helpim/questionnaire/templates/forms',
+    'helpim/doc/debian/example',
+    ]
 
 static_files = []
-
-import os
-for root, dirs, files in os.walk(join(dirname(__file__), 'static')):
-    relroot = relpath(root, dirname(__file__))
-    static_files.append((
-      join('share', 'helpim', relroot),
-      [join(relroot, f) for f in files]
-    ))
-
-from version import get_git_version
+for include_dir in include_dirs:
+    for root, dirs, files in os.walk(join(dirname(__file__), include_dir)):
+        relroot = relpath(root, dirname(__file__))
+        static_files.append((
+          join('share', 'helpim', relroot),
+          [join(relroot, f) for f in files]
+        ))
 
 setup(
     name=name,
