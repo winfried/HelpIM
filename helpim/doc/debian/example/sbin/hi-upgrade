@@ -23,10 +23,11 @@ su $buildoutuser -c "   # do this as a normal user
    fi
    python bootstrap.py --distribute
    ./bin/buildout  -vv
-   cd parts/xmpptk/ && make
+#   cd parts/xmpptk/ && make
 "
 echo
 read -p 'Press return (give ctrl-c to stop)'
+echo "`date` Buildout, bootstrap, xmpptk make" >> /var/log/hi-upgrade.log
 
 su $buildoutuser -c "   # do this as a normal user
    cd ~/HelpIM/
@@ -44,13 +45,14 @@ su $buildoutuser -c "   # do this as a normal user
    echo
    cd ~/HelpIM/
    rm dist/* > /dev/null 2>&1
+   rm -r helpim.egg-info > /dev/null 2>&1
    python setup.py sdist > /dev/null 2>&1
    ls dist/* > /tmp/helpim-version
 "
 
 # rapportage
 version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
-echo "`date` buildout2 and build an egg $version" >> /var/log/hi-upgrade.log
+echo "`date` collectstatic, makemessages, $version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to copy the egg to the repository (give ctrl-c to stop)"
@@ -64,11 +66,12 @@ echo "`date` upgrade to new helpim version" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to sync the files (give ctrl-c to stop)"
-rsync -av --del /home/buildout/HelpIM/helpim/locale /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
-rsync -av --del /home/buildout/HelpIM/helpim/questionnaire/templates/forms /usr/local/share/helpim/templates/
+# rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
+
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/locale /usr/local/share/helpim/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/templates /usr/local/share/helpim/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/fixtures /usr/local/share/helpim/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/questionnaire/templates/forms /usr/local/share/helpim/templates/
 echo "`date` files synced" >> /var/log/hi-upgrade.log
 
 echo
@@ -91,11 +94,11 @@ echo "Running django-admin.py migrate on all chats"
 echo
 if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
 read -p "Press return to sync scripts and skel (give ctrl-c to stop)"
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/helpim/skel /etc/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/init.d/helpim /etc/init.d/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/doc/debian/example/helpim/skel /etc/helpim/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/
+rsync -av --del /usr/local/lib/python2.6/dist-packages/helpim/doc/debian/example/init.d/helpim /etc/init.d/
 
 # must be checked for security and locale!
-chown -R root /etc/helpim
-chmod -R +rx /etc/helpim
+#chown -R root /etc/helpim
+#chmod -R +rx /etc/helpim
