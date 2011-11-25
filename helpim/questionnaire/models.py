@@ -36,4 +36,4 @@ class ConversationFormEntry(models.Model):
 
 from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget, DoubleDropField, DoubleDropWidget
 register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)
-register_forms_builder_field_type(101, _('Double drop'), DoubleDropField, DoubleDropWidget)
+register_forms_builder_field_type(101, _('Double droplist'), DoubleDropField, DoubleDropWidget)

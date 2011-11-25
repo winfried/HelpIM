@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 
+from os import walk
+from os.path import join
 from setuptools import setup, find_packages
-from os.path import join, dirname, relpath
+from version import get_git_version
 
-import sys
-sys.path.append(join(dirname(__file__), 'helpim'))
-
-long_description=(
-    open(join(dirname(__file__),
-         'README.rst',
-         )).read())
+long_description=(open('README.rst').read())
 
 name='helpim'
 
@@ -27,17 +23,22 @@ install_requires=[
    'django-registration==0.8-alpha-1',
 ]
 
+include_dirs = [
+    ('/usr/local/share/helpim/', 'static'),
+    ('/usr/local/share/', 'helpim/locale'),
+    ('/usr/local/share/', 'helpim/templates'),
+    ('/usr/local/share/', 'helpim/fixtures'),
+    ('/usr/local/share/', 'helpim/questionnaire/templates/forms'),
+    ('/usr/local/share/', 'helpim/doc/debian/example'),
+    ]
+
 static_files = []
-
-import os
-for root, dirs, files in os.walk(join(dirname(__file__), 'static')):
-    relroot = relpath(root, dirname(__file__))
-    static_files.append((
-      join('share', 'helpim', relroot),
-      [join(relroot, f) for f in files]
-    ))
-
-from version import get_git_version
+for target, include_dir in include_dirs:
+    for root, dirs, files in walk(include_dir):
+        static_files.append((
+          join(target, root),
+          [join(root, f) for f in files]
+        ))
 
 setup(
     name=name,
@@ -50,11 +51,11 @@ setup(
     author_email='helpdesk@e-hulp.nl',
     packages=find_packages('.'),
     package_dir={'': '.'},
-    data_files=static_files,
-    namespace_packages=[],
-    include_package_data = True,
     install_requires=install_requires,
     zip_safe = False,
+    namespace_packages=[],
+    data_files=static_files,
+    include_package_data = True,
     classifiers = [
       "Programming Language :: Python",
       "Development Status :: 4 - Beta",

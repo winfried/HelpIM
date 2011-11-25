@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-02 12:50+0100\n"
+"POT-Creation-Date: 2011-11-22 14:57+0100\n"
 "PO-Revision-Date: 2011-11-02 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,36 +111,36 @@ msgstr "%s is gestopt met typen"
 msgid "%s is composing a message"
 msgstr "%s is aan het typen"
 
-#: static/xmpptk/helpim/ui/muc/room.js:152
+#: static/xmpptk/helpim/ui/muc/room.js:156
 #, perl-format
 msgid "%s has entered the conversation"
 msgstr "%s is binnengekomen in het gesprek"
 
-#: static/xmpptk/helpim/ui/muc/room.js:163
+#: static/xmpptk/helpim/ui/muc/room.js:167
 #, perl-format
 msgid "%s has disappeared from the conversation"
 msgstr "%s is weggegaan uit het gesprek"
 
-#: static/xmpptk/helpim/ui/muc/room.js:166
+#: static/xmpptk/helpim/ui/muc/room.js:170
 #, perl-format
 msgid "%s has ended the conversation"
 msgstr "%s heeft de conversatie beëindigd"
 
-#: static/xmpptk/helpim/ui/muc/room.js:240
-#: static/xmpptk/helpim/ui/muc/room.js:251
+#: static/xmpptk/helpim/ui/muc/room.js:244
+#: static/xmpptk/helpim/ui/muc/room.js:255
 msgid "Click to see even more emoticons"
 msgstr "Klik om nog meer emoticons te zien"
 
-#: static/xmpptk/helpim/ui/muc/room.js:241
-#: static/xmpptk/helpim/ui/muc/room.js:250
+#: static/xmpptk/helpim/ui/muc/room.js:245
+#: static/xmpptk/helpim/ui/muc/room.js:254
 msgid "more"
 msgstr "meer"
 
-#: static/xmpptk/helpim/ui/muc/room.js:254
+#: static/xmpptk/helpim/ui/muc/room.js:258
 msgid "less"
 msgstr "minder"
 
-#: static/xmpptk/helpim/ui/muc/room.js:255
+#: static/xmpptk/helpim/ui/muc/room.js:259
 msgid "Click to collapse emoticons"
 msgstr "Klik om de emoticons in te klappen"
 

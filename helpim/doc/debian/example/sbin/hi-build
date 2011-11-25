@@ -1,0 +1,96 @@
+#!/bin/bash
+# builds helpim
+# Usage: hi-build [branch]
+
+# get variables like "buildoutuser"
+. /etc/helpim/helpim.conf
+
+if ! test -e /home/$buildoutuser/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
+
+if test -z "$1"
+then
+  echo "Using default branch: $branch."
+else
+  echo "Using branch $1."
+  branch="$1"
+fi
+
+# checkout and pull helpim.
+su $buildoutuser -c "
+   # do this as a normal user
+   cd ~/HelpIM/
+   git checkout $branch
+   git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
+   git pull
+"
+echo "`date` checkout, pull" >> /var/log/hi-build.log
+
+# check for changes, warn if they are there
+su $buildoutuser -c "
+   # do this as a normal user
+   cd ~/HelpIM/
+   if ( ! diff -q ../buildout.cfg buildout.cfg ) then 
+      diff ../buildout.cfg buildout.cfg | mail -s \"hi-build: buildout.cfg has changed for $branch\" $mailto
+      diff ../buildout.cfg buildout.cfg
+      read -p \"buildout.cfg has changed. Changes have also been send by mail to $mailto. Press return or ctr-c to stop\"
+      cp -v buildout.cfg ../buildout.cfg
+   fi
+   if ( ! diff -q ../settings.py helpim/settings.py ) then
+      diff ../settings.py helpim/settings.py | mail -s \"hi-build: settings.py has changed for $branch\" $mailto
+      diff ../settings.py helpim/settings.py
+      read -p \"settings.py has changed. Changes have also been send by mail to $mailto. Press return or ctr-c to stop\"
+      cp -v helpim/settings.py ../settings.py
+   fi
+"
+
+# check if all dependencies are there and build
+su $buildoutuser -c "
+   # do this as a normal user
+   cd ~/HelpIM/
+   python bootstrap.py --distribute
+   ./bin/buildout  -v
+"
+echo "`date` bootstrap, buildout" >> /var/log/hi-build.log
+echo
+read -p 'Press return to continue (give ctrl-c to stop)'
+
+# Collect static files and compile 
+su $buildoutuser -c "
+   # do this as a normal user
+   cd ~/HelpIM/
+   echo begin collectstatic
+   rm -rf static
+   ./bin/manage.py collectstatic --noinput
+   echo
+   echo begin makemessages
+   cd helpim
+   ../bin/manage.py makemessages -a
+   ../bin/manage.py makemessages -a -d djangojs
+   echo
+   echo begin compilemessages
+   ../bin/manage.py compilemessages
+   echo
+"
+
+# Collect static files and compile 
+su $buildoutuser -c "
+   # do this as a normal user
+   cd ~/HelpIM/
+   rm dist/* > /dev/null 2>&1
+   rm -r helpim.egg-info > /dev/null 2>&1
+   echo 'building egg...'
+   python setup.py sdist > /dev/null 2>&1
+"
+
+# rapportage
+cd "/home/$buildoutuser/HelpIM/dist/"
+version=`ls`
+cd -
+if test -z "$version"
+then
+  echo "`date` build failed, no egg present" >> /var/log/hi-build.log
+  echo "Failure! No egg build"
+else
+  echo "`date` build succesfull: $version" >> /var/log/hi-build.log
+  echo "Succes! The egg is in: /home/$buildoutuser/HelpIM/dist/$version"
+fi

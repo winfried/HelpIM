@@ -2,6 +2,9 @@
 
 from os.path import dirname, join, abspath
 
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
+
 ADMINS = (
 #    ('Stefan Strigler', 'stefan@strigler.de'),
 )
@@ -142,6 +145,7 @@ CHAT = {
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
     'composing_timeout': 10,
+    'debug': DEBUG,
     }
 
 BOT = {
