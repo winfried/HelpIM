@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from os import walk
+from os.path import join
 from setuptools import setup, find_packages
 from version import get_git_version
 
@@ -20,6 +22,23 @@ install_requires=[
    'libxml2-python==2.6.21',
    ]
 
+include_dirs = [
+    ('/usr/local/share/helpim/', 'static'),
+    ('/usr/local/share/', 'helpim/locale'),
+    ('/usr/local/share/', 'helpim/templates'),
+    ('/usr/local/share/', 'helpim/fixtures'),
+    ('/usr/local/share/', 'helpim/questionnaire/templates/forms'),
+    ('/usr/local/share/', 'helpim/doc/debian/example'),
+    ]
+
+static_files = []
+for target, include_dir in include_dirs:
+    for root, dirs, files in walk(include_dir):
+        static_files.append((
+          join(target, root),
+          [join(root, f) for f in files]
+        ))
+
 setup(
     name=name,
     version=get_git_version().lstrip('v'),
@@ -34,6 +53,7 @@ setup(
     install_requires=install_requires,
     zip_safe = False,
     namespace_packages=[],
+    data_files=static_files,
     include_package_data = True,
     classifiers = [
       "Programming Language :: Python",
