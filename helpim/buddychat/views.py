@@ -1,4 +1,7 @@
-from django.http import HttpResponse
+from django.shortcuts import render_to_response
 
 def welcome(request):
-    return HttpResponse('<html><body>hallo welt</body></html>')
+
+    return render_to_response(
+        'buddychat/welcome.html'
+        )
