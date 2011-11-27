@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-22 14:56+0100\n"
+"POT-Creation-Date: 2011-11-27 14:58+0100\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -333,8 +333,8 @@ msgid "Internal server error"
 msgstr "Interner Server-Fehler"
 
 #: templates/base.html:16
-#, python-format
-msgid "Welcome, %(name)s!"
+#, fuzzy, python-format
+msgid "Welcome, %(username)s!"
 msgstr "Willkommen, %(name)s!"
 
 #: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
@@ -409,6 +409,14 @@ msgstr "Nächstem verfügbaren %(name)s beitreten"
 #, python-format
 msgid "Add %(name)s"
 msgstr "%(name)s hinzufügen"
+
+#: templates/buddychat/welcome.html:3 templates/buddychat/welcome.html.py:4
+msgid "Welcome"
+msgstr ""
+
+#: templates/buddychat/welcome.html:5
+msgid "Yo bro'!"
+msgstr ""
 
 #: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
 msgid "Blocked"
