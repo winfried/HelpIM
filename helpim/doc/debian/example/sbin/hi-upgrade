@@ -1,89 +1,28 @@
 #!/bin/bash
 # upgrades helpim
+# usage hi-upgrade [egglocation]
 
 # get variables like "buildoutuser"
 . /etc/helpim/helpim.conf
 
-if ! test -e /home/$buildoutuser/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
+if test -z "$1"
+then
+  # should be only one egg there, but maybe we must check...
+  egg=`ls /home/$buildoutuser/HelpIM/dist/*`
+else
+  egg="$1"
+fi
 
-su $buildoutuser -c "   # do this as a normal user
-   cd
-   cd HelpIM/
-   git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
-   git pull
-   if ( ! diff -q ../buildout.cfg buildout.cfg ) then 
-      diff ../buildout.cfg buildout.cfg | mail -s buildout.cfg helpdesk@e-hulp.nl
-      read -p 'buildout.cfg has changed. Read the mail in the helpdesk mailbox. Press return or ctr-c to stop'
-      cp -v buildout.cfg ../buildout.cfg
-   fi
-   if ( ! diff -q ../settings.py helpim/settings.py ) then
-      diff ../settings.py helpim/settings.py | mail -s settings.py helpdesk@e-hulp.nl
-      read -p 'settings.py has changed. Read the mail in the helpdesk mailbox. Press return or ctr-c to stop'
-      cp -v helpim/settings.py ../settings.py
-   fi
-   python bootstrap.py --distribute
-   ./bin/buildout  -vv
-   cd parts/xmpptk/ && make
-"
-echo
-read -p 'Press return (give ctrl-c to stop)'
-
-su $buildoutuser -c "   # do this as a normal user
-   cd ~/HelpIM/
-   echo begin collectstatic
-   rm -rf static
-   ./bin/manage.py collectstatic --noinput
-   echo
-   echo begin makemessages
-   cd helpim
-   ../bin/manage.py makemessages -a
-   ../bin/manage.py makemessages -a -d djangojs
-   echo
-   echo begin compilemessages
-   ../bin/manage.py compilemessages
-   echo
-   cd ~/HelpIM/
-   rm dist/* > /dev/null 2>&1
-   python setup.py sdist > /dev/null 2>&1
-   ls dist/* > /tmp/helpim-version
-"
-
-# rapportage
-version=`cat /tmp/helpim-version`; rm /tmp/helpim-version
-echo "`date` buildout2 and build an egg $version" >> /var/log/hi-upgrade.log
-
-echo
-read -p "Press return to copy the egg to the repository (give ctrl-c to stop)"
-mv /home/$buildoutuser/HelpIM/dist/* /var/www/helpim/
-echo "`date` copy egg to repository $version" >> /var/log/hi-upgrade.log
-
-echo
-read -p "Press return to install the egg  (give ctrl-c to stop)"
-pip install --upgrade --no-deps -f http://localhost/helpim helpim
-echo "`date` upgrade to new helpim version" >> /var/log/hi-upgrade.log
-
-echo
-read -p "Press return to sync the files (give ctrl-c to stop)"
-rsync -av --del /home/buildout/HelpIM/helpim/locale /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/templates /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/fixtures /usr/local/share/helpim/
-rsync -av --del /home/buildout/HelpIM/parts/xmpptk/htdocs/* /usr/local/share/helpim/static/xmpptk/
-rsync -av --del /home/buildout/HelpIM/helpim/questionnaire/templates/forms /usr/local/share/helpim/templates/
-echo "`date` files synced" >> /var/log/hi-upgrade.log
+pip install --upgrade --no-deps "$egg"
+echo "`date` pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
+
 # django-admin.py migrate
 echo "Running django-admin.py migrate on all chats"
 /usr/local/sbin/hi-db-upgrade
-
-
-# test situation:
-# rsync -av --del /usr/local/share/helpim/locale /etc/helpim/sites/testchat6/
-# list=`ls -1d /etc/helpim/sites/*`
-# for chat in $list; do
-#   rsync -av --del /usr/local/share/helpim/locale $chat
-# done
+echo "`date` migrate on databases" >> /var/log/hi-upgrade.log
 
 # reload apache
 /etc/init.d/apache2 reload
@@ -91,11 +30,7 @@ echo "Running django-admin.py migrate on all chats"
 echo
 if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
 read -p "Press return to sync scripts and skel (give ctrl-c to stop)"
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/helpim/skel /etc/helpim/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/
-rsync -av --del /home/buildout/HelpIM/helpim/doc/debian/example/init.d/helpim /etc/init.d/
-
-# must be checked for security and locale!
-chown -R root /etc/helpim
-chmod -R +rx /etc/helpim
+rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/skel /etc/helpim/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/init.d/helpim /etc/init.d/
