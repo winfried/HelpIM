@@ -35,7 +35,7 @@ static_files = []
 for target, include_dir in include_dirs:
     for root, dirs, files in walk(include_dir):
         static_files.append((
-          join(target, root[len(include_dir):]),
+          join(target, root[len(include_dir)+1:]),
           [join(root, f) for f in files]
         ))
 
