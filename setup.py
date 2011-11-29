@@ -23,19 +23,19 @@ install_requires=[
    ]
 
 include_dirs = [
-    ('/usr/local/share/helpim/', 'static'),
-    ('/usr/local/share/', 'helpim/locale'),
-    ('/usr/local/share/', 'helpim/templates'),
-    ('/usr/local/share/', 'helpim/fixtures'),
-    ('/usr/local/share/', 'helpim/questionnaire/templates/forms'),
-    ('/usr/local/share/', 'helpim/doc/debian/example'),
+    ('/usr/local/share/helpim/static', 'static'),
+    ('/usr/local/share/helpim/locale', 'helpim/locale'),
+    ('/usr/local/share/helpim/templates', 'helpim/templates'),
+    ('/usr/local/share/helpim/templates/forms', 'helpim/questionnaire/templates/forms'),
+    ('/usr/local/share/helpim/fixtures', 'helpim/fixtures'),
+    ('/usr/local/share/helpim/doc/debian/example', 'helpim/doc/debian/example'),
     ]
 
 static_files = []
 for target, include_dir in include_dirs:
     for root, dirs, files in walk(include_dir):
         static_files.append((
-          join(target, root),
+          target,
           [join(root, f) for f in files]
         ))
 
