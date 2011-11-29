@@ -16,11 +16,7 @@ js_info_dict = {
 }
 
 if 'helpim.buddychat' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-                            url(r'^$', 'helpim.buddychat.views.welcome'),
-                            url(r'^profile/$', 'helpim.buddychat.views.profile', name='buddychat_profile'),
-                            url(r'^accounts/', include('registration.backends.default.urls')),
-        )
+    urlpatterns += patterns('', url(r'^$', include('helpim.buddychat.urls')))
 
 urlpatterns += patterns(
     '',
