@@ -1,9 +1,9 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block title %}Stats{% endblock %}
+
 {% block content %}
-
-
 <ul>
     {% if prevYear %}
         <li><a href="{% url stats_overview prevYear.year %}">&laquo; {{ prevYear.year }} ({{ prevYear.count }})</a></li>
@@ -55,7 +55,7 @@
     <tbody>
         {% for hourAgg, data in conversationStats.items %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td>{{ data.date }}</td>
+                <td>{% ifchanged %}{{ data.date }}{% endifchanged %}</td>
                 <td>{{ data.hour }}</td>
                 <td>{{ data.uniqueIPs }}</td>
                 <td>{{ data.questionnairesSubmitted }}</td>
