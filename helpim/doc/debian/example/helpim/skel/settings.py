@@ -9,6 +9,7 @@ from localsettings import *
 
 # TIME_ZONE = 'Europe/Amsterdam'
 # LANGUAGE_CODE = 'nl-NL'
+# BOT['language'] = 'nl-nl'
 # DEBUG = False
 
 SECRET_KEY = 'SECRETKEY'
