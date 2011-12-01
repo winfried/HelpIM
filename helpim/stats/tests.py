@@ -127,6 +127,30 @@ class StatsOverviewTestCase(TestCase):
         pass
 
 
+    def testAssigned(self):
+        '''Chat is assigned if both, staff and client Participant have joined'''
+
+        # 1 assigned Chat
+        c1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+        Participant.objects.create(conversation=c1, name='Chatter1', role=Participant.ROLE_CLIENT)
+        Participant.objects.create(conversation=c1, name='Staff1', role=Participant.ROLE_STAFF)
+
+        # Chat only has staff
+        c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 10), subject='Chat')
+        Participant.objects.create(conversation=c2, name='Staff2', role=Participant.ROLE_STAFF)
+
+        # Chat only has client
+        c3 = Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 15), subject='Chat')
+        Participant.objects.create(conversation=c3, name='Chatter2', role=Participant.ROLE_CLIENT)
+
+
+        response = self.c.get('/admin/stats/2011')
+        self.assertIsNotNone(response.context['conversationStats'])
+
+        for actual, expected in zip(response.context['conversationStats'].itervalues(), [1, 0, 0]):
+            self.assertEqual(actual['assigned'], expected)
+
+
     def testInteraction(self):
         pass
 

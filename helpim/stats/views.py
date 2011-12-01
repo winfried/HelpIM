@@ -64,8 +64,8 @@ def stats_overview(request, year=None):
         
         #TODO: queued
         
-        # staff member assigned to this Conversation?
-        if not staffParticipant is None:
+        # staff member and client assigned to this Conversation?
+        if not staffParticipant is None and not clientParticipant is None:
             dictStats[conv.hourAgg]['assigned'] += 1
         
         # did both Participants chat?
