@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from threadedcomments.models import ThreadedComment
 
-from helpim.questionnaire.models import ConversationFormEntry
-
 
 class ConversationManager(models.Manager):
     def getConversationYears(self):
@@ -25,7 +23,7 @@ class Conversation(models.Model):
     subject = models.CharField(max_length=64, blank=True)
 
     objects = ConversationManager()
-
+    
     def __unicode__(self):
         return _('"%(subject)s" at %(start_time)s') % {
           'subject': self.subject,
@@ -66,13 +64,13 @@ class Conversation(models.Model):
             return messages[len(messages)-1].created_at - messages[0].created_at
         except:
             return _('(unknown)')
-        
+
     def waitingTime(self):
         # TODO: what if no questionnaire was issued?
         
         try:
             # when was questionnaire submitted?
-            formEntry = ConversationFormEntry.objects.filter(conversation=self, position='CB')[0].entry
+            formEntry = self.conversationformentry_set.filter(position='CB')[0].entry
             
             # when did client Participant join?
             firstMessage = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT).order_by('created_at')[0]
@@ -80,17 +78,6 @@ class Conversation(models.Model):
             return int((firstMessage.created_at - formEntry.entry_time).total_seconds())
         except IndexError:
             return 0
-
-    def hasQuestionnaire(self, pos='CB'):
-        """Returns whether Questionnaire at given position was submitted for this Conversation"""
-        return bool(ConversationFormEntry.objects.filter(conversation=self, position=pos, entry__isnull=False).count())
-    
-    def hasInteraction(self):
-        """Returns true if both client and staff Participants chatted during this Conversation"""
-        clientChatted = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT).exclude(body__exact='').count() > 0
-        staffChatted = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF).exclude(body__exact='').count() > 0
-        
-        return clientChatted and staffChatted
 
     class Meta:
         ordering = ['start_time']
@@ -147,7 +134,16 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
-    pass
+    def hasQuestionnaire(self, pos='CB'):
+        """Returns whether Questionnaire at given position was submitted for this Chat"""
+        return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
+    
+    def hasInteraction(self):
+        """Returns true if both client and staff Participants chatted during this Chat"""
+        clientChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT,event='message').exclude(body__exact='').count() > 0
+        staffChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF,event='message').exclude(body__exact='').count() > 0
+        
+        return clientChatted and staffChatted
 
 class ChatMessage(Message):
     EVENT_CHOICES = (

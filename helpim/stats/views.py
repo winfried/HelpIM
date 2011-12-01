@@ -57,7 +57,7 @@ def stats_overview(request, year=None):
             if clientParticipant.blocked is True:
                 dictStats[conv.hourAgg]['blocked'] += 1
                 
-        if conv.hasQuestionnaire():
+        if conv.chat.hasQuestionnaire():
             dictStats[conv.hourAgg]['questionnairesSubmitted'] += 1
         
         #TODO: full
@@ -69,7 +69,7 @@ def stats_overview(request, year=None):
             dictStats[conv.hourAgg]['assigned'] += 1
         
         # did both Participants chat?
-        if conv.hasInteraction():
+        if conv.chat.hasInteraction():
             dictStats[conv.hourAgg]['interaction'] += 1
             
         # waiting time
