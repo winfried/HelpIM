@@ -4,6 +4,7 @@
 {% block title %}Stats{% endblock %}
 
 {% block content %}
+{% if conversationYears %}
 <ul>
     {% if prevYear %}
         <li><a href="{% url stats_overview prevYear.year %}">&laquo; {{ prevYear.year }} ({{ prevYear.count }})</a></li>
@@ -31,6 +32,7 @@
         <li><a href="{% url stats_overview nextYear.year %}">{{ nextYear.year }} ({{ nextYear.count }}) &raquo;</a></li>
     {% endif %}
 </ul>
+{% endif %}
 
 {% blocktrans with year=currentYear.year %}
 <h1>Stats for {{ year }}</h1>
@@ -67,6 +69,8 @@
                 <td>{{ data.avgWaitTime }}</td>
                 <td>{{ data.avgChatTime }}</td>
             </tr>
+        {% empty %}
+            <tr><td colspan="11">{% trans "No stats available for the selected year." %}</td></tr>
         {% endfor %}
     </tbody>
 </table>

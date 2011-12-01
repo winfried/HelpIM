@@ -30,7 +30,9 @@ def stats_overview(request, year=None):
     if currentYearIndex is not None:
         prevYearIndex = currentYearIndex - 1 if currentYearIndex > 0 else None
         nextYearIndex = currentYearIndex + 1 if currentYearIndex < len(listOfYears) - 1 else None
-
+    else:
+        prevYearIndex = None
+        nextYearIndex = None
 
     # generate stats about current year's Conversations
     currentYearConversations = Conversation.objects.getConversations(year)
@@ -103,7 +105,7 @@ def stats_overview(request, year=None):
             
     
     return render_to_response("stats/stats_overview.html", {
-        'currentYear': listOfYears[currentYearIndex] if not currentYearIndex is None else None,
+        'currentYear': listOfYears[currentYearIndex] if not currentYearIndex is None else {'count': 0, 'year': year},
         'prevYear': listOfYears[prevYearIndex] if not prevYearIndex is None else None,
         'nextYear': listOfYears[nextYearIndex] if not nextYearIndex is None else None,
         'conversationYears': listOfYears,
