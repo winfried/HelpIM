@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
 
-from helpim.conversations.models import Chat, Participant
+from helpim.conversations.models import Chat, Participant, ChatMessage
 
 
 class StatsOverviewTestCase(TestCase):
@@ -13,10 +13,11 @@ class StatsOverviewTestCase(TestCase):
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
+
     def testYearsPagination(self):
-        c1 = Chat.objects.create(start_time=datetime(2008, 11, 1, 16, 0), subject='Chat')
-        c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
-        c3 = Chat.objects.create(start_time=datetime(2013, 11, 1, 17, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2008, 11, 1, 16, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
+        Chat.objects.create(start_time=datetime(2013, 11, 1, 17, 0), subject='Chat')
 
 
         response = self.c.get('/admin/stats/2011')
@@ -152,7 +153,32 @@ class StatsOverviewTestCase(TestCase):
 
 
     def testInteraction(self):
-        pass
+        # Chat without messages -> no interaction
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+
+        # only client chatted -> no interaction
+        c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        chatter1 = Participant.objects.create(conversation=c2, name='Chatter1', role=Participant.ROLE_CLIENT)
+        ChatMessage.objects.create(conversation=c2, sender=chatter1, event='message', created_at=datetime(2011, 11, 1, 17, 1), body='message text')
+
+        # only staff chatted -> no interaction
+        c3 = Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0), subject='Chat')
+        staff1 = Participant.objects.create(conversation=c3, name='Staff1', role=Participant.ROLE_STAFF)
+        ChatMessage.objects.create(conversation=c3, sender=staff1, event='message', created_at=datetime(2011, 11, 1, 18, 1), body='message text')
+
+        # client and staff chatted -> interaction
+        c4 = Chat.objects.create(start_time=datetime(2011, 11, 1, 19, 0), subject='Chat')
+        chatter2 = Participant.objects.create(conversation=c4, name='Chatter2', role=Participant.ROLE_CLIENT)
+        staff2 = Participant.objects.create(conversation=c4, name='Staff2', role=Participant.ROLE_STAFF)
+        ChatMessage.objects.create(conversation=c4, sender=chatter2, event='message', created_at=datetime(2011, 11, 1, 19, 1), body='message text')
+        ChatMessage.objects.create(conversation=c4, sender=staff2, event='message', created_at=datetime(2011, 11, 1, 19, 2), body='message text')
+
+
+        response = self.c.get('/admin/stats/2011')
+        self.assertIsNotNone(response.context['conversationStats'])
+
+        for actual, expected in zip(response.context['conversationStats'].itervalues(), [0, 0, 0, 1]):
+            self.assertEqual(actual['interaction'], expected)
 
 
     def testWaitingTime(self):
@@ -160,4 +186,29 @@ class StatsOverviewTestCase(TestCase):
 
 
     def testDuration(self):
-        pass
+        # Chat without messages -> duration == n/a
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+
+        # only client chatted -> duration == 0
+        c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        chatter1 = Participant.objects.create(conversation=c2, name='Chatter1', role=Participant.ROLE_CLIENT)
+        ChatMessage.objects.create(conversation=c2, sender=chatter1, event='message', created_at=datetime(2011, 11, 1, 17, 1), body='message text')
+
+        # only staff chatted -> duration == 0
+        c3 = Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0), subject='Chat')
+        staff1 = Participant.objects.create(conversation=c3, name='Staff1', role=Participant.ROLE_STAFF)
+        ChatMessage.objects.create(conversation=c3, sender=staff1, event='message', created_at=datetime(2011, 11, 1, 18, 1), body='message text')
+
+        # client and staff chatted
+        c4 = Chat.objects.create(start_time=datetime(2011, 11, 1, 19, 0), subject='Chat')
+        chatter2 = Participant.objects.create(conversation=c4, name='Chatter2', role=Participant.ROLE_CLIENT)
+        staff2 = Participant.objects.create(conversation=c4, name='Staff2', role=Participant.ROLE_STAFF)
+        ChatMessage.objects.create(conversation=c4, sender=chatter2, event='message', created_at=datetime(2011, 11, 1, 19, 1), body='message text')
+        ChatMessage.objects.create(conversation=c4, sender=staff2, event='message', created_at=datetime(2011, 11, 1, 19, 2), body='message text')
+
+
+        response = self.c.get('/admin/stats/2011')
+        self.assertIsNotNone(response.context['conversationStats'])
+
+        for actual, expected in zip(response.context['conversationStats'].itervalues(), ['-', 0, 0, 60]):
+            self.assertEqual(actual['avgChatTime'], expected)
