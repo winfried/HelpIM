@@ -58,10 +58,26 @@ def stats_overview(request, keyword, year=None):
         'aggregatedStats': dictStats })
 
 
-def _getStatsProvider(forName):
-    forName = forName.lower()
+@login_required
+def stats_index(request):
+    '''Display overview showing available StatProviders'''
 
-    if forName == u"chat":
-        return ChatStatsProvider
+    return render_to_response('stats/stats_index.html', {
+        'statProviders': _getStatsProviders().keys() })
+
+
+def _getStatsProviders():
+    '''Maps stat keyword to corresponding StatsProvider -- for now in a static fashion'''
+    return { 'chat': ChatStatsProvider }
+
+
+def _getStatsProvider(forName):
+    '''find appropriate StatsProvider for given keyword'''
+
+    forName = forName.lower()
+    knownProviders = _getStatsProviders()
+
+    if forName in knownProviders:
+        return knownProviders[forName]
     else:
         return None

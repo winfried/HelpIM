@@ -34,9 +34,7 @@
 </ul>
 {% endif %}
 
-{% blocktrans with year=currentPage.value %}
-<h1>Stats for {{ year }}</h1>
-{% endblocktrans %}
+<h1>{% blocktrans with year=currentPage.value keyword=statsKeyword|capfirst %}Stats for {{ keyword }} in {{ year }}{% endblocktrans %}</h1>
 
 <table>
     {% if tableHeadings %}
