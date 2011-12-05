@@ -6,6 +6,9 @@ from django.test import TestCase
 from django.test.client import Client
 
 from helpim.conversations.models import Chat, Participant, ChatMessage
+from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
+
+from forms_builder.forms.models import FormEntry
 
 
 class ChatStatsProviderTestCase(TestCase):
@@ -85,6 +88,27 @@ class ChatStatsProviderTestCase(TestCase):
         # unique Chatters
         for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [1, 2, 0]):
             self.assertEqual(actual['uniqueIPs'], expected)
+
+
+    def testQuestionnairesSubmitted(self):
+        '''Counts Questionnaires submitted at beginning of Chat'''
+
+        # Chat without questionnaire
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+
+        # Chat with questionnaire before chat
+        c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        q1 = Questionnaire.objects.create()
+        f1 = FormEntry.objects.create(entry_time=datetime(2011, 11, 1, 16, 59), form=q1)
+        ConversationFormEntry.objects.create(entry=f1, questionnaire=q1, conversation=c2, position='CB', created_at=datetime(2011, 11, 1, 16, 59))
+
+
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+
+        # questionnaires submitted
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [0, 1]):
+            self.assertEqual(actual['questionnairesSubmitted'], expected)
 
 
     def testBlocked(self):

@@ -122,7 +122,12 @@ class Message(models.Model):
 class Chat(Conversation):
     def hasQuestionnaire(self, pos='CB'):
         """Returns whether Questionnaire at given position was submitted for this Chat"""
-        return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
+        
+        # conversationformentry_set manager only present when questionnaire app loaded
+        if hasattr(self, 'conversationformentry_set'):
+            return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
+        else:
+            return False
     
     def hasInteraction(self):
         """Returns true if both client and staff Participants chatted during this Chat"""
