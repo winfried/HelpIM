@@ -6,24 +6,10 @@ from django.utils.translation import ugettext as _
 from threadedcomments.models import ThreadedComment
 
 
-class ConversationManager(models.Manager):
-    def getConversationYears(self):
-        """Returns list with years and number of Conversations during year"""
-
-        # see: https://code.djangoproject.com/ticket/10302
-        extra_mysql = {"year": "YEAR(start_time)"}
-        return Conversation.objects.extra(select=extra_mysql).values("year").annotate(count=models.Count('id')).order_by('start_time')
-
-    def getConversations(self, whichYear):
-        """Returns Conversations of year specified"""
-        return Conversation.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time')
-
 class Conversation(models.Model):
     start_time = models.DateTimeField()
     subject = models.CharField(max_length=64, blank=True)
 
-    objects = ConversationManager()
-    
     def __unicode__(self):
         return _('"%(subject)s" at %(start_time)s') % {
           'subject': self.subject,

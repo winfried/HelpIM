@@ -4,22 +4,22 @@
 {% block title %}Stats{% endblock %}
 
 {% block content %}
-{% if conversationYears %}
+{% if pagingYears %}
 <ul>
-    {% if prevYear %}
-        <li><a href="{% url stats_overview prevYear.year %}">&laquo; {{ prevYear.year }} ({{ prevYear.count }})</a></li>
+    {% if prevPage %}
+        <li><a href="{% url stats_overview statsKeyword prevPage.value %}">&laquo; {{ prevPage.value }} ({{ prevPage.count }})</a></li>
     {% endif %}
 
     <li>
-        {% for el in conversationYears %}
+        {% for el in pagingYears %}
             {% if forloop.first %}
-                <select onchange="if(options[selectedIndex].value) window.location.href='{% url stats_overview %}' + (options[selectedIndex].value)">
+                <select onchange="if(options[selectedIndex].value) window.location.href='{% url stats_overview statsKeyword %}' + (options[selectedIndex].value)">
             {% endif %}
 
-                {% if el.year == currentYear.year %}
-                    <option value="{{ el.year }}" selected="selected">{{ el.year }} ({{ el.count }})</option>
+                {% if el.value == currentPage.value %}
+                    <option value="{{ el.value }}" selected="selected">{{ el.value }} ({{ el.count }})</option>
                 {% else %}
-                    <option value="{{ el.year }}">{{ el.year }} ({{ el.count }})</option>
+                    <option value="{{ el.value }}">{{ el.value }} ({{ el.count }})</option>
                 {% endif %}
 
             {% if forloop.last %}
@@ -28,49 +28,35 @@
         {% endfor %}
     </li>
 
-    {% if nextYear %}
-        <li><a href="{% url stats_overview nextYear.year %}">{{ nextYear.year }} ({{ nextYear.count }}) &raquo;</a></li>
+    {% if nextPage %}
+        <li><a href="{% url stats_overview statsKeyword nextPage.value %}">{{ nextPage.value }} ({{ nextPage.count }}) &raquo;</a></li>
     {% endif %}
 </ul>
 {% endif %}
 
-{% blocktrans with year=currentYear.year %}
+{% blocktrans with year=currentPage.value %}
 <h1>Stats for {{ year }}</h1>
 {% endblocktrans %}
 
 <table>
+    {% if tableHeadings %}
     <thead>
         <tr>
-            <td>Date</td>
-            <td>Hour</td>
-            <td>Unique IPs</td>
-            <td>Questionnaires</td>
-            <td>Blocked</td>
-            <td>Full</td>
-            <td>Queued</td>
-            <td>Assigned</td>
-            <td>Interaction</td>
-            <td>Avg. wait time</td>
-            <td>Avg. chat time</td>
+            {% for heading in tableHeadings %}
+                <td>{{ heading }}</td>
+            {% endfor %}
         </tr>
     </thead>
+    {% endif %}
     <tbody>
-        {% for hourAgg, data in conversationStats.items %}
+        {% for hourAgg, data in aggregatedStats.items %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                <td>{% ifchanged %}{{ data.date }}{% endifchanged %}</td>
-                <td>{{ data.hour }}</td>
-                <td>{{ data.uniqueIPs }}</td>
-                <td>{{ data.questionnairesSubmitted }}</td>
-                <td>{{ data.blocked }}</td>
-                <td>{{ data.full }}</td>
-                <td>{{ data.queue }}</td>
-                <td>{{ data.assigned }}</td>
-                <td>{{ data.interaction }}</td>
-                <td>{{ data.avgWaitTime }}</td>
-                <td>{{ data.avgChatTime }}</td>
+                {% for key, val in data.items %}
+   	                <td>{{ val }}</td>
+	             {% endfor %}
             </tr>
         {% empty %}
-            <tr><td colspan="11">{% trans "No stats available for the selected year." %}</td></tr>
+            <tr><td>{% trans "No stats available for the selected year." %}</td></tr>
         {% endfor %}
     </tbody>
 </table>
