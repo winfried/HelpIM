@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
+{% load setvar %}
 
 {% block title %}Stats{% endblock %}
 
@@ -50,8 +51,20 @@
         {% for hourAgg, data in aggregatedStats.items %}
             <tr class="{% cycle 'row1' 'row2' %}">
                 {% for key, val in data.items %}
-   	                <td>{{ val }}</td>
-	             {% endfor %}
+                    {# do not repeat value in the first column if same as previous line. #}
+                    {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
+                    {% if forloop.first %}
+                        {% ifnotequal lastAggValue val %}
+                            <td>{{ val }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endifnotequal %}
+                        
+                        {% setvar lastAggValue %}{{ val }}{% endsetvar %}
+	   	            {% else %}
+                        <td>{{ val }}</td>
+                    {% endif %}
+	            {% endfor %}
             </tr>
         {% empty %}
             <tr><td>{% trans "No stats available for the selected year." %}</td></tr>
