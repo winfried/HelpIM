@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
+from helpim.common.models import EventLog
 from helpim.conversations.models import Chat, Participant, ChatMessage
 from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
@@ -17,7 +18,14 @@ class ChatStatsProviderTestCase(TestCase):
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
-
+    def _createEventLog(self, created_at, type, session):
+        '''Creates a new EventLog and circumvents the ``auto_now_add`` option on the ``created_at`` field, so that there are fixed date values.'''
+        newEvent = EventLog.objects.create(created_at=created_at, type=type, session=session)
+        newEvent.created_at = created_at
+        newEvent.save()
+        
+        return newEvent
+    
     def testYearsPagination(self):
         Chat.objects.create(start_time=datetime(2008, 11, 1, 16, 0), subject='Chat')
         Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
@@ -140,14 +148,6 @@ class ChatStatsProviderTestCase(TestCase):
             self.assertEqual(actual['blocked'], expected)
 
 
-    def testFull(self):
-        pass
-
-
-    def testQueued(self):
-        pass
-
-
     def testAssigned(self):
         '''Chat is assigned if both, staff and client Participant have joined'''
 
@@ -202,7 +202,37 @@ class ChatStatsProviderTestCase(TestCase):
 
 
     def testWaitingTime(self):
-        pass
+        '''meassure time users have to wait until Chat is successfully established. do not regard users that left before'''
+
+        # 90 seconds waiting time, successfully established one2one chat
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 1, 30), subject='Chat')
+
+        # 30 seconds waiting time, successfully established one2one chat
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30), type='helpim.rooms.waitingroom.joined', session='xxyyzz')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.waitingroom.left', session='xxyyzz')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.one2one.client_joined', session='xxyyzz')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 30, 30), subject='Chat')
+
+        # waiting time, but user left, doesn't count
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 45), type='helpim.rooms.waitingroom.joined', session='112233')
+
+        # there needs to be a Chat object for the same time as the EventLog, so this doesnt count
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='AABBCC')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.waitingroom.left', session='AABBCC')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.one2one.client_joined', session='AABBCC')
+
+        # Chat but there are no EventLogs, thus no data for waiting time
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 15), subject='Chat')
+
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+        self.assertEqual(len(response.context['aggregatedStats'].keys()), 2)
+
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [60, "-"]):
+            self.assertEqual(actual['avgWaitTime'], expected)
 
 
     def testDuration(self):

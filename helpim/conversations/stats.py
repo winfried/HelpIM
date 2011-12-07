@@ -3,8 +3,9 @@ import datetime
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from helpim.stats import StatsProvider
+from helpim.common.models import EventLog
 from helpim.conversations.models import Chat
+from helpim.stats import StatsProvider
 from helpim.utils import OrderedDict
 
 
@@ -14,16 +15,16 @@ class ChatStatsProvider(StatsProvider):
                   'uniqueIPs': _('Unique IPs'),
                   'questionnairesSubmitted': _('Questionnaires'),
                   'blocked': _('Blocked'),
-                  'full': _('Full'),
-                  'queue': _('Queue'),
                   'assigned': _('Assigned'),
                   'interaction': _('Interaction'),
                   'avgWaitTime': _('Avg. Wait time'),
                   'avgChatTime': _('Avg. Chat Time') }
 
     @classmethod
-    def render(cls, listOfChats):
+    def render(cls, listOfObjects):
         dictStats = OrderedDict()
+
+        listOfChats, listOfEvents = listOfObjects
 
         for chat in listOfChats:
             clientParticipant = chat.getClient()
@@ -35,9 +36,10 @@ class ChatStatsProvider(StatsProvider):
                 dictStats[chat.hourAgg]['date'] = ''
                 dictStats[chat.hourAgg]['hour'] = 0
                 dictStats[chat.hourAgg]['ipTable'] = {}
-                for v in ['uniqueIPs', 'questionnairesSubmitted', 'blocked', 'full', 'queue', 'assigned', 'interaction', 'avgWaitTime', 'numWaitTime', 'avgChatTime', 'numChatTime']:
+                for v in ['uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
                     dictStats[chat.hourAgg][v] = 0
-
+                dictStats[chat.hourAgg]['avgWaitTime'] = '-'
+                
             dictStats[chat.hourAgg]['date'], dictStats[chat.hourAgg]['hour'] = chat.hourAgg.split(" ")
 
             if not clientParticipant is None:
@@ -52,10 +54,6 @@ class ChatStatsProvider(StatsProvider):
             if chat.hasQuestionnaire():
                 dictStats[chat.hourAgg]['questionnairesSubmitted'] += 1
 
-            #TODO: full
-
-            #TODO: queued
-
             # staff member and client assigned to this Conversation?
             if not staffParticipant is None and not clientParticipant is None:
                 dictStats[chat.hourAgg]['assigned'] += 1
@@ -63,10 +61,6 @@ class ChatStatsProvider(StatsProvider):
             # did both Participants chat?
             if chat.hasInteraction():
                 dictStats[chat.hourAgg]['interaction'] += 1
-
-            # waiting time
-            dictStats[chat.hourAgg]['avgWaitTime'] += chat.waitingTime()
-            dictStats[chat.hourAgg]['numWaitTime'] += 1
 
             # chatting time
             duration = chat.duration()
@@ -81,19 +75,33 @@ class ChatStatsProvider(StatsProvider):
             dictStats[key]['uniqueIPs'] = len(dictStats[key]['ipTable'].keys())
             del dictStats[key]['ipTable']
 
-            # calc avg wait time
-            try:
-                dictStats[key]['avgWaitTime'] = dictStats[key]['avgWaitTime'] / dictStats[key]['numWaitTime']
-            except ZeroDivisionError:
-                dictStats[key]['avgWaitTime'] = '-'
-            del dictStats[key]['numWaitTime']
-
             # calc avg chat time
             try:
                 dictStats[key]['avgChatTime'] = dictStats[key]['avgChatTime'] / dictStats[key]['numChatTime']
             except ZeroDivisionError:
                 dictStats[key]['avgChatTime'] = "-"
             del dictStats[key]['numChatTime']
+
+
+        # process EventLog
+        currentSession = None
+        wtProcessor = WaitingTimeProcessor()
+        for event in listOfEvents:
+            if currentSession != event.session:
+                if wtProcessor.isValid():
+                    key = wtProcessor.getKey()[:13]
+                    if key in dictStats:
+                        wtProcessor.addToResult(dictStats[key])
+
+                wtProcessor.start()
+                currentSession = event.session
+
+            wtProcessor.processEvent(event)
+        if wtProcessor.isValid():
+            key = wtProcessor.getKey()[:13]
+            if key in dictStats:
+                wtProcessor.addToResult(dictStats[key])
+
 
         return dictStats
 
@@ -109,5 +117,39 @@ class ChatStatsProvider(StatsProvider):
 
     @classmethod
     def aggregateObjects(cls, whichYear):
-        """Returns Conversations of year specified"""
-        return Chat.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time')
+        """Returns relevant Chats and Events of year specified"""
+        return (Chat.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time'),
+                EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
+
+
+class WaitingTimeProcessor():
+    def __init__(self):
+        self.start()
+
+    def start(self):
+        self.waitStart = None
+        self.waitEnd = None
+        self.key = None
+
+    def processEvent(self, event):
+        if event.type == 'helpim.rooms.waitingroom.joined':
+            self.waitStart = event.created_at
+        elif event.type == 'helpim.rooms.waitingroom.left':
+            self.waitEnd = event.created_at
+        elif event.type == 'helpim.rooms.one2one.client_joined':
+            self.key = str(event.created_at)
+
+    def addToResult(self, result):
+        waitTime = int((self.waitEnd - self.waitStart).total_seconds())
+
+        # default value is '-', displayed if no data for waitingTime were available from EventLogs
+        if isinstance(result['avgWaitTime'], int):
+            result['avgWaitTime'] = (result['avgWaitTime'] + waitTime) / 2
+        else:
+            result['avgWaitTime'] = waitTime
+
+    def isValid(self):
+        return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
+
+    def getKey(self):
+        return self.key

@@ -51,20 +51,6 @@ class Conversation(models.Model):
         except:
             return _('(unknown)')
 
-    def waitingTime(self):
-        # TODO: what if no questionnaire was issued?
-        
-        try:
-            # when was questionnaire submitted?
-            formEntry = self.conversationformentry_set.filter(position='CB')[0].entry
-            
-            # when did client Participant join?
-            firstMessage = Message.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT).order_by('created_at')[0]
-            
-            return int((firstMessage.created_at - formEntry.entry_time).total_seconds())
-        except IndexError:
-            return 0
-
     class Meta:
         ordering = ['start_time']
         verbose_name = _("Conversation")
