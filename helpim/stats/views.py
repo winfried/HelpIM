@@ -1,5 +1,6 @@
 import csv
 import datetime
+import xlwt
 
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
@@ -51,15 +52,9 @@ def stats_overview(request, keyword, year=None, format=None):
 
     # output data in format according to parameter in url
     if format == 'csv':
-        response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.csv' % (keyword, year)
-        
-        writer = csv.writer(response)
-        writer.writerow(tableHeadings)
-        for statRow in dictStats.values():
-            writer.writerow(statRow.values())
-        
-        return response
+        return _stats_overview_csv(tableHeadings, dictStats, keyword, year)
+    elif format == 'xls':
+        return _stats_overview_xls(tableHeadings, dictStats, keyword, year)
     else:
         return render_to_response("stats/stats_overview.html", {
             'statsKeyword': keyword,
@@ -77,6 +72,49 @@ def stats_index(request):
 
     return render_to_response('stats/stats_index.html', {
         'statProviders': _getStatsProviders().keys() })
+
+
+def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
+    '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''
+
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.csv' % (keyword, year)
+
+    writer = csv.writer(response)
+    writer.writerow(tableHeadings)
+    for statRow in dictStats.values():
+        writer.writerow(statRow.values())
+
+    return response
+
+
+def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
+    '''Creates a Response with the stat data rendered in a MS Excel format'''
+
+    response = HttpResponse(mimetype='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.xls' % (keyword, year)
+
+    # init sheet
+    book = xlwt.Workbook()
+    sheet = book.add_sheet('%s %s' % (keyword, year))
+
+    # write heading row
+    row, col = 0, 0
+    for heading in tableHeadings:
+        sheet.write(row, col, heading)
+        col += 1
+
+    # stat data after that
+    row, col = 1, 0
+    for statRow in dictStats.values():
+        for stat in statRow.values():
+            sheet.write(row, col, stat)
+            col += 1
+        row += 1
+        col = 0
+
+    book.save(response)
+    return response
 
 
 def _getStatsProviders():
