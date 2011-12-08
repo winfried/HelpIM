@@ -1,13 +1,14 @@
+import csv
 import datetime
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 
 from helpim.conversations.stats import ChatStatsProvider
 
 @login_required
-def stats_overview(request, keyword, year=None):
+def stats_overview(request, keyword, year=None, format=None):
     """Display tabular stats"""
 
     # find StatsProvider that will collect stats
@@ -48,14 +49,26 @@ def stats_overview(request, keyword, year=None):
     else:
         tableHeadings = []
 
-    return render_to_response("stats/stats_overview.html", {
-        'statsKeyword': keyword,
-        'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
-        'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
-        'nextPage': listOfPages[nextPageIndex] if not nextPageIndex is None else None,
-        'pagingYears': listOfPages,
-        'tableHeadings': tableHeadings,
-        'aggregatedStats': dictStats })
+    # output data in format according to parameter in url
+    if format == 'csv':
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.csv' % (keyword, year)
+        
+        writer = csv.writer(response)
+        writer.writerow(tableHeadings)
+        for statRow in dictStats.values():
+            writer.writerow(statRow.values())
+        
+        return response
+    else:
+        return render_to_response("stats/stats_overview.html", {
+            'statsKeyword': keyword,
+            'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
+            'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
+            'nextPage': listOfPages[nextPageIndex] if not nextPageIndex is None else None,
+            'pagingYears': listOfPages,
+            'tableHeadings': tableHeadings,
+            'aggregatedStats': dictStats })
 
 
 @login_required

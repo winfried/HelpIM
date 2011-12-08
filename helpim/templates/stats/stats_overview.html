@@ -37,6 +37,10 @@
 
 <h1>{% blocktrans with year=currentPage.value keyword=statsKeyword|capfirst %}Stats for {{ keyword }} in {{ year }}{% endblocktrans %}</h1>
 
+{% if aggregatedStats %}
+<p><a href="{% url stats_overview statsKeyword currentPage.value 'csv' %}">{% trans "Download as CSV" %}</a></p>
+{% endif %}
+
 <table>
     {% if tableHeadings %}
     <thead>
