@@ -46,7 +46,7 @@ def stats_overview(request, keyword, year=None, format=None):
     # generate table header
     # look at dict of first entry and translate dict's keys
     if len(dictStats) > 0:
-        tableHeadings = [statsProvider.getStatTranslation(h) for h in dictStats.items()[0][1].keys()]
+        tableHeadings = [statsProvider.getStatTranslation(h) for h in dictStats.itervalues().next().iterkeys()]
     else:
         tableHeadings = []
 
@@ -82,7 +82,7 @@ def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
 
     writer = csv.writer(response)
     writer.writerow(tableHeadings)
-    for statRow in dictStats.values():
+    for statRow in dictStats.itervalues():
         writer.writerow(statRow.values())
 
     return response
@@ -106,8 +106,8 @@ def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
 
     # stat data after that
     row, col = 1, 0
-    for statRow in dictStats.values():
-        for stat in statRow.values():
+    for statRow in dictStats.itervalues():
+        for stat in statRow.itervalues():
             sheet.write(row, col, stat)
             col += 1
         row += 1
