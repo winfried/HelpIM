@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import EventLog
 from helpim.conversations.models import Chat
-from helpim.stats import StatsProvider
+from helpim.stats import StatsProvider, EventLogFilter, EventLogProcessor
 from helpim.utils import OrderedDict
 
 
@@ -39,7 +39,7 @@ class ChatStatsProvider(StatsProvider):
                 for v in ['uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
                     dictStats[chat.hourAgg][v] = 0
                 dictStats[chat.hourAgg]['avgWaitTime'] = '-'
-                
+
             dictStats[chat.hourAgg]['date'], dictStats[chat.hourAgg]['hour'] = chat.hourAgg.split(" ")
 
             if not clientParticipant is None:
@@ -83,25 +83,8 @@ class ChatStatsProvider(StatsProvider):
             del dictStats[key]['numChatTime']
 
 
-        # process EventLog
-        currentSession = None
-        wtProcessor = WaitingTimeProcessor()
-        for event in listOfEvents:
-            if currentSession != event.session:
-                if wtProcessor.isValid():
-                    key = wtProcessor.getKey()[:13]
-                    if key in dictStats:
-                        wtProcessor.addToResult(dictStats[key])
-
-                wtProcessor.start()
-                currentSession = event.session
-
-            wtProcessor.processEvent(event)
-        if wtProcessor.isValid():
-            key = wtProcessor.getKey()[:13]
-            if key in dictStats:
-                wtProcessor.addToResult(dictStats[key])
-
+        # process EventLogs
+        EventLogProcessor(listOfEvents, [WaitingTimeFilter()]).run(dictStats)
 
         return dictStats
 
@@ -122,7 +105,7 @@ class ChatStatsProvider(StatsProvider):
                 EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
 
 
-class WaitingTimeProcessor():
+class WaitingTimeFilter(EventLogFilter):
     def __init__(self):
         self.start()
 
@@ -148,7 +131,7 @@ class WaitingTimeProcessor():
         else:
             result['avgWaitTime'] = waitTime
 
-    def isValid(self):
+    def hasResult(self):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
 
     def getKey(self):
