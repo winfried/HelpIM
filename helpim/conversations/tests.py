@@ -14,6 +14,8 @@ from forms_builder.forms.models import FormEntry
 
 class ChatStatsProviderTestCase(TestCase):
     def setUp(self):
+        super(ChatStatsProviderTestCase, self).setUp()
+        
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
