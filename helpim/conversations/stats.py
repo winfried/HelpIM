@@ -42,6 +42,12 @@ class ChatStatsProvider(StatsProvider):
 
             dictStats[chat.hourAgg]['date'], dictStats[chat.hourAgg]['hour'] = chat.hourAgg.split(" ")
 
+            try:
+                dictStats[chat.hourAgg]['date'] = datetime.datetime.strptime(dictStats[chat.hourAgg]['date'], '%Y-%m-%d').date()
+                dictStats[chat.hourAgg]['hour'] = int(dictStats[chat.hourAgg]['hour'])
+            except:
+                pass
+
             if not clientParticipant is None:
                 # track unique IPs, unless there was no Participant in the Conversation
                 if clientParticipant.ip_hash not in dictStats[chat.hourAgg]['ipTable']:

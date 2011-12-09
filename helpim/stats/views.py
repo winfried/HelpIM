@@ -80,6 +80,9 @@ def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.csv' % (keyword, year)
 
+    # apparently, in this loop, datetime.date objects in dictStats are automatically formatted according to ISO
+    # which is 'YYYY-MM-DD' and looks good in CSV
+    
     writer = csv.writer(response)
     writer.writerow(tableHeadings)
     for statRow in dictStats.itervalues():
@@ -108,7 +111,16 @@ def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
     row, col = 1, 0
     for statRow in dictStats.itervalues():
         for stat in statRow.itervalues():
-            sheet.write(row, col, stat)
+            if isinstance(stat, datetime.date):
+                style = xlwt.Style.XFStyle()
+                style.num_format_str = 'YYYY-MM-DD'
+            elif isinstance(stat, datetime.datetime):
+                style = xlwt.Style.XFStyle()
+                style.num_format_str = 'YYYY-MM-DD hh:mm:ss'
+            else:
+                style = xlwt.Style.default_style
+
+            sheet.write(row, col, stat, style)
             col += 1
         row += 1
         col = 0
