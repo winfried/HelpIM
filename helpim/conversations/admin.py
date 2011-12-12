@@ -72,8 +72,8 @@ class ConversationAdmin(admin.ModelAdmin):
       'pk',
       'start_time',
       'duration',
-      'client_nickname',
-      'staff_nickname',
+      'client_name',
+      'staff_name',
       'subject',
     )
     list_display_links = ('pk', 'start_time', 'subject')

@@ -30,15 +30,28 @@ class Conversation(models.Model):
         except:
             None
             
-    def client_nickname(self):
+    def client_name(self):
+        '''Returns the client's nickname'''
+        
         try:
             return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0].name
         except:
             return _('(None)')
 
-    def staff_nickname(self):
+    def staff_name(self):
+        '''Returns (in this order) either the staff members's realname, username or nickname; whichever is available'''
+        
         try:
-            return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0].name
+            participant = Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0]
+            
+            if not participant.user is None:
+                if len(participant.user.first_name) + len(participant.user.last_name) > 0:
+                    return (_('%(first_name)s %(last_name)s') % {'first_name': participant.user.first_name, 'last_name': participant.user.last_name}).strip()
+                if len(participant.user.username) > 0:
+                    return participant.user.username
+            
+            # fallback: staff member's nickname
+            return participant.name
         except:
             return _('(None)')
 
