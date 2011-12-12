@@ -43,7 +43,7 @@ class EventLogManager(models.Manager):
     
 class EventLog(models.Model):
     def __unicode__(self):
-        return _('Event %s at %s' % (self.type, self.created_at.strftime('%c')))
+        return _('Event %(event_name)s at %(timestamp)s' % {'event_name': self.type, 'timestamp': self.created_at.strftime('%c')})
 
     objects = EventLogManager()
     
