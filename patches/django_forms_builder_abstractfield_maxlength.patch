@@ -1,0 +1,11 @@
+--- forms_builder/forms/models.py.old	2011-12-12 18:51:16.000000000 +0100
++++ forms_builder/forms/models.py	2011-12-12 18:51:25.000000000 +0100
+@@ -152,7 +152,7 @@
+     field_type = models.IntegerField(_("Type"), choices=fields.NAMES)
+     required = models.BooleanField(_("Required"), default=True)
+     visible = models.BooleanField(_("Visible"), default=True)
+-    choices = models.CharField(_("Choices"), max_length=1000, blank=True,
++    choices = models.CharField(_("Choices"), max_length=5000, blank=True,
+         help_text="Comma separated options where applicable. If an option "
+             "itself contains commas, surround the option starting with the %s"
+             "character and ending with the %s character." %

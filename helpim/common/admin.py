@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from helpim.common.models import AdditionalUserInformation, BranchOffice
+from helpim.common.models import AdditionalUserInformation, BranchOffice, EventLog
 
 admin.site.unregister(User)
 
@@ -15,3 +15,4 @@ admin.site.register(User, AdditionalUserInformationAdmin)
 
 admin.site.register(BranchOffice)
 
+admin.site.register(EventLog)

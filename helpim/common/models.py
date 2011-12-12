@@ -36,3 +36,21 @@ class AdditionalUserInformation(models.Model):
 
     chat_nick = models.CharField(_("Chatname"), max_length=64, unique=True, null=True, blank=True)
 
+
+class EventLogManager(models.Manager):
+    def findByYearAndTypes(self, year, types):
+        return self.filter(created_at__year=year, type__in=types).order_by('session', 'created_at')
+    
+class EventLog(models.Model):
+    def __unicode__(self):
+        return _('Event %(event_name)s at %(timestamp)s' % {'event_name': self.type, 'timestamp': self.created_at.strftime('%c')})
+
+    objects = EventLogManager()
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    type = models.CharField(max_length=255)
+
+    session = models.CharField(max_length=255)
+
+    payload = models.TextField(blank=True, null=True)
