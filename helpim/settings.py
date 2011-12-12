@@ -138,6 +138,11 @@ INSTALLED_APPS = (
     'helpim.questionnaire',
 )
 
+# migrations to the forms-builder app reside locally, see #115
+SOUTH_MIGRATION_MODULES = {
+    'forms': 'helpim.questionnaire.migrations_forms',
+}
+
 AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
 
 CHAT = {
