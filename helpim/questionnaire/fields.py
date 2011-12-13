@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.forms.widgets import RadioFieldRenderer
+from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
@@ -180,6 +181,11 @@ class DoubleDropWidget(forms.MultiWidget):
     True
     >>> 'subList.push(["X"]);' in result
     True
+    
+    >>> ddw.choicesDict = ddf._parseChoices('one("quotedstring")')
+    >>> result = ddw._renderJavascript('mainId', 'subId')
+    >>> 'subList.push(["\\u0022quotedstring\\u0022"]);' in result
+    True
     """
     
     def __init__(self, attrs=None):
@@ -214,7 +220,7 @@ class DoubleDropWidget(forms.MultiWidget):
 
         for k, v in self.choicesDict.iteritems():
             if len(v) > 0:
-                output.append(u'subList.push([%s]);' % (', '.join(['"%s"' % (el) for el in v])))
+                output.append(u'subList.push([%s]);' % (', '.join(['"%s"' % (escapejs(el)) for el in v])))
             else:
                 output.append(u'subList.push(["---"]);')
 
