@@ -63,7 +63,7 @@ apt-get install python python-mysqldb python-xmpp
 apt-get install python-dnspython python-libxml2 python-pyxmpp
 apt-get install apache2-mpm-worker libapache2-mod-wsgi
 apt-get install mysql-server mysql-client
-apt-get install python-setuptools python-pip
+apt-get install python-setuptools python-pip python-xlwt
 pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
 #pip install --no-deps -f http://xen9.vandervlis.nl/django django # this is django 1.4
 pip install --no-deps django==1.3.1
@@ -74,7 +74,39 @@ pip install --no-deps south==0.7.3 # 0.7.3 is in testing, 0.7 is in stable.
 pip install --no-deps pip==1.0.2   #new version what can remove. 0.7.2 is in stable, 1.0 is in testing
 apt-get remove python-pip   #you need to login and logout before this works well.
 
-# Todo: install SSL certificate
+#patch
+rpl "max_length=1000" max_length="5000" \
+  /usr/local/lib/python2.6/dist-packages/forms_builder/forms/models.py
+
+
+Prosody
+I use Prosody from Debian testing. I add this to /etc/apt/sources.list:
+deb http://ftp.nl.debian.org/debian/ testing main contrib non-free
+In /etc/apt/preferences I use this:
+--
+# we are using this packages from testing:
+# libssl1.0.0 multiarch-support prosody
+# see: http://wiki.debian.org/AptPreferences
+# experimental setup
+
+Package: *
+Pin: release a=stable
+Pin-Priority: 900
+
+Package: *
+Pin: release o=Debian
+Pin-Priority: -10
+--
+
+rpl '--"bosh";' '"bosh";' /etc/prosody/prosody.cfg.lua
+rpl '--Component "conference.example.com" "muc"' 'Component "muc.localhost" "muc"' /etc/prosody/prosody.cfg.lua
+echo 'VirtualHost "anon.localhost"
+        authentication = "anonymous"' >> /etc/prosody/conf.avail/anon.cfg.lua
+ln -s ../conf.avail/anon.cfg.lua /etc/prosody/conf.d/
+/etc/init.d/prosody restart
+less /var/log/prosody/prosody.err
+
+# Todo: install SSL certificate for the default key in /etc/ssl/private/
 
 mkdir -p /etc/helpim/skel
 mkdir /etc/helpim/sites
@@ -98,7 +130,7 @@ hi-newchat
 
 
 ---------------------------
-# Tigase setup (in Dutch):
+# Tigase setup (in Dutch): 
 schrijf vooraf mysql root paswoord op!
 cat /root/.my.cnf | grep password
 apt-get install openjdk-6-jdk
@@ -151,25 +183,3 @@ rpl 'JAVA_HOME="/usr/local/tigase/"' 'JAVA_HOME="/usr/lib/jvm/java-6-openjdk/"' 
 service tigase restart
 less /var/log/tigase/console.log  # check evt. voor problemen
 -----------
-upgrade django 1.4 on xen9:
-cd /var/www/django/
-mv Django-1.4-pre-alpha.tar.gz Django-1.4-pre-alpha.tar.gz-backup
-svn co http://code.djangoproject.com/svn/django/trunk/
-cd trunk
-python setup.py sdist
-mv dist/* ../
-then upgrade the eggs on all machines:
-pip install --no-deps --upgrade -f http://xen9.vandervlis.nl/django django
-
-use ggdamsterdam;
-truncate rooms_accesstoken;
-truncate rooms_grouproom;
-truncate rooms_lobbyroom;
-truncate rooms_lobbyroomtoken;
-truncate rooms_one2oneroom;
-truncate rooms_one2oneroomtoken;
-truncate rooms_waitingroom;
-truncate rooms_waitingroomtoken;
-
-drop table questionnaire_conversationformentry;
-drop table questionnaire_questionnaire;

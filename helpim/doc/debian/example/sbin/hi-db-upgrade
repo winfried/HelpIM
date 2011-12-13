@@ -8,6 +8,8 @@ for chat in $list; do
   echo
   echo $chat
   cd $chat
+
+  # DJANGO_SETTINGS_MODULE=settings django-admin.py migrate forms 0001 --fake
   DJANGO_SETTINGS_MODULE=settings django-admin.py syncdb
   DJANGO_SETTINGS_MODULE=settings django-admin.py migrate
 done

@@ -16,7 +16,10 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 FORMS_BUILDER_USE_SITES = False
 SERVER_EMAIL = 'root@xen9.vandervlis.nl'
 SEND_BROKEN_LINK_EMAILS = True
-ADMINS = ('Helpdesk', 'helpdesk@e-hulp.nl',)
+ADMINS = (('Helpdesk', 'helpdesk@e-hulp.nl'),)
 FIXTURE_DIRS = ('/usr/local/share/helpim/fixtures',)
 TEMPLATE_DIRS = ('/usr/local/share/helpim/templates',)
 LOCALE_PATHS = ('/usr/local/share/helpim/locale',)
+
+# specific for Prosody:
+CHAT['domain'] = 'anon.localhost'

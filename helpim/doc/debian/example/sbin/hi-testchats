@@ -1,0 +1,10 @@
+#!/bin/bash
+# script to start all bots in /etc/helpim/sites/
+
+cd /etc/helpim/sites
+list=`ls -1d *`
+
+for chat in $list; do
+  echo -n "$chat: "
+  hi-testbot $chat
+done
