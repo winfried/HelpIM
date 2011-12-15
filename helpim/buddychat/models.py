@@ -8,7 +8,7 @@ class BuddyChatProfile(RegistrationProfile):
 
     ready = models.BooleanField(default=False)
     volunteer = models.ForeignKey(User, verbose_name=_("Volunteer"), blank=True, null=True)
-    
+
     objects = RegistrationManager()
 
     class Meta:
