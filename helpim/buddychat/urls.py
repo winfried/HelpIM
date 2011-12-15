@@ -21,7 +21,7 @@ urlpatterns = patterns(
         name='registration_activate'),
     url(r'^register/$',
         register,
-        { 'backend': 'registration.backends.default.DefaultBackend' },
+        { 'backend': 'helpim.buddychat.registration_backends.BuddyChatBackend' },
         name='registration_register'),
     url(r'^register/complete/$',
         direct_to_template,
