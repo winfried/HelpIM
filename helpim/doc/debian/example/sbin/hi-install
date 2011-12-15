@@ -46,17 +46,16 @@ cd HelpIM; git checkout testing
 # change rights
 chown -R buildout:buildout /home/buildout
 
-# you need to copy the hi-upgrade script
-cd /usr/local/sbin/
-wget https://github.com/e-hulp/HelpIM/blob/master/helpim/doc/debian/example/sbin/hi-upgrade
-chown +x hi-upgrade
+# you need to copy some scripts:
+cp -a /usr/local/share/helpim/doc/debian/example/sbin/* /usr/local/sbin/
+chown +x /usr/local/sbin/hi-*
 
 # it's better to have no python modules in /usr/local/lib/python2.6/dist-packages/
 # during the first time running this script. Important: django_rosetta, south, django_threadedcomment
 ls /usr/local/lib/python2.6/dist-packages/
 # evt.: pip uninstall django_rosetta south django_threadedcomment
 
-hi-upgrade
+hi-build  # create an egg
 # evt.: pip install django_rosetta south django_threadedcomment
 
 # production (not sure debian packages are complete)
@@ -66,7 +65,7 @@ apt-get install apache2-mpm-worker libapache2-mod-wsgi
 apt-get install mysql-server mysql-client
 apt-get install python-setuptools python-pip
 pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
-#pip install --no-deps -f http://xen9.vandervlis.nl/django django
+#pip install --no-deps -f http://xen9.vandervlis.nl/django django # this is django 1.4
 pip install --no-deps django==1.3.1
 pip install --no-deps django-threadedcomments==0.5.3  # not in stable, but in testing.
 pip install --no-deps django-rosetta==0.6.0  # in stable is 0.5.6, in testing is 0.6.0.
@@ -75,15 +74,18 @@ pip install --no-deps south==0.7.3 # 0.7.3 is in testing, 0.7 is in stable.
 pip install --no-deps pip==1.0.2   #new version what can remove. 0.7.2 is in stable, 1.0 is in testing
 apt-get remove python-pip   #you need to login and logout before this works well.
 
-# install e-hulp wildcard certificate
-# todo
+# Todo: install SSL certificate
 
 mkdir -p /etc/helpim/skel
 mkdir /etc/helpim/sites
 mkdir /var/log/helpim
 mkdir -p /usr/local/share/helpim/static
-ln -s xmpptk/images /usr/local/share/helpim/static/images
-ln -s xmpptk/sounds /usr/local/share/helpim/static/sounds
+cp -a /usr/local/share/helpim/doc/debian/example/helpim/helpim.conf /etc/helpim/
+pico /etc/helpim/localsettings.py # change to how you want it
+cp -a /usr/local/share/helpim/doc/debian/example/helpim/localsettings.py /etc/helpim/
+pico /etc/helpim/localsettings.py # change to how you want it
+
+hi-install
 
 # apache modules
 a2enmod ssl

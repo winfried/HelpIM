@@ -55,9 +55,11 @@ DEBUG_TOOLBAR_CONFIG = {
 
 if DEBUG:
     STATICFILES_DIRS = [
-       ("xmpptk",         abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'src'))),
+       ("javascript",     abspath(join(dirname(__file__), 'javascript', 'htdocs'))),
+       ("xmpptk",         abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'htdocs'))),
        ("xmpptk/closure", abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'closure-library', 'closure'))),
        ("xmpptk/jsjac",   abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'lib', 'jsjac'))),
+       ("xmpptk/src",     abspath(join(dirname(__file__), '..', 'parts', 'xmpptk', 'src'))),
     ]
 
 

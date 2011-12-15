@@ -49,8 +49,12 @@ su $buildoutuser -c "
    cd ~/HelpIM/
    python bootstrap.py --distribute
    ./bin/buildout  -v
+   cd ~/HelpIM/helpim/javascript/
+   make
+   cd ~/HelpIM/parts/xmpptk/
+   make
 "
-echo "`date` bootstrap, buildout" >> /var/log/hi-build.log
+echo "`date` bootstrap, buildout, make" >> /var/log/hi-build.log
 echo
 read -p 'Press return to continue (give ctrl-c to stop)'
 

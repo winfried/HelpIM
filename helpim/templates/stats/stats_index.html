@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Stats{% endblock %}
+
+{% block content %}
+<h1>{% trans "Stats" %}</h1>
+
+<p>{% trans "Show statistics for one of the following topics:" %}</p>
+
+{% for statsProvider in statProviders %}
+    {% if forloop.first %}
+	<ul>
+	{% endif %}
+	
+	<li><a href="{% url stats_overview statsProvider %}">{{ statsProvider|capfirst }}</a>
+	
+	{% if forloop.last %}
+	</ul>
+	{% endif %}
+{% empty %}
+    <p>{% trans "No module registered that collects stats" %}</p>
+{% endfor %}
+
+{% endblock %}

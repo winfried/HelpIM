@@ -22,6 +22,7 @@ from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import FormEntry
 
+from helpim.common.models import EventLog
 from helpim.conversations.models import Chat, Participant, ChatMessage
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
 from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
@@ -263,6 +264,11 @@ class One2OneRoomHandler(RoomHandlerBase):
         if user.nick == self.nick:
             log.info("user joined with self nick '%s'" % user.nick)
             return True
+
+        # log event when careseeker has joined
+        accessToken = AccessToken.objects.get(jid=user.real_jid)
+        if accessToken.role == Participant.ROLE_CLIENT:
+            EventLog(type='helpim.rooms.one2one.client_joined', session=accessToken.token).save()
 
         room = self.get_helpim_room()
 
@@ -718,6 +724,10 @@ class WaitingRoomHandler(RoomHandlerBase):
             return
 
         ready = True
+
+        waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
+        EventLog(type='helpim.rooms.waitingroom.joined', session=waitingRoomToken.token.token).save()
+
         try:
             questionnaire = Questionnaire.objects.filter(position='CB')[0]
 
@@ -725,7 +735,6 @@ class WaitingRoomHandler(RoomHandlerBase):
             # set him to not being ready first and to True once he's
             # finished with the questionnaire.
 
-            waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
             waitingRoomToken.ready = False
 
             conversation_form_entry = ConversationFormEntry.objects.create(questionnaire=questionnaire, position='CB')
@@ -754,6 +763,10 @@ class WaitingRoomHandler(RoomHandlerBase):
 
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
+
+        accessToken = AccessToken.objects.get(jid=user.real_jid)
+        EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+
         if user.nick == self.nick:
             return True
         self.userCount -= 1

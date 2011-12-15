@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from threadedcomments.models import ThreadedComment
 
-from datetime import datetime
 
 class Conversation(models.Model):
     start_time = models.DateTimeField()
@@ -15,26 +16,53 @@ class Conversation(models.Model):
           'start_time': self.start_time.strftime('%c'),
         }
 
-    def client_nickname(self):
+    def getClient(self):
+        """Returns assigned client Participant for this Conversation"""
         try:
-          return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0].name
+            return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0]
         except:
-          return _('(None)')
+            None
+    
+    def getStaff(self):
+        """Returns assigned staff member Participant for this Conversation"""
+        try:
+            return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0]
+        except:
+            None
+            
+    def client_name(self):
+        '''Returns the client's nickname'''
+        
+        try:
+            return Participant.objects.filter(conversation=self,role=Participant.ROLE_CLIENT)[0].name
+        except:
+            return _('(None)')
 
-    def staff_nickname(self):
+    def staff_name(self):
+        '''Returns (in this order) either the staff members's realname, username or nickname; whichever is available'''
+        
         try:
-          return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0].name
+            participant = Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0]
+            
+            if not participant.user is None:
+                if len(participant.user.first_name) + len(participant.user.last_name) > 0:
+                    return (_('%(first_name)s %(last_name)s') % {'first_name': participant.user.first_name, 'last_name': participant.user.last_name}).strip()
+                if len(participant.user.username) > 0:
+                    return participant.user.username
+            
+            # fallback: staff member's nickname
+            return participant.name
         except:
-          return _('(None)')
+            return _('(None)')
 
     def duration(self):
         # duration is defined as time between first and last real
         # message sent. a real message must contain a body
         messages = Message.objects.filter(conversation=self).exclude(body__exact='').order_by('created_at')
         try:
-          return messages[len(messages)-1].created_at - messages[0].created_at
+            return messages[len(messages)-1].created_at - messages[0].created_at
         except:
-          return _('(unknown)')
+            return _('(unknown)')
 
     class Meta:
         ordering = ['start_time']
@@ -91,7 +119,21 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
-    pass
+    def hasQuestionnaire(self, pos='CB'):
+        """Returns whether Questionnaire at given position was submitted for this Chat"""
+        
+        # conversationformentry_set manager only present when questionnaire app loaded
+        if hasattr(self, 'conversationformentry_set'):
+            return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
+        else:
+            return False
+    
+    def hasInteraction(self):
+        """Returns true if both client and staff Participants chatted during this Chat"""
+        clientChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_CLIENT,event='message').exclude(body__exact='').count() > 0
+        staffChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF,event='message').exclude(body__exact='').count() > 0
+        
+        return clientChatted and staffChatted
 
 class ChatMessage(Message):
     EVENT_CHOICES = (

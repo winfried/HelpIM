@@ -13,15 +13,16 @@ else
   egg="$1"
 fi
 
-pip --upgrade --no-deps -f install "$egg"
-echo "`date`pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
+pip install --upgrade --no-deps "$egg"
+echo "`date` pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
+
 # django-admin.py migrate
 echo "Running django-admin.py migrate on all chats"
 /usr/local/sbin/hi-db-upgrade
-echo "`date`migrate on databases" >> /var/log/hi-upgrade.log
+echo "`date` migrate on databases" >> /var/log/hi-upgrade.log
 
 # reload apache
 /etc/init.d/apache2 reload
