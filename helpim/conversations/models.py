@@ -45,9 +45,10 @@ class Conversation(models.Model):
             participant = Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0]
             
             if not participant.user is None:
-                if len(participant.user.first_name) + len(participant.user.last_name) > 0:
+                if participant.user.first_name or participant.user.last_name:
+                    # strip() because one of the parts might be empty
                     return (_('%(first_name)s %(last_name)s') % {'first_name': participant.user.first_name, 'last_name': participant.user.last_name}).strip()
-                if len(participant.user.username) > 0:
+                if participant.user.username:
                     return participant.user.username
             
             # fallback: staff member's nickname
