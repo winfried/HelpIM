@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from helpim.common.models import EventLog
 from helpim.conversations.models import Chat
 from helpim.stats import StatsProvider, EventLogFilter, EventLogProcessor
-from helpim.utils import OrderedDict
+from helpim.utils import OrderedDict, total_seconds
 
 
 class ChatStatsProvider(StatsProvider):
@@ -71,7 +71,7 @@ class ChatStatsProvider(StatsProvider):
             # chatting time
             duration = chat.duration()
             if isinstance(duration, datetime.timedelta):
-                dictStats[chat.hourAgg]['avgChatTime'] += int(duration.total_seconds())
+                dictStats[chat.hourAgg]['avgChatTime'] += int(total_seconds(duration))
                 dictStats[chat.hourAgg]['numChatTime'] += 1
 
 
@@ -129,7 +129,7 @@ class WaitingTimeFilter(EventLogFilter):
             self.key = str(event.created_at)
 
     def addToResult(self, result):
-        waitTime = int((self.waitEnd - self.waitStart).total_seconds())
+        waitTime = int(total_seconds(self.waitEnd - self.waitStart))
 
         # default value is '-', displayed if no data for waitingTime were available from EventLogs
         if isinstance(result['avgWaitTime'], int):

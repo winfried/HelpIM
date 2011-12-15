@@ -278,3 +278,9 @@ class OrderedDict(dict):
         "od.viewitems() -> a set-like object providing a view on od's items"
         return ItemsView(self)
 ## end of http://code.activestate.com/recipes/576693/ }}}
+
+
+def total_seconds(delta):
+    '''Return number of seconds in given timedelta. Introduced in Python2.7.'''
+
+    return ((delta.days * 86400 + delta.seconds) * 10 ** 6 + delta.microseconds) / 10 ** 6
