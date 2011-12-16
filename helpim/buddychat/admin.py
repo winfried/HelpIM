@@ -6,7 +6,7 @@ class BuddyChatProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('user', 'activation_key', 'ready', 'volunteer')
-            })
+            }),
         )
 
     list_display = ('user', 'ready', 'volunteer')
