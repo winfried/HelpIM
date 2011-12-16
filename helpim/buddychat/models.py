@@ -14,18 +14,10 @@ class BuddyChatProfile(RegistrationProfile):
                                   limit_choices_to = {'is_staff': True},
         )
 
+    coupled_at = models.DateTimeField(blank=True, null=True)
+
     objects = RegistrationManager()
 
     class Meta:
         verbose_name = _("Chat Buddy")
         verbose_name_plural = _("Chat Buddies")
-
-    def couple(self, volunteer=None):
-        # TODO raise an exception if volunteer is not a volunteer
-        self.volunteer = volunteer
-        self.save()
-        return self
-
-    def decouple(self):
-        return self.couple()
-
