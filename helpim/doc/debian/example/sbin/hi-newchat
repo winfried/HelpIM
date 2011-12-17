@@ -152,6 +152,6 @@ echo "https://$domain/login"
 echo "username: admin"
 echo "password: $adminpw"
 echo "IP: $address"
-echo "chatserver: $HOSTNMAE
+echo "chatserver: $HOSTNAME"
 echo
 
