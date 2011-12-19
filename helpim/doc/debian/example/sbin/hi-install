@@ -1,5 +1,7 @@
 # very basic setup, not well tested
 
+exit  # this is documentation, don't execute it!
+
 # first install packages for building:
 apt-get install python python2.6-dev libxml2-dev gcc make openjdk-6-jdk gettext libmysqlclient-dev
 apt-get install mysql-server mysql-client
@@ -47,6 +49,8 @@ cp -a HelpIM/buildout.cfg ./
 cp -a HelpIM/helpim/settings.py ./
 # if you want to use the testing branche
 cd HelpIM; git checkout testing
+# for the eggs:
+mkdir HelpIM/dist
 # change rights
 chown -R buildout:buildout /home/buildout
 
