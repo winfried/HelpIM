@@ -13,7 +13,7 @@
    <div id="centeredColumn" class="main">
       <div class="copyright">
         <div class="divLeft"><span><span>HelpIM3&nbsp;3.1</span></span></div>
-        <div class="divRight"><span>{% if user.is_authenticated %}{% blocktrans with username=user.username %}Welcome, {{ username }}!{% endblocktrans %} [ <a href="{% url auth_logout %}">{% trans "Logout" %}</a> | <a href="{% url auth_password_change %}">{% trans "Change Password" %}</a> ] {% endif %}</span></div>
+        <div class="divRight"><span>{% if user.is_authenticated %}{% blocktrans with username=user.username %}Welcome, {{ username }}!{% endblocktrans %} [{% if user.is_staff %} <a href="{% url admin:index %}">Admin</a> |{% endif %} <a href="{% url auth_logout %}">{% trans "Logout" %}</a> | <a href="{% url auth_password_change %}">{% trans "Change Password" %}</a> ] {% endif %}</span></div>
         <div class="clear"></div>
       </div>
       <h1>{% block heading %}HelpIM 3.1{% endblock %}</h1>
