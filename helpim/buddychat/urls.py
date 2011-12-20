@@ -7,6 +7,7 @@ from registration.views import register
 urlpatterns = patterns(
     '',
     url(r'^$', 'helpim.buddychat.views.welcome'),
+    url(r'^profile/(?P<username>\w+)/$', 'helpim.buddychat.views.profile', name='buddychat_profile'),
     url(r'^activate/complete/$',
         direct_to_template,
         { 'template': 'registration/activation_complete.html' },
