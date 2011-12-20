@@ -6,4 +6,15 @@
 {% if not client.ready %}
 questionnaire missing
 {% endif %}
+
+{% if perms.buddychat %}
+you're allowed to do sth within buddychats<br>
+{% if perms.buddychat.is_coordinator %}
+congrats, you're a coordinator<br>
+{% endif %}
+{% if perms.buddychat.is_volunteer %}
+awesome, you're a volunteer<br>
+{% endif %}
+{% endif %}
+
 {% endblock %}

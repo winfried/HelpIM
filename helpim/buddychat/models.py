@@ -21,3 +21,7 @@ class BuddyChatProfile(RegistrationProfile):
     class Meta:
         verbose_name = _("Chat Buddy")
         verbose_name_plural = _("Chat Buddies")
+        permissions = (
+            ('is_coordinator', 'Is allowed to coordinate clients and volunteers'),
+            ('is_volunteer', 'Is allowed to volunteer at clients')
+            )

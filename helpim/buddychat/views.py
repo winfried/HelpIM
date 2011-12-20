@@ -7,7 +7,6 @@ from django.template import RequestContext
 from helpim.buddychat.models import BuddyChatProfile
 
 def welcome(request):
-
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('buddychat_profile', args=[request.user]))
     else:
@@ -15,7 +14,6 @@ def welcome(request):
 
 @login_required
 def profile(request, username):
-
     client = get_object_or_404(BuddyChatProfile, user__username = username)
     
     return render_to_response(
