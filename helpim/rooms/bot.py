@@ -726,7 +726,6 @@ class WaitingRoomHandler(RoomHandlerBase):
         ready = True
 
         waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
-        EventLog(type='helpim.rooms.waitingroom.joined', session=waitingRoomToken.token.token).save()
 
         try:
             questionnaire = Questionnaire.objects.filter(position='CB')[0]
@@ -749,7 +748,8 @@ class WaitingRoomHandler(RoomHandlerBase):
 
         except IndexError:
             # no questionnaire no fun!
-            pass
+            # waitingtime for careseeker starts now
+            EventLog(type='helpim.rooms.waitingroom.joined', session=waitingRoomToken.token.token).save()
 
         room.addClient(user, ready)
         if ready:
@@ -808,6 +808,9 @@ class WaitingRoomHandler(RoomHandlerBase):
         token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
 
         token.ready = True
+
+        # waitingtime for careseeker starts now after he has submitted questionnaire
+        EventLog(type='helpim.rooms.waitingroom.joined', session=token.token.token).save()
 
         # link questionnaire to token
         try:
