@@ -11,7 +11,7 @@ class BuddyChatProfile(RegistrationProfile):
                                   verbose_name=_("Volunteer"),
                                   blank=True,
                                   null=True,
-                                  limit_choices_to = {'is_staff': True},
+                                  limit_choices_to = {'groups__name': 'volunteers'},
         )
 
     coupled_at = models.DateTimeField(blank=True, null=True)
