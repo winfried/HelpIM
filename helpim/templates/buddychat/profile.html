@@ -31,4 +31,42 @@ questionnaire missing
 <dd>{{client.user.date_joined}}</dd>
 {% endif %}
 </dl>
+
+<h2>{% trans "Careworker Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.careworker_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+
+<h2>{% trans "Coordinator Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.coordinator_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+
+{% if  perms.buddychat.is_careworker %}
+<h2>{% trans "Careworker-Coordinator Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.careworker_coordinator_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
 {% endblock %}
