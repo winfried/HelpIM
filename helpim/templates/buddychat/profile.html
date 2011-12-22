@@ -10,15 +10,6 @@
 questionnaire missing
 {% endif %}
 
-{% if perms.buddychat %}
-you're allowed to do sth within buddychats<br>
-{% if perms.buddychat.is_coordinator %}
-congrats, you're a coordinator<br>
-{% endif %}
-{% if perms.buddychat.is_careworker %}
-awesome, you're a careworker<br>
-{% endif %}
-{% endif %}
 <dl>
 <dt>{% trans "Email" %}</dt>
 <dd>{{client.user.email}}</dd>
@@ -27,7 +18,7 @@ awesome, you're a careworker<br>
 <dd>
   <select name="careworker">
     <option value="">{% trans "None" %}</option>
-    {% for cw in careworkers %}<option value="{{volunteer.pk}}"{% if cw == client.careworker %} selected{% endif %}>{{cw.username}}</option>{% endfor %}
+    {% for cw in careworkers %}<option value="{{cw.pk}}"{% if cw == client.careworker %} selected{% endif %}>{{cw.username}}</option>{% endfor %}
   </select>
 </dd>
 {% if client.careworker %}

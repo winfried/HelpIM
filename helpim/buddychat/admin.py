@@ -7,13 +7,13 @@ from helpim.buddychat.models import BuddyChatProfile
 class BuddyChatProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('user', 'activation_key', 'ready', 'volunteer', 'coupled_at')
+            'fields': ('user', 'activation_key', 'ready', 'careworker', 'coupled_at')
             }),
         )
 
-    list_display = ('user', 'ready', 'volunteer', 'coupled_at', 'personal_page')
-    list_filter = ('ready', 'volunteer')
-    list_editable = ('volunteer',)
+    list_display = ('user', 'ready', 'careworker', 'coupled_at', 'personal_page')
+    list_filter = ('ready', 'careworker')
+    list_editable = ('careworker',)
     readonly_fields = ('user', 'ready', 'activation_key', 'coupled_at')
 
     def personal_page(self, obj):
@@ -22,8 +22,8 @@ class BuddyChatProfileAdmin(admin.ModelAdmin):
     personal_page.allow_tags = True
     
     def save_model(self, request, obj, form, change):
-        if change and 'volunteer' in form.changed_data:
-            if obj.volunteer is None:
+        if change and 'careworker' in form.changed_data:
+            if obj.careworker is None:
                 obj.coupled_at = None
             else:
                 obj.coupled_at = datetime.now()

@@ -11,9 +11,9 @@ from helpim.conversations.models import Conversation
 class BuddyChatProfileManager(RegistrationManager):
     def create(self, user, activation_key):
         now = datetime.now()
-        conv1 = Conversation(start_time=now)
-        conv2 = Conversation(start_time=now)
-        conv3 = Conversation(start_time=now)
+        conv1 = Conversation(start_time=now); conv1.save()
+        conv2 = Conversation(start_time=now); conv2.save()
+        conv3 = Conversation(start_time=now); conv3.save()
         profile = BuddyChatProfile(
             user = user,
             activation_key = activation_key,
@@ -31,14 +31,14 @@ class BuddyChatProfile(RegistrationProfile):
                                   verbose_name=_("Careworker"),
                                   blank=True,
                                   null=True,
-                                  limit_choices_to = {'groups__name': 'volunteers'},
+                                  limit_choices_to = {'groups__name': 'careworkers'},
         )
 
     coupled_at = models.DateTimeField(blank=True, null=True)
 
-    careworker_conversation = models.ForeignKey(Conversation)
-    coordinator_conversation = models.ForeignKey(Conversation)
-    careworker_coordinator_conversation = models.ForeignKey(Conversation)
+    careworker_conversation = models.ForeignKey(Conversation, related_name='+')
+    coordinator_conversation = models.ForeignKey(Conversation, related_name='+')
+    careworker_coordinator_conversation = models.ForeignKey(Conversation, related_name='+')
 
     objects = BuddyChatProfileManager()
 
