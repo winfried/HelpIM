@@ -39,7 +39,7 @@ class Conversation(models.Model):
     def get_or_create_participant(self, user):
         participant = self.get_participant(user)
         if participant is None:
-            participant = Participant.objects.create(conversation=self, username=user.username, user=user)
+            participant = Participant.objects.create(conversation=self, name=user.username, user=user)
         return participant
 
     def client_name(self):
@@ -114,7 +114,7 @@ class Participant(models.Model):
         verbose_name_plural = _("Participants")
 
 class Message(models.Model):
-    conversation = models.ForeignKey(Conversation)
+    conversation = models.ForeignKey(Conversation, related_name='messages')
     sender = models.ForeignKey(Participant)
     sender_name = models.CharField(_("Sender"), max_length=64)
     created_at = models.DateTimeField()
