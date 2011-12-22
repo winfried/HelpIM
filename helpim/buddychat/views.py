@@ -20,9 +20,9 @@ def profile(request, username):
 
     params = {'client': client}
     if request.user.has_perm('buddychat.is_coordinator'):
-        params['volunteers'] = User.objects.filter(groups__name='volunteers')
+        params['careworkers'] = User.objects.filter(groups__name='volunteers')
 
-    if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_volunteer') and request.user == client.volunteer) or request.user == client.user:
+    if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.volunteer) or request.user == client.user:
         return render_to_response(
             'buddychat/profile.html',
             params,

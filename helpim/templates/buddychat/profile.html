@@ -15,24 +15,24 @@ you're allowed to do sth within buddychats<br>
 {% if perms.buddychat.is_coordinator %}
 congrats, you're a coordinator<br>
 {% endif %}
-{% if perms.buddychat.is_volunteer %}
-awesome, you're a volunteer<br>
+{% if perms.buddychat.is_careworker %}
+awesome, you're a careworker<br>
 {% endif %}
 {% endif %}
 <dl>
 <dt>{% trans "Email" %}</dt>
 <dd>{{client.user.email}}</dd>
 {% if perms.buddychat.is_coordinator %}
-<dt>{% trans "Volunteer" %}</dt>
+<dt>{% trans "Careworker" %}</dt>
 <dd>
-  <select name="volunteer">
+  <select name="careworker">
     <option value="">{% trans "None" %}</option>
-    {% for volunteer in volunteers %}<option value="{{volunteer.pk}}"{% if volunteer == client.volunteer %} selected{% endif %}>{{volunteer.username}}</option>{% endfor %}
+    {% for cw in careworkers %}<option value="{{volunteer.pk}}"{% if cw == client.careworker %} selected{% endif %}>{{cw.username}}</option>{% endfor %}
   </select>
 </dd>
-{% if client.volunteer %}
-<dt>{% trans "Volunteer's Email" %}</dt>
-<dd>{{client.volunteer.email}}</dd>
+{% if client.careworker %}
+<dt>{% trans "Careworker's Email" %}</dt>
+<dd>{{client.careworker.email}}</dd>
 <dt>{% trans "Coupled at" %}</dt>
 <dd>{{client.coupled_at}}</dd>
 {% endif %}
