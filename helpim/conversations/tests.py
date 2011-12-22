@@ -204,7 +204,10 @@ class ChatStatsProviderTestCase(TestCase):
 
 
     def testWaitingTime(self):
-        '''meassure time users have to wait until Chat is successfully established. do not regard users that left before'''
+        '''
+        Meassure time users have to wait until Chat is successfully established. Do not regard users that left before.
+        If a questionnaire was presented, waiting time starts after careseeker has questionnaire submitted.
+        '''
 
         # 90 seconds waiting time, successfully established one2one chat
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
