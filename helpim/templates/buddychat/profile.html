@@ -26,9 +26,9 @@ awesome, you're a volunteer<br>
 <dt>{% trans "Volunteer" %}</dt>
 <dd>
   <select name="volunteer">
-<option value="">{% trans "None" %}</option>
-  {% for volunteer in volunteers %}<option value="{{volunteer.pk}}"{% if volunteer == client.volunteer %} selected{% endif %}>{{volunteer.username}}</option>{% endfor %}
-    </select>
+    <option value="">{% trans "None" %}</option>
+    {% for volunteer in volunteers %}<option value="{{volunteer.pk}}"{% if volunteer == client.volunteer %} selected{% endif %}>{{volunteer.username}}</option>{% endfor %}
+  </select>
 </dd>
 {% if client.volunteer %}
 <dt>{% trans "Volunteer's Email" %}</dt>
