@@ -35,6 +35,13 @@ def profile(request, username):
         if request.method == "POST":
             form = ConvMessageForm(request.POST)
             if form.is_valid():
+                """ POST var 'conv' decides which conversation we're acting on """
+                """ [TODO]
+                check whether user is allowed to act on this conversation according to this rules
+                * careseeker allowed to post to careworker and coordinator
+                * careworker allowed to post to careworker and careworker_coordinator
+                * coordinator allowed to post to coordinator and careworker_coordinator
+                """
                 conv = {
                     'careworker': client.careworker_conversation,
                     'coordinator': client.coordinator_conversation,
@@ -47,6 +54,9 @@ def profile(request, username):
                     created_at = datetime.now()
                     )
                 form = ConvMessageForm() # reset form
+                """ [TODO]
+                send email
+                """
         else:
             form = ConvMessageForm()
         params = {'client': client,
