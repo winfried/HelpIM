@@ -44,6 +44,12 @@ questionnaire missing
 {% endfor %}
 </table>
 
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="careworker" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
+
 <h2>{% trans "Coordinator Conversation" %}</h2>
 <table>
 <tr>
@@ -55,6 +61,12 @@ questionnaire missing
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
+
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="coordinator" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
 
 {% if  perms.buddychat.is_careworker %}
 <h2>{% trans "Careworker-Coordinator Conversation" %}</h2>
@@ -68,5 +80,12 @@ questionnaire missing
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
+
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="careworker_coordinator" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
+
 {% endif %}
 {% endblock %}
