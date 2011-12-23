@@ -1,7 +1,10 @@
 from datetime import datetime
 from django import forms
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.sites.models import RequestSite
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -35,28 +38,67 @@ def profile(request, username):
         if request.method == "POST":
             form = ConvMessageForm(request.POST)
             if form.is_valid():
-                """ POST var 'conv' decides which conversation we're acting on """
-                """ [TODO]
-                check whether user is allowed to act on this conversation according to this rules
-                * careseeker allowed to post to careworker and coordinator
-                * careworker allowed to post to careworker and careworker_coordinator
-                * coordinator allowed to post to coordinator and careworker_coordinator
+                """
+                POST var 'conv' decides which conversation we're acting on
                 """
                 conv = {
                     'careworker': client.careworker_conversation,
                     'coordinator': client.coordinator_conversation,
                     'careworker_coordinator': client.careworker_coordinator_conversation
-                    }
-                conv[request.POST['conv']].messages.create(
+                    }[request.POST['conv']]
+
+                """ 
+                check whether user is allowed to act on this conversation according to this rules
+                * careseeker allowed to post to careworker and coordinator
+                * careworker allowed to post to careworker and careworker_coordinator
+                * coordinator allowed to post to coordinator and careworker_coordinator
+                and set rcpt for email notification
+                """
+                rcpt = None # rcpt is None for coordinators
+                if conv is client.careworker_conversation:
+                    if request.user == client.user:
+                        rcpt = client.careworker
+                    elif request.user == client.careworker:
+                        rcpt = client.user
+                    else:
+                        return HttpResponse(_('Access Denied'))
+                elif conv is client.coordinator_conversation:
+                    if request.user.has_perm('buddychat.is_coordinator'):
+                        rcpt = client.user
+                    elif request.user != client.user:
+                        return HttpResponse(_('Access Denied'))
+                elif conv is client.careworker_coordinator_conversation:
+                    if request.user.has_perm('buddychat.is_coordinator'):
+                        rcpt = client.careworker
+                    elif request.user != client.careworker:
+                        return HttpResponse(_('Access Denied'))
+                        
+                conv.messages.create(
                     body = form.cleaned_data['body'],
-                    sender = conv[request.POST['conv']].get_or_create_participant(request.user),
+                    sender = conv.get_or_create_participant(request.user),
                     sender_name = request.user.username,
                     created_at = datetime.now()
                     )
-                form = ConvMessageForm() # reset form
-                """ [TODO]
+                """ 
                 send email
                 """
+                if Site._meta.installed:
+                    site = Site.objects.get_current()
+                else:
+                    site = RequestSite(request)
+
+                subject = _('a message from %s' % request.user.username)
+                body = _('%s wrote a message on %s\'s profile:\n\n%s\n\nDon\'t reply to this message directly, reply on this user\'s personal page at http://%s/profile/%s/' % (request.user.username, client.user.username, form.cleaned_data['body'], site, client.user.username))
+
+                if not rcpt is None:
+                    rcpt.email_user(subject, body)
+                else:
+                    coordinators = User.objects.filter(groups__name='coordinators')
+                    for user in coordinators:
+                        user.email_user(subject, body)
+
+                messages.success(request, _('Your message has been sent'))
+                form = ConvMessageForm() # reset form
         else:
             form = ConvMessageForm()
         params = {'client': client,

@@ -6,6 +6,15 @@
 {% block heading %}{% blocktrans with username=client.user.username %}Personal page for {{username}}{% endblocktrans %}{% endblock %}
 
 {% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% if not client.ready %}
 questionnaire missing
 {% endif %}
