@@ -44,12 +44,15 @@ questionnaire missing
 {% endfor %}
 </table>
 
+{% if not perms.buddychat.is_coordinator %}
 <form method="POST">{% csrf_token %}
 {{ form.as_p }}
 <input type="hidden" name="conv" value="careworker" />
 <input type="submit" value="{% trans "Submit" %}" />
 </form>
+{% endif %}
 
+{% if perms.buddychat.is_coordinator or not perms.buddychat.is_careworker %}
 <h2>{% trans "Coordinator Conversation" %}</h2>
 <table>
 <tr>
@@ -67,6 +70,7 @@ questionnaire missing
 <input type="hidden" name="conv" value="coordinator" />
 <input type="submit" value="{% trans "Submit" %}" />
 </form>
+{% endif %}
 
 {% if  perms.buddychat.is_careworker %}
 <h2>{% trans "Careworker-Coordinator Conversation" %}</h2>
