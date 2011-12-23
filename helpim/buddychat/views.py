@@ -15,7 +15,11 @@ class ConvMessageForm(forms.Form):
 
 def welcome(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('buddychat_profile', args=[request.user]))
+        if request.user.is_staff:
+            """ staff doesn't have a profile - redirect to admin """
+            return HttpResponseRedirect(reverse('admin:index'))
+        else:
+            return HttpResponseRedirect(reverse('buddychat_profile', args=[request.user]))
     else:
         return HttpResponseRedirect(reverse('auth_login'))
 
@@ -23,6 +27,11 @@ def welcome(request):
 def profile(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
+        """ we need to make sure requesting user is either
+        * the careseeker himself (aka the 'client')
+        * the careworker associated with this client
+        * a coordinator
+        """
         if request.method == "POST":
             form = ConvMessageForm(request.POST)
             if form.is_valid():
@@ -37,7 +46,7 @@ def profile(request, username):
                     sender_name = request.user.username,
                     created_at = datetime.now()
                     )
-                form = ConvMessageForm()
+                form = ConvMessageForm() # reset form
         else:
             form = ConvMessageForm()
         params = {'client': client,
