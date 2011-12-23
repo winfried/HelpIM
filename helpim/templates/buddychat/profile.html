@@ -25,10 +25,10 @@ questionnaire missing
 {% if perms.buddychat.is_coordinator %}
 <dt>{% trans "Careworker" %}</dt>
 <dd>
-  <select name="careworker">
-    <option value="">{% trans "None" %}</option>
-    {% for cw in careworkers %}<option value="{{cw.pk}}"{% if cw == client.careworker %} selected{% endif %}>{{cw.username}}</option>{% endfor %}
-  </select>
+<form method="POST" action="set_cw">{% csrf_token %}
+{{careworkers_form.as_p}}
+<input type="submit" value="{%trans "Submit" %}" />
+</form>
 </dd>
 {% if client.careworker %}
 <dt>{% trans "Careworker's Email" %}</dt>

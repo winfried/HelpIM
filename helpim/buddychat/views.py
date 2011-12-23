@@ -1,7 +1,7 @@
 from datetime import datetime
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
@@ -16,6 +16,13 @@ from helpim.buddychat.models import BuddyChatProfile
 class ConvMessageForm(forms.Form):
     body = forms.CharField(max_length=4096, widget=forms.Textarea)
 
+class CareworkersForm(forms.Form):
+    choices = [('', _('None'))]
+    careworkers = User.objects.filter(groups__name='careworkers')
+    for user in careworkers:
+        choices.append((user.pk, user.username))
+    careworker = forms.ChoiceField(choices=choices, required=False)
+    
 def welcome(request):
     if request.user.is_authenticated():
         if request.user.is_staff:
@@ -104,7 +111,10 @@ def profile(request, username):
         params = {'client': client,
                   'form': form}
         if request.user.has_perm('buddychat.is_coordinator'):
-            params['careworkers'] = User.objects.filter(groups__name='careworkers')
+            if client.careworker:
+                params['careworkers_form'] = CareworkersForm(initial={'careworker': client.careworker.pk})
+            else:
+                params['careworkers_form'] = CareworkersForm()
 
         return render_to_response(
             'buddychat/profile.html',
@@ -113,3 +123,26 @@ def profile(request, username):
             )
     else: 
         return HttpResponse(_('Access Denied'))
+
+@permission_required('buddychat.is_coordinator')
+def set_cw(request, username):
+    """ set a careworker """
+    client = get_object_or_404(BuddyChatProfile, user__username = username)
+    if request.method == "POST":
+        form = CareworkersForm(request.POST)
+        if form.is_valid():
+            try:
+                careworker = User.objects.get(pk=form.cleaned_data['careworker'])
+            except ValueError:
+                careworker = None
+            except User.DoesNotExist:
+                careworker = None
+                messages.info(request, _('Careworker not found'))
+            client.careworker = careworker
+            client.save()
+            if careworker is None:
+                messages.success(request, _('Careworker has been unset'))
+            else:
+                messages.success(request, _('Careworker has been set'))
+
+    return HttpResponseRedirect(reverse('buddychat_profile', args=[username]))
