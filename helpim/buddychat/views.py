@@ -22,7 +22,7 @@ def welcome(request):
 @login_required
 def profile(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
-    if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.volunteer) or request.user == client.user:
+    if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         if request.method == "POST":
             form = ConvMessageForm(request.POST)
             if form.is_valid():
