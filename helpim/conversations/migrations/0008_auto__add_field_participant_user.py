@@ -8,8 +8,8 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Participant.user'
-        db.add_column('conversations_participant', 'user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, null=True), keep_default=False)
+        # Changing field 'Participant.user'
+        db.add_column('conversations_participant', 'user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True), keep_default=False)
 
 
     def backwards(self, orm):
@@ -89,7 +89,7 @@ class Migration(SchemaMigration):
             'ip_hash': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'role': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True'})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
         },
         'threadedcomments.threadedcomment': {
             'Meta': {'ordering': "('-date_submitted',)", 'object_name': 'ThreadedComment'},
