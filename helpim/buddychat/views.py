@@ -33,7 +33,7 @@ def welcome(request):
     else:
         return HttpResponseRedirect(reverse('auth_login'))
 
-@login_required
+@login_required(login_url='/login/')
 def profile(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
