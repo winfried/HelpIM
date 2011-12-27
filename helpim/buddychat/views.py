@@ -22,7 +22,7 @@ class CareworkersForm(forms.Form):
     for user in careworkers:
         choices.append((user.pk, user.username))
     careworker = forms.ChoiceField(choices=choices, required=False)
-    
+
 def welcome(request):
     if request.user.is_authenticated():
         if request.user.is_staff:
@@ -54,7 +54,7 @@ def profile(request, username):
                     'careworker_coordinator': client.careworker_coordinator_conversation
                     }[request.POST['conv']]
 
-                """ 
+                """
                 check whether user is allowed to act on this conversation according to this rules
                 * careseeker allowed to post to careworker and coordinator
                 * careworker allowed to post to careworker and careworker_coordinator
@@ -63,7 +63,11 @@ def profile(request, username):
                 """
                 rcpt = None # rcpt is None for coordinators
                 if conv is client.careworker_conversation:
-                    if request.user == client.user:
+                    if not client.careworker:
+                        return HttpResponse(_('Access Denied'))
+                    elif request.user.has_perm('buddychat.is_careworker') and request.user != client.careworker:
+                        return HttpResponse(_('Access Denied'))
+                    elif request.user == client.user:
                         rcpt = client.careworker
                     elif request.user == client.careworker:
                         rcpt = client.user
@@ -79,14 +83,14 @@ def profile(request, username):
                         rcpt = client.careworker
                     elif request.user != client.careworker:
                         return HttpResponse(_('Access Denied'))
-                        
+
                 conv.messages.create(
                     body = form.cleaned_data['body'],
                     sender = conv.get_or_create_participant(request.user),
                     sender_name = request.user.username,
                     created_at = datetime.now()
                     )
-                """ 
+                """
                 send email
                 """
                 if Site._meta.installed:
@@ -121,7 +125,7 @@ def profile(request, username):
             params,
             context_instance=RequestContext(request)
             )
-    else: 
+    else:
         return HttpResponse(_('Access Denied'))
 
 @permission_required('buddychat.is_coordinator')
