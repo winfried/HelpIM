@@ -41,6 +41,7 @@ questionnaire missing
 {% endif %}
 </dl>
 
+{% if client.careworker or perms.buddychat.is_coordinator %}
 <h2>{% trans "Careworker Conversation" %}</h2>
 <table>
 <tr>
@@ -59,6 +60,7 @@ questionnaire missing
 <input type="hidden" name="conv" value="careworker" />
 <input type="submit" value="{% trans "Submit" %}" />
 </form>
+{% endif %}
 {% endif %}
 
 {% if perms.buddychat.is_coordinator or not perms.buddychat.is_careworker %}
