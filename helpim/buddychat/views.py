@@ -65,8 +65,6 @@ def profile(request, username):
                 if conv is client.careworker_conversation:
                     if not client.careworker:
                         return HttpResponse(_('Access Denied'))
-                    elif request.user.has_perm('buddychat.is_careworker') and request.user != client.careworker:
-                        return HttpResponse(_('Access Denied'))
                     elif request.user == client.user:
                         rcpt = client.careworker
                     elif request.user == client.careworker:
