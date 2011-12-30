@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
@@ -12,13 +13,15 @@ from helpim.utils import OrderedDict, total_seconds
 class ChatStatsProvider(StatsProvider):
     knownStats = {'date': _('Date'),
                   'hour': _('Hour'),
+                  'totalCount': _('Total Chats'),
                   'uniqueIPs': _('Unique IPs'),
                   'questionnairesSubmitted': _('Questionnaires'),
                   'blocked': _('Blocked'),
                   'assigned': _('Assigned'),
                   'interaction': _('Interaction'),
-                  'avgWaitTime': _('Avg. Wait time'),
-                  'avgChatTime': _('Avg. Chat Time') }
+                  'queued': _('Queued'),
+                  'avgWaitTime': _('Avg. Wait time (sec.)'),
+                  'avgChatTime': _('Avg. Chat Time (sec.)') }
 
     @classmethod
     def render(cls, listOfObjects):
@@ -36,7 +39,7 @@ class ChatStatsProvider(StatsProvider):
                 dictStats[chat.hourAgg]['date'] = ''
                 dictStats[chat.hourAgg]['hour'] = 0
                 dictStats[chat.hourAgg]['ipTable'] = {}
-                for v in ['uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
+                for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'queued', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
                     dictStats[chat.hourAgg][v] = 0
                 dictStats[chat.hourAgg]['avgWaitTime'] = '-'
 
@@ -74,6 +77,9 @@ class ChatStatsProvider(StatsProvider):
                 dictStats[chat.hourAgg]['avgChatTime'] += int(total_seconds(duration))
                 dictStats[chat.hourAgg]['numChatTime'] += 1
 
+            # count this Chat object
+            dictStats[chat.hourAgg]['totalCount'] += 1
+
 
         # post-processing
         for key in dictStats.iterkeys():
@@ -110,8 +116,19 @@ class ChatStatsProvider(StatsProvider):
         return (Chat.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time'),
                 EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
 
+    @classmethod
+    def get_detail_url(cls):
+        return reverse('admin:conversations_conversation_changelist') + '?start_time__year=%(year)s&start_time__month=%(month)s&start_time__day=%(day)s'
+
 
 class WaitingTimeFilter(EventLogFilter):
+    """
+    Determines waiting time careseeker experienced. Since the 'queued' stat derives from the waiting time, the 'queued' stat is also calculated here.
+    """
+
+    # amount of time in seconds user must have been waiting in line until considered 'queued'
+    QUEUED_TRESHOLD = 15
+
     def __init__(self):
         self.start()
 
@@ -136,6 +153,10 @@ class WaitingTimeFilter(EventLogFilter):
             result['avgWaitTime'] = (result['avgWaitTime'] + waitTime) / 2
         else:
             result['avgWaitTime'] = waitTime
+
+        # calculate 'queued' stat
+        if waitTime >= WaitingTimeFilter.QUEUED_TRESHOLD:
+            result['queued'] += 1
 
     def hasResult(self):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)

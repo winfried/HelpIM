@@ -33,6 +33,11 @@ class StatsProvider():
     def aggregateObjects(cls, whichYear):
         '''Returns a list of data objects matching the filter given as first parameter. The objects returned here will be analyzed.'''
         raise NotImplementedError("Subclass should implement this method.")
+    
+    @classmethod
+    def get_detail_url(cls):
+        """Optionally return a URL that shows the singular objects being aggregated in the stats overview. Also see stats_details filter"""
+        return None
 
 
 class EventLogProcessor():

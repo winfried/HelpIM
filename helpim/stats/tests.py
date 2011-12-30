@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve, Resolver404
+from django.contrib.auth.models import ContentType, Permission, User
+from django.core.urlresolvers import resolve, Resolver404, reverse
 from django.test import TestCase
 from django.test.client import Client
 
@@ -14,6 +14,11 @@ class UrlPatternsTestCase(TestCase):
 
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
+        c, created = ContentType.objects.get_or_create(model='', app_label='stats',
+                                                       defaults={'name': 'stats'})
+        p, created = Permission.objects.get_or_create(codename='can_view_stats', content_type=c,
+                                                      defaults={'name': 'Can view Stats', 'content_type': c})
+        self.user.user_permissions.add(p)
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
 
@@ -49,3 +54,19 @@ class UrlPatternsTestCase(TestCase):
         self.assertRaisesRegexp(AssertionError, 'URL not found',
                                 lambda: self._assertUrlMapping('keyworddoesntexist', 'stats_overview'))
 
+
+    def testPermission(self):
+        # access allowed for privileged user
+        response = self.c.get(reverse('stats_index'), Follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'stats/stats_index.html')
+
+
+        # test access to stats with unprivileged user
+        self.c = Client()
+        unprivilegedUser = User.objects.create_user('bob', 'me@bob.com', 'bob')
+        self.assertTrue(self.c.login(username=unprivilegedUser.username, password='bob'), 'Bob could not login')
+
+        response = self.c.get(reverse('stats_index'), Follow=True)
+        self.assertNotEqual(response.status_code, 200)
+        self.assertTemplateNotUsed(response, 'stats/stats_index.html')

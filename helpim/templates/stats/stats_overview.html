@@ -1,12 +1,21 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
+{% load static %}
+
 {% load setvar %}
+{% load stats_urls %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% get_static_prefix as STATIC_PREFIX %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}helpim/stats.css" />
+{% endblock %}
 
 {% block title %}Stats{% endblock %}
 
 {% block content %}
 {% if pagingYears %}
-<ul>
+<ul id="stats_pager">
     {% if prevPage %}
         <li><a href="{% url stats_overview statsKeyword prevPage.value %}">&laquo; {{ prevPage.value }} ({{ prevPage.count }})</a></li>
     {% endif %}
@@ -45,7 +54,7 @@
 </ul>
 {% endif %}
 
-<table>
+<table id="stats_table">
     {% if tableHeadings %}
     <thead>
         <tr>
@@ -63,7 +72,11 @@
                     {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
                     {% if forloop.first %}
                         {% ifnotequal lastAggValue val|date:"SHORT_DATE_FORMAT" %}
-                            <td>{{ val|date:"SHORT_DATE_FORMAT" }}</td>
+                            {% if detail_url %}
+                                <td><a href="{{ detail_url|stats_details:val }}">{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                            {% else %}
+                                <td>{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                            {% endif %}
                         {% else %}
                             <td></td>
                         {% endifnotequal %}

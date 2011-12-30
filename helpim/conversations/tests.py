@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -18,6 +18,11 @@ class ChatStatsProviderTestCase(TestCase):
         
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
+        c, created = ContentType.objects.get_or_create(model='', app_label='stats',
+                                                       defaults={'name': 'stats'})
+        p, created = Permission.objects.get_or_create(codename='can_view_stats', content_type=c,
+                                                      defaults={'name': 'Can view Stats', 'content_type': c})
+        self.user.user_permissions.add(p)
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
     def _createEventLog(self, created_at, type, session):
@@ -71,6 +76,25 @@ class ChatStatsProviderTestCase(TestCase):
 
         self.assertEqual(len(response.context['aggregatedStats'].keys()), 4)
         self.assertEqual(response.context['aggregatedStats'].keys(), ['2011-11-01 16', '2011-11-01 17', '2011-11-01 18', '2011-11-11 18'])
+
+
+    def testTotalCount(self):
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 59), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 11, 18, 0), subject='Chat')
+        
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+        
+        # total number of Chat objects
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [2, 2, 1, 1]):
+            self.assertEqual(actual['totalCount'], expected)
 
 
     def testTotalUniqueCount(self):
@@ -203,9 +227,34 @@ class ChatStatsProviderTestCase(TestCase):
             self.assertEqual(actual['interaction'], expected)
 
 
+    def testQueued(self):
+        '''
+        This stat describes whether careseekers was in the waiting queue or not. Since all careseekers go to the waiting queue at least for a very short time,
+        we rely on the waiting time and consider waiting times longer than 15s as "queued".
+        '''
+
+        # 10 seconds waiting time -> not 'queued'
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0, 10), subject='Chat')
+
+        # 25 seconds waiting time -> 'queued'
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0, 25), subject='Chat')
+
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [0, 1]):
+            self.assertEqual(actual['queued'], expected)
+
+
     def testWaitingTime(self):
         '''
-        Meassure time users have to wait until Chat is successfully established. Do not regard users that left before.
+        Measure time users have to wait until Chat is successfully established. Do not regard users that left before.
         If a questionnaire was presented, waiting time starts after careseeker has questionnaire submitted.
         '''
 
