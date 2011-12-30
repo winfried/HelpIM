@@ -1,6 +1,8 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
+
 {% load setvar %}
+{% load stats_urls %}
 
 {% block title %}Stats{% endblock %}
 
@@ -63,7 +65,11 @@
                     {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
                     {% if forloop.first %}
                         {% ifnotequal lastAggValue val|date:"SHORT_DATE_FORMAT" %}
-                            <td>{{ val|date:"SHORT_DATE_FORMAT" }}</td>
+                            {% if detail_url %}
+                                <td><a href="{{ detail_url|stats_details:val }}">{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                            {% else %}
+                                <td>{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                            {% endif %}
                         {% else %}
                             <td></td>
                         {% endifnotequal %}

@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
@@ -109,6 +110,10 @@ class ChatStatsProvider(StatsProvider):
         """Returns relevant Chats and Events of year specified"""
         return (Chat.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time'),
                 EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
+
+    @classmethod
+    def get_detail_url(cls):
+        return reverse('admin:conversations_conversation_changelist') + '?start_time__year=%(year)s&start_time__month=%(month)s&start_time__day=%(day)s'
 
 
 class WaitingTimeFilter(EventLogFilter):

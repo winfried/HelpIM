@@ -58,6 +58,7 @@ def stats_overview(request, keyword, year=None, format=None):
     else:
         return render_to_response("stats/stats_overview.html", {
             'statsKeyword': keyword,
+            'detail_url': statsProvider.get_detail_url(),
             'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
             'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
             'nextPage': listOfPages[nextPageIndex] if not nextPageIndex is None else None,
