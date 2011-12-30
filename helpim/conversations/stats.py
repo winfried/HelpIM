@@ -20,8 +20,8 @@ class ChatStatsProvider(StatsProvider):
                   'assigned': _('Assigned'),
                   'interaction': _('Interaction'),
                   'queued': _('Queued'),
-                  'avgWaitTime': _('Avg. Wait time'),
-                  'avgChatTime': _('Avg. Chat Time') }
+                  'avgWaitTime': _('Avg. Wait time (sec.)'),
+                  'avgChatTime': _('Avg. Chat Time (sec.)') }
 
     @classmethod
     def render(cls, listOfObjects):
