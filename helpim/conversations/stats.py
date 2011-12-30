@@ -19,6 +19,7 @@ class ChatStatsProvider(StatsProvider):
                   'blocked': _('Blocked'),
                   'assigned': _('Assigned'),
                   'interaction': _('Interaction'),
+                  'queued': _('Queued'),
                   'avgWaitTime': _('Avg. Wait time'),
                   'avgChatTime': _('Avg. Chat Time') }
 
@@ -38,7 +39,7 @@ class ChatStatsProvider(StatsProvider):
                 dictStats[chat.hourAgg]['date'] = ''
                 dictStats[chat.hourAgg]['hour'] = 0
                 dictStats[chat.hourAgg]['ipTable'] = {}
-                for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
+                for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'queued', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
                     dictStats[chat.hourAgg][v] = 0
                 dictStats[chat.hourAgg]['avgWaitTime'] = '-'
 
@@ -121,6 +122,13 @@ class ChatStatsProvider(StatsProvider):
 
 
 class WaitingTimeFilter(EventLogFilter):
+    """
+    Determines waiting time careseeker experienced. Since the 'queued' stat derives from the waiting time, the 'queued' stat is also calculated here.
+    """
+
+    # amount of time in seconds user must have been waiting in line until considered 'queued'
+    QUEUED_TRESHOLD = 15
+
     def __init__(self):
         self.start()
 
@@ -145,6 +153,10 @@ class WaitingTimeFilter(EventLogFilter):
             result['avgWaitTime'] = (result['avgWaitTime'] + waitTime) / 2
         else:
             result['avgWaitTime'] = waitTime
+
+        # calculate 'queued' stat
+        if waitTime >= WaitingTimeFilter.QUEUED_TRESHOLD:
+            result['queued'] += 1
 
     def hasResult(self):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
