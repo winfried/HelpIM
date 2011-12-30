@@ -13,6 +13,7 @@ from helpim.utils import OrderedDict, total_seconds
 class ChatStatsProvider(StatsProvider):
     knownStats = {'date': _('Date'),
                   'hour': _('Hour'),
+                  'totalCount': _('Total Chats'),
                   'uniqueIPs': _('Unique IPs'),
                   'questionnairesSubmitted': _('Questionnaires'),
                   'blocked': _('Blocked'),
@@ -37,7 +38,7 @@ class ChatStatsProvider(StatsProvider):
                 dictStats[chat.hourAgg]['date'] = ''
                 dictStats[chat.hourAgg]['hour'] = 0
                 dictStats[chat.hourAgg]['ipTable'] = {}
-                for v in ['uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
+                for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
                     dictStats[chat.hourAgg][v] = 0
                 dictStats[chat.hourAgg]['avgWaitTime'] = '-'
 
@@ -74,6 +75,9 @@ class ChatStatsProvider(StatsProvider):
             if isinstance(duration, datetime.timedelta):
                 dictStats[chat.hourAgg]['avgChatTime'] += int(total_seconds(duration))
                 dictStats[chat.hourAgg]['numChatTime'] += 1
+
+            # count this Chat object
+            dictStats[chat.hourAgg]['totalCount'] += 1
 
 
         # post-processing

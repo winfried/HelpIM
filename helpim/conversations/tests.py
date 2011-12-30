@@ -73,6 +73,25 @@ class ChatStatsProviderTestCase(TestCase):
         self.assertEqual(response.context['aggregatedStats'].keys(), ['2011-11-01 16', '2011-11-01 17', '2011-11-01 18', '2011-11-11 18'])
 
 
+    def testTotalCount(self):
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 59), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 11, 18, 0), subject='Chat')
+        
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+        
+        # total number of Chat objects
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [2, 2, 1, 1]):
+            self.assertEqual(actual['totalCount'], expected)
+
+
     def testTotalUniqueCount(self):
         '''Uniqueness of Chats determined via hashed IP of Participant in Chat'''
 
