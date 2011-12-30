@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -18,6 +18,11 @@ class ChatStatsProviderTestCase(TestCase):
         
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
+        c, created = ContentType.objects.get_or_create(model='', app_label='stats',
+                                                       defaults={'name': 'stats'})
+        p, created = Permission.objects.get_or_create(codename='can_view_stats', content_type=c,
+                                                      defaults={'name': 'Can view Stats', 'content_type': c})
+        self.user.user_permissions.add(p)
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
     def _createEventLog(self, created_at, type, session):
