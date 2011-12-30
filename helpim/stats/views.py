@@ -2,13 +2,13 @@ import csv
 import datetime
 import xlwt
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 
 from helpim.conversations.stats import ChatStatsProvider
 
-@login_required
+@permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
     """Display tabular stats"""
 
@@ -67,7 +67,7 @@ def stats_overview(request, keyword, year=None, format=None):
             'aggregatedStats': dictStats })
 
 
-@login_required
+@permission_required('stats.can_view_stats', '/admin')
 def stats_index(request):
     '''Display overview showing available StatProviders'''
 
