@@ -5,6 +5,7 @@ import xlwt
 from django.contrib.auth.decorators import permission_required
 from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from helpim.conversations.stats import ChatStatsProvider
 
@@ -56,23 +57,25 @@ def stats_overview(request, keyword, year=None, format=None):
     elif format == 'xls':
         return _stats_overview_xls(tableHeadings, dictStats, keyword, year)
     else:
-        return render_to_response("stats/stats_overview.html", {
-            'statsKeyword': keyword,
+        return render_to_response("stats/stats_overview.html",
+            {'statsKeyword': keyword,
             'detail_url': statsProvider.get_detail_url(),
             'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
             'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
             'nextPage': listOfPages[nextPageIndex] if not nextPageIndex is None else None,
             'pagingYears': listOfPages,
             'tableHeadings': tableHeadings,
-            'aggregatedStats': dictStats })
+            'aggregatedStats': dictStats },
+            context_instance=RequestContext(request))
 
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_index(request):
     '''Display overview showing available StatProviders'''
 
-    return render_to_response('stats/stats_index.html', {
-        'statProviders': _getStatsProviders().keys() })
+    return render_to_response('stats/stats_index.html',
+        {'statProviders': _getStatsProviders().keys()},
+        context_instance=RequestContext(request))
 
 
 def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
