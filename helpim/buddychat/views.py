@@ -141,6 +141,10 @@ def set_cw(request, username):
                 careworker = None
                 messages.info(request, _('Careworker not found'))
             client.careworker = careworker
+            if not client.careworker is None:
+                client.coupled_at = datetime.now()
+            else:
+                client.coupled_at = None
             client.save()
             if careworker is None:
                 messages.success(request, _('Careworker has been unset'))
