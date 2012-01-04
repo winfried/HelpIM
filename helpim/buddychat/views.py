@@ -140,15 +140,14 @@ def set_cw(request, username):
             except User.DoesNotExist:
                 careworker = None
                 messages.info(request, _('Careworker not found'))
-            client.careworker = careworker
-            if not client.careworker is None:
-                client.coupled_at = datetime.now()
-            else:
-                client.coupled_at = None
-            client.save()
-            if careworker is None:
-                messages.success(request, _('Careworker has been unset'))
-            else:
-                messages.success(request, _('Careworker has been set'))
+            if client.careworker != careworker:
+                client.careworker = careworker
+                if not client.careworker is None:
+                    client.coupled_at = datetime.now()
+                    messages.success(request, _('Careworker has been set'))
+                else:
+                    client.coupled_at = None
+                    messages.success(request, _('Careworker has been unset'))
+                client.save()
 
     return HttpResponseRedirect(reverse('buddychat_profile', args=[username]))
