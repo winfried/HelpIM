@@ -1,18 +1,12 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import Form, FormEntry
-
-POSITION_CHOICES = (
-  ('CB', _('Client, before chat')),
-  ('CA', _('Client, after chat')),
-  ('SA', _('Staff, after chat')),
-)
+from helpim.common.models import get_position_choices
 
 class Questionnaire(Form):
-
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES, unique=True, blank=False)
+    position = models.CharField(max_length=3, choices=get_position_choices(), unique=True, blank=False)
 
     def __unicode__(self):
         return self.title
@@ -25,7 +19,7 @@ class ConversationFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
     conversation = models.ForeignKey('conversations.Conversation', blank=True, null=True)
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES)
+    position = models.CharField(max_length=3, choices=get_position_choices())
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
