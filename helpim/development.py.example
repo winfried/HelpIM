@@ -25,8 +25,10 @@ CHAT['debug'] = DEBUG
  # * FINEST  (lowest value)
 CHAT['log_level'] = 'ALL'
 
-CHAT['mode'] = 'light'
+# uncomment to activate 'light' mode (probably not working as of yet)
+#CHAT['mode'] = 'light'
 
+# uncomment to set a common nickname for all staff members
 #CHAT['staff_muc_nick'] = 'foobar'
 
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
@@ -35,9 +37,9 @@ MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
 
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
 
-#uncomment the following lines to enably buddychats
-#INSTALLED_APPS = INSTALLED_APPS + ('helpim.buddychat',)
-#LOGIN_URL = '/login/'
+# uncomment the following lines to enably buddychats
+# please note that 'helpim.buddychat' must be loaded /before/ 'helpim.rooms' and 'helpim.questionnaire'
+#INSTALLED_APPS = ('helpim.buddychat',) + INSTALLED_APPS
 
 INTERNAL_IPS = ('127.0.0.1',)
 
