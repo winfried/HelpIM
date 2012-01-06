@@ -12,9 +12,9 @@ from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 from forms_builder.forms.models import FormEntry
 
 
-class ChatStatsProviderTestCase(TestCase):
+class ChatHourlyStatsProviderTestCase(TestCase):
     def setUp(self):
-        super(ChatStatsProviderTestCase, self).setUp()
+        super(ChatHourlyStatsProviderTestCase, self).setUp()
         
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')

@@ -10,7 +10,7 @@ from helpim.stats import StatsProvider, EventLogFilter, EventLogProcessor
 from helpim.utils import OrderedDict, total_seconds
 
 
-class ChatStatsProvider(StatsProvider):
+class ChatHourlyStatsProvider(StatsProvider):
     knownStats = {'date': _('Date'),
                   'hour': _('Hour'),
                   'totalCount': _('Total Chats'),
