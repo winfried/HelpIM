@@ -54,3 +54,16 @@ class EventLog(models.Model):
     session = models.CharField(max_length=255)
 
     payload = models.TextField(blank=True, null=True)
+
+POSITION_CHOICES = [
+  ('CB', _('Client, before chat')),
+  ('CA', _('Client, after chat')),
+  ('SA', _('Staff, after chat')),
+]
+
+def get_position_choices():
+    return POSITION_CHOICES
+
+def register_position_choices(choices):
+    global POSITION_CHOICES
+    POSITION_CHOICES = choices
