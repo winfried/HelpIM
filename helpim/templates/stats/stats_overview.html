@@ -44,7 +44,8 @@
 </ul>
 {% endif %}
 
-<h1>{% blocktrans with year=currentPage.value keyword=statsKeyword|capfirst %}Stats for {{ keyword }} in {{ year }}{% endblocktrans %}</h1>
+<h1>{% blocktrans with year=currentPage.value name=statsShortName %}Statistics: {{ name }} in {{ year }}{% endblocktrans %}</h1>
+<p><i>{{ statsLongName }}</i></p>
 
 {% if aggregatedStats %}
 <p>{% trans "Download as:" %}<p> 

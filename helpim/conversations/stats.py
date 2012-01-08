@@ -133,7 +133,14 @@ class ChatHourlyStatsProvider(StatsProvider):
     @classmethod
     def get_detail_url(cls):
         return reverse('admin:conversations_conversation_changelist') + '?start_time__year=%(year)s&start_time__month=%(month)s&start_time__day=%(day)s'
+    
+    @classmethod
+    def get_short_name(cls):
+        return _('Chats Aggregated')
 
+    @classmethod
+    def get_long_name(cls):
+        return _('displays statistics of all Chats aggregated by hour')
 
 class ChatFlatStatsProvider(ChatHourlyStatsProvider):
     knownStats = {'id': _('Id'),
@@ -213,6 +220,14 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
         new_dict['avgChatTime'] = '-'
         
         return new_dict
+    
+    @classmethod
+    def get_short_name(cls):
+        return _('Chats Flat')
+
+    @classmethod
+    def get_long_name(cls):
+        return _('displays statistics of all Chats of a year without aggregation')
 
 class WaitingTimeFilter(EventLogFilter):
     """

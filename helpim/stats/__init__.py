@@ -39,6 +39,14 @@ class StatsProvider():
         """Optionally return a URL that shows the singular objects being aggregated in the stats overview. Also see stats_details filter"""
         return None
 
+    @classmethod
+    def get_short_name(cls):
+        raise NotImplementedError("Subclass should implement this method.")
+
+    @classmethod
+    def get_long_name(cls):
+        raise NotImplementedError("Subclass should implement this method.")
+
 
 class EventLogProcessor():
     def __init__(self, listOfEvents, listOfFilters):

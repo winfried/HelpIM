@@ -13,7 +13,7 @@
 	<ul>
 	{% endif %}
 	
-	<li><a href="{% url stats_overview statsProvider %}">{{ statsProvider|capfirst }}</a>
+	<li><a href="{% url stats_overview statsProvider.keyword %}">{{ statsProvider.short_name }}</a> &mdash; {{ statsProvider.long_name }}</li>
 	
 	{% if forloop.last %}
 	</ul>

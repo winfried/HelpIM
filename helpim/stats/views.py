@@ -59,6 +59,8 @@ def stats_overview(request, keyword, year=None, format=None):
     else:
         return render_to_response("stats/stats_overview.html",
             {'statsKeyword': keyword,
+            'statsShortName': statsProvider.get_short_name(),
+            'statsLongName': statsProvider.get_long_name(),
             'detail_url': statsProvider.get_detail_url(),
             'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
             'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
@@ -73,8 +75,16 @@ def stats_overview(request, keyword, year=None, format=None):
 def stats_index(request):
     '''Display overview showing available StatProviders'''
 
+    listOfStatsProviders = []
+    for keyword, provider in _getStatsProviders().iteritems():
+        listOfStatsProviders.append({
+            'keyword': keyword,
+            'short_name': provider.get_short_name(),
+            'long_name': provider.get_long_name()
+        })
+
     return render_to_response('stats/stats_index.html',
-        {'statProviders': _getStatsProviders().keys()},
+        { 'statProviders': listOfStatsProviders },
         context_instance=RequestContext(request))
 
 
