@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from helpim.conversations.stats import ChatHourlyStatsProvider
+from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
@@ -135,7 +135,8 @@ def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
 
 def _getStatsProviders():
     '''Maps stat keyword to corresponding StatsProvider -- for now in a static fashion'''
-    return { 'chat': ChatHourlyStatsProvider }
+    return { 'chat': ChatHourlyStatsProvider,
+             'chatflat': ChatFlatStatsProvider }
 
 
 def _getStatsProvider(forName):

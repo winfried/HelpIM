@@ -3,7 +3,7 @@
 {% load static %}
 
 {% load setvar %}
-{% load stats_urls %}
+{% load stats %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -71,17 +71,17 @@
                     {# do not repeat value in the first column if same as previous line. #}
                     {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
                     {% if forloop.first %}
-                        {% ifnotequal lastAggValue val|date:"SHORT_DATE_FORMAT" %}
+                        {% ifnotequal lastAggValue val %}
                             {% if detail_url %}
-                                <td><a href="{{ detail_url|stats_details:val }}">{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                                <td><a href="{{ detail_url|stats_details:val }}">{{ val }}</a></td>
                             {% else %}
-                                <td>{{ val|date:"SHORT_DATE_FORMAT" }}</a></td>
+                                <td>{{ val }}</a></td>
                             {% endif %}
                         {% else %}
                             <td></td>
                         {% endifnotequal %}
                         
-                        {% setvar lastAggValue %}{{ val|date:"SHORT_DATE_FORMAT" }}{% endsetvar %}
+                        {% setvar lastAggValue %}{{ val }}{% endsetvar %}
 	   	            {% else %}
                         <td>{{ val }}</td>
                     {% endif %}
