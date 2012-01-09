@@ -1,13 +1,10 @@
 import sys
-import os
 import logging
-import getopt
 import socket
-import traceback
 
 from time import sleep
 from signal import signal, alarm, SIGALRM
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jid import JID
@@ -15,14 +12,15 @@ from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 from pyxmpp.iq import Iq
 
-from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
-from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
+from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
+from pyxmpp.jabber.muccore import MucPresence, MucIq
 
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import FormEntry
 
-from helpim.conversations.models import Chat, Participant, ChatMessage
+from helpim.common.models import EventLog
+from helpim.conversations.models import Participant, ChatMessage
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
 from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
 
@@ -263,6 +261,11 @@ class One2OneRoomHandler(RoomHandlerBase):
         if user.nick == self.nick:
             log.info("user joined with self nick '%s'" % user.nick)
             return True
+
+        # log event when careseeker has joined
+        accessToken = AccessToken.objects.get(jid=user.real_jid)
+        if accessToken.role == Participant.ROLE_CLIENT:
+            EventLog(type='helpim.rooms.one2one.client_joined', session=accessToken.token).save()
 
         room = self.get_helpim_room()
 
@@ -718,6 +721,9 @@ class WaitingRoomHandler(RoomHandlerBase):
             return
 
         ready = True
+
+        waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
+
         try:
             questionnaire = Questionnaire.objects.filter(position='CB')[0]
 
@@ -725,7 +731,6 @@ class WaitingRoomHandler(RoomHandlerBase):
             # set him to not being ready first and to True once he's
             # finished with the questionnaire.
 
-            waitingRoomToken = WaitingRoomToken.objects.get(token__jid=user.real_jid)
             waitingRoomToken.ready = False
 
             conversation_form_entry = ConversationFormEntry.objects.create(questionnaire=questionnaire, position='CB')
@@ -740,7 +745,8 @@ class WaitingRoomHandler(RoomHandlerBase):
 
         except IndexError:
             # no questionnaire no fun!
-            pass
+            # waitingtime for careseeker starts now
+            EventLog(type='helpim.rooms.waitingroom.joined', session=waitingRoomToken.token.token).save()
 
         room.addClient(user, ready)
         if ready:
@@ -754,6 +760,10 @@ class WaitingRoomHandler(RoomHandlerBase):
 
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
+
+        accessToken = AccessToken.objects.get(jid=user.real_jid)
+        EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+
         if user.nick == self.nick:
             return True
         self.userCount -= 1
@@ -795,6 +805,9 @@ class WaitingRoomHandler(RoomHandlerBase):
         token = WaitingRoomToken.objects.get(token__jid=stanza.get_from())
 
         token.ready = True
+
+        # waitingtime for careseeker starts now after he has submitted questionnaire
+        EventLog(type='helpim.rooms.waitingroom.joined', session=token.token.token).save()
 
         # link questionnaire to token
         try:
@@ -1237,7 +1250,6 @@ class Bot(JabberClient):
         log.notice("Checking status for group room '%s'." % room.jid)
         status = room.getStatus()
         log.notice("Status is '%s' for group room '%s'." % (status, room.jid))
-        userexited = room.getCleanExit()
         chat_id = room.chat_id
         nUsers = len(mucstate.users) - 1 # -1 for not counting the bot itself
         log.info("There are %d users in '%s'." % (nUsers, room.jid))
@@ -1406,7 +1418,7 @@ class Bot(JabberClient):
 
         '''
         try:
-            poolsize = int(self.conf.muc.poolsize)
+            int(self.conf.muc.poolsize)
         except ValueError:
             return "MUC-room pool size invalid"
         self.conf.muc.poolsize = newSize
@@ -1441,7 +1453,7 @@ class Bot(JabberClient):
             log.info("got accessToken: %s" % ac)
 
             resIq = iq.make_result_response()
-            query = resIq.new_query(NS_HELPIM_ROOMS)
+            resIq.new_query(NS_HELPIM_ROOMS)
 
             if ac.role == Participant.ROLE_CLIENT:
                 """ send invite to waiting room """
@@ -1542,7 +1554,7 @@ class Bot(JabberClient):
 
         try:
             try:
-                client_nick = iq.xpath_eval('d:block/d:participant', {'d': NS_HELPIM_ROOMS})[0]
+                iq.xpath_eval('d:block/d:participant', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
 
@@ -1564,7 +1576,7 @@ class Bot(JabberClient):
             client.save()
 
             resIq = iq.make_result_response()
-            query = resIq.new_query(NS_HELPIM_ROOMS)
+            resIq.new_query(NS_HELPIM_ROOMS)
 
         except One2OneRoom.DoesNotExist:
             resIq = iq.make_error_response(u"item-not-found")
@@ -1765,6 +1777,8 @@ class Log:
         logger.setLevel(newlevel)
         self.__helpimlog.info("Log level now set to '%s'" % level)
         return str()
+log = Log()
+
 
 def str2roomjid(jidstr):
     tmp = jidstr.split('@')

@@ -128,6 +128,7 @@ INSTALLED_APPS = (
     'helpim.conversations',
 #    'helpim.groups',
     'helpim.rooms',
+    'helpim.stats',
     'helpim',
     'south',
     'threadedcomments',
@@ -136,6 +137,11 @@ INSTALLED_APPS = (
     'forms_builder.forms',
     'helpim.questionnaire',
 )
+
+# migrations to the forms-builder app reside locally, see #115
+SOUTH_MIGRATION_MODULES = {
+    'forms': 'helpim.questionnaire.migrations_forms',
+}
 
 AUTH_PROFILE_MODULE = 'common.AdditionalUserInformation'
 
@@ -210,3 +216,4 @@ LOGGING = {
 }
 
 FORMS_BUILDER_USE_SITES = False
+FORMS_BUILDER_FIELD_MAX_LENGTH = 5000

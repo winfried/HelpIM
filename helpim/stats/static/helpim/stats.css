@@ -1,0 +1,10 @@
+#stats_pager, #stats_pager li {
+    margin: 0 2em;
+    padding: 0;
+    display: inline;
+    list-style-type: none;
+}
+
+#stats_table tr > td:first-child a {
+    text-decoration: underline;
+}

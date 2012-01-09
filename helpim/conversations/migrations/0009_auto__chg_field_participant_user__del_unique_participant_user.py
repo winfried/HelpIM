@@ -9,20 +9,20 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Removing unique constraint on 'Participant', fields ['user']
-        db.delete_unique('conversations_participant', ['user_id'])
+#        db.delete_unique('conversations_participant', ['user_id'])
 
         # Changing field 'Participant.user'
-        db.alter_column('conversations_participant', 'user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True))
-
+#        db.alter_column('conversations_participant', 'user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True))
+        pass
 
     def backwards(self, orm):
 
         # Changing field 'Participant.user'
-        db.alter_column('conversations_participant', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, null=True))
+ #       db.alter_column('conversations_participant', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, null=True))
 
         # Adding unique constraint on 'Participant', fields ['user']
-        db.create_unique('conversations_participant', ['user_id'])
-
+ #       db.create_unique('conversations_participant', ['user_id'])
+        pass
 
     models = {
         'auth.group': {
