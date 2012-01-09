@@ -154,6 +154,7 @@ echo "password: $adminpw"
 echo "IP: $address"
 echo "chatserver: $HOSTNAME"
 echo
-echo "Don't forget to create a Questionaire, or the chat wil not work!!"
+echo "1. Don't forget to create a Questionaire, or the chat wil not work!!"
+echo "2. And don't forget to make a name in DNS"
 echo
 
