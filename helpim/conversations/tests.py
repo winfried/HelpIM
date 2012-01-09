@@ -25,9 +25,9 @@ class ChatHourlyStatsProviderTestCase(TestCase):
         self.user.user_permissions.add(p)
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
-    def _createEventLog(self, created_at, type, session):
+    def _createEventLog(self, created_at, **kwargs):
         '''Creates a new EventLog and circumvents the ``auto_now_add`` option on the ``created_at`` field, so that there are fixed date values.'''
-        newEvent = EventLog.objects.create(created_at=created_at, type=type, session=session)
+        newEvent = EventLog.objects.create(created_at=created_at, **kwargs)
         newEvent.created_at = created_at
         newEvent.save()
         
@@ -234,16 +234,16 @@ class ChatHourlyStatsProviderTestCase(TestCase):
         '''
 
         # 10 seconds waiting time -> not 'queued'
+        chat1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0, 10), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.waitingroom.left', session='aabbccdd')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0, 10), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat1.id)
 
         # 25 seconds waiting time -> 'queued'
+        chat2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0, 25), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.waitingroom.left', session='aabbccdd')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0, 25), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat2.id)
 
         response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
         self.assertIsNotNone(response.context['aggregatedStats'])
@@ -259,21 +259,21 @@ class ChatHourlyStatsProviderTestCase(TestCase):
         '''
 
         # 90 seconds waiting time, successfully established one2one chat
+        chat1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 1, 30), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.waitingroom.left', session='aabbccdd')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 1, 30), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat1.id)
 
         # 30 seconds waiting time, successfully established one2one chat
+        chat2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 30, 30), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30), type='helpim.rooms.waitingroom.joined', session='xxyyzz')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.waitingroom.left', session='xxyyzz')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.one2one.client_joined', session='xxyyzz')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 30, 30), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.one2one.client_joined', session='xxyyzz', payload=chat2.id)
 
         # waiting time, but user left, doesn't count
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 45), type='helpim.rooms.waitingroom.joined', session='112233')
 
-        # there needs to be a Chat object for the same time as the EventLog, so this doesnt count
+        # there needs to be a Chat object referenced in the EventLog, so this doesnt count
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='AABBCC')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.waitingroom.left', session='AABBCC')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.one2one.client_joined', session='AABBCC')

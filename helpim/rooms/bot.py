@@ -265,16 +265,16 @@ class One2OneRoomHandler(RoomHandlerBase):
             log.info("user joined with self nick '%s'" % user.nick)
             return True
 
-        # log event when careseeker has joined
-        accessToken = AccessToken.objects.get(jid=user.real_jid)
-        if accessToken.role == Participant.ROLE_CLIENT:
-            EventLog(type='helpim.rooms.one2one.client_joined', session=accessToken.token).save()
-
         room = self.get_helpim_room()
 
         if room is None:
             log.info("get_helpim_room returned None")
             return
+        
+        # log event when careseeker has joined
+        accessToken = AccessToken.objects.get(jid=user.real_jid)
+        if accessToken.role == Participant.ROLE_CLIENT:
+            EventLog(type='helpim.rooms.one2one.client_joined', session=accessToken.token, payload=room.chat.pk).save()
 
         status = room.getStatus()
         log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
