@@ -56,7 +56,7 @@ class BuddyChatProfile(RegistrationProfile):
 class QuestionnaireFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
-    buddychat_profile = models.ForeignKey(BuddyChatProfile, blank=True, null=True, related_name='questionnaires')
+    buddychat_profile = models.ForeignKey(BuddyChatProfile, related_name='questionnaires')
     position = models.CharField(max_length=3, choices=get_position_choices())
     created_at = models.DateTimeField(auto_now_add=True)
 
