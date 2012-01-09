@@ -7,6 +7,9 @@ from django.utils.translation import ugettext as _
 from registration.models import RegistrationProfile, RegistrationManager
 
 from helpim.conversations.models import Conversation
+from helpim.questionnaire.models import Questionnaire
+from forms_builder.forms.models import FormEntry
+from helpim.common.models import get_position_choices
 
 class BuddyChatProfileManager(RegistrationManager):
     def create(self, user, activation_key):
@@ -50,12 +53,23 @@ class BuddyChatProfile(RegistrationProfile):
             ('is_careworker', 'Is a careworker')
             )
 
+class QuestionnaireFormEntry(models.Model):
+    entry = models.ForeignKey(FormEntry, blank=True, null=True)
+    questionnaire = models.ForeignKey(Questionnaire)
+    buddychat_profile = models.ForeignKey(BuddyChatProfile, blank=True, null=True, related_name='questionnaires')
+    position = models.CharField(max_length=3, choices=get_position_choices())
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Questionnaire answer")
+        verbose_name_plural = _("Questionnaire answers")
+
 class ConfigurationError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
         return repr(self.value)
-    
+
 """ check if we're loaded before helpim.rooms and helpim.questionnaires """
 from django.conf import settings
 ia = settings.INSTALLED_APPS
