@@ -11,7 +11,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from helpim.buddychat.models import BuddyChatProfile
+from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
+from helpim.questionnaire.models import Questionnaire
 
 class ConvMessageForm(forms.Form):
     body = forms.CharField(max_length=4096, widget=forms.Textarea)
@@ -36,6 +37,14 @@ def welcome(request):
 @login_required(login_url='/login/')
 def profile(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
+    if request.user == client.user and not client.ready:
+        try:
+            q = Questionnaire.objects.filter(position='CR')[0]
+            QuestionnaireFormEntry.objects.create(questionnaire=q, buddychat_profile=client)
+            """ [TODO] pass reference to form entry to know where to store response """
+            return HttpResponseRedirect(q.get_absolute_url())
+        except IndexError:
+            pass
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         """ we need to make sure requesting user is either
         * the careseeker himself (aka the 'client')
