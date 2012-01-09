@@ -31,15 +31,15 @@ CHAT['log_level'] = 'ALL'
 # uncomment to set a common nickname for all staff members
 #CHAT['staff_muc_nick'] = 'foobar'
 
+# uncomment the following lines to enably buddychats
+# please note that 'helpim.buddychat' must be loaded /before/ 'helpim.rooms' and 'helpim.questionnaire'
+#INSTALLED_APPS = ('helpim.buddychat',) + INSTALLED_APPS
+
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
-
-# uncomment the following lines to enably buddychats
-# please note that 'helpim.buddychat' must be loaded /before/ 'helpim.rooms' and 'helpim.questionnaire'
-#INSTALLED_APPS = ('helpim.buddychat',) + INSTALLED_APPS
 
 INTERNAL_IPS = ('127.0.0.1',)
 
