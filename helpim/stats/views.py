@@ -30,9 +30,26 @@ def stats_overview(request, keyword, year=None, format=None):
     # list of years with Conversations needed for navigation
     listOfPages = statsProvider.countObjects()
 
-    # get index of current year in listOfPages
-    currentPageIndex = next((index for (index, x) in enumerate(listOfPages) if x["value"] == year), None)
-
+    insertIndex = 0
+    currentPageIndex = None
+    
+    # try to find index of requested year in `listOfPages`. also determine insert position if requested year is not in that list.
+    for (idx, x) in enumerate(listOfPages):
+        # get index of current year in listOfPages
+        if x['value'] == year:
+            currentPageIndex = idx
+        
+        # find largest value that is smaller than requested year, insert after that index
+        # if no such value exists, use default insertIndex of 0
+        if x['value'] < year:
+            insertIndex = idx + 1
+        
+    # requested year is not in list, "fake" add it
+    if currentPageIndex is None:
+        listOfPages.insert(insertIndex, {'count': 0, 'value': year})
+        currentPageIndex = insertIndex
+    
+    # derive "prev" and "next" indices, if possible
     if currentPageIndex is not None:
         prevPageIndex = currentPageIndex - 1 if currentPageIndex > 0 else None
         nextPageIndex = currentPageIndex + 1 if currentPageIndex < len(listOfPages) - 1 else None

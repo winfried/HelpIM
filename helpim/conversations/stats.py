@@ -121,7 +121,7 @@ class ChatHourlyStatsProvider(StatsProvider):
 
         # see: https://code.djangoproject.com/ticket/10302
         extra_mysql = {"value": "YEAR(start_time)"}
-        return Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('start_time')
+        return list(Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('start_time'))
 
 
     @classmethod
