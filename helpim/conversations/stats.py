@@ -149,15 +149,17 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
                   'blocked': _('Blocked'),
                   'assigned': _('Assigned'),
                   'interaction': _('Interaction'),
-                  'queued': _('Queued'),
-                  'avgWaitTime': _('Wait time (sec.)'),
+                  'clientIP': _('Client IP'),
+                  'clientName': _('Client name'),
+                  'staffName': _('Staff name'),
+                  'subject': _('Subject'),
                   'avgChatTime': _('Chat Time (sec.)') }
     
     @classmethod
     def render(cls, listOfObjects):
         dictStats = OrderedDict()
         
-        listOfChats, listOfEvents = listOfObjects
+        listOfChats = listOfObjects
         
         for chat in listOfChats:
             key = str(chat.id)
@@ -186,22 +188,24 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
             # did both Participants chat?
             if chat.hasInteraction():
                 dictStats[key]['interaction'] = 1
-            
+
+            if not clientParticipant is None:
+                dictStats[key]['clientIP'] = clientParticipant.ip_hash
+
+            dictStats[key]['clientName'] = chat.client_name()
+            dictStats[key]['staffName'] = chat.staff_name()
+            dictStats[key]['subject'] = chat.subject
+
             # chatting time
             duration = chat.duration()
             if isinstance(duration, datetime.timedelta):
                 dictStats[key]['avgChatTime'] = int(total_seconds(duration))
-
-
-        # process EventLogs
-        EventLogProcessor(listOfEvents, [WaitingTimeFilter()]).run(dictStats)
                 
         return dictStats
     
     @classmethod
     def aggregateObjects(cls, whichYear):
-        return (Chat.objects.filter(start_time__year=whichYear).order_by('start_time'),
-                EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
+        return Chat.objects.filter(start_time__year=whichYear).order_by('start_time')
 
     @classmethod
     def get_detail_url(cls):
@@ -213,11 +217,11 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
         new_dict = OrderedDict()
         
         # insertion order matters
-        for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'queued']:
+        for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction']:
             new_dict[v] = 0
         
-        new_dict['avgWaitTime'] = '-'
-        new_dict['avgChatTime'] = '-'
+        for v in ['clientIP', 'clientName', 'staffName', 'subject', 'avgChatTime']:
+            new_dict[v] = '-'
         
         return new_dict
     
