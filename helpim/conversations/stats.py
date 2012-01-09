@@ -148,18 +148,20 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
                   'questionnairesSubmitted': _('Questionnaires'),
                   'blocked': _('Blocked'),
                   'assigned': _('Assigned'),
+                  'queued': _('Queued'),
                   'interaction': _('Interaction'),
                   'clientIP': _('Client IP'),
                   'clientName': _('Client name'),
                   'staffName': _('Staff name'),
                   'subject': _('Subject'),
+                  'avgWaitTime': _('Wait time (sec.)'),
                   'avgChatTime': _('Chat Time (sec.)') }
     
     @classmethod
     def render(cls, listOfObjects):
         dictStats = OrderedDict()
         
-        listOfChats = listOfObjects
+        listOfChats, listOfEvents = listOfObjects
         
         for chat in listOfChats:
             key = str(chat.id)
@@ -200,12 +202,17 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
             duration = chat.duration()
             if isinstance(duration, datetime.timedelta):
                 dictStats[key]['avgChatTime'] = int(total_seconds(duration))
-                
+
+
+        # process EventLogs
+        EventLogProcessor(listOfEvents, [WaitingTimeFlatFilter()]).run(dictStats)
+
         return dictStats
     
     @classmethod
     def aggregateObjects(cls, whichYear):
-        return Chat.objects.filter(start_time__year=whichYear).order_by('start_time')
+        return (Chat.objects.filter(start_time__year=whichYear).order_by('start_time'),
+                EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
 
     @classmethod
     def get_detail_url(cls):
@@ -217,10 +224,10 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
         new_dict = OrderedDict()
         
         # insertion order matters
-        for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction']:
+        for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'queued', 'interaction']:
             new_dict[v] = 0
         
-        for v in ['clientIP', 'clientName', 'staffName', 'subject', 'avgChatTime']:
+        for v in ['clientIP', 'clientName', 'staffName', 'subject', 'avgWaitTime', 'avgChatTime']:
             new_dict[v] = '-'
         
         return new_dict
@@ -255,7 +262,10 @@ class WaitingTimeFilter(EventLogFilter):
         elif event.type == 'helpim.rooms.waitingroom.left':
             self.waitEnd = event.created_at
         elif event.type == 'helpim.rooms.one2one.client_joined':
-            self.key = str(event.created_at)
+            try:
+                self.key = Chat.objects.get(pk=event.payload)
+            except Chat.DoesNotExist:
+                pass
 
     def addToResult(self, result):
         waitTime = int(total_seconds(self.waitEnd - self.waitStart))
@@ -274,4 +284,11 @@ class WaitingTimeFilter(EventLogFilter):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
 
     def getKey(self):
-        return self.key
+        # use date/hour part of start_time of Chat to insert into result dict
+        return str(self.key.start_time)[:13]
+    
+class WaitingTimeFlatFilter(WaitingTimeFilter):
+    '''Same as WaitingTimeFilter but uses Chat's id to store into result dict'''
+
+    def getKey(self):
+        return str(self.key.id)

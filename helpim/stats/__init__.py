@@ -70,7 +70,7 @@ class EventLogProcessor():
         [self._pickupResult(f, resultDict) for f in self.filters if f.hasResult()]
 
     def _pickupResult(self, filter, resultDict):
-        key = filter.getKey()[:13]
+        key = filter.getKey()
         if key in resultDict:
             filter.addToResult(resultDict[key])
 
