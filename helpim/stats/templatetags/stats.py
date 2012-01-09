@@ -2,7 +2,9 @@ import datetime
 import types
 
 from django import template
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import stringfilter
+
 
 register = template.Library()
 
@@ -18,5 +20,7 @@ def stats_details(value, arg):
         return url
     elif isinstance(arg, datetime.date):
         url = value % {'year':arg.year, 'month':arg.month, 'day':arg.day}
+    elif isinstance(arg, types.LongType):
+        url = reverse(value, args=[arg])
     
     return url

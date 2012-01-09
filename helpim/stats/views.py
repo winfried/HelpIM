@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from helpim.conversations.stats import ChatStatsProvider
+from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
@@ -30,9 +30,26 @@ def stats_overview(request, keyword, year=None, format=None):
     # list of years with Conversations needed for navigation
     listOfPages = statsProvider.countObjects()
 
-    # get index of current year in listOfPages
-    currentPageIndex = next((index for (index, x) in enumerate(listOfPages) if x["value"] == year), None)
-
+    insertIndex = 0
+    currentPageIndex = None
+    
+    # try to find index of requested year in `listOfPages`. also determine insert position if requested year is not in that list.
+    for (idx, x) in enumerate(listOfPages):
+        # get index of current year in listOfPages
+        if x['value'] == year:
+            currentPageIndex = idx
+        
+        # find largest value that is smaller than requested year, insert after that index
+        # if no such value exists, use default insertIndex of 0
+        if x['value'] < year:
+            insertIndex = idx + 1
+        
+    # requested year is not in list, "fake" add it
+    if currentPageIndex is None:
+        listOfPages.insert(insertIndex, {'count': 0, 'value': year})
+        currentPageIndex = insertIndex
+    
+    # derive "prev" and "next" indices, if possible
     if currentPageIndex is not None:
         prevPageIndex = currentPageIndex - 1 if currentPageIndex > 0 else None
         nextPageIndex = currentPageIndex + 1 if currentPageIndex < len(listOfPages) - 1 else None
@@ -59,6 +76,8 @@ def stats_overview(request, keyword, year=None, format=None):
     else:
         return render_to_response("stats/stats_overview.html",
             {'statsKeyword': keyword,
+            'statsShortName': statsProvider.get_short_name(),
+            'statsLongName': statsProvider.get_long_name(),
             'detail_url': statsProvider.get_detail_url(),
             'currentPage': listOfPages[currentPageIndex] if not currentPageIndex is None else {'count': 0, 'value': year},
             'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
@@ -73,8 +92,16 @@ def stats_overview(request, keyword, year=None, format=None):
 def stats_index(request):
     '''Display overview showing available StatProviders'''
 
+    listOfStatsProviders = []
+    for keyword, provider in _getStatsProviders().iteritems():
+        listOfStatsProviders.append({
+            'keyword': keyword,
+            'short_name': provider.get_short_name(),
+            'long_name': provider.get_long_name()
+        })
+
     return render_to_response('stats/stats_index.html',
-        {'statProviders': _getStatsProviders().keys()},
+        { 'statProviders': listOfStatsProviders },
         context_instance=RequestContext(request))
 
 
@@ -135,7 +162,8 @@ def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
 
 def _getStatsProviders():
     '''Maps stat keyword to corresponding StatsProvider -- for now in a static fashion'''
-    return { 'chat': ChatStatsProvider }
+    return { 'chat': ChatHourlyStatsProvider,
+             'chatflat': ChatFlatStatsProvider }
 
 
 def _getStatsProvider(forName):
