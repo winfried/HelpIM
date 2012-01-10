@@ -101,6 +101,24 @@ questionnaire missing
 <input type="hidden" name="conv" value="careworker_coordinator" />
 <input type="submit" value="{% trans "Submit" %}" />
 </form>
-
 {% endif %}
+
+<h2>Questionnaires</h2>
+<ul>
+{% for q in client.questionnaires.all %}
+<li>
+{% if q.questionnaire.position == 'CR' %}
+At Registration<br />
+<iframe src="{% url form_entry q.entry.pk %}"></iframe>
+{% else %}
+{% if q.questionnaire.position == 'CA' %}
+After Chat<br />
+<iframe src="{% url form_entry q.entry.pk %}"></iframe>
+{% else %}
+<a href="{% url form_entry q.entry.pk %}">{{q.created_at}}</a>
+{% endif %}
+{% endif %}
+</li>
+{% endfor %}
+</ul>
 {% endblock %}
