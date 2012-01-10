@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
+from helpim.buddychat.models import BuddyChatProfile
 from helpim.questionnaire.models import Questionnaire
 
 class ConvMessageForm(forms.Form):
@@ -40,8 +40,6 @@ def profile(request, username):
     if request.user == client.user and not client.ready:
         try:
             q = Questionnaire.objects.filter(position='CR')[0]
-            QuestionnaireFormEntry.objects.create(questionnaire=q, buddychat_profile=client)
-            """ [TODO] pass reference to form entry to know where to store response """
             return HttpResponseRedirect(q.get_absolute_url())
         except IndexError:
             pass

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 
 from registration.models import RegistrationProfile, RegistrationManager
@@ -29,6 +30,7 @@ register_position_choices([
 
 from helpim.conversations.models import Conversation
 from helpim.questionnaire.models import Questionnaire
+from helpim.questionnaire.views import questionnaire_done
 from forms_builder.forms.models import FormEntry
 from helpim.common.models import get_position_choices
 
@@ -84,3 +86,13 @@ class QuestionnaireFormEntry(models.Model):
     class Meta:
         verbose_name = _("Questionnaire answer")
         verbose_name_plural = _("Questionnaire answers")
+
+@receiver(questionnaire_done)
+def save_q_form_entry(sender, **kwargs):
+    profile = BuddyChatProfile.objects.get(user=sender.user)
+    q_form_entry = QuestionnaireFormEntry(questionnaire=kwargs['questionnaire'],
+                                          buddychat_profile=profile,
+                                          entry=kwargs['entry'])
+    q_form_entry.save()
+    profile.ready = True
+    profile.save()

@@ -13,6 +13,8 @@ from forms_builder.forms.models import Form, FormEntry, Field
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
 
+import django.dispatch
+questionnaire_done = django.dispatch.Signal(providing_args=["questionnaire", "entry"])
 
 def form_detail(request, slug, template="questionnaire/form_detail.html"):
     """
@@ -32,6 +34,7 @@ def form_detail(request, slug, template="questionnaire/form_detail.html"):
             form_invalid.send(sender=request, form=form_for_form)
         else:
             entry = form_for_form.save()
+            questionnaire_done.send(sender=request, questionnaire=form.questionnaire, entry=entry)
             fields = ["%s: %s" % (v.label, form_for_form.cleaned_data[k])
                 for (k, v) in form_for_form.fields.items()]
             subject = form.email_subject
