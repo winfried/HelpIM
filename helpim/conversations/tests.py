@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -12,17 +12,22 @@ from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 from forms_builder.forms.models import FormEntry
 
 
-class ChatStatsProviderTestCase(TestCase):
+class ChatHourlyStatsProviderTestCase(TestCase):
     def setUp(self):
-        super(ChatStatsProviderTestCase, self).setUp()
+        super(ChatHourlyStatsProviderTestCase, self).setUp()
         
         self.c = Client()
         self.user = User.objects.create_user('testuser', 'test@example.com', 'test')
+        c, created = ContentType.objects.get_or_create(model='', app_label='stats',
+                                                       defaults={'name': 'stats'})
+        p, created = Permission.objects.get_or_create(codename='can_view_stats', content_type=c,
+                                                      defaults={'name': 'Can view Stats', 'content_type': c})
+        self.user.user_permissions.add(p)
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
-    def _createEventLog(self, created_at, type, session):
+    def _createEventLog(self, created_at, **kwargs):
         '''Creates a new EventLog and circumvents the ``auto_now_add`` option on the ``created_at`` field, so that there are fixed date values.'''
-        newEvent = EventLog.objects.create(created_at=created_at, type=type, session=session)
+        newEvent = EventLog.objects.create(created_at=created_at, **kwargs)
         newEvent.created_at = created_at
         newEvent.save()
         
@@ -71,6 +76,25 @@ class ChatStatsProviderTestCase(TestCase):
 
         self.assertEqual(len(response.context['aggregatedStats'].keys()), 4)
         self.assertEqual(response.context['aggregatedStats'].keys(), ['2011-11-01 16', '2011-11-01 17', '2011-11-01 18', '2011-11-11 18'])
+
+
+    def testTotalCount(self):
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 10), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0), subject='Chat')
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 59), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0), subject='Chat')
+
+        Chat.objects.create(start_time=datetime(2011, 11, 11, 18, 0), subject='Chat')
+        
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+        
+        # total number of Chat objects
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [2, 2, 1, 1]):
+            self.assertEqual(actual['totalCount'], expected)
 
 
     def testTotalUniqueCount(self):
@@ -203,28 +227,53 @@ class ChatStatsProviderTestCase(TestCase):
             self.assertEqual(actual['interaction'], expected)
 
 
+    def testQueued(self):
+        '''
+        This stat describes whether careseekers was in the waiting queue or not. Since all careseekers go to the waiting queue at least for a very short time,
+        we rely on the waiting time and consider waiting times longer than 15s as "queued".
+        '''
+
+        # 10 seconds waiting time -> not 'queued'
+        chat1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0, 10), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0, 10), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat1.id)
+
+        # 25 seconds waiting time -> 'queued'
+        chat2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0, 25), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat2.id)
+
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+        self.assertIsNotNone(response.context['aggregatedStats'])
+
+        for actual, expected in zip(response.context['aggregatedStats'].itervalues(), [0, 1]):
+            self.assertEqual(actual['queued'], expected)
+
+
     def testWaitingTime(self):
         '''
-        Meassure time users have to wait until Chat is successfully established. Do not regard users that left before.
+        Measure time users have to wait until Chat is successfully established. Do not regard users that left before.
         If a questionnaire was presented, waiting time starts after careseeker has questionnaire submitted.
         '''
 
         # 90 seconds waiting time, successfully established one2one chat
+        chat1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 1, 30), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.waitingroom.left', session='aabbccdd')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.one2one.client_joined', session='aabbccdd')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 1, 30), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 1, 30), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=chat1.id)
 
         # 30 seconds waiting time, successfully established one2one chat
+        chat2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 30, 30), subject='Chat')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30), type='helpim.rooms.waitingroom.joined', session='xxyyzz')
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.waitingroom.left', session='xxyyzz')
-        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.one2one.client_joined', session='xxyyzz')
-        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 30, 30), subject='Chat')
+        self._createEventLog(created_at=datetime(2011, 11, 1, 16, 30, 30), type='helpim.rooms.one2one.client_joined', session='xxyyzz', payload=chat2.id)
 
         # waiting time, but user left, doesn't count
         self._createEventLog(created_at=datetime(2011, 11, 1, 16, 45), type='helpim.rooms.waitingroom.joined', session='112233')
 
-        # there needs to be a Chat object for the same time as the EventLog, so this doesnt count
+        # there needs to be a Chat object referenced in the EventLog, so this doesnt count
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='AABBCC')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.waitingroom.left', session='AABBCC')
         self._createEventLog(created_at=datetime(2011, 11, 1, 17, 1, 30), type='helpim.rooms.one2one.client_joined', session='AABBCC')

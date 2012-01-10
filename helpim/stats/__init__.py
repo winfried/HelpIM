@@ -33,6 +33,19 @@ class StatsProvider():
     def aggregateObjects(cls, whichYear):
         '''Returns a list of data objects matching the filter given as first parameter. The objects returned here will be analyzed.'''
         raise NotImplementedError("Subclass should implement this method.")
+    
+    @classmethod
+    def get_detail_url(cls):
+        """Optionally return a URL that shows the singular objects being aggregated in the stats overview. Also see stats_details filter"""
+        return None
+
+    @classmethod
+    def get_short_name(cls):
+        raise NotImplementedError("Subclass should implement this method.")
+
+    @classmethod
+    def get_long_name(cls):
+        raise NotImplementedError("Subclass should implement this method.")
 
 
 class EventLogProcessor():
@@ -57,7 +70,7 @@ class EventLogProcessor():
         [self._pickupResult(f, resultDict) for f in self.filters if f.hasResult()]
 
     def _pickupResult(self, filter, resultDict):
-        key = filter.getKey()[:13]
+        key = filter.getKey()
         if key in resultDict:
             filter.addToResult(resultDict[key])
 
