@@ -6,6 +6,27 @@ from django.utils.translation import ugettext as _
 
 from registration.models import RegistrationProfile, RegistrationManager
 
+class ConfigurationError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+""" check if we're loaded before helpim.rooms and helpim.questionnaires """
+from django.conf import settings
+ia = settings.INSTALLED_APPS
+if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.buddychat') > ia.index('helpim.questionnaire'):
+    raise ConfigurationError('bad order of INSTALLED_APPS: helpim.buddychat must be loaded before helpim.questionnaire and helpim.rooms')
+
+from helpim.common.models import register_position_choices
+register_position_choices([
+  ('CR', _('Client, after Registration')),
+  ('CA', _('Client, after chat')),
+  ('SA', _('Staff, after chat')),
+  ('CX', _('Client, recurring')),
+  ('SX', _('Staff, recurring')),
+])
+
 from helpim.conversations.models import Conversation
 from helpim.questionnaire.models import Questionnaire
 from forms_builder.forms.models import FormEntry
@@ -63,24 +84,3 @@ class QuestionnaireFormEntry(models.Model):
     class Meta:
         verbose_name = _("Questionnaire answer")
         verbose_name_plural = _("Questionnaire answers")
-
-class ConfigurationError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-""" check if we're loaded before helpim.rooms and helpim.questionnaires """
-from django.conf import settings
-ia = settings.INSTALLED_APPS
-if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.buddychat') > ia.index('helpim.questionnaire'):
-    raise ConfigurationError('bad order of INSTALLED_APPS: helpim.buddychat must be loaded before helpim.questionnaire and helpim.rooms')
-
-from helpim.common.models import register_position_choices
-register_position_choices([
-  ('CR', _('Client, after Registration')),
-  ('CA', _('Client, after chat')),
-  ('SA', _('Staff, after chat')),
-  ('CX', _('Client, recurring')),
-  ('SX', _('Staff, recurring')),
-])
