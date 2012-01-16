@@ -761,8 +761,12 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
 
-        accessToken = AccessToken.objects.get(jid=user.real_jid)
-        EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        try:
+            accessToken = AccessToken.objects.get(jid=user.real_jid)
+            EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        except AccessToken.DoesNotExist:
+            """ this shouldn't happen """
+            log.warning("got no access token for user with jid %s" % user.real_jid)
 
         if user.nick == self.nick:
             return True
