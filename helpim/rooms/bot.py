@@ -1463,6 +1463,7 @@ class Bot(JabberClient):
                     room = WaitingRoom.objects.filter(status='abandoned')[0]
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
+                    room = None
                     raise IndexError()
 
                 try:
