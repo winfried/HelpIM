@@ -909,7 +909,6 @@ class Bot(JabberClient):
         cleanupTimeout = int(self.conf.mainloop.cleanup)
         signal(SIGALRM, self.alarmHandler)
         alarm(cleanupTimeout)
-        dbg = True #DBG
         try:
             while True:
                 reconnectdelay = int(self.conf.mainloop.reconnectdelay)
@@ -936,10 +935,6 @@ class Bot(JabberClient):
                         self.cleanup = False
 
                 except (AttributeError, socket.error):
-                    if not dbg:
-                        dbg = True
-                    else:
-                        raise # DBG
                     self.__lost_connection = True
                     log.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
                     reconnectcount = 1
