@@ -11,7 +11,7 @@ CONVERSATION_EDITABLE = False
 from forms_builder.forms.models import FormEntry
 from helpim.questionnaire.models import ConversationFormEntry
 
-from helpim.conversations.widgets import IframeReadonlyWidget
+from helpim.conversations.widgets import IframeEditableWidget, IframeReadonlyWidget
 
 class MessageInline(admin.StackedInline):
     template = 'admin/edit_inline/with_threadedcomments.html'
@@ -57,12 +57,28 @@ class ParticipantInline(admin.TabularInline):
 class ConversationFormEntryInline(admin.StackedInline):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
+        # decide how to render ConversationFormEntry.entry field
         if db_field.name == 'entry':
-            kwargs['widget'] = IframeReadonlyWidget
-            return super(admin.StackedInline, self).formfield_for_dbfield(db_field,**kwargs)
+            request = kwargs.get('request', None)
+            
+            # users that are 1) assigned to conversation as staff or 2) have can_revise_questionnaire permission see editable Questionnaire
+            if not request is None and (request.user == self.current_conversation.getStaff().user or request.user.has_perm('questionnaire.can_revise_questionnaire')):
+                kwargs['widget'] = IframeEditableWidget
+                return super(admin.StackedInline, self).formfield_for_dbfield(db_field, **kwargs)
+            else:
+                kwargs['widget'] = IframeReadonlyWidget
+                return super(admin.StackedInline, self).formfield_for_dbfield(db_field, **kwargs)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        # store Conversation instance about to be displayed in admin
+        if not obj is None:
+            self.current_conversation = obj
+        
+        return super(admin.StackedInline, self).get_formset(request, obj, **kwargs)
 
     model = ConversationFormEntry
     readonly_fields = ('position',)
+    can_delete = False
     max_num = 0
 
 class ConversationAdmin(admin.ModelAdmin):
