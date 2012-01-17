@@ -110,16 +110,25 @@ def form_sent(request, slug, entry=None, template="forms/form_sent.html"):
     """
     published = Form.objects.published(for_user=request.user)
     form = get_object_or_404(published, slug=slug)
+
+    # if Form requires login, dont show to Anonymous
+    if form.login_required and not request.user.is_authenticated():
+        return redirect("%s?%s=%s" % (settings.LOGIN_URL, REDIRECT_FIELD_NAME,
+                        urlquote(request.get_full_path())))
+
     entry = FormEntry.objects.get(pk=entry)
     context = {"form": form, "entry": entry}
     return render_to_response(template, context, RequestContext(request))
 
 def form_entry(request, form_entry_id, template="forms/form_entry.html"):
+    '''Show answers of FormEntry'''
+
+    # must be staff member
+    if not request.user.is_staff:
+        return redirect("%s?%s=%s" % (settings.LOGIN_URL, REDIRECT_FIELD_NAME, urlquote(request.get_full_path())))
 
     form_entry = get_object_or_404(FormEntry, id=form_entry_id)
-
     form_entries = form_entry.fields.all()
-
     fields = Field.objects.filter(pk__in=[form_entry.field_id for form_entry in form_entries])
 
     return render_to_response(template, {
