@@ -105,6 +105,29 @@ class ConversationAdmin(admin.ModelAdmin):
         ConversationFormEntryInline,
     ]
 
+    def __init__(self, *args, **kwargs):
+        super(ConversationAdmin, self).__init__(*args, **kwargs)
+
+        # show extra column to remind to submit SC Questionnaire
+        # there must be a SC Questionnaire defined to display column
+        # 
+        # seemingly django caches the admin instance, so changing the returned value will probably require a restart
+        if Questionnaire.objects.filter(position='SC').count() > 0:
+            self.list_display += ('needs_questionnaire',)
+
+    def needs_questionnaire(self, obj):
+        '''
+        Show a reminder that this Conversation has a Questionnaire at position SC which hasn't been filled out.
+        There must be a SC-type Questionnaire defined somewhere for the reminder to occur.
+        '''
+        is_filled_out = obj.conversationformentry_set.filter(position='SC').count() > 0
+        
+        if not is_filled_out:
+            return _('No')
+        else:
+            return _('Yes')
+    needs_questionnaire.short_description = _('Staff submitted?')
+
     def get_changelist(self, request, **kwargs):
         ChangeList = super(ConversationAdmin, self).get_changelist(request, **kwargs)
 
