@@ -131,11 +131,11 @@ def form_entry_edit(request, form_entry_id, template='forms/form_entry_edit.html
     form_entry_fields = form_entry.fields.all()
     the_form = form_entry.form
     conversation_form_entry = form_entry.conversationformentry_set.all()[0]
-    
+
     # enforce permissions, must have special right or be staff in current conversation to continue
     if not request.user.has_perm('questionnaire.can_revise_questionnaire') and not request.user == conversation_form_entry.conversation.getStaff().user:
         return redirect('/admin')
-    
+
 
     if request.method == 'POST':
         args = (the_form, request.POST or None, request.FILES or None)
