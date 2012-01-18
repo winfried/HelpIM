@@ -2,6 +2,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import formats
 from django.utils.translation import ugettext as _
 
 from helpim.common.models import EventLog
@@ -10,7 +11,7 @@ from helpim.stats import StatsProvider, EventLogFilter, EventLogProcessor
 from helpim.utils import OrderedDict, total_seconds
 
 
-class ChatStatsProvider(StatsProvider):
+class ChatHourlyStatsProvider(StatsProvider):
     knownStats = {'date': _('Date'),
                   'hour': _('Hour'),
                   'totalCount': _('Total Chats'),
@@ -30,55 +31,54 @@ class ChatStatsProvider(StatsProvider):
         listOfChats, listOfEvents = listOfObjects
 
         for chat in listOfChats:
-            clientParticipant = chat.getClient()
-            staffParticipant = chat.getStaff()
+            # determine key under which to place `chat` in `dictStats`
+            key = chat.hourAgg
+            
+            # init new entry in dictStats, if necessary
+            if key not in dictStats:
+                dictStats[key] = cls._empty_dict_entry()
 
-            if chat.hourAgg not in dictStats:
-                # insertion order matters
-                dictStats[chat.hourAgg] = OrderedDict()
-                dictStats[chat.hourAgg]['date'] = ''
-                dictStats[chat.hourAgg]['hour'] = 0
-                dictStats[chat.hourAgg]['ipTable'] = {}
-                for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'queued', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
-                    dictStats[chat.hourAgg][v] = 0
-                dictStats[chat.hourAgg]['avgWaitTime'] = '-'
-
-            dictStats[chat.hourAgg]['date'], dictStats[chat.hourAgg]['hour'] = chat.hourAgg.split(" ")
 
             try:
-                dictStats[chat.hourAgg]['date'] = datetime.datetime.strptime(dictStats[chat.hourAgg]['date'], '%Y-%m-%d').date()
-                dictStats[chat.hourAgg]['hour'] = int(dictStats[chat.hourAgg]['hour'])
+                dictStats[key]['date'], dictStats[key]['hour'] = key.split(" ")
+                
+                dictStats[key]['date'] = formats.date_format(datetime.datetime.strptime(dictStats[key]['date'], '%Y-%m-%d').date(), 'SHORT_DATE_FORMAT')
+                dictStats[key]['hour'] = int(dictStats[key]['hour'])
             except:
                 pass
 
+            
+            clientParticipant = chat.getClient()
+            staffParticipant = chat.getStaff()
+
             if not clientParticipant is None:
                 # track unique IPs, unless there was no Participant in the Conversation
-                if clientParticipant.ip_hash not in dictStats[chat.hourAgg]['ipTable']:
-                    dictStats[chat.hourAgg]['ipTable'][clientParticipant.ip_hash] = 0
+                if clientParticipant.ip_hash not in dictStats[key]['ipTable']:
+                    dictStats[key]['ipTable'][clientParticipant.ip_hash] = 0
 
                 # was client Participant blocked?
                 if clientParticipant.blocked is True:
-                    dictStats[chat.hourAgg]['blocked'] += 1
+                    dictStats[key]['blocked'] += 1
 
             if chat.hasQuestionnaire():
-                dictStats[chat.hourAgg]['questionnairesSubmitted'] += 1
+                dictStats[key]['questionnairesSubmitted'] += 1
 
             # staff member and client assigned to this Conversation?
             if not staffParticipant is None and not clientParticipant is None:
-                dictStats[chat.hourAgg]['assigned'] += 1
+                dictStats[key]['assigned'] += 1
 
             # did both Participants chat?
             if chat.hasInteraction():
-                dictStats[chat.hourAgg]['interaction'] += 1
+                dictStats[key]['interaction'] += 1
 
             # chatting time
             duration = chat.duration()
             if isinstance(duration, datetime.timedelta):
-                dictStats[chat.hourAgg]['avgChatTime'] += int(total_seconds(duration))
-                dictStats[chat.hourAgg]['numChatTime'] += 1
+                dictStats[key]['avgChatTime'] += int(total_seconds(duration))
+                dictStats[key]['numChatTime'] += 1
 
             # count this Chat object
-            dictStats[chat.hourAgg]['totalCount'] += 1
+            dictStats[key]['totalCount'] += 1
 
 
         # post-processing
@@ -100,14 +100,28 @@ class ChatStatsProvider(StatsProvider):
 
         return dictStats
 
-
+    @classmethod
+    def _empty_dict_entry(cls):
+        '''initializes a dict to be added to dictStats'''
+        new_dict = OrderedDict()
+        
+        # insertion order matters
+        new_dict['date'] = ''
+        new_dict['hour'] = 0
+        new_dict['ipTable'] = {}
+        for v in ['totalCount', 'uniqueIPs', 'questionnairesSubmitted', 'blocked', 'assigned', 'interaction', 'queued', 'avgWaitTime', 'avgChatTime', 'numChatTime']:
+            new_dict[v] = 0
+        new_dict['avgWaitTime'] = '-'
+        
+        return new_dict
+    
     @classmethod
     def countObjects(cls):
         """Returns list with years and number of Chats during year"""
 
         # see: https://code.djangoproject.com/ticket/10302
         extra_mysql = {"value": "YEAR(start_time)"}
-        return Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('start_time')
+        return list(Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('start_time'))
 
 
     @classmethod
@@ -119,7 +133,112 @@ class ChatStatsProvider(StatsProvider):
     @classmethod
     def get_detail_url(cls):
         return reverse('admin:conversations_conversation_changelist') + '?start_time__year=%(year)s&start_time__month=%(month)s&start_time__day=%(day)s'
+    
+    @classmethod
+    def get_short_name(cls):
+        return _('Chats Aggregated')
 
+    @classmethod
+    def get_long_name(cls):
+        return _('displays statistics of all Chats aggregated by hour')
+
+class ChatFlatStatsProvider(ChatHourlyStatsProvider):
+    knownStats = {'id': _('Id'),
+                  'date': _('Date'),
+                  'questionnairesSubmitted': _('Questionnaires'),
+                  'blocked': _('Blocked'),
+                  'assigned': _('Assigned'),
+                  'queued': _('Queued'),
+                  'interaction': _('Interaction'),
+                  'clientIP': _('Client IP'),
+                  'clientName': _('Client name'),
+                  'staffName': _('Staff name'),
+                  'subject': _('Subject'),
+                  'avgWaitTime': _('Wait time (sec.)'),
+                  'avgChatTime': _('Chat Time (sec.)') }
+    
+    @classmethod
+    def render(cls, listOfObjects):
+        dictStats = OrderedDict()
+        
+        listOfChats, listOfEvents = listOfObjects
+        
+        for chat in listOfChats:
+            key = str(chat.id)
+            
+            # init new entry in dictStats, if necessary
+            if key not in dictStats:
+                dictStats[key] = cls._empty_dict_entry()
+                
+            clientParticipant = chat.getClient()
+            staffParticipant = chat.getStaff()
+
+            dictStats[key]['date'] = chat.start_time
+            dictStats[key]['id'] = chat.id
+            
+            if chat.hasQuestionnaire():
+                dictStats[key]['questionnairesSubmitted'] = 1
+            
+            # was client Participant blocked?
+            if not clientParticipant is None and clientParticipant.blocked is True:
+                dictStats[key]['blocked'] = 1
+
+            # staff member and client assigned to this Conversation?
+            if not staffParticipant is None and not clientParticipant is None:
+                dictStats[key]['assigned'] = 1
+
+            # did both Participants chat?
+            if chat.hasInteraction():
+                dictStats[key]['interaction'] = 1
+
+            if not clientParticipant is None:
+                dictStats[key]['clientIP'] = clientParticipant.ip_hash
+
+            dictStats[key]['clientName'] = chat.client_name()
+            dictStats[key]['staffName'] = chat.staff_name()
+            dictStats[key]['subject'] = chat.subject
+
+            # chatting time
+            duration = chat.duration()
+            if isinstance(duration, datetime.timedelta):
+                dictStats[key]['avgChatTime'] = int(total_seconds(duration))
+
+
+        # process EventLogs
+        EventLogProcessor(listOfEvents, [WaitingTimeFlatFilter()]).run(dictStats)
+
+        return dictStats
+    
+    @classmethod
+    def aggregateObjects(cls, whichYear):
+        return (Chat.objects.filter(start_time__year=whichYear).order_by('start_time'),
+                EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
+
+    @classmethod
+    def get_detail_url(cls):
+        return 'admin:conversations_conversation_change'
+    
+    @classmethod
+    def _empty_dict_entry(cls):
+        '''initializes a dict to be added to dictStats'''
+        new_dict = OrderedDict()
+        
+        # insertion order matters
+        for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'queued', 'interaction']:
+            new_dict[v] = 0
+        
+        for v in ['clientIP', 'clientName', 'staffName', 'subject', 'avgWaitTime', 'avgChatTime']:
+            new_dict[v] = '-'
+        
+        return new_dict
+    
+    @classmethod
+    def get_short_name(cls):
+        return _('Chats Flat')
+
+    @classmethod
+    def get_long_name(cls):
+        return _('displays statistics of all Chats of a year without aggregation')
 
 class WaitingTimeFilter(EventLogFilter):
     """
@@ -127,7 +246,7 @@ class WaitingTimeFilter(EventLogFilter):
     """
 
     # amount of time in seconds user must have been waiting in line until considered 'queued'
-    QUEUED_TRESHOLD = 15
+    QUEUED_THRESHOLD = 15
 
     def __init__(self):
         self.start()
@@ -143,7 +262,10 @@ class WaitingTimeFilter(EventLogFilter):
         elif event.type == 'helpim.rooms.waitingroom.left':
             self.waitEnd = event.created_at
         elif event.type == 'helpim.rooms.one2one.client_joined':
-            self.key = str(event.created_at)
+            try:
+                self.key = Chat.objects.get(pk=event.payload)
+            except Chat.DoesNotExist:
+                pass
 
     def addToResult(self, result):
         waitTime = int(total_seconds(self.waitEnd - self.waitStart))
@@ -155,11 +277,18 @@ class WaitingTimeFilter(EventLogFilter):
             result['avgWaitTime'] = waitTime
 
         # calculate 'queued' stat
-        if waitTime >= WaitingTimeFilter.QUEUED_TRESHOLD:
+        if waitTime >= WaitingTimeFilter.QUEUED_THRESHOLD:
             result['queued'] += 1
 
     def hasResult(self):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
 
     def getKey(self):
-        return self.key
+        # use date/hour part of start_time of Chat to insert into result dict
+        return str(self.key.start_time)[:13]
+    
+class WaitingTimeFlatFilter(WaitingTimeFilter):
+    '''Same as WaitingTimeFilter but uses Chat's id to store into result dict'''
+
+    def getKey(self):
+        return str(self.key.id)
