@@ -24,3 +24,13 @@ def stats_details(value, arg):
         url = reverse(value, args=[arg])
     
     return url
+
+@register.filter
+def key(value, arg):
+    '''
+    Retrieves value given by key 'arg' from dictionary 'value'.
+    This way, a dictionary can be accessed using a template variable as key.
+    See: https://code.djangoproject.com/ticket/3371
+    '''
+
+    return value.get(arg, '')

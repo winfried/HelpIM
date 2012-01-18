@@ -12,17 +12,17 @@ from helpim.utils import OrderedDict, total_seconds
 
 
 class ChatHourlyStatsProvider(StatsProvider):
-    knownStats = {'date': _('Date'),
-                  'hour': _('Hour'),
-                  'totalCount': _('Total Chats'),
-                  'uniqueIPs': _('Unique IPs'),
-                  'questionnairesSubmitted': _('Questionnaires'),
-                  'blocked': _('Blocked'),
-                  'assigned': _('Assigned'),
-                  'interaction': _('Interaction'),
-                  'queued': _('Queued'),
-                  'avgWaitTime': _('Avg. Wait time (sec.)'),
-                  'avgChatTime': _('Avg. Chat Time (sec.)') }
+    knownStats = OrderedDict([('date', _('Date')),
+        ('hour', _('Hour')),
+        ('totalCount', _('Total Chats')),
+        ('uniqueIPs', _('Unique IPs')),
+        ('questionnairesSubmitted', _('Questionnaires')),
+        ('blocked', _('Blocked')),
+        ('assigned', _('Assigned')),
+        ('interaction', _('Interaction')),
+        ('queued', _('Queued')),
+        ('avgWaitTime', _('Avg. Wait time (sec.)')),
+        ('avgChatTime', _('Avg. Chat Time (sec.)'))])
 
     @classmethod
     def render(cls, listOfObjects):
@@ -103,9 +103,8 @@ class ChatHourlyStatsProvider(StatsProvider):
     @classmethod
     def _empty_dict_entry(cls):
         '''initializes a dict to be added to dictStats'''
-        new_dict = OrderedDict()
+        new_dict = {}
         
-        # insertion order matters
         new_dict['date'] = ''
         new_dict['hour'] = 0
         new_dict['ipTable'] = {}
@@ -143,19 +142,19 @@ class ChatHourlyStatsProvider(StatsProvider):
         return _('displays statistics of all Chats aggregated by hour')
 
 class ChatFlatStatsProvider(ChatHourlyStatsProvider):
-    knownStats = {'id': _('Id'),
-                  'date': _('Date'),
-                  'questionnairesSubmitted': _('Questionnaires'),
-                  'blocked': _('Blocked'),
-                  'assigned': _('Assigned'),
-                  'queued': _('Queued'),
-                  'interaction': _('Interaction'),
-                  'clientIP': _('Client IP'),
-                  'clientName': _('Client name'),
-                  'staffName': _('Staff name'),
-                  'subject': _('Subject'),
-                  'avgWaitTime': _('Wait time (sec.)'),
-                  'avgChatTime': _('Chat Time (sec.)') }
+    knownStats = OrderedDict([('id', _('Id')),
+        ('date', _('Date')),
+        ('questionnairesSubmitted', _('Questionnaires')),
+        ('blocked', _('Blocked')),
+        ('assigned', _('Assigned')),
+        ('queued', _('Queued')),
+        ('interaction', _('Interaction')),
+        ('clientIP', _('Client IP')),
+        ('clientName', _('Client name')),
+        ('staffName', _('Staff name')),
+        ('subject', _('Subject')),
+        ('avgWaitTime', _('Wait time (sec.)')),
+        ('avgChatTime', _('Chat Time (sec.)'))])
     
     @classmethod
     def render(cls, listOfObjects):
@@ -221,9 +220,8 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
     @classmethod
     def _empty_dict_entry(cls):
         '''initializes a dict to be added to dictStats'''
-        new_dict = OrderedDict()
+        new_dict = {}
         
-        # insertion order matters
         for v in ['id', 'date', 'questionnairesSubmitted', 'blocked', 'assigned', 'queued', 'interaction']:
             new_dict[v] = 0
         
