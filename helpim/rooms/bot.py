@@ -62,7 +62,7 @@ class RoomHandlerBase(MucRoomHandler):
         # prosody as of 0.8.2 misses a field in its configuration - we
         # check for it manually to fix this client side
         field_passwordprotectedroom_beenthere_donethat = False
-        
+
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
@@ -267,7 +267,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         if room is None:
             log.info("get_helpim_room returned None")
             return
-        
+
         # log event when careseeker has joined
         accessToken = AccessToken.objects.get(jid=user.real_jid)
         if accessToken.role == Participant.ROLE_CLIENT:
