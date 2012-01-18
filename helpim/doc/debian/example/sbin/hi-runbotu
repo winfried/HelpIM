@@ -1,16 +1,34 @@
 #!/bin/bash
-# script to start a bot, and tell about crashing
+# script to start a bot, and mail about crashing
 
-# while [ 1 ]; do
+# get variables like "$mailto and $maxcrash"
+. /etc/helpim/helpim.conf
+
+count=0
+while [ true ]; do
 
   # start the bot
+  starttime=`date +'%s'`
   cd /etc/helpim/sites/$1
   output=`PYTHONPATH='' DJANGO_SETTINGS_MODULE=settings \
     django-admin.py runbot 2>&1`
   echo $output >> /var/log/helpim/$1.log
 
-  # send a message about the crashing bot
-  echo $output | mail -s "Bot $1 crashed" helpdesk@e-hulp.nl
+  # stop when crashing too much
+  endtime=`date +'%s'`
+  difftime=$(($endtime - $starttime))
+  if [ $difftime -lt $valid_crash ]; then
+    count=$(($count+1))
+  else
+    count=0
+  fi
+  if [ $count -gt $maxcrash ]; then
+    echo "maxcrash" | mail -s "Bot $1 max crash" $mailto
+    exit 1
+  fi
 
-#  sleep 2
-# done
+  # send a message about the crashing bot
+  echo $output | mail -s "Bot $1 crashed $count." $mailto
+
+done
+
