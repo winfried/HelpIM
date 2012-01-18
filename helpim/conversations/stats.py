@@ -202,6 +202,13 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
             if isinstance(duration, datetime.timedelta):
                 dictStats[key]['avgChatTime'] = int(total_seconds(duration))
 
+            # add questionnaire answers
+            if hasattr(chat, 'conversationformentry_set'):
+                for entry in chat.conversationformentry_set.all():
+                    prefix = entry.questionnaire.slug or entry.questionnaire.position
+                    for q, a in entry.question_answer_dict().iteritems():
+                        dictStats[key][q] = a
+                        cls.knownStats[q] = prefix + ': ' + q
 
         # process EventLogs
         EventLogProcessor(listOfEvents, [WaitingTimeFlatFilter()]).run(dictStats)
