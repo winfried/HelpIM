@@ -42,7 +42,7 @@ class ChatHourlyStatsProvider(StatsProvider):
             try:
                 dictStats[key]['date'], dictStats[key]['hour'] = key.split(" ")
                 
-                dictStats[key]['date'] = formats.date_format(datetime.datetime.strptime(dictStats[key]['date'], '%Y-%m-%d').date(), 'SHORT_DATE_FORMAT')
+                dictStats[key]['date'] = datetime.datetime.strptime(dictStats[key]['date'], '%Y-%m-%d').date()
                 dictStats[key]['hour'] = int(dictStats[key]['hour'])
             except:
                 pass
