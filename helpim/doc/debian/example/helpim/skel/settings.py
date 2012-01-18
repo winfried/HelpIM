@@ -11,6 +11,7 @@ from localsettings import *
 # LANGUAGE_CODE = 'nl-NL'
 # BOT['language'] = 'nl-nl'
 # DEBUG = False
+# CHAT['staff_muc_nick'] = 'CHATX'
 
 SECRET_KEY = 'SECRETKEY'
 

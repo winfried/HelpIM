@@ -8,6 +8,7 @@ POSITION_CHOICES = (
   ('CB', _('Client, before chat')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
+  ('SC', _('Staff, on Conversation page')),
 )
 
 class Questionnaire(Form):
@@ -20,6 +21,10 @@ class Questionnaire(Form):
     class Meta:
         verbose_name = _("Questionnaire")
         verbose_name_plural = _("Questionnaires")
+        
+        permissions = (
+            ('can_revise_questionnaire', 'Can change answers to Questionnaires')
+        )
 
 class ConversationFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)

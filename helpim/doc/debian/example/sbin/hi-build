@@ -47,7 +47,7 @@ su $buildoutuser -c "
 su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
-   python bootstrap.py --distribute
+   python bootstrap.py # --distribute (only needed for Mac)
    ./bin/buildout  -v
    cd ~/HelpIM/helpim/javascript/
    make
@@ -83,7 +83,7 @@ su $buildoutuser -c "
    rm dist/* > /dev/null 2>&1
    rm -r helpim.egg-info > /dev/null 2>&1
    echo 'building egg...'
-   python setup.py sdist > /dev/null 2>&1
+   python setup.py sdist  > /dev/null 2>&1
 "
 
 # rapportage

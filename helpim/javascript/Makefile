@@ -6,6 +6,9 @@ DEPSFILE  = $(SOURCEDIR)/deps.js
 
 all: clean deps build
 
+install:
+	@echo "done."
+
 build:
 	@echo "building jsapp";
 	@mkdir -p htdocs

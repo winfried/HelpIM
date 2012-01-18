@@ -1,13 +1,10 @@
 import sys
-import os
 import logging
-import getopt
 import socket
-import traceback
 
 from time import sleep
 from signal import signal, alarm, SIGALRM
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jid import JID
@@ -15,15 +12,15 @@ from pyxmpp.message import Message
 from pyxmpp.presence import Presence
 from pyxmpp.iq import Iq
 
-from pyxmpp.jabber.muc import MucRoomManager, MucRoomState, MucRoomHandler, MucRoomUser
-from pyxmpp.jabber.muccore import MucPresence, MucIq, MucAdminQuery
+from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
+from pyxmpp.jabber.muccore import MucPresence, MucIq
 
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import FormEntry
 
 from helpim.common.models import EventLog
-from helpim.conversations.models import Chat, Participant, ChatMessage
+from helpim.conversations.models import Participant, ChatMessage
 from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
 from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
 
@@ -65,7 +62,7 @@ class RoomHandlerBase(MucRoomHandler):
         # prosody as of 0.8.2 misses a field in its configuration - we
         # check for it manually to fix this client side
         field_passwordprotectedroom_beenthere_donethat = False
-        
+
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
@@ -270,7 +267,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         if room is None:
             log.info("get_helpim_room returned None")
             return
-        
+
         # log event when careseeker has joined
         accessToken = AccessToken.objects.get(jid=user.real_jid)
         if accessToken.role == Participant.ROLE_CLIENT:
@@ -764,8 +761,12 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
 
-        accessToken = AccessToken.objects.get(jid=user.real_jid)
-        EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        try:
+            accessToken = AccessToken.objects.get(jid=user.real_jid)
+            EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        except AccessToken.DoesNotExist:
+            """ this shouldn't happen """
+            log.warning("got no access token for user with jid %s" % user.real_jid)
 
         if user.nick == self.nick:
             return True
@@ -912,7 +913,6 @@ class Bot(JabberClient):
         cleanupTimeout = int(self.conf.mainloop.cleanup)
         signal(SIGALRM, self.alarmHandler)
         alarm(cleanupTimeout)
-        dbg = True #DBG
         try:
             while True:
                 reconnectdelay = int(self.conf.mainloop.reconnectdelay)
@@ -939,10 +939,6 @@ class Bot(JabberClient):
                         self.cleanup = False
 
                 except (AttributeError, socket.error):
-                    if not dbg:
-                        dbg = True
-                    else:
-                        raise # DBG
                     self.__lost_connection = True
                     log.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
                     reconnectcount = 1
@@ -1253,7 +1249,6 @@ class Bot(JabberClient):
         log.notice("Checking status for group room '%s'." % room.jid)
         status = room.getStatus()
         log.notice("Status is '%s' for group room '%s'." % (status, room.jid))
-        userexited = room.getCleanExit()
         chat_id = room.chat_id
         nUsers = len(mucstate.users) - 1 # -1 for not counting the bot itself
         log.info("There are %d users in '%s'." % (nUsers, room.jid))
@@ -1422,7 +1417,7 @@ class Bot(JabberClient):
 
         '''
         try:
-            poolsize = int(self.conf.muc.poolsize)
+            int(self.conf.muc.poolsize)
         except ValueError:
             return "MUC-room pool size invalid"
         self.conf.muc.poolsize = newSize
@@ -1456,8 +1451,12 @@ class Bot(JabberClient):
             ac = AccessToken.objects.get(token=token_n.getContent())
             log.info("got accessToken: %s" % ac)
 
+            """ save jid """
+            ac.jid = iq.get_from()
+            ac.save()
+
             resIq = iq.make_result_response()
-            query = resIq.new_query(NS_HELPIM_ROOMS)
+            resIq.new_query(NS_HELPIM_ROOMS)
 
             if ac.role == Participant.ROLE_CLIENT:
                 """ send invite to waiting room """
@@ -1468,6 +1467,7 @@ class Bot(JabberClient):
                     room = WaitingRoom.objects.filter(status='abandoned')[0]
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
+                    room = None
                     raise IndexError()
 
                 try:
@@ -1513,10 +1513,6 @@ class Bot(JabberClient):
                     """ save token to lobby """
                     LobbyRoomToken.objects.create(token=ac, room=room)
 
-            """ save jid """
-            ac.jid = iq.get_from()
-            ac.save()
-
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
@@ -1558,7 +1554,7 @@ class Bot(JabberClient):
 
         try:
             try:
-                client_nick = iq.xpath_eval('d:block/d:participant', {'d': NS_HELPIM_ROOMS})[0]
+                iq.xpath_eval('d:block/d:participant', {'d': NS_HELPIM_ROOMS})[0]
             except IndexError:
                 raise BadRequestError()
 
@@ -1580,7 +1576,7 @@ class Bot(JabberClient):
             client.save()
 
             resIq = iq.make_result_response()
-            query = resIq.new_query(NS_HELPIM_ROOMS)
+            resIq.new_query(NS_HELPIM_ROOMS)
 
         except One2OneRoom.DoesNotExist:
             resIq = iq.make_error_response(u"item-not-found")
@@ -1781,6 +1777,8 @@ class Log:
         logger.setLevel(newlevel)
         self.__helpimlog.info("Log level now set to '%s'" % level)
         return str()
+log = Log()
+
 
 def str2roomjid(jidstr):
     tmp = jidstr.split('@')

@@ -30,8 +30,11 @@ userdel $chat
 rm -rf /etc/helpim/sites/$chat
 
 # delete tigase-user
-cd /usr/local/tigase/
-scripts/repo.sh -u $chat@localhost -del
+# cd /usr/local/tigase/
+# scripts/repo.sh -u $chat@localhost -del
+
+# delete Prosody-user
+prosodyctl unregister $chat localhost
 
 # remove logfile
 rm /var/log/helpim/$chat\.*
