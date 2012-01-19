@@ -43,6 +43,7 @@ def form_detail(request, slug, template="questionnaire/form_detail.html", conver
 
     if request.method == "POST":
         create_conversationformentry = False
+        conv = None
 
         # a conversation_id was supplied -> check permissions and later link this questionnaire submission to corresponding Conversation
         if not conversation_id is None:
