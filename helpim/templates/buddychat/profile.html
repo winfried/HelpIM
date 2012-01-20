@@ -19,6 +19,8 @@
 questionnaire missing
 {% endif %}
 
+<a href="{% url buddychat_chat client.user.username %}">Join Chat</a>
+
 <dl>
 <dt>{% trans "Email" %}</dt>
 <dd>{{client.user.email}}</dd>

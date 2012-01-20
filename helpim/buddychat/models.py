@@ -31,6 +31,7 @@ register_position_choices([
 from helpim.conversations.models import Conversation
 from helpim.questionnaire.models import Questionnaire
 from helpim.questionnaire.views import questionnaire_done
+from helpim.rooms.models import SimpleRoom
 from forms_builder.forms.models import FormEntry
 from helpim.common.models import get_position_choices
 
@@ -65,6 +66,8 @@ class BuddyChatProfile(RegistrationProfile):
     careworker_conversation = models.ForeignKey(Conversation, related_name='+')
     coordinator_conversation = models.ForeignKey(Conversation, related_name='+')
     careworker_coordinator_conversation = models.ForeignKey(Conversation, related_name='+')
+
+    room = models.ForeignKey(SimpleRoom, blank=True, null=True)
 
     objects = BuddyChatProfileManager()
 

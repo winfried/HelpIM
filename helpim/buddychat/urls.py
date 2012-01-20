@@ -8,6 +8,7 @@ urlpatterns = patterns(
     '',
     url(r'^$', 'helpim.buddychat.views.welcome'),
     url(r'^profile/(?P<username>\w+)/$', 'helpim.buddychat.views.profile', name='buddychat_profile'),
+    url(r'^profile/(?P<username>\w+)/chat$', 'helpim.buddychat.views.join_chat', name='buddychat_chat'),
     url(r'^profile/(?P<username>\w+)/set_cw$', 'helpim.buddychat.views.set_cw'),
     url(r'^activate/complete/$',
         direct_to_template,

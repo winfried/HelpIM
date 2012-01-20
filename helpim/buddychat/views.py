@@ -1,5 +1,6 @@
 from datetime import datetime
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
@@ -9,10 +10,14 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.simplejson import dumps
 from django.utils.translation import ugettext as _
+
+from hashlib import md5
 
 from helpim.buddychat.models import BuddyChatProfile
 from helpim.questionnaire.models import Questionnaire
+from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
 
 class ConvMessageForm(forms.Form):
     body = forms.CharField(max_length=4096, widget=forms.Textarea)
@@ -158,3 +163,33 @@ def set_cw(request, username):
                 client.save()
 
     return HttpResponseRedirect(reverse('buddychat_profile', args=[username]))
+
+@login_required(login_url='/login/')
+def join_chat(request, username):
+    client = get_object_or_404(BuddyChatProfile, user__username = username)
+    is_staff = client.careworker == request.user
+    if is_staff:
+        role = Participant.ROLE_STAFF
+    else:
+        role = Participant.ROLE_CLIENT
+    ac = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=request.user)
+    if client.room is None or client.room.getStatus() != 'waiting':
+        client.room = SimpleRoom.objects.filter(status='available')[0]
+        client.save()
+    SimpleRoomToken.objects.create(token = ac, room=client.room)
+    return render_to_response(
+        'rooms/join_chat.html', {
+            'debug': settings.DEBUG,
+            'is_staff': is_staff,
+            'is_one2one': True,
+            'xmpptk_config': dumps(dict({
+                'logout_redirect': request.META.get('HTTP_REFERER'),
+                'bot_jid': '%s@%s/%s' % (settings.BOT['connection']['username'],
+                                         settings.BOT['connection']['domain'],
+                                         settings.BOT['connection']['resource']),
+                'bot_nick': settings.BOT['muc']['nick'],
+                'static_url': settings.STATIC_URL,
+                'is_staff':is_staff,
+                'token': ac.token,
+                }.items() + settings.CHAT.items()), indent=2)
+            })
