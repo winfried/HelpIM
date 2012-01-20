@@ -1542,6 +1542,10 @@ class Bot(JabberClient):
             ac = AccessToken.objects.get(token=token_n.getContent())
             log.info("got accessToken: %s" % ac)
 
+            """ save jid """
+            ac.jid = iq.get_from()
+            ac.save()
+
             try:
                 self.handle_simple_room_token(iq, ac)
                 return
@@ -1604,10 +1608,6 @@ class Bot(JabberClient):
                             room = LobbyRoom.objects.filter(status='available').order_by('pk')[0]
                     """ save token to lobby """
                     LobbyRoomToken.objects.create(token=ac, room=room)
-
-            """ save jid """
-            ac.jid = iq.get_from()
-            ac.save()
 
         except AccessToken.DoesNotExist:
             log.info("Bad AccessToken given: %s" % token_n.getContent())
