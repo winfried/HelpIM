@@ -191,5 +191,7 @@ def join_chat(request, username):
                 'static_url': settings.STATIC_URL,
                 'is_staff':is_staff,
                 'token': ac.token,
+                'muc_nick': request.user.username,
+                'mode': 'light',
                 }.items() + settings.CHAT.items()), indent=2)
             })
