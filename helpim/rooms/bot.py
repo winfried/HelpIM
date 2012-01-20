@@ -560,6 +560,8 @@ class SimpleRoomHandler(RoomHandlerBase):
 
         status = room.getStatus()
         log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + status)
+        if status == 'available':
+            self.todo.append((self.fillMucRoomPool, self.site))
         room.userJoined(user)
 
     def user_left(self, user, stanza):
