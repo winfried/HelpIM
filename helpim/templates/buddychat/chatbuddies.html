@@ -1,0 +1,15 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Chat Buddies" %}{% endblock %}
+
+{% block content %}
+
+<ul>
+{% for buddy in chatbuddies %}
+  <li><a href="{% url buddychat_profile buddy.user.username %}">{{buddy.user.username}} ({{buddy.user.email}})</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}
+

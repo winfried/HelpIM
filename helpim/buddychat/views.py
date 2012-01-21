@@ -220,3 +220,13 @@ def join_chat(request, username):
                 'disable_blocking': True,
                 }.items() + settings.CHAT.items()), indent=2)
             })
+
+@permission_required('buddychat.is_careworker')
+def chatbuddies(request):
+    chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user)
+    return render_to_response(
+        'buddychat/chatbuddies.html',
+        {'title': _('Chat Buddies'),
+         'chatbuddies': chatbuddies},
+        context_instance=RequestContext(request)
+        )
