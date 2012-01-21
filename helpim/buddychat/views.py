@@ -167,6 +167,11 @@ def set_cw(request, username):
 @login_required(login_url='/login/')
 def join_chat(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
+
+    if request.user != client.user and request.user != client.careworker:
+        """ only careworkers and the client itself are allowed to access the chat """
+        return HttpResponse(_('Access Denied'))
+        
     is_staff = client.careworker == request.user
     if is_staff:
         role = Participant.ROLE_STAFF
