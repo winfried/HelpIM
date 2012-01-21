@@ -577,10 +577,10 @@ class SimpleRoom(Room):
         status = self.getStatus()
         if status in ("available", "abandoned"):
             self.setStatus("waiting")
-        elif status == "waiting":
+        elif status in ("waiting", "lost"):
             self.setStatus("chatting")
         else:
-            raise StatusError("client joining room while not room status is not 'available' or 'waiting'")
+            raise StatusError("client joining room while room in status %s" % status)
 
     def userLeftDirty(self):
         """To be called when a participant (either client or staff) has left the chat."""
