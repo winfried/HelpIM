@@ -179,9 +179,21 @@ def join_chat(request, username):
         role = Participant.ROLE_CLIENT
 
     ac = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=request.user)
-    if client.room is None or client.room.getStatus() not in ('waiting', 'lost'):
-        client.room = SimpleRoom.objects.filter(status='available')[0]
-        client.save()
+    try:
+        if client.room is None or client.room.getStatus() not in ('waiting', 'lost'):
+            client.room = SimpleRoom.objects.filter(status='available')[0]
+            client.save()
+    except SimpleRoom.DoesNotExist:
+        """ this is meant to happen when we got a stale reference at
+        client.room which points to a deleted room. this could also
+        happen if there is no room available. we will check afterwards
+        and redirect to some error page."""
+        try:
+            client.room = SimpleRoom.objects.filter(status='available')[0]
+            client.save()
+        except SimpleRoom.DoesNotExist:
+            """ well there's really no room, probably because the bot isn't running """
+            return HttpResponse(_('Service Unavailable'))
 
     # delete old SimpleRoomTokens
     SimpleRoomToken.objects.filter(token=ac).all().delete()
