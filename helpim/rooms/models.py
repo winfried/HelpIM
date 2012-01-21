@@ -540,6 +540,12 @@ class SimpleRoom(Room):
 
     objects = RoomManager()
 
+    def getParticipantByNick(self, nick):
+        if self.client_nick == nick:
+            return self.client
+        elif self.staff_nick == nick:
+            return self.staff
+
     def userJoined(self, muc_user):
         """To be called after the staffmember has joined
         the room at the jabber-server.
