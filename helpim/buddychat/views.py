@@ -177,11 +177,18 @@ def join_chat(request, username):
         role = Participant.ROLE_STAFF
     else:
         role = Participant.ROLE_CLIENT
+
     ac = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=request.user)
     if client.room is None or client.room.getStatus() != 'waiting':
         client.room = SimpleRoom.objects.filter(status='available')[0]
         client.save()
-    SimpleRoomToken.objects.create(token = ac, room=client.room)
+
+    # delete old SimpleRoomTokens
+    SimpleRoomToken.objects.filter(token=ac).all().delete()
+
+    # store room with SimpleRoomToken
+    SimpleRoomToken.objects.get_or_create(token = ac, room=client.room)
+    
     return render_to_response(
         'rooms/join_chat.html', {
             'debug': settings.DEBUG,
