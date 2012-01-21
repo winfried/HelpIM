@@ -562,7 +562,13 @@ class SimpleRoomHandler(RoomHandlerBase):
         log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + status)
         if status == 'available':
             self.todo.append((self.fillMucRoomPool, self.site))
+
         room.userJoined(user)
+        # must be done after call to userJoined as only after we can be sure there's a conversation
+        if status in ('available', 'waiting'):
+            ChatMessage.objects.create(event='join', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
+        else:
+            ChatMessage.objects.create(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
 
     def user_left(self, user, stanza):
         if user.nick == self.nick:
@@ -576,8 +582,10 @@ class SimpleRoomHandler(RoomHandlerBase):
 
         cleanexit = stanza.get_status()
         if cleanexit is not None and cleanexit.strip() == u"Clean Exit":
+            ChatMessage.objects.create(event='ended', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
             room.userLeftClean()
         else:
+            ChatMessage.objects.create(event='left', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
             room.userLeftDirty()
 
 class GroupRoomHandler(RoomHandlerBase):
