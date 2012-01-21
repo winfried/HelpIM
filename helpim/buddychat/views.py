@@ -217,5 +217,6 @@ def join_chat(request, username):
                 'token': ac.token,
                 'muc_nick': request.user.username,
                 'mode': 'light',
+                'disable_blocking': True,
                 }.items() + settings.CHAT.items()), indent=2)
             })
