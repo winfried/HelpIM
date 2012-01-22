@@ -43,11 +43,10 @@ questionnaire missing
 <dd>{{client.user.date_joined}}</dd>
 {% endif %}
 </dl>
-
-{% if perms.is_staff and chats %}
+{% if user.is_staff %}
 <h2>{% trans "Chat Sesssion" %}</h2>
 <ul>
-{% for chat in chats %}
+{% for chat in client.chats %}
   <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.start_time }}</a></li>
 {% endfor %}
 </ul>
