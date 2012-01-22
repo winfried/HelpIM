@@ -109,7 +109,13 @@ def profile(request, username):
                     site = RequestSite(request)
 
                 subject = _('a message from %s' % request.user.username)
-                body = _('%s wrote a message on %s\'s profile:\n\n%s\n\nDon\'t reply to this message directly, reply on this user\'s personal page at http://%s/profile/%s/' % (request.user.username, client.user.username, form.cleaned_data['body'], site, client.user.username))
+                body = _('%(sender)s wrote a message on %(client)s\'s profile:\n\n%(message)s\n\nDon\'t reply to this message directly, reply on this user\'s personal page at http://%(site)s/profile/%(client)s/' %
+                         {'sender' : request.user.username,
+                          'client' : client.user.username,
+                          'message': form.cleaned_data['body'],
+                          'site'   : site
+                          }
+                    )
 
                 if not rcpt is None:
                     rcpt.email_user(subject, body)
