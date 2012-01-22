@@ -28,7 +28,7 @@ register_position_choices([
   ('SX', _('Staff, recurring')),
 ])
 
-from helpim.conversations.models import Conversation
+from helpim.conversations.models import Conversation, Chat
 from helpim.questionnaire.models import Questionnaire
 from helpim.questionnaire.views import questionnaire_done
 from helpim.rooms.models import SimpleRoom
@@ -70,6 +70,9 @@ class BuddyChatProfile(RegistrationProfile):
     room = models.ForeignKey(SimpleRoom, blank=True, null=True)
 
     objects = BuddyChatProfileManager()
+
+    def chats(self):
+        return [chat for chat in Chat.objects.filter(participant__user = self.user) if chat.messages.count() > 0]
 
     class Meta:
         verbose_name = _("Chat Buddy")
