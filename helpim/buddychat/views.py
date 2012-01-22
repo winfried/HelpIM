@@ -230,9 +230,9 @@ def join_chat(request, username):
 @user_passes_test(lambda u: u.has_perm('buddychat.is_careworker') or u.has_perm('buddychat.is_coordinator'))
 def chatbuddies(request):
     if request.user.has_perm('buddychat.is_coordinator'):
-        chatbuddies = BuddyChatProfile.objects.order_by('careworker', 'ready')
+        chatbuddies = BuddyChatProfile.objects.order_by('careworker__username', 'ready')
     else:
-        chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user)
+        chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user).order_by('user__username')
     return render_to_response(
         'buddychat/chatbuddies.html',
         {'title': _('Chat Buddies'),
