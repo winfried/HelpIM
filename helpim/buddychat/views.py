@@ -2,7 +2,7 @@ from datetime import datetime
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
@@ -230,9 +230,12 @@ def join_chat(request, username):
                 }.items() + settings.CHAT.items()), indent=2)
             })
 
-@permission_required('buddychat.is_careworker')
+@user_passes_test(lambda u: u.has_perm('buddychat.is_careworker') or u.has_perm('buddychat.is_coordinator'))
 def chatbuddies(request):
-    chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user)
+    if request.user.has_perm('buddychat.is_coordinator'):
+        chatbuddies = BuddyChatProfile.objects.all()
+    else:
+        chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user)
     return render_to_response(
         'buddychat/chatbuddies.html',
         {'title': _('Chat Buddies'),
