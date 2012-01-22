@@ -44,6 +44,15 @@ questionnaire missing
 {% endif %}
 </dl>
 
+{% if perms.is_staff and chats %}
+<h2>{% trans "Chat Sesssion" %}</h2>
+<ul>
+{% for chat in chats %}
+  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.start_time }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
 {% if client.careworker or perms.buddychat.is_coordinator %}
 <h2>{% trans "Careworker Conversation" %}</h2>
 <table>
