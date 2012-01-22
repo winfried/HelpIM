@@ -16,7 +16,6 @@ from django.utils.translation import ugettext as _
 from hashlib import md5
 
 from helpim.buddychat.models import BuddyChatProfile
-from helpim.conversations.models import Chat
 from helpim.questionnaire.models import Questionnaire
 from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
 
@@ -129,10 +128,8 @@ def profile(request, username):
                 form = ConvMessageForm() # reset form
         else:
             form = ConvMessageForm()
-        chats = [chat for chat in Chat.objects.filter(participant__user = client.user) if chat.messages.count() > 0]
         params = {'client': client,
-                  'form': form,
-                  'chats': chats}
+                  'form': form}
         if request.user.has_perm('buddychat.is_coordinator'):
             if client.careworker:
                 params['careworkers_form'] = CareworkersForm(initial={'careworker': client.careworker.pk})
