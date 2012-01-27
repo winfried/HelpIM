@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -53,6 +53,7 @@ class BuddyChatProfileManager(RegistrationManager):
 
 class BuddyChatProfile(RegistrationProfile):
 
+    '''set to True after CR questionnaire was taken'''
     ready = models.BooleanField(default=False)
     careworker = models.ForeignKey(User,
                                   verbose_name=_("Careworker"),
@@ -73,6 +74,65 @@ class BuddyChatProfile(RegistrationProfile):
 
     def chats(self):
         return [chat for chat in Chat.objects.filter(participant__user = self.user) if chat.messages.count() > 0]
+
+    def is_coupled(self):
+        return not self.careworker is None
+
+    def get_latest_questionnaire_entry(self, position):
+        '''
+        returns the latest QuestionnaireFormEntry for this profile of given position or None if no such object exists.
+        '''
+        try:
+            return self.questionnaires.filter(position=position).order_by('-created_at')[0]
+        except IndexError:
+            return None
+
+    def needs_questionnaire_CR(self):
+        '''
+        Decide whether this profile must take the CR questionnaire.
+        If so, return a reference to that Questionnaire. If not, return None.
+        '''
+        q = None
+
+        if not self.ready:
+            try:
+                q = Questionnaire.objects.filter(position='CR')[0]
+            except IndexError:
+                pass
+
+        return q
+
+    def needs_questionnaire_recurring(self, position):
+        '''
+        Decide whether this profile must take the recurring Questionnaire.
+        There are two types of such a Questionnaire: one for the careseeker (CX) and one for the careworker(SX)
+        If so, return a reference to that Questionnaire. If not, return None.
+        '''
+        # only continue if coupled with a careworker
+        if self.is_coupled() is False:
+            return None
+
+        # dont continue if there is no recurring questionnaire configured
+        try:
+            q_recurring = Questionnaire.objects.filter(position=position)[0]
+        except IndexError:
+            q_recurring = None
+        if q_recurring is None:
+            return None
+
+        # get the latest recurring questionnaire taken by this user to check if its ago long enough for the user to take another one.
+        # if the user has never taken a recurring questionnaire, compare against the date when he was coupled.
+        latest_cx = self.get_latest_questionnaire_entry(position)
+        if latest_cx is None:
+            compare_against = self.coupled_at
+        else:
+            compare_against = latest_cx.created_at
+
+        # has enough time passed?
+        if compare_against + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL) <= datetime.now():
+            return q_recurring
+        else:
+            return None
 
     class Meta:
         verbose_name = _("Chat Buddy")

@@ -40,6 +40,12 @@ CHAT['log_level'] = 'ALL'
 # via django_registrations (part of buddychat)
 #ACCOUNT_ACTIVATION_DAYS = 7
 
+# buddychat: time that needs to pass between regular Questionnaires
+# of careseeker and careworker.
+# supply a dictionary that can be passed into datetime.timedelta(..)
+# (see http://docs.python.org/library/datetime.html#datetime.timedelta)
+#RECURRING_QUESTIONNAIRE_INTERVAL = { 'weeks': 1 }
+
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )

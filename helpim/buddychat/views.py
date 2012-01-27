@@ -42,12 +42,16 @@ def welcome(request):
 @login_required(login_url='/login/')
 def profile(request, username):
     client = get_object_or_404(BuddyChatProfile, user__username = username)
-    if request.user == client.user and not client.ready:
-        try:
-            q = Questionnaire.objects.filter(position='CR')[0]
+    if request.user == client.user:
+        # decide if client must take CR questionnaire and redirect if necessary
+        q = client.needs_questionnaire_CR()
+        if not q is None:
             return HttpResponseRedirect(q.get_absolute_url())
-        except IndexError:
-            pass
+        
+        q = client.needs_questionnaire_recurring('CX')
+        if not q is None:
+            return HttpResponseRedirect(q.get_absolute_url())
+
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         """ we need to make sure requesting user is either
         * the careseeker himself (aka the 'client')
