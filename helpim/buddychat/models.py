@@ -97,6 +97,7 @@ class QuestionnaireFormEntry(models.Model):
 def save_q_form_entry(sender, **kwargs):
     profile = BuddyChatProfile.objects.get(user=sender.user)
     q_form_entry = QuestionnaireFormEntry(questionnaire=kwargs['questionnaire'],
+                                          position=kwargs['questionnaire'].position,
                                           buddychat_profile=profile,
                                           entry=kwargs['entry'])
     q_form_entry.save()
