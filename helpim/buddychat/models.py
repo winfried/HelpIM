@@ -78,7 +78,7 @@ class BuddyChatProfile(RegistrationProfile):
         verbose_name = _("Chat Buddy")
         verbose_name_plural = _("Chat Buddies")
         permissions = (
-            ('is_coordinator', 'Is allowed to coordinate careworkers and careseekers'),
+            ('is_coordinator', 'Is allowed to coordinate careworkers & careseekers'),
             ('is_careworker', 'Is a careworker')
             )
 
