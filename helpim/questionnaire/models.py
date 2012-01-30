@@ -23,7 +23,7 @@ class Questionnaire(Form):
         verbose_name_plural = _("Questionnaires")
         
         permissions = (
-            ('can_revise_questionnaire', 'Can change answers to Questionnaires')
+            ('can_revise_questionnaire', 'Can change answers to Questionnaires'),
         )
 
 class ConversationFormEntry(models.Model):
