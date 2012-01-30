@@ -16,7 +16,6 @@ from django.utils.translation import ugettext as _
 from hashlib import md5
 
 from helpim.buddychat.models import BuddyChatProfile
-from helpim.questionnaire.models import Questionnaire
 from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
 
 class ConvMessageForm(forms.Form):
@@ -46,11 +45,11 @@ def profile(request, username):
         # decide if client must take CR questionnaire and redirect if necessary
         q = client.needs_questionnaire_CR()
         if not q is None:
-            return HttpResponseRedirect(q.get_absolute_url())
-        
+            return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
+
         q = client.needs_questionnaire_recurring('CX')
         if not q is None:
-            return HttpResponseRedirect(q.get_absolute_url())
+            return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
 
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         """ we need to make sure requesting user is either

@@ -4,7 +4,6 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.dispatch import Signal
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -16,21 +15,18 @@ from forms_builder.forms.models import Form, FormEntry, Field
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
 
+from helpim.buddychat.models import BuddyChatProfile
 from helpim.conversations.models import Conversation
 from helpim.questionnaire.fields import DoubleDropWidget
-from helpim.questionnaire.models import ConversationFormEntry
+from helpim.questionnaire.models import questionnaire_saved
 
 
-questionnaire_done = Signal(providing_args=["questionnaire", "entry"])
-
-
-def form_detail(request, slug, template="questionnaire/form_detail.html", conversation_id=None):
+def form_detail(request, slug, template="questionnaire/form_detail.html", extra_object_id=None):
     """
-    Display a built form and handle submission.
+    Display a built form and handle its submission.
     
-    If questionnaire-type is 'SC' (Staff, on Conversation page), conversation_id must be set
-    so that the questionnaire-submission here can be linked to the corresponding Conversation.
-    Request must come from same user, that has role 'staff' in referenced Conversation.
+    object_id is the primary key of an object like Conversation or BuddyChatProfile that will be linked to this FormEntry
+    via ConversationFormEntry or QuestionnaireFormEntry.
     """
 
     published = Form.objects.published(for_user=request.user)
@@ -46,31 +42,40 @@ def form_detail(request, slug, template="questionnaire/form_detail.html", conver
     form_for_form = FormForForm(*args)
 
     if request.method == "POST":
-        create_conversationformentry = False
-        conv = None
+        has_extra_permission = False
 
-        # a conversation_id was supplied -> check permissions and later link this questionnaire submission to corresponding Conversation
-        if not conversation_id is None:
-            # check that current user is has the staff role in the conversation,
-            # wants to submit a 'Staff, on Conversation page' questionnaire which doesnt exist yet
-            conv = get_object_or_404(Conversation, pk=conversation_id)
-            has_permission = (conv.getStaff().user == request.user)
-            is_correct_type = (form.questionnaire.position == 'SC')
-            doesnt_exist = (form.questionnaire.conversationformentry_set.filter(conversation__id=conversation_id).count() == 0)
-            create_conversationformentry = has_permission and is_correct_type and doesnt_exist
+        # if the id of an extra object is given, make sure user has permissions and preconditions are met
+        if extra_object_id > 0:
+            if form.questionnaire.position == 'SC':
+                conv = get_object_or_404(Conversation, pk=extra_object_id)
 
-        if not form_for_form.is_valid() or (not conversation_id is None and not create_conversationformentry):
+                # only staff member assigned to Conversation may take SC-Questionnaire
+                has_permission = (conv.getStaff().user == request.user)
+                # the SC-Questionnaire can be taken only once
+                doesnt_exist = (form.questionnaire.conversationformentry_set.filter(conversation__id=extra_object_id).count() == 0)
+
+                has_extra_permission = has_permission and doesnt_exist
+            elif form.questionnaire.position == 'CR':
+                profile = get_object_or_404(BuddyChatProfile, pk=extra_object_id)
+
+                has_permission = (profile.user == request.user)
+                doesnt_exist = (profile.questionnaires.filter(position='CR').count() == 0)
+
+                has_extra_permission = has_permission and doesnt_exist
+            elif form.questionnaire.position == 'CX':
+                profile = get_object_or_404(BuddyChatProfile, pk=extra_object_id)
+                has_extra_permission = (profile.user == request.user)
+            elif form.questionnaire.position == 'SX':
+                profile = get_object_or_404(BuddyChatProfile, pk=extra_object_id)
+
+                # only careworker assigned to BuddyProfile may take SX-Questionnaire
+                has_extra_permission = (profile.careworker == request.user)
+
+
+        if not form_for_form.is_valid() or (extra_object_id > 0 and not has_extra_permission):
             form_invalid.send(sender=request, form=form_for_form)
         else:
             entry = form_for_form.save()
-
-            # link FormEntry and Conversation
-            if conv and create_conversationformentry:
-                ConversationFormEntry.objects.create(
-                    questionnaire=form.questionnaire,
-                    entry=entry,
-                    conversation=conv,
-                    position=form.questionnaire.position)
 
             # send email
             fields = ["%s: %s" % (v.label, form_for_form.cleaned_data[k])
@@ -98,7 +103,7 @@ def form_detail(request, slug, template="questionnaire/form_detail.html", conver
 
             # send signals
             form_valid.send(sender=request, form=form_for_form, entry=entry)
-            questionnaire_done.send(sender=request, questionnaire=form.questionnaire, entry=entry)
+            questionnaire_saved.send(sender=request, questionnaire=form.questionnaire, entry=entry, extra_object_id=extra_object_id)
 
             return redirect(reverse("form_sent", kwargs={"slug": form.slug, "entry": entry.pk}))
 
@@ -129,11 +134,18 @@ def form_sent(request, slug, entry=None, template="forms/form_sent.html"):
 def form_entry(request, form_entry_id, template="forms/form_entry.html"):
     '''Show answers of FormEntry'''
 
-    # must be staff member
-    if not request.user.is_staff:
+    form_entry = get_object_or_404(FormEntry, id=form_entry_id)
+
+    is_same_user = False
+    try:
+        is_same_user = (form_entry.questionnaireformentry_set.all()[0].buddychat_profile.user == request.user)
+    except:
+        is_same_user = False
+
+    # must be staff member, or in case of BuddyChat same user who created the FormEntry
+    if not request.user.is_staff and (not is_same_user):
         return redirect("%s?%s=%s" % (settings.LOGIN_URL, REDIRECT_FIELD_NAME, urlquote(request.get_full_path())))
 
-    form_entry = get_object_or_404(FormEntry, id=form_entry_id)
     form_entries = form_entry.fields.all()
     fields = Field.objects.filter(pk__in=[form_entry.field_id for form_entry in form_entries])
 

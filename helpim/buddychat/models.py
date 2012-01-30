@@ -29,12 +29,11 @@ register_position_choices([
   ('SX', _('Staff, recurring')),
 ])
 
+from helpim.common.models import get_position_choices
 from helpim.conversations.models import Conversation, Chat
-from helpim.questionnaire.models import Questionnaire
-from helpim.questionnaire.views import questionnaire_done
+from helpim.questionnaire.models import Questionnaire, questionnaire_saved
 from helpim.rooms.models import SimpleRoom
 from forms_builder.forms.models import FormEntry
-from helpim.common.models import get_position_choices
 
 class BuddyChatProfileManager(RegistrationManager):
     def create(self, user, activation_key):
@@ -154,13 +153,18 @@ class QuestionnaireFormEntry(models.Model):
         verbose_name = _("Questionnaire answer")
         verbose_name_plural = _("Questionnaire answers")
 
-@receiver(questionnaire_done)
+
+@receiver(questionnaire_saved)
 def save_q_form_entry(sender, **kwargs):
-    profile = BuddyChatProfile.objects.get(user=sender.user)
-    q_form_entry = QuestionnaireFormEntry(questionnaire=kwargs['questionnaire'],
-                                          position=kwargs['questionnaire'].position,
+    # only "staff, recurring"
+    if not kwargs['questionnaire'].position in ['CR', 'CX', 'SX']:
+        return
+
+    profile = BuddyChatProfile.objects.get(pk=kwargs['extra_object_id'])
+    q_form_entry = QuestionnaireFormEntry(entry=kwargs['entry'],
+                                          questionnaire=kwargs['questionnaire'],
                                           buddychat_profile=profile,
-                                          entry=kwargs['entry'])
+                                          position=kwargs['questionnaire'].position)
     q_form_entry.save()
     profile.ready = True
     profile.save()
