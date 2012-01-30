@@ -1,5 +1,6 @@
 # very basic setup, not well tested
 
+echo "danger will robinson"
 exit  # this is documentation, don't execute it!
 
 # first install packages for building:
@@ -38,21 +39,24 @@ valid_crash=10
 maxcrash=10
 ' > /etc/helpim/helpim.conf
 
+# create new build environment
+. /etc/helpim/helpim.conf # get variables like "buildoutuser"
 useradd -s /bin/bash buildout
 mkdir /home/buildout
-cd /home/buildout/
+cd /home/$buildoutuser
+rm -rf *
 git clone git://github.com/e-hulp/HelpIM.git
 cp HelpIM/helpim/development.py.example HelpIM/helpim/development.py
-pico HelpIM/helpim/development.py
-# change database/user in existing database, I use "helpim31/helpim31/helpim31"
+rpl root helpim31 HelpIM/helpim/development.py
+rpl password helpim31 HelpIM/helpim/development.py
 cp -a HelpIM/buildout.cfg ./
 cp -a HelpIM/helpim/settings.py ./
-# if you want to use the testing branche
-cd HelpIM; git checkout testing
-# for the eggs:
-mkdir HelpIM/dist
-# change rights
+mkdir HelpIM/dist  # for eggs
+cd
+git config --global user.email "helpdesk@e-hulp.nl"
+git config --global user.name "Helpdesk E-hulp"
 chown -R buildout:buildout /home/buildout
+
 
 # you need to copy some scripts:
 cp -a /usr/local/share/helpim/doc/debian/example/sbin/* /usr/local/sbin/
@@ -180,4 +184,9 @@ echo 'HOME="/usr/local/tigase"' >> /etc/tigase/tigase.conf
 rpl 'JAVA_HOME="/usr/local/tigase/"' 'JAVA_HOME="/usr/lib/jvm/java-6-openjdk/"' /etc/tigase/tigase.conf
 service tigase restart
 less /var/log/tigase/console.log  # check evt. voor problemen
+-----------
+dumpdata for fixtures will be something like this (not tested)
+cd /etc/helpim/sites/testchat
+PYTHONPATH='' DJANGO_SETTINGS_MODULE=settings \
+  django-admin.py dumpdata --indent 4
 -----------

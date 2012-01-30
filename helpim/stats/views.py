@@ -61,18 +61,11 @@ def stats_overview(request, keyword, year=None, format=None):
     currentYearChats = statsProvider.aggregateObjects(year)
     dictStats = statsProvider.render(currentYearChats)
 
-    # generate table header
-    # look at dict of first entry and translate dict's keys
-    if len(dictStats) > 0:
-        tableHeadings = [statsProvider.getStatTranslation(h) for h in dictStats.itervalues().next().iterkeys()]
-    else:
-        tableHeadings = []
-
     # output data in format according to parameter in url
     if format == 'csv':
-        return _stats_overview_csv(tableHeadings, dictStats, keyword, year)
+        return _stats_overview_csv(statsProvider.knownStats, dictStats, keyword, year)
     elif format == 'xls':
-        return _stats_overview_xls(tableHeadings, dictStats, keyword, year)
+        return _stats_overview_xls(statsProvider.knownStats, dictStats, keyword, year)
     else:
         return render_to_response("stats/stats_overview.html",
             {'statsKeyword': keyword,
@@ -83,7 +76,7 @@ def stats_overview(request, keyword, year=None, format=None):
             'prevPage': listOfPages[prevPageIndex] if not prevPageIndex is None else None,
             'nextPage': listOfPages[nextPageIndex] if not nextPageIndex is None else None,
             'pagingYears': listOfPages,
-            'tableHeadings': tableHeadings,
+            'knownStats': statsProvider.knownStats,
             'aggregatedStats': dictStats },
             context_instance=RequestContext(request))
 
@@ -105,7 +98,7 @@ def stats_index(request):
         context_instance=RequestContext(request))
 
 
-def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
+def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''
 
     response = HttpResponse(mimetype='text/csv')
@@ -115,14 +108,14 @@ def _stats_overview_csv(tableHeadings, dictStats, keyword, year):
     # which is 'YYYY-MM-DD' and looks good in CSV
     
     writer = csv.writer(response)
-    writer.writerow(tableHeadings)
+    writer.writerow(knownStats.values())
     for statRow in dictStats.itervalues():
-        writer.writerow(statRow.values())
+        writer.writerow([statRow.get(statName, '') for statName in knownStats.iterkeys()])
 
     return response
 
 
-def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
+def _stats_overview_xls(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered in a MS Excel format'''
 
     response = HttpResponse(mimetype='application/vnd.ms-excel')
@@ -134,14 +127,16 @@ def _stats_overview_xls(tableHeadings, dictStats, keyword, year):
 
     # write heading row
     row, col = 0, 0
-    for heading in tableHeadings:
+    for heading in knownStats.values():
         sheet.write(row, col, heading)
         col += 1
 
     # stat data after that
     row, col = 1, 0
     for statRow in dictStats.itervalues():
-        for stat in statRow.itervalues():
+        for statName in knownStats.iterkeys():
+            stat = statRow.get(statName, '')
+            
             if isinstance(stat, datetime.date):
                 style = xlwt.Style.XFStyle()
                 style.num_format_str = 'YYYY-MM-DD'

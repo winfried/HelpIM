@@ -35,9 +35,9 @@ case "$1" in
         #       just the same as "restart".
         #
         echo -n "Restarting $DESC: $NAME"
-        $START
-        sleep 1
         $STOP
+        sleep 1
+        $START
         echo "."
         ;;
   *)

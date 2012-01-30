@@ -4,6 +4,7 @@ from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.utils import html
 
 from helpim.common.models import EventLog
 from helpim.conversations.models import Chat, Participant, ChatMessage
@@ -317,3 +318,13 @@ class ChatHourlyStatsProviderTestCase(TestCase):
         for actual, expected in zip(response.context['aggregatedStats'].itervalues(), ['-', 0, 0, 60]):
             self.assertEqual(actual['avgChatTime'], expected)
 
+
+    def testFirstColumnDetailLink(self):
+        '''first column links to conversation admin showing conversations of that day'''
+
+        Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+
+        response = self.c.get(reverse('stats_overview', args=['chat', 2011]))
+
+        # response will contain the link in escaped format
+        self.assertContains(response, html.escape("?start_time__year=2011&start_time__month=11&start_time__day=1"), 1)

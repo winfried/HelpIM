@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# ask questions
+if test "$1" = ""; then
+  echo
+  read -p "Chatname: " chat
+else
+  chat="$1"
+fi
+
+# sql
+output=`mysql <<EOD
+use $chat;
+select status from rooms_grouproom;
+select status from rooms_lobbyroom;
+select status from rooms_one2oneroom;
+select status from rooms_waitingroom;
+EOD`
+
+# grepping
+grepoutput=`echo $output | grep -e 'chatting' -e 'staffWaiting'`
+
+# output
+if test "$grepoutput" = ""; then
+  echo "No chatting";
+else
+  echo "Chatting" 
+#  echo $output;
+fi

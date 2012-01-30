@@ -59,6 +59,7 @@ POSITION_CHOICES = [
   ('CB', _('Client, before chat')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
+  ('SC', _('Staff, on Conversation page')),
 ]
 
 def get_position_choices():

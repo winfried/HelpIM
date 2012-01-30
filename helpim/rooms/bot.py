@@ -62,7 +62,7 @@ class RoomHandlerBase(MucRoomHandler):
         # prosody as of 0.8.2 misses a field in its configuration - we
         # check for it manually to fix this client side
         field_passwordprotectedroom_beenthere_donethat = False
-        
+
         for field in form:
             if  field.name == u'allow_query_users':
                 field.value = False
@@ -267,7 +267,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         if room is None:
             log.info("get_helpim_room returned None")
             return
-        
+
         # log event when careseeker has joined
         accessToken = AccessToken.objects.get(jid=user.real_jid)
         if accessToken.role == Participant.ROLE_CLIENT:
@@ -838,8 +838,12 @@ class WaitingRoomHandler(RoomHandlerBase):
     def user_left(self, user, stanza):
         log.debug("user left waiting room: %s" % user.nick)
 
-        accessToken = AccessToken.objects.get(jid=user.real_jid)
-        EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        try:
+            accessToken = AccessToken.objects.get(jid=user.real_jid)
+            EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
+        except AccessToken.DoesNotExist:
+            """ this shouldn't happen """
+            log.warning("got no access token for user with jid %s" % user.real_jid)
 
         if user.nick == self.nick:
             return True
@@ -994,7 +998,6 @@ class Bot(JabberClient):
         cleanupTimeout = int(self.conf.mainloop.cleanup)
         signal(SIGALRM, self.alarmHandler)
         alarm(cleanupTimeout)
-        dbg = True #DBG
         try:
             while True:
                 reconnectdelay = int(self.conf.mainloop.reconnectdelay)
@@ -1021,10 +1024,6 @@ class Bot(JabberClient):
                         self.cleanup = False
 
                 except (AttributeError, socket.error):
-                    if not dbg:
-                        dbg = True
-                    else:
-                        raise # DBG
                     self.__lost_connection = True
                     log.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
                     reconnectcount = 1
@@ -1572,6 +1571,7 @@ class Bot(JabberClient):
                     room = WaitingRoom.objects.filter(status='abandoned')[0]
                 if not room.lobbyroom or room.lobbyroom.getStatus() != 'chatting':
                     room.setStatus('toDestroy');
+                    room = None
                     raise IndexError()
 
                 try:

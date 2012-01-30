@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-27 14:58+0100\n"
+"POT-Creation-Date: 2012-01-25 12:37+0100\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,6 +46,11 @@ msgstr ""
 msgid "Chatname"
 msgstr "Chatname"
 
+#: common/models.py:46
+#, python-format
+msgid "Event %(event_name)s at %(timestamp)s"
+msgstr ""
+
 #: conversations/admin.py:33
 msgid "Message"
 msgstr "Nachricht"
@@ -54,67 +59,181 @@ msgstr "Nachricht"
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: conversations/admin.py:54 conversations/models.py:72
+#: conversations/admin.py:54 conversations/models.py:101
 msgid "Participant"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:55 conversations/models.py:73
+#: conversations/admin.py:55 conversations/models.py:102
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:98 conversations/models.py:42
+#: conversations/admin.py:126
+msgid "No"
+msgstr ""
+
+#: conversations/admin.py:128
+msgid "Yes"
+msgstr ""
+
+#: conversations/admin.py:129
+msgid "Staff submitted?"
+msgstr ""
+
+#: conversations/admin.py:137 conversations/models.py:71
 #: templates/admin/base_site.html:28 templates/admin/index.html:37
 msgid "Conversations"
 msgstr "Unterhaltungen"
 
-#: conversations/models.py:13
+#: conversations/models.py:14
 #, python-format
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr "\"%(subject)s\" um %(start_time)s"
 
-#: conversations/models.py:22 conversations/models.py:28
+#: conversations/models.py:39 conversations/models.py:57
 msgid "(None)"
 msgstr ""
 
-#: conversations/models.py:37
+#: conversations/models.py:50
+#, python-format
+msgid "%(first_name)s %(last_name)s"
+msgstr ""
+
+#: conversations/models.py:66
 msgid "(unknown)"
 msgstr ""
 
-#: conversations/models.py:41
+#: conversations/models.py:70
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:55 rooms/models.py:378 rooms/models.py:630
+#: conversations/models.py:84 rooms/models.py:378 rooms/models.py:630
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:56 rooms/models.py:631
+#: conversations/models.py:85 rooms/models.py:631
 msgid "Staff"
 msgstr "Mitarbeiter"
 
-#: conversations/models.py:78
+#: conversations/models.py:107
 msgid "Sender"
 msgstr "Absender"
 
-#: conversations/models.py:98
+#: conversations/models.py:141
 msgid "Chat message"
 msgstr "Chatnachricht"
 
-#: conversations/models.py:99
+#: conversations/models.py:142
 msgid "Chat joining"
 msgstr "Chat betreten"
 
-#: conversations/models.py:100
+#: conversations/models.py:143
 msgid "Chat rejoining"
 msgstr "Chat wiederbetreten"
 
-#: conversations/models.py:101
+#: conversations/models.py:144
 msgid "Chat exit"
 msgstr "Chat verlassen"
 
-#: conversations/models.py:102
+#: conversations/models.py:145
 msgid "Chat end"
 msgstr "Chat beendet"
+
+#: conversations/stats.py:15 conversations/stats.py:146
+msgid "Date"
+msgstr ""
+
+#: conversations/stats.py:16
+msgid "Hour"
+msgstr ""
+
+#: conversations/stats.py:17
+#, fuzzy
+msgid "Total Chats"
+msgstr "Chat betreten"
+
+#: conversations/stats.py:18
+msgid "Unique IPs"
+msgstr ""
+
+#: conversations/stats.py:19 conversations/stats.py:147
+#: questionnaire/models.py:23
+msgid "Questionnaires"
+msgstr ""
+
+#: conversations/stats.py:20 conversations/stats.py:148
+#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
+msgid "Blocked"
+msgstr "Blockiert"
+
+#: conversations/stats.py:21 conversations/stats.py:149
+msgid "Assigned"
+msgstr ""
+
+#: conversations/stats.py:22 conversations/stats.py:151
+#, fuzzy
+msgid "Interaction"
+msgstr "Unterhaltung"
+
+#: conversations/stats.py:23 conversations/stats.py:150
+msgid "Queued"
+msgstr ""
+
+#: conversations/stats.py:24
+msgid "Avg. Wait time (sec.)"
+msgstr ""
+
+#: conversations/stats.py:25
+msgid "Avg. Chat Time (sec.)"
+msgstr ""
+
+#: conversations/stats.py:138
+msgid "Chats Aggregated"
+msgstr ""
+
+#: conversations/stats.py:142
+msgid "displays statistics of all Chats aggregated by hour"
+msgstr ""
+
+#: conversations/stats.py:145
+msgid "Id"
+msgstr ""
+
+#: conversations/stats.py:152
+#, fuzzy
+msgid "Client IP"
+msgstr "Klient"
+
+#: conversations/stats.py:153
+#, fuzzy
+msgid "Client name"
+msgstr "Klienten-Spitzname"
+
+#: conversations/stats.py:154
+#, fuzzy
+msgid "Staff name"
+msgstr "Mitarbeiter-Spitzname"
+
+#: conversations/stats.py:155 templates/rooms/chat_client.html:29
+msgid "Subject"
+msgstr "Betreff"
+
+#: conversations/stats.py:156
+msgid "Wait time (sec.)"
+msgstr ""
+
+#: conversations/stats.py:157
+#, fuzzy
+msgid "Chat Time (sec.)"
+msgstr "Chatnachricht"
+
+#: conversations/stats.py:242
+#, fuzzy
+msgid "Chats Flat"
+msgstr "Chat verlassen"
+
+#: conversations/stats.py:246
+msgid "displays statistics of all Chats of a year without aggregation"
+msgstr ""
 
 #: groups/models.py:21
 msgid "Chatgroups"
@@ -152,47 +271,48 @@ msgstr "Treffen"
 msgid "HelpIM"
 msgstr ""
 
-#: questionnaire/fields.py:63
+#: questionnaire/fields.py:64
 msgid "Agree"
 msgstr ""
 
-#: questionnaire/fields.py:68
+#: questionnaire/fields.py:69
 msgid "Disagree"
 msgstr ""
 
-#: questionnaire/models.py:9
+#: questionnaire/models.py:8
 msgid "Client, before chat"
 msgstr ""
 
-#: questionnaire/models.py:10
+#: questionnaire/models.py:9
 msgid "Client, after chat"
 msgstr ""
 
-#: questionnaire/models.py:11
+#: questionnaire/models.py:10
 msgid "Staff, after chat"
 msgstr ""
+
+#: questionnaire/models.py:11
+#, fuzzy
+msgid "Staff, on Conversation page"
+msgstr "Unterhaltung"
 
 #: questionnaire/models.py:22
 msgid "Questionnaire"
 msgstr ""
 
-#: questionnaire/models.py:23
-msgid "Questionnaires"
-msgstr ""
-
-#: questionnaire/models.py:34
+#: questionnaire/models.py:38
 msgid "Questionnaire answer for conversation"
 msgstr ""
 
-#: questionnaire/models.py:35
+#: questionnaire/models.py:39
 msgid "Questionnaire answers for conversation"
 msgstr ""
 
-#: questionnaire/models.py:38
+#: questionnaire/models.py:56
 msgid "Scale"
 msgstr ""
 
-#: questionnaire/models.py:39
+#: questionnaire/models.py:57
 msgid "Double droplist"
 msgstr ""
 
@@ -241,12 +361,12 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:200
+#: rooms/bot.py:198
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:306
+#: rooms/bot.py:309
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
@@ -341,16 +461,21 @@ msgstr "Willkommen, %(name)s!"
 msgid "Django site admin"
 msgstr "Django Seiten-Administration"
 
-#: templates/admin/base_site.html:29 templates/admin/index.html:41
+#: templates/admin/base_site.html:29 templates/admin/index.html:46
 #, fuzzy
 msgid "Chat!"
 msgstr "Chat"
+
+#: templates/admin/base_site.html:32 templates/admin/index.html:41
+#: templates/stats/stats_index.html:7
+msgid "Stats"
+msgstr ""
 
 #: templates/admin/change_form.html:26
 msgid "Home"
 msgstr ""
 
-#: templates/admin/change_form.html:29 templates/admin/index.html:62
+#: templates/admin/change_form.html:29 templates/admin/index.html:67
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -364,23 +489,32 @@ msgstr[1] ""
 msgid "Quick access"
 msgstr "Schnellzugang"
 
-#: templates/admin/index.html:51
+#: templates/admin/index.html:56
 #, python-format
 msgid "Models available in the %(name)s application."
 msgstr "Verfügbare Models in der %(name)s-Applikation."
 
-#: templates/admin/index.html:52
+#: templates/admin/index.html:57
 #, python-format
 msgid "%(name)s"
 msgstr "%(name)s"
 
-#: templates/admin/index.html:68
+#: templates/admin/index.html:73
 msgid "Change"
 msgstr "Ändern"
 
-#: templates/admin/index.html:78
+#: templates/admin/index.html:83
 msgid "You don't have permission to edit anything."
 msgstr "Sie haben keine Rechte um irgendetwas zu bearbeiten."
+
+#: templates/admin/conversations/conversation/change_form.html:13
+#, python-format
+msgid ""
+"\n"
+"\t\t            %(staffname)s, please take a moment to <b><a href="
+"\"%(questionnaire_url)s\">fill out this form</a></b>!\n"
+"\t\t        "
+msgstr ""
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
@@ -427,14 +561,39 @@ msgid "Sorry, but your IP address is blocked from using this service."
 msgstr ""
 "Entschuldigung, aber deine IP-Adresse wurde von diesem Dienst blockiert."
 
-#: templates/rooms/chat_client.html:29
-msgid "Subject"
-msgstr "Betreff"
-
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
 msgid "Join Chat"
 msgstr "Chat betreten"
+
+#: templates/stats/stats_index.html:9
+msgid "Show statistics for one of the following topics:"
+msgstr ""
+
+#: templates/stats/stats_index.html:22
+msgid "No module registered that collects stats"
+msgstr ""
+
+#: templates/stats/stats_overview.html:47
+#, python-format
+msgid "Statistics: %(name)s in %(year)s"
+msgstr ""
+
+#: templates/stats/stats_overview.html:51
+msgid "Download as:"
+msgstr ""
+
+#: templates/stats/stats_overview.html:53
+msgid "CSV"
+msgstr ""
+
+#: templates/stats/stats_overview.html:54
+msgid "Excel"
+msgstr ""
+
+#: templates/stats/stats_overview.html:94
+msgid "No stats available for the selected year."
+msgstr ""
 
 #~ msgid "HelpIM administration"
 #~ msgstr "HelpIM-Administration"

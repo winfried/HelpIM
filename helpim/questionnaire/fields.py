@@ -202,11 +202,19 @@ class DoubleDropWidget(forms.MultiWidget):
         # set choices for combo boxes
         mainChoices = [(c, c) for c in self.choicesDict.keys()]
         self.widgets[0].choices = mainChoices
+
         try:
-            self.widgets[1].choices = [(c, c) for c in self.choicesDict.iteritems().next()[1]]
+            if value:
+                # fill second combo box with subChoices of current mainChoice
+                mainValue = value[0]
+                self.widgets[1].choices = [(c, c) for c in self.choicesDict[mainValue]]
+            else:
+                # fill second combo box with subChoices of first mainChoice
+                self.widgets[1].choices = [(c, c) for c in self.choicesDict.iteritems().next()[1]]
         except:
             pass
 
+        # super class takes care of assigning "selected" attribute to <option/>
         renderedSelects = super(DoubleDropWidget, self).render(name, value, attrs)
         renderedJavascript = self._renderJavascript(attrs['id'] + '_0', attrs['id'] + '_1')
 

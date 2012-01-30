@@ -38,7 +38,7 @@ if test `grep -i "^$chat:" /etc/passwd`; then echo "This user does excist in /et
 # generate passwords
 # generate mysql password
 password=`pwgen -s 8 1`
-# generate tigase password
+# generate password for bot
 botpw=`pwgen -s 8 1`
 # generate admin password webinterface
 if test "$adminpw" = "r"; then 
@@ -65,16 +65,19 @@ echo "Create user/group/homedir..."
 useradd -d /etc/helpim/sites/$chat $chat
 
 echo
-echo "Create Tigase user..."
-cd /usr/local/tigase/
-touch /tmp/file.txt
-chmod 600 /tmp/file.txt
-echo "$chat@localhost,$botpw,,,," >> /tmp/file.txt
-./scripts/repo.sh -import /tmp/file.txt
-rm /tmp/file.txt
+# echo "Create Tigase user..."
+# cd /usr/local/tigase/
+# touch /tmp/file.txt
+# chmod 600 /tmp/file.txt
+# echo "$chat@localhost,$botpw,,,," >> /tmp/file.txt
+# ./scripts/repo.sh -import /tmp/file.txt
+# rm /tmp/file.txt
+
+echo "Create Prosody user..."
+prosodyctl register $chat localhost $botpw
 
 echo
-echo "Create config..."
+echo "Create HelpIM config..."
 cd /etc/helpim/sites/
 cp -a ../skel $chat
 chown $chat:www-data $chat
@@ -140,13 +143,18 @@ echo "Starting chatbot..."
 hi-runbot $chat
 
 # rapportage
-echo "`date` created $chat version=$version adminpw=$adminpw" >> /var/log/newchat
+echo "`date` created $chat version=$version adminpw=$adminpw IP:$address" >> /var/log/newchat
 
 #
 echo
 echo "Chat is ready:"
-echo "https://$domain/admin" 
+echo "https://$domain/login" 
 echo "username: admin"
 echo "password: $adminpw"
+echo "IP: $address"
+echo "chatserver: $HOSTNAME"
+echo
+echo "1. Don't forget to create a Questionaire, or the chat wil not work!!"
+echo "2. And don't forget to make a name in DNS"
 echo
 

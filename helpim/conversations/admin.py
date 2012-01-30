@@ -9,9 +9,9 @@ from django.conf import settings
 
 CONVERSATION_EDITABLE = False
 from forms_builder.forms.models import FormEntry
-from helpim.questionnaire.models import ConversationFormEntry
+from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
-from helpim.conversations.widgets import IframeReadonlyWidget
+from helpim.conversations.widgets import IframeEditableWidget, IframeReadonlyWidget
 
 class MessageInline(admin.StackedInline):
     template = 'admin/edit_inline/with_threadedcomments.html'
@@ -57,12 +57,28 @@ class ParticipantInline(admin.TabularInline):
 class ConversationFormEntryInline(admin.StackedInline):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
+        # decide how to render ConversationFormEntry.entry field
         if db_field.name == 'entry':
-            kwargs['widget'] = IframeReadonlyWidget
-            return super(admin.StackedInline, self).formfield_for_dbfield(db_field,**kwargs)
+            request = kwargs.get('request', None)
+            
+            # users that are 1) assigned to conversation as staff or 2) have can_revise_questionnaire permission see editable Questionnaire
+            if not request is None and (request.user == self.current_conversation.getStaff().user or request.user.has_perm('questionnaire.can_revise_questionnaire')):
+                kwargs['widget'] = IframeEditableWidget
+                return super(admin.StackedInline, self).formfield_for_dbfield(db_field, **kwargs)
+            else:
+                kwargs['widget'] = IframeReadonlyWidget
+                return super(admin.StackedInline, self).formfield_for_dbfield(db_field, **kwargs)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        # store Conversation instance about to be displayed in admin
+        if not obj is None:
+            self.current_conversation = obj
+        
+        return super(admin.StackedInline, self).get_formset(request, obj, **kwargs)
 
     model = ConversationFormEntry
     readonly_fields = ('position',)
+    can_delete = False
     max_num = 0
 
 class ConversationAdmin(admin.ModelAdmin):
@@ -88,6 +104,29 @@ class ConversationAdmin(admin.ModelAdmin):
         ChatMessageInline,
         ConversationFormEntryInline,
     ]
+
+    def __init__(self, *args, **kwargs):
+        super(ConversationAdmin, self).__init__(*args, **kwargs)
+
+        # show extra column to remind to submit SC Questionnaire
+        # there must be a SC Questionnaire defined to display column
+        # 
+        # seemingly django caches the admin instance, so changing the returned value will probably require a restart
+        if Questionnaire.objects.filter(position='SC').count() > 0:
+            self.list_display += ('needs_questionnaire',)
+
+    def needs_questionnaire(self, obj):
+        '''
+        Show a reminder that this Conversation has a Questionnaire at position SC which hasn't been filled out.
+        There must be a SC-type Questionnaire defined somewhere for the reminder to occur.
+        '''
+        is_filled_out = obj.conversationformentry_set.filter(position='SC').count() > 0
+        
+        if not is_filled_out:
+            return _('No')
+        else:
+            return _('Yes')
+    needs_questionnaire.short_description = _('Staff submitted?')
 
     def get_changelist(self, request, **kwargs):
         ChangeList = super(ConversationAdmin, self).get_changelist(request, **kwargs)
@@ -135,6 +174,23 @@ class ConversationAdmin(admin.ModelAdmin):
 
         # restrict user to own conversations
         return own
+
+    def change_view(self, request, object_id, extra_context=None):
+        questionnaire_context = None
+
+        # augment context with SC-type questionnaire, if not yet submitted
+        try:
+            sc_questionnaire = Questionnaire.objects.filter(position='SC')[0]
+
+            # check if already submitted answer to questionnaire
+            if sc_questionnaire.conversationformentry_set.filter(conversation__id=object_id).count() == 0:
+                questionnaire_context = {
+                    'staff_questionnaire': sc_questionnaire,
+                }
+        except IndexError:
+            pass
+
+        return super(ConversationAdmin, self).change_view(request, object_id, extra_context=questionnaire_context)
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.disable_action('delete_selected')

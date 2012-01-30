@@ -24,6 +24,7 @@ register_position_choices([
   ('CR', _('Client, after Registration')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
+  ('SC', _('Staff, on Conversation page')),
   ('CX', _('Client, recurring')),
   ('SX', _('Staff, recurring')),
 ])
