@@ -15,6 +15,21 @@
 </ul>
 {% endif %}
 
+
+{# if its time, display box with link to recurring Questionnaire #}
+{% if recurring_questionnaire_url %}
+    <fieldset class="module aligned ">
+        <div class="form-row">
+            <p>
+                {% blocktrans with username=user.username %}
+                    {{ username }}, please take a moment to <b><a href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
+                {% endblocktrans %}
+            </p>
+        </div>
+    </fieldset>
+{% endif %}
+
+
 {% if not client.ready %}
 questionnaire missing
 {% endif %}

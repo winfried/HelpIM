@@ -40,7 +40,9 @@ def welcome(request):
 
 @login_required(login_url='/login/')
 def profile(request, username):
-    client = get_object_or_404(BuddyChatProfile, user__username = username)
+    client = get_object_or_404(BuddyChatProfile, user__username=username)
+    params = {}
+
     if request.user == client.user:
         # decide if client must take CR questionnaire and redirect if necessary
         q = client.needs_questionnaire_CR()
@@ -49,7 +51,7 @@ def profile(request, username):
 
         q = client.needs_questionnaire_recurring('CX')
         if not q is None:
-            return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
+            params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
 
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         """ we need to make sure requesting user is either
@@ -131,8 +133,10 @@ def profile(request, username):
                 form = ConvMessageForm() # reset form
         else:
             form = ConvMessageForm()
-        params = {'client': client,
-                  'form': form}
+
+        params['client'] = client
+        params['form'] = form
+
         if request.user.has_perm('buddychat.is_coordinator'):
             if client.careworker:
                 params['careworkers_form'] = CareworkersForm(initial={'careworker': client.careworker.pk})
@@ -143,7 +147,7 @@ def profile(request, username):
         if request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker:
             q = client.needs_questionnaire_recurring('SX')
             if not q is None:
-                return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
+                params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
         
         return render_to_response(
             'buddychat/profile.html',
