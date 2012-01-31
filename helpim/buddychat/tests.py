@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import sys
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,6 +8,24 @@ from registration.models import RegistrationProfile
 
 from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
 from helpim.questionnaire.models import Questionnaire
+
+
+class MockDatetime(datetime):
+    '''
+    mocks now() of datetime.datetime, such that a value can be set
+    that will be returned on subsequent calls to now()
+    '''
+
+    @classmethod
+    def set_now(cls, n):
+        cls.n = n
+
+    @classmethod
+    def now(cls):
+        if cls.n:
+            return cls.n
+        else:
+            raise Exception('must set datetime before using set_now()')
 
 
 class BuddyChatProfileTestCase(TestCase):
@@ -53,6 +72,13 @@ class BuddyChatProfileTestCase(TestCase):
         self.assertIsNone(self.buddy_profile.needs_questionnaire_CR())
 
     def test_needs_questionnaire_recurring(self):
+        # use Mock in this module and in buddychat.models
+        datetime = MockDatetime
+        import helpim.buddychat.models
+        helpim.buddychat.models.datetime = MockDatetime
+
+        datetime.set_now(datetime(2000, 1, 1, 0, 0))
+
         # initially, BuddyChatProfile is not coupled
         # not coupled -> no need to take recurring questionnaire
         self.assertFalse(self.buddy_profile.is_coupled())
@@ -74,9 +100,8 @@ class BuddyChatProfileTestCase(TestCase):
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
-        # fake time pass, to trigger first CX request
-        self.buddy_profile.coupled_at -= timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
-        self.buddy_profile.save()
+        # first CX/SX request, after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed
+        datetime.set_now(datetime.now() + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
 
@@ -87,10 +112,12 @@ class BuddyChatProfileTestCase(TestCase):
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
         # fake time pass, to trigger next recurring questionnaire request
-        qfe_client.created_at -= timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
-        qfe_client.save()
+        datetime.set_now(qfe_client.created_at + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
-        
-        qfe_staff.created_at -= timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
-        qfe_staff.save()
+
+        datetime.set_now(qfe_staff.created_at + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
+
+        # restore original datetime
+        datetime = sys.modules['datetime'].datetime
+        helpim.buddychat.models.datetime = datetime
