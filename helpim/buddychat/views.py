@@ -139,6 +139,12 @@ def profile(request, username):
             else:
                 params['careworkers_form'] = CareworkersForm()
 
+        # it's the careworker assigned to this profile, maybe redirect to SX questionnaire
+        if request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker:
+            q = client.needs_questionnaire_recurring('SX')
+            if not q is None:
+                return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
+        
         return render_to_response(
             'buddychat/profile.html',
             params,
