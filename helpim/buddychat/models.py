@@ -104,10 +104,11 @@ class BuddyChatProfile(RegistrationProfile):
 
     def needs_questionnaire_recurring(self, position):
         '''
-        Decide whether this profile must take the recurring Questionnaire.
-        There are two types of such a Questionnaire: one for the careseeker (CX) and one for the careworker(SX)
+        Decide whether this profile must take a recurring Questionnaire.
+        There are two types of such a Questionnaire: one for the careseeker (CX) and one for the careworker(SX).
         If so, return a reference to that Questionnaire. If not, return None.
         '''
+
         # only continue if coupled with a careworker
         if self.is_coupled() is False:
             return None
@@ -120,19 +121,28 @@ class BuddyChatProfile(RegistrationProfile):
         if q_recurring is None:
             return None
 
-        # get the latest recurring questionnaire taken by this user to check if its ago long enough for the user to take another one.
-        # if the user has never taken a recurring questionnaire, compare against the date when he was coupled.
-        latest_cx = self.get_latest_questionnaire_entry(position)
-        if latest_cx is None:
-            compare_against = self.coupled_at
-        else:
-            compare_against = latest_cx.created_at
+        # from the point 'coupled_at + RECURRING_QUESTIONNAIRE_INTERVAL' on, (this first interval is covered by CR-Questionnaire)
+        # there are time slots of length RECURRING_QUESTIONNAIRE_INTERVAL in each of which careseeker/careworker can submit one CX/SX-Questionnaire
+        # find the starting datetime of the currently running interval
+        interval = timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
+        now = datetime.now()
+        current_interval_start = self.coupled_at
 
-        # has enough time passed?
-        if compare_against + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL) <= datetime.now():
-            return q_recurring
-        else:
+        # this will run at least once, because coupled_at will always be in the past
+        # after the loop, current_interval_start will be > now (in the future), fix that
+        while current_interval_start <= now:
+            current_interval_start += interval
+        current_interval_start -= interval
+
+        # at least one interval must have passed
+        if current_interval_start <= self.coupled_at:
             return None
+
+        # in the current interval, was the already a Questionnaire submission?
+        if self.questionnaires.filter(position=position, created_at__gte=current_interval_start).count() > 0:
+            return None
+        else:
+            return q_recurring
 
     class Meta:
         verbose_name = _("Chat Buddy")

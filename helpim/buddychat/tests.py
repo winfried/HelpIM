@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import sys
+import time
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -38,6 +39,7 @@ class BuddyChatProfileTestCase(TestCase):
         self.careworker_user = User.objects.create_user('care', 'care@workers.com', 'test')
 
     def _createQuestionnaireFormEntry(self, created_at, position):
+        '''creates a new QuestionnaireFormEntry object with an arbitrary created_at value'''
         q, created = Questionnaire.objects.get_or_create(position=position)
 
         newQFE = QuestionnaireFormEntry.objects.create(created_at=created_at, position=position, buddychat_profile=self.buddy_profile, questionnaire=q)
@@ -72,12 +74,13 @@ class BuddyChatProfileTestCase(TestCase):
         self.assertIsNone(self.buddy_profile.needs_questionnaire_CR())
 
     def test_needs_questionnaire_recurring(self):
-        # use Mock in this module and in buddychat.models
+        # use Mock in this module and in buddychat.models to be able to dictate what now() returns
         datetime = MockDatetime
         import helpim.buddychat.models
         helpim.buddychat.models.datetime = MockDatetime
 
         datetime.set_now(datetime(2000, 1, 1, 0, 0))
+        interval = timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
 
         # initially, BuddyChatProfile is not coupled
         # not coupled -> no need to take recurring questionnaire
@@ -85,39 +88,41 @@ class BuddyChatProfileTestCase(TestCase):
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
-        # couple buddy
+        # couple buddy with careworker
         self.buddy_profile.careworker = self.careworker_user
         self.buddy_profile.coupled_at = datetime.now()
         self.buddy_profile.save()
 
-        # no recurring questionnaire configured, yields None
+        # no recurring questionnaire configured -> yields None
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
-        # buddy was coupled just now, too early to require recurring
+        # configure such recurring Questionnaires
+        # buddy was coupled just now, too early to require recurring (one interval has to pass)
         qCX, created = Questionnaire.objects.get_or_create(position='CX')
         qSX, created = Questionnaire.objects.get_or_create(position='SX')
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
-        # first CX/SX request, after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed
-        datetime.set_now(datetime.now() + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
+        # first CX/SX request after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed, issue to both roles
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval)
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
 
-        # after recurring questionnaire is answered, not another request will be issued until enough time has passed
-        qfe_client = QuestionnaireFormEntry.objects.create(entry=None, questionnaire=qCX, buddychat_profile=self.buddy_profile, position='CX')
+        # careseeker answers right away, doesnt get request anymore
+        self._createQuestionnaireFormEntry(datetime.now(), 'CX')
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
-        qfe_staff = QuestionnaireFormEntry.objects.create(entry=None, questionnaire=qCX, buddychat_profile=self.buddy_profile, position='SX')
+
+        # careworker is slower, answers after half the interval has passed (chosen randomly)
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval + interval / 2)
+        self._createQuestionnaireFormEntry(datetime.now(), 'SX')
         self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
 
-        # fake time pass, to trigger next recurring questionnaire request
-        datetime.set_now(qfe_client.created_at + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
+        # despite different reaction times, both roles get the next Questionnaire request at the exact same time
+        datetime.set_now(self.buddy_profile.coupled_at + 2 * interval)
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
-
-        datetime.set_now(qfe_staff.created_at + timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL))
         self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
 
-        # restore original datetime
+        # restore original datetime object
         datetime = sys.modules['datetime'].datetime
         helpim.buddychat.models.datetime = datetime
