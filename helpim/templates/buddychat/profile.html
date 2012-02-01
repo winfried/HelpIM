@@ -129,22 +129,34 @@ questionnaire missing
 </form>
 {% endif %}
 
+
 <h2>Questionnaires</h2>
 <ul>
-{% for q in client.questionnaires.all %}
-<li>
-{% if q.questionnaire.position == 'CR' %}
-At Registration<br />
-<iframe src="{% url form_entry q.entry.pk %}"></iframe>
-{% else %}
-{% if q.questionnaire.position == 'CA' %}
-After Chat<br />
-<iframe src="{% url form_entry q.entry.pk %}"></iframe>
-{% else %}
-<a href="{% url form_entry q.entry.pk %}">{{q.created_at}}</a>
-{% endif %}
-{% endif %}
-</li>
-{% endfor %}
+	{% for q in questionnaire_history %}
+        {% if q.questionnaire.position == 'CR' %}
+            <li>At Registration<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+
+        {% if q.questionnaire.position == 'CA' %}
+            <li>After Chat<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+
+        {% if q.questionnaire.position == 'CX' %}
+            <li>Recurring<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+		{% endif %}
+
+		{% if q.questionnaire.position == 'SX' %}
+            <li>Recurring for staff<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+	{% endfor %}
 </ul>
+
 {% endblock %}

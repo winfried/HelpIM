@@ -152,6 +152,26 @@ class BuddyChatProfile(RegistrationProfile):
             ('is_careworker', 'Is a careworker')
             )
 
+class QuestionnaireFormEntryManager(models.Manager):
+    def for_profile_and_user(self, profile, user):
+        '''only return objects which given User is allowed to see on given profile'''
+
+        all_questionnaires = self.filter(buddychat_profile=profile)
+
+        # coordinator role can see all questionnaires to a profile
+        if user.has_perm('buddychat.is_coordinator'):
+            return all_questionnaires
+
+        # careworker can see questionnaires of type SX if he is careworker of that profile
+        if profile.careworker == user and user.has_perm('buddychat.is_careworker'):
+            return all_questionnaires.filter(buddychat_profile__careworker=user, position='SX')
+
+        # careseeker can see questionnaires of types CR,CA,CR of owned profile
+        if profile.user == user:
+            return all_questionnaires.filter(buddychat_profile__user=user, position__in=['CR', 'CA', 'CX'])
+
+        return []
+
 class QuestionnaireFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
@@ -159,6 +179,8 @@ class QuestionnaireFormEntry(models.Model):
     position = models.CharField(max_length=3, choices=get_position_choices())
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = QuestionnaireFormEntryManager()
+    
     class Meta:
         verbose_name = _("Questionnaire answer")
         verbose_name_plural = _("Questionnaire answers")

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import sys
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from registration.models import RegistrationProfile
 
@@ -125,3 +125,66 @@ class BuddyChatProfileTestCase(TestCase):
         # restore original datetime object
         datetime = sys.modules['datetime'].datetime
         helpim.buddychat.models.datetime = datetime
+
+class QuestionnaireFormEntryManagerTest(TestCase):
+    def setUp(self):
+        super(QuestionnaireFormEntryManagerTest, self).setUp()
+
+        perm_careworker, created = Permission.objects.get_or_create(codename='is_careworker')
+        perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
+
+        # create User accounts
+        self.buddy_user = User.objects.create_user('buddyuser', 'user@buddy.com', 'test')
+        self.other_user = User.objects.create_user('other', 'other@buddy.com', 'test')
+        self.careworker_user = User.objects.create_user('care', 'care@workers.com', 'test')
+        self.careworker_user.user_permissions.add(perm_careworker)
+        self.coordinator_user = User.objects.create_user('coord', 'coord@workers.com', 'test')
+        self.coordinator_user.user_permissions.add(perm_coordinator)
+
+        # create profiles        
+        self.buddy_profile = BuddyChatProfile.objects.create(self.buddy_user, RegistrationProfile.ACTIVATED)
+        self.buddy_profile.careworker = self.careworker_user
+        self.buddy_profile.save()
+        self.other_profile = BuddyChatProfile.objects.create(self.other_user, RegistrationProfile.ACTIVATED)
+
+        # create a QuestionnaireFormEntry of each type and profile
+        for pos in ['CR', 'CA', 'CX', 'SX']:
+            for profile in [self.buddy_profile, self.other_profile]:
+                q, created = Questionnaire.objects.get_or_create(position=pos)
+                QuestionnaireFormEntry.objects.create(position=pos, buddychat_profile=profile, questionnaire=q)
+
+    def test_for_profile_and_user(self):
+        # legal accesses
+        # careseeker -> own profile
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.buddy_profile, self.buddy_user)
+        self.assertEqual(len(result), 3)
+        self.assertListEqual(['CR', 'CA', 'CX'], [qfe.position for qfe in result])
+        self.assertListEqual([self.buddy_profile, self.buddy_profile, self.buddy_profile], [qfe.buddychat_profile for qfe in result])
+
+        # careworker -> profile he is assigned to
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.buddy_profile, self.careworker_user)
+        self.assertEqual(len(result), 1)
+        self.assertListEqual(['SX'], [qfe.position for qfe in result])
+        self.assertListEqual([self.buddy_profile], [qfe.buddychat_profile for qfe in result])
+
+        # coordinator
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.buddy_profile, self.coordinator_user)
+        self.assertEquals(len(result), 4)
+        self.assertListEqual(['CR', 'CA', 'CX', 'SX'], [qfe.position for qfe in result])
+        self.assertListEqual([self.buddy_profile, self.buddy_profile, self.buddy_profile, self.buddy_profile], [qfe.buddychat_profile for qfe in result])
+
+
+        # illegal accesses
+        # careseeker -> foreign profile
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.other_profile, self.buddy_user)
+        self.assertEqual(len(result), 0)
+
+        # careworker -> profile he is not assigned to
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.other_profile, self.careworker_user)
+        self.assertEqual(len(result), 0)
+
+        # coordinator
+        result = QuestionnaireFormEntry.objects.for_profile_and_user(self.other_profile, self.coordinator_user)
+        self.assertEquals(len(result), 4)
+        self.assertListEqual(['CR', 'CA', 'CX', 'SX'], [qfe.position for qfe in result])
+        self.assertListEqual([self.other_profile, self.other_profile, self.other_profile, self.other_profile], [qfe.buddychat_profile for qfe in result])

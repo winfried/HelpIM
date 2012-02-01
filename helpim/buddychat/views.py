@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 
 from hashlib import md5
 
-from helpim.buddychat.models import BuddyChatProfile
+from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
 from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
 
 class ConvMessageForm(forms.Form):
@@ -136,6 +136,7 @@ def profile(request, username):
 
         params['client'] = client
         params['form'] = form
+        params['questionnaire_history'] = QuestionnaireFormEntry.objects.for_profile_and_user(client, request.user)
 
         if request.user.has_perm('buddychat.is_coordinator'):
             if client.careworker:
