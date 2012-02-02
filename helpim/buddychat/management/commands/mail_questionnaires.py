@@ -1,6 +1,7 @@
 from datetime import datetime
 from optparse import make_option
 
+from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -19,6 +20,9 @@ class Command(BaseCommand):
         self.run_dry = bool(options.get('dry', False))
         self.verbosity = int(options.get('verbosity', 0))
 
+        # needed to build absolute URLs
+        self.site = Site.objects.get_current().domain
+        
         # iterate profiles
         for profile in BuddyChatProfile.objects.all():
             sent_mails = 0
@@ -48,15 +52,17 @@ class Command(BaseCommand):
         # determine receipient email adress and mail text 
         if receiver_role == 'careseeker':
             subject = _('a reminder about %s' % profile.user.username)
-            body = _('This is a reminder to take your next questionnaire.\n\nDon\'t reply to this message directly, reply on your personal profile page at %(url_profilepage)s' % {
-                'url_profilepage': reverse('buddychat_profile', args=[profile.user.username])
+            body = _('This is a reminder to take your next questionnaire.\n\nDon\'t reply to this message directly, reply on your personal profile page at http://%(site)s%(path_profilepage)s' % {
+                'site': self.site,
+                'path_profilepage': reverse('buddychat_profile', args=[profile.user.username])
             })
             rcpt = profile.user
         else:
             subject = _('a reminder about %s' % profile.user.username)
-            body = _('This is a reminder to take the next questionnaire about %(careseeker)s.\n\nDon\'t reply to this message directly, reply on the personal profile page at %(url_profilepage)s' % {
+            body = _('This is a reminder to take the next questionnaire about %(careseeker)s.\n\nDon\'t reply to this message directly, reply on the personal profile page at http://%(site)s%(path_profilepage)s' % {
                 'careseeker': profile.user.username,
-                'url_profilepage': reverse('buddychat_profile', args=[profile.user.username])
+                'site': self.site,
+                'path_profilepage': reverse('buddychat_profile', args=[profile.user.username])
             })
             rcpt = profile.careworker
 
