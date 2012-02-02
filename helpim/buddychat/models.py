@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from functools import partial
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -70,6 +71,8 @@ class BuddyChatProfile(RegistrationProfile):
 
     room = models.ForeignKey(SimpleRoom, blank=True, null=True)
 
+    last_email_reminder = models.DateTimeField(editable=False, default=partial(datetime.fromtimestamp, 0))
+
     objects = BuddyChatProfileManager()
 
     def chats(self):
@@ -111,7 +114,7 @@ class BuddyChatProfile(RegistrationProfile):
 
         # only continue if coupled with a careworker
         if self.is_coupled() is False:
-            return None
+            return None, None
 
         # dont continue if there is no recurring questionnaire configured
         try:
@@ -119,7 +122,7 @@ class BuddyChatProfile(RegistrationProfile):
         except IndexError:
             q_recurring = None
         if q_recurring is None:
-            return None
+            return None, None
 
         # from the point 'coupled_at + RECURRING_QUESTIONNAIRE_INTERVAL' on, (this first interval is covered by CR-Questionnaire)
         # there are time slots of length RECURRING_QUESTIONNAIRE_INTERVAL in each of which careseeker/careworker can submit one CX/SX-Questionnaire
@@ -136,13 +139,36 @@ class BuddyChatProfile(RegistrationProfile):
 
         # at least one interval must have passed
         if current_interval_start <= self.coupled_at:
-            return None
+            return None, current_interval_start
 
-        # in the current interval, was the already a Questionnaire submission?
+        # in the current interval, was there already a Questionnaire submission?
         if self.questionnaires.filter(position=position, created_at__gte=current_interval_start).count() > 0:
-            return None
+            return None, current_interval_start
         else:
-            return q_recurring
+            return q_recurring, current_interval_start
+        
+    def needs_email_reminder(self, position):
+        '''
+        Returns True if an email notification about a recurring Questionnaire should be sent
+        '''
+
+        (q, interval_start) = self.needs_questionnaire_recurring(position)
+
+        if q is None or interval_start is None:
+            return False
+
+        interval = timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
+        now = datetime.now()
+
+        # a new interval has started and no reminder was sent since current interval started
+        if now <= interval_start and self.last_email_reminder < interval_start:
+            return True
+
+        # at least 20% of interval length has passed since last reminder
+        if now >= (self.last_email_reminder + interval / 5):
+            return True
+
+        return False
 
     class Meta:
         verbose_name = _("Chat Buddy")

@@ -84,8 +84,8 @@ class BuddyChatProfileTestCase(TestCase):
         # initially, BuddyChatProfile is not coupled
         # not coupled -> no need to take recurring questionnaire
         self.assertFalse(self.buddy_profile.is_coupled())
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX')[0])
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX')[0])
 
         # couple buddy with careworker
         self.buddy_profile.careworker = self.careworker_user
@@ -93,34 +93,108 @@ class BuddyChatProfileTestCase(TestCase):
         self.buddy_profile.save()
 
         # no recurring questionnaire configured -> yields None
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX')[0])
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX')[0])
 
         # configure such recurring Questionnaires
         # buddy was coupled just now, too early to require recurring (one interval has to pass)
         qCX, created = Questionnaire.objects.get_or_create(position='CX')
         qSX, created = Questionnaire.objects.get_or_create(position='SX')
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX')[0])
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX')[0])
 
-        # first CX/SX request after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed, issue to both roles
+        # first CX/SX request only after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed, issued to both roles
         datetime.set_now(self.buddy_profile.coupled_at + 1 * interval)
-        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
-        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
+        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX')[0], qCX)
+        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX')[0], qSX)
 
         # careseeker answers right away, doesnt get request anymore
         self._createQuestionnaireFormEntry(datetime.now(), 'CX')
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX'))
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('CX')[0])
 
         # careworker is slower, answers after half the interval has passed (chosen randomly)
         datetime.set_now(self.buddy_profile.coupled_at + 1 * interval + interval / 2)
         self._createQuestionnaireFormEntry(datetime.now(), 'SX')
-        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX'))
+        self.assertIsNone(self.buddy_profile.needs_questionnaire_recurring('SX')[0])
 
         # despite different reaction times, both roles get the next Questionnaire request at the exact same time
         datetime.set_now(self.buddy_profile.coupled_at + 2 * interval)
-        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX'), qCX)
-        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX'), qSX)
+        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('CX')[0], qCX)
+        self.assertEquals(self.buddy_profile.needs_questionnaire_recurring('SX')[0], qSX)
+
+        # restore original datetime object
+        datetime = sys.modules['datetime'].datetime
+        helpim.buddychat.models.datetime = datetime
+        
+    def test_needs_email_reminder(self):
+        # use Mock in this module and in buddychat.models to be able to dictate what now() returns
+        datetime = MockDatetime
+        import helpim.buddychat.models
+        helpim.buddychat.models.datetime = MockDatetime
+
+        datetime.set_now(datetime(2000, 1, 1, 0, 0))
+        interval = timedelta(**settings.RECURRING_QUESTIONNAIRE_INTERVAL)
+
+        # couple buddy with careworker
+        self.buddy_profile.careworker = self.careworker_user
+        self.buddy_profile.coupled_at = datetime.now()
+        self.buddy_profile.save()
+
+        # configure recurring Questionnaires
+        qCX, created = Questionnaire.objects.get_or_create(position='CX')
+        qSX, created = Questionnaire.objects.get_or_create(position='SX')
+
+        # first CX/SX request only after 1 RECURRING_QUESTIONNAIRE_INTERVAL has passed, issued to both roles
+        self.assertFalse(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertFalse(self.buddy_profile.needs_email_reminder('SX'))
+
+
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval)
+        self.assertTrue(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertTrue(self.buddy_profile.needs_email_reminder('SX'))
+
+        # at least one call to needs_email_reminder before was true -> mail was sent, update property as cronjob would do
+        self.buddy_profile.last_email_reminder = datetime.now()
+        self.buddy_profile.save()
+
+
+        # careseeker answers right away, doesnt get reminders anymore
+        # careworker doesnt get another reminder because too soon
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval + timedelta(days=1))
+        self._createQuestionnaireFormEntry(datetime.now(), 'CX')
+        self.assertFalse(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertFalse(self.buddy_profile.needs_email_reminder('SX'))
+
+
+        # continue to regularly send reminder every interval/5
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval + interval / 5)
+        self.assertFalse(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertTrue(self.buddy_profile.needs_email_reminder('SX'))
+
+        # at least one call to needs_email_reminder before was true -> mail was sent, update property as cronjob would do
+        self.buddy_profile.last_email_reminder = datetime.now()
+        self.buddy_profile.save()
+
+
+        # careworker answers after half the interval has passed (chosen randomly)
+        datetime.set_now(self.buddy_profile.coupled_at + 1 * interval + interval / 2)
+        self._createQuestionnaireFormEntry(datetime.now(), 'SX')
+        self.assertFalse(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertFalse(self.buddy_profile.needs_email_reminder('SX'))
+
+
+        # despite different reaction times, both roles get the next reminder at the exact same time
+        datetime.set_now(self.buddy_profile.coupled_at + 2 * interval)
+        self.assertTrue(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertTrue(self.buddy_profile.needs_email_reminder('SX'))
+
+        # at least one call to needs_email_reminder before was true -> mail was sent, update property as cronjob would do
+        self.buddy_profile.last_email_reminder = datetime.now()
+        self.buddy_profile.save()
+
+        # not another reminder because too soon
+        self.assertFalse(self.buddy_profile.needs_email_reminder('CX'))
+        self.assertFalse(self.buddy_profile.needs_email_reminder('SX'))
 
         # restore original datetime object
         datetime = sys.modules['datetime'].datetime

@@ -49,7 +49,7 @@ def profile(request, username):
         if not q is None:
             return HttpResponseRedirect(reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id]))
 
-        q = client.needs_questionnaire_recurring('CX')
+        q = client.needs_questionnaire_recurring('CX')[0]
         if not q is None:
             params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
 
@@ -146,7 +146,7 @@ def profile(request, username):
 
         # it's the careworker assigned to this profile, maybe redirect to SX questionnaire
         if request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker:
-            q = client.needs_questionnaire_recurring('SX')
+            q = client.needs_questionnaire_recurring('SX')[0]
             if not q is None:
                 params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
         

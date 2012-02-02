@@ -1,3 +1,4 @@
+from datetime import datetime
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
@@ -20,17 +21,30 @@ class Command(BaseCommand):
 
         # iterate profiles
         for profile in BuddyChatProfile.objects.all():
-            q = profile.needs_questionnaire_recurring('CX')
-            if not q is None:
-                self.__verbose('profile "%s": needs CX' % (profile.user.username), 1)
-                self.__send_mail('careseeker', profile)
+            sent_mails = 0
+            now = datetime.now()
 
-            q = profile.needs_questionnaire_recurring('SX')
-            if not q is None:
+            # check for careseeker
+            if profile.needs_email_reminder('CX'):
+                self.__verbose('profile "%s": needs CX' % (profile.user.username), 1)
+                sent_mails += self.__send_mail('careseeker', profile)
+
+            # check for careworker
+            if profile.needs_email_reminder('SX'):
                 self.__verbose('profile "%s": needs SX' % (profile.user.username), 1)
-                self.__send_mail('careworker', profile)
+                sent_mails += self.__send_mail('careworker', profile)
+
+            # if any mail was sent, store that date
+            if sent_mails > 0:
+                profile.last_email_reminder = now
+                profile.save()
 
     def __send_mail(self, receiver_role, profile):
+        '''
+        Build mail text and send to role associated with profile.
+        Return number of mails sent.
+        '''
+
         # determine receipient email adress and mail text 
         if receiver_role == 'careseeker':
             subject = _('a reminder about %s' % profile.user.username)
@@ -49,16 +63,17 @@ class Command(BaseCommand):
         # make sure email address is not empty
         if not rcpt.email:
             self.__verbose('profile "%s": "%s" (%s) does not have an email address configured' % (profile.user.username, rcpt.username, receiver_role))
-            return
+            return 0
 
         # abort here, if running dry
         if self.run_dry:
             self.__verbose('profile "%s": mailing "%s" (%s)' % (profile.user.username, rcpt.email, receiver_role))
-            return
+            return 1
 
         # send mail
         self.__verbose('profile "%s": mailing "%s" (%s)' % (profile.user.username, rcpt.email, receiver_role), 1)
         rcpt.email_user(subject, body)
+        return 1
 
     def __verbose(self, message, level=0):
         '''only print message if verbosity-level is high enough'''
