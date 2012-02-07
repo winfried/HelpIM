@@ -29,9 +29,9 @@
     {% endif %}
     
     {% if perms.is_coordinator %}
-        <td>{{ buddy.count_unread_coordinator }}</td>
+        <td>{{ buddy.unread_messages_coordinator.count }}</td>
     {% else %}
-        <td>{{ buddy.count_unread_careworker }}</td>
+        <td>{{ buddy.unread_messages_careworker.count }}</td>
     {% endif %}
     
     <td>{{buddy.chats|length}}</td>
