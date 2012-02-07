@@ -134,17 +134,29 @@ def profile(request, username):
         params['form'] = form
         params['questionnaire_history'] = QuestionnaireFormEntry.objects.for_profile_and_user(client, request.user)
 
+        # a coordinator accessing this profile
         if request.user.has_perm('buddychat.is_coordinator'):
             if client.careworker:
                 params['careworkers_form'] = CareworkersForm(initial={'careworker': client.careworker.pk})
             else:
                 params['careworkers_form'] = CareworkersForm()
+                
+            # mark messages for coordinator as read
+            for msg in client.unread_messages_coordinator():
+                msg.read = True
+                msg.save()
 
-        # it's the careworker assigned to this profile, maybe redirect to SX questionnaire
+        # it's the careworker assigned to this profile
         if request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker:
+            # check if SX questionnaire is necessary
             q = client.needs_questionnaire_recurring('SX')[0]
             if not q is None:
                 params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
+            
+            # mark messages for careworker as read
+            for msg in client.unread_messages_careworker():
+                msg.read = True
+                msg.save()
         
         return render_to_response(
             'buddychat/profile.html',
