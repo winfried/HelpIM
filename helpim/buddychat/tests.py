@@ -201,7 +201,7 @@ class BuddyChatProfileTestCase(TestCase):
         datetime = sys.modules['datetime'].datetime
         helpim.buddychat.models.datetime = datetime
 
-    def test_count_unread_coordinator(self):
+    def test_unread_messages_coordinator(self):
         self.buddy_profile.careworker = self.careworker_user
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 0)
 
@@ -219,7 +219,7 @@ class BuddyChatProfileTestCase(TestCase):
         m2.save()
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 0)
 
-    def test_count_unread_careworker(self):
+    def test_unread_messages_careworker(self):
         self.buddy_profile.careworker = self.careworker_user
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 0)
 
@@ -236,6 +236,24 @@ class BuddyChatProfileTestCase(TestCase):
         m2.read = True
         m2.save()
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 0)
+
+    def test_unread_messages_careseeker(self):
+        self.buddy_profile.careworker = self.careworker_user
+        self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 0)
+
+        m1 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 1)
+
+        m2 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 2)
+
+        m1.read = True
+        m1.save()
+        self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 1)
+
+        m2.read = True
+        m2.save()
+        self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 0)
 
 class QuestionnaireFormEntryManagerTest(TestCase):
     def setUp(self):

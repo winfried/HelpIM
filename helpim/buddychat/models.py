@@ -115,6 +115,18 @@ class BuddyChatProfile(RegistrationProfile):
         # combine QuerySets
         return from_careseeker | from_coordinator
 
+    def unread_messages_careseeker(self):
+        '''return QuerySet of unread messages for careseeker role'''
+        
+        # messages careworker -> careseeker
+        from_careworker = self.careworker_conversation.messages.exclude(sender__user=self.user).filter(read=False)
+        
+        # messages coordinator -> careseeker
+        from_coordinator = self.coordinator_conversation.messages.exclude(sender__user=self.user).filter(read=False)
+        
+        # combine QuerySets
+        return from_careworker | from_coordinator
+    
     def needs_questionnaire_CR(self):
         '''
         Decide whether this profile must take the CR questionnaire.

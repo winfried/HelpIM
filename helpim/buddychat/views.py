@@ -52,6 +52,11 @@ def profile(request, username):
         if not q is None:
             params['recurring_questionnaire_url'] = reverse('helpim.questionnaire.views.form_detail', args=[q.slug, client.id])
 
+        # mark messages for careseeker as read
+        for msg in client.unread_messages_careseeker():
+            msg.read = True
+            msg.save()
+
     if request.user.has_perm('buddychat.is_coordinator') or (request.user.has_perm('buddychat.is_careworker') and request.user == client.careworker) or request.user == client.user:
         """ we need to make sure requesting user is either
         * the careseeker himself (aka the 'client')
