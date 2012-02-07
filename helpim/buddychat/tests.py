@@ -36,6 +36,7 @@ class BuddyChatProfileTestCase(TestCase):
         self.buddy_profile = BuddyChatProfile.objects.create(self.buddy_user, RegistrationProfile.ACTIVATED)
 
         self.careworker_user = User.objects.create_user('care', 'care@workers.com', 'test')
+        self.coordinator_user = User.objects.create_user('coord', 'coord@workers.com', 'test')
 
     def _createQuestionnaireFormEntry(self, created_at, position):
         '''creates a new QuestionnaireFormEntry object with an arbitrary created_at value'''
@@ -199,6 +200,42 @@ class BuddyChatProfileTestCase(TestCase):
         # restore original datetime object
         datetime = sys.modules['datetime'].datetime
         helpim.buddychat.models.datetime = datetime
+
+    def test_count_unread_coordinator(self):
+        self.buddy_profile.careworker = self.careworker_user
+        self.assertEquals(self.buddy_profile.count_unread_coordinator(), 0)
+
+        m1 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.buddy_profile.user), sender_name=self.buddy_profile.user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.count_unread_coordinator(), 1)
+
+        m2 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.count_unread_coordinator(), 2)
+
+        m1.read = True
+        m1.save()
+        self.assertEquals(self.buddy_profile.count_unread_coordinator(), 1)
+
+        m2.read = True
+        m2.save()
+        self.assertEquals(self.buddy_profile.count_unread_coordinator(), 0)
+
+    def test_count_unread_careworker(self):
+        self.buddy_profile.careworker = self.careworker_user
+        self.assertEquals(self.buddy_profile.count_unread_careworker(), 0)
+
+        m1 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.buddy_profile.user), sender_name=self.buddy_profile.user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.count_unread_careworker(), 1)
+
+        m2 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        self.assertEquals(self.buddy_profile.count_unread_careworker(), 2)
+
+        m1.read = True
+        m1.save()
+        self.assertEquals(self.buddy_profile.count_unread_careworker(), 1)
+
+        m2.read = True
+        m2.save()
+        self.assertEquals(self.buddy_profile.count_unread_careworker(), 0)
 
 class QuestionnaireFormEntryManagerTest(TestCase):
     def setUp(self):

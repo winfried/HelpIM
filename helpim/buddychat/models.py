@@ -90,6 +90,29 @@ class BuddyChatProfile(RegistrationProfile):
         except IndexError:
             return None
 
+    def count_unread_coordinator(self):
+        '''return count of unread messages for coordinator role'''
+        
+        # messages careseeker -> coordinator
+        count_from_careseeker = self.coordinator_conversation.messages.filter(read=False, sender__user=self.user).count()
+
+        # messages careworker -> coordinator
+        count_from_careworker = self.careworker_coordinator_conversation.messages.filter(read=False, sender__user=self.careworker).count()
+
+        return count_from_careseeker + count_from_careworker
+
+    def count_unread_careworker(self):
+        '''return count of unread messages for careworker role'''
+        
+        # messages careseeker -> careworker
+        count_from_careseeker = self.careworker_conversation.messages.filter(read=False, sender__user=self.user).count()
+        
+        # messages coordinator -> careworker
+        # in careworker_coordinator_conversation: (not careworker) => sender is coordinator
+        count_from_coordinator = self.careworker_coordinator_conversation.messages.exclude(sender__user=self.careworker).filter(read=False).count()
+        
+        return count_from_careseeker + count_from_coordinator
+
     def needs_questionnaire_CR(self):
         '''
         Decide whether this profile must take the CR questionnaire.
