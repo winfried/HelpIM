@@ -202,57 +202,81 @@ class BuddyChatProfileTestCase(TestCase):
         helpim.buddychat.models.datetime = datetime
 
     def test_unread_messages_coordinator(self):
+        '''inserts Messages in both directions (each Conversation has two participating users) into Conversations'''
+        
         self.buddy_profile.careworker = self.careworker_user
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 0)
 
-        m1 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.buddy_profile.user), sender_name=self.buddy_profile.user.username, created_at=datetime.now())
+        m11 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.buddy_user), sender_name=self.buddy_user.username, created_at=datetime.now())
+        m12 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 1)
 
-        m2 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        m21 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        m22 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 2)
 
-        m1.read = True
-        m1.save()
+        m11.read = True
+        m11.save()
+        m12.read = True
+        m12.save()
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 1)
 
-        m2.read = True
-        m2.save()
+        m21.read = True
+        m21.save()
+        m22.read = True
+        m22.save()
         self.assertEquals(self.buddy_profile.unread_messages_coordinator().count(), 0)
 
     def test_unread_messages_careworker(self):
+        '''inserts Messages in both directions (each Conversation has two participating users) into Conversations'''
+        
         self.buddy_profile.careworker = self.careworker_user
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 0)
 
-        m1 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.buddy_profile.user), sender_name=self.buddy_profile.user.username, created_at=datetime.now())
+        m11 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.buddy_user), sender_name=self.buddy_user.username, created_at=datetime.now())
+        m12 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 1)
 
-        m2 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        m21 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        m22 = self.buddy_profile.careworker_coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_coordinator_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 2)
 
-        m1.read = True
-        m1.save()
+        m11.read = True
+        m11.save()
+        m12.read = True
+        m12.save()
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 1)
 
-        m2.read = True
-        m2.save()
+        m21.read = True
+        m21.save()
+        m22.read = True
+        m22.save()
         self.assertEquals(self.buddy_profile.unread_messages_careworker().count(), 0)
 
     def test_unread_messages_careseeker(self):
+        '''inserts Messages in both directions (each Conversation has two participating users) into Conversations'''
+        
         self.buddy_profile.careworker = self.careworker_user
         self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 0)
 
-        m1 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        m11 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.careworker_user), sender_name=self.careworker_user.username, created_at=datetime.now())
+        m12 = self.buddy_profile.careworker_conversation.messages.create(body='bbb', sender=self.buddy_profile.careworker_conversation.get_or_create_participant(self.buddy_user), sender_name=self.buddy_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 1)
 
-        m2 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        m21 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.coordinator_user), sender_name=self.coordinator_user.username, created_at=datetime.now())
+        m22 = self.buddy_profile.coordinator_conversation.messages.create(body='bbb', sender=self.buddy_profile.coordinator_conversation.get_or_create_participant(self.buddy_user), sender_name=self.buddy_user.username, created_at=datetime.now())
         self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 2)
 
-        m1.read = True
-        m1.save()
+        m11.read = True
+        m11.save()
+        m12.read = True
+        m12.save()
         self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 1)
 
-        m2.read = True
-        m2.save()
+        m21.read = True
+        m21.save()
+        m22.read = True
+        m22.save()
         self.assertEquals(self.buddy_profile.unread_messages_careseeker().count(), 0)
 
 class QuestionnaireFormEntryManagerTest(TestCase):
