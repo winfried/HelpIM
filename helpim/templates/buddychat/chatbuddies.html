@@ -27,7 +27,13 @@
     {% else %}
     <td>{{ buddy.careworker_conversation.messages.count }}</td>
     {% endif %}
-    <td>FIXME</td>
+    
+    {% if perms.is_coordinator %}
+        <td>{{ buddy.count_unread_coordinator }}</td>
+    {% else %}
+        <td>{{ buddy.count_unread_careworker }}</td>
+    {% endif %}
+    
     <td>{{buddy.chats|length}}</td>
     <td>{{buddy.questionnaires.count}}</td>
   </tr>
