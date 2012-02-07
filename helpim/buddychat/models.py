@@ -94,26 +94,26 @@ class BuddyChatProfile(RegistrationProfile):
         '''return QuerySet of unread messages for coordinator role'''
 
         # messages careseeker -> coordinator
-        count_from_careseeker = self.coordinator_conversation.messages.filter(read=False, sender__user=self.user)
+        from_careseeker = self.coordinator_conversation.messages.filter(read=False, sender__user=self.user)
 
         # messages careworker -> coordinator
-        count_from_careworker = self.careworker_coordinator_conversation.messages.filter(read=False, sender__user=self.careworker)
+        from_careworker = self.careworker_coordinator_conversation.messages.filter(read=False, sender__user=self.careworker)
 
         # combine QuerySets
-        return count_from_careseeker | count_from_careworker
+        return from_careseeker | from_careworker
 
     def unread_messages_careworker(self):
         '''return QuerySet of unread messages for careworker role'''
 
         # messages careseeker -> careworker
-        count_from_careseeker = self.careworker_conversation.messages.filter(read=False, sender__user=self.user)
+        from_careseeker = self.careworker_conversation.messages.filter(read=False, sender__user=self.user)
 
         # messages coordinator -> careworker
         # in careworker_coordinator_conversation: (not careworker) => sender is coordinator
-        count_from_coordinator = self.careworker_coordinator_conversation.messages.exclude(sender__user=self.careworker).filter(read=False)
+        from_coordinator = self.careworker_coordinator_conversation.messages.exclude(sender__user=self.careworker).filter(read=False)
 
         # combine QuerySets
-        return count_from_careseeker | count_from_coordinator
+        return from_careseeker | from_coordinator
 
     def needs_questionnaire_CR(self):
         '''
