@@ -23,9 +23,9 @@
     {% if perms.is_coordinator %}
     <td>{{ buddy.ready }}</td>
     <td>{{ buddy.careworker.username }}</td>
-    <td>{{ buddy.coordinator_conversation.messages.count }}</td>
+    <td>{{ buddy.coordinator_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
     {% else %}
-    <td>{{ buddy.careworker_conversation.messages.count }}</td>
+    <td>{{ buddy.careworker_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
     {% endif %}
     
     {% if perms.is_coordinator %}
