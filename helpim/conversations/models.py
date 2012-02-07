@@ -119,6 +119,7 @@ class Message(models.Model):
     sender_name = models.CharField(_("Sender"), max_length=64)
     created_at = models.DateTimeField()
     body = models.TextField()
+    read = models.BooleanField(default=False)
 
     comments = models.ManyToManyField(ThreadedComment)
 
