@@ -243,9 +243,9 @@ def chatbuddies(request):
         chatbuddies = BuddyChatProfile.objects.order_by('careworker__username', 'ready')
     else:
         chatbuddies = BuddyChatProfile.objects.filter(careworker=request.user).order_by('user__username')
+
     return render_to_response(
         'buddychat/chatbuddies.html',
-        {'title': _('Chat Buddies'),
-         'chatbuddies': chatbuddies},
+        { 'chatbuddies': chatbuddies },
         context_instance=RequestContext(request)
-        )
+    )
