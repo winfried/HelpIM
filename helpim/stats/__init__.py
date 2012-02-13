@@ -1,17 +1,13 @@
+from helpim.utils import OrderedDict
+
 class StatsProvider():
     '''Apps can subclass StatsProvider to populate statistics'''
 
-    '''maps internally used stat names to name that can be shown to the user'''
-    knownStats = {}
-
-    @classmethod
-    def getStatTranslation(cls, name):
-        '''Translates internally used stat names to names that can be shown to the user.'''
-
-        if name in cls.knownStats:
-            return cls.knownStats[name]
-        else:
-            return name
+    '''
+    Maps internally used stat names to name that can be shown to the user (i.e. table heading).
+    Determines order in which stats are displayed. 
+    '''
+    knownStats = OrderedDict()
 
     @classmethod
     def render(cls, listOfObjects):

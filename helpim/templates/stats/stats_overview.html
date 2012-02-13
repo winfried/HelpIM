@@ -56,10 +56,10 @@
 {% endif %}
 
 <table id="stats_table">
-    {% if tableHeadings %}
+    {% if knownStats %}
     <thead>
         <tr>
-            {% for heading in tableHeadings %}
+            {% for heading in knownStats.values %}
                 <td>{{ heading }}</td>
             {% endfor %}
         </tr>
@@ -68,24 +68,26 @@
     <tbody>
         {% for hourAgg, data in aggregatedStats.iteritems %}
             <tr class="{% cycle 'row1' 'row2' %}">
-                {% for key, val in data.items %}
-                    {# do not repeat value in the first column if same as previous line. #}
-                    {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
-                    {% if forloop.first %}
-                        {% ifnotequal lastAggValue val %}
-                            {% if detail_url %}
-                                <td><a href="{{ detail_url|stats_details:val }}">{{ val }}</a></td>
-                            {% else %}
-                                <td>{{ val }}</a></td>
-                            {% endif %}
-                        {% else %}
-                            <td></td>
-                        {% endifnotequal %}
-                        
-                        {% setvar lastAggValue %}{{ val }}{% endsetvar %}
-	   	            {% else %}
-                        <td>{{ val }}</td>
-                    {% endif %}
+                {% for stat_name in knownStats.iterkeys %}
+                    {% with stat_val=data|key:stat_name %}
+	                    {# do not repeat value in the first column if same as previous line. #}
+	                    {# ifchanged doesn't work in this case because its memory is reset with every new iteration of the inner loop #}
+	                    {% if forloop.first %}
+	                        {% ifnotequal lastAggValue stat_val|stringformat:"s" %}
+	                            {% if detail_url %}
+	                                <td><a href="{{ detail_url|stats_details:stat_val }}">{{ stat_val }}</a></td>
+	                            {% else %}
+	                                <td>{{ stat_val }}</a></td>
+	                            {% endif %}
+	                        {% else %}
+	                            <td></td>
+	                        {% endifnotequal %}
+	                        
+	                        {% setvar lastAggValue %}{{ stat_val|stringformat:"s" }}{% endsetvar %}
+		   	            {% else %}
+	                        <td>{{ stat_val }}</td>
+	                    {% endif %}
+	                {% endwith %}
 	            {% endfor %}
             </tr>
         {% empty %}

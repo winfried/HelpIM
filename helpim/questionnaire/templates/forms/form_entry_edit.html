@@ -1,0 +1,67 @@
+<html>
+<head>
+    {% load static %}
+    {% get_static_prefix as STATIC_PREFIX %}
+    {% if debug %}
+    <script src="{{ STATIC_PREFIX }}xmpptk/closure/goog/base.js"></script>
+    <script src="{{ STATIC_PREFIX }}javascript/deps.js"></script>
+    <script> goog.require('helpim'); </script>
+    {% else %}
+    <script src="{{ STATIC_PREFIX }}javascript/helpim.base.js"></script>
+    {% endif %}
+
+	<style>
+	body, html {
+	  padding: 0;
+	  margin: 0;
+	}
+	
+	dl.table-display {
+	  width: 100%;
+	  float: left;
+	  margin: 0;
+	  padding: 0;
+	  border-bottom: 1px solid #EEE;
+	}
+	
+	.table-display dt {
+	  clear: left;
+	  float: left;
+	  width: 40%;
+	  margin: 0;
+	  padding: 0;
+	  border-top: 1px solid #EEE;
+	  font-weight: bold;
+	}
+	
+	.table-display dd {
+	  float: left;
+	  width: 58%;
+	  margin: 0;
+	  padding: 0;
+	  border-top: 1px solid #EEE;
+	}
+	</style>
+</head>
+
+<body>
+<dl class=table-display>
+    <form method="post"{% if form_for_form.is_multipart %} 
+        enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+        {% for field in form_for_form %}
+          {% if field.errors %}
+            <ul class="errorlist">{{ field.errors }}</ul>
+          {% endif %}
+          {% if field.label != "..." %}
+            <dt>{{ field.label_tag }}</dt>
+          {% endif %}
+          <dd>{{ field }}</dd>
+        {% endfor %}
+        <div style="clear:left;">&nbsp;</div>
+        <input type="submit" value="{{ form.button_text }}" />
+    </form>
+</dl>
+</body>
+
+</html>

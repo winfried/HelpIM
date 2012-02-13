@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-22 14:56+0100\n"
-"PO-Revision-Date: 2011-11-02 13:00+0000\n"
+"POT-Creation-Date: 2012-01-25 12:37+0100\n"
+"PO-Revision-Date: 2012-01-25 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: nl_NL\n"
@@ -47,6 +47,11 @@ msgstr "Extra gebruiker informatie"
 msgid "Chatname"
 msgstr "Aan het chatten"
 
+#: common/models.py:46
+#, python-format
+msgid "Event %(event_name)s at %(timestamp)s"
+msgstr "Gebeurtenis %(event_name)s om %(timestamp)s"
+
 #: conversations/admin.py:33
 msgid "Message"
 msgstr "Bericht"
@@ -55,71 +60,185 @@ msgstr "Bericht"
 msgid "Messages"
 msgstr "Berichten"
 
-#: conversations/admin.py:54 conversations/models.py:72
+#: conversations/admin.py:54 conversations/models.py:101
 msgid "Participant"
 msgstr "Deelnemer"
 
-#: conversations/admin.py:55 conversations/models.py:73
+#: conversations/admin.py:55 conversations/models.py:102
 msgid "Participants"
 msgstr "Deelnemers"
 
-#: conversations/admin.py:98 conversations/models.py:42
+#: conversations/admin.py:126
+msgid "No"
+msgstr "Nee"
+
+#: conversations/admin.py:128
+msgid "Yes"
+msgstr "Ja"
+
+#: conversations/admin.py:129
+msgid "Staff submitted?"
+msgstr "Hulpverlener toegevoegd?"
+
+#: conversations/admin.py:137 conversations/models.py:71
 #: templates/admin/base_site.html:28 templates/admin/index.html:37
 msgid "Conversations"
 msgstr "Gesprekken"
 
-#: conversations/models.py:13
+#: conversations/models.py:14
 #, python-format
 msgid "\"%(subject)s\" at %(start_time)s"
 msgstr "\"%(subject)s\" om %(start_time)s"
 
-#: conversations/models.py:22 conversations/models.py:28
+#: conversations/models.py:39 conversations/models.py:57
 msgid "(None)"
 msgstr "(Geen)"
 
-#: conversations/models.py:37
+#: conversations/models.py:50
+#, python-format
+msgid "%(first_name)s %(last_name)s"
+msgstr "%(first_name)s %(last_name)s"
+
+#: conversations/models.py:66
 msgid "(unknown)"
 msgstr "(onbekend)"
 
-#: conversations/models.py:41
+#: conversations/models.py:70
 msgid "Conversation"
 msgstr "Gesprek"
 
-#: conversations/models.py:55 rooms/models.py:378 rooms/models.py:630
+#: conversations/models.py:84 rooms/models.py:378 rooms/models.py:630
 msgid "Client"
 msgstr "Hulpvrager"
 
-#: conversations/models.py:56 rooms/models.py:631
+#: conversations/models.py:85 rooms/models.py:631
 msgid "Staff"
 msgstr "Hulpverlener"
 
-#: conversations/models.py:78
+#: conversations/models.py:107
 msgid "Sender"
 msgstr "Afzender"
 
-#: conversations/models.py:98
+#: conversations/models.py:141
 #, fuzzy
 msgid "Chat message"
 msgstr "Bericht"
 
-#: conversations/models.py:99
+#: conversations/models.py:142
 #, fuzzy
 msgid "Chat joining"
 msgstr "Aan het chatten"
 
-#: conversations/models.py:100
+#: conversations/models.py:143
 #, fuzzy
 msgid "Chat rejoining"
 msgstr "Aan het chatten"
 
-#: conversations/models.py:101
+#: conversations/models.py:144
 msgid "Chat exit"
 msgstr "Stop chat"
 
-#: conversations/models.py:102
+#: conversations/models.py:145
 #, fuzzy
 msgid "Chat end"
 msgstr "Chat einde"
+
+#: conversations/stats.py:15 conversations/stats.py:146
+msgid "Date"
+msgstr "Datum"
+
+#: conversations/stats.py:16
+msgid "Hour"
+msgstr "Uur"
+
+#: conversations/stats.py:17
+#, fuzzy
+msgid "Total Chats"
+msgstr "Verbind met chat"
+
+#: conversations/stats.py:18
+msgid "Unique IPs"
+msgstr "Unieke IPs"
+
+#: conversations/stats.py:19 conversations/stats.py:147
+#: questionnaire/models.py:23
+msgid "Questionnaires"
+msgstr "Vragenlijsten"
+
+#: conversations/stats.py:20 conversations/stats.py:148
+#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
+msgid "Blocked"
+msgstr "Geblokkeerd"
+
+#: conversations/stats.py:21 conversations/stats.py:149
+msgid "Assigned"
+msgstr "Toegevoegd"
+
+#: conversations/stats.py:22 conversations/stats.py:151
+#, fuzzy
+msgid "Interaction"
+msgstr "Gesprek"
+
+#: conversations/stats.py:23 conversations/stats.py:150
+msgid "Queued"
+msgstr "Wachtend"
+
+#: conversations/stats.py:24
+msgid "Avg. Wait time (sec.)"
+msgstr "Gem. Wachttijd (sec.)"
+
+#: conversations/stats.py:25
+msgid "Avg. Chat Time (sec.)"
+msgstr "Gem. Chat Tijd (sec.)"
+
+#: conversations/stats.py:138
+msgid "Chats Aggregated"
+msgstr "Toegewezen chats"
+
+#: conversations/stats.py:142
+msgid "displays statistics of all Chats aggregated by hour"
+msgstr "toont statistieken van alle Chats gegroepeerd per uur"
+
+#: conversations/stats.py:145
+msgid "Id"
+msgstr "Id"
+
+#: conversations/stats.py:152
+#, fuzzy
+msgid "Client IP"
+msgstr "Hulpvrager"
+
+#: conversations/stats.py:153
+#, fuzzy
+msgid "Client name"
+msgstr "Nicknaam"
+
+#: conversations/stats.py:154
+#, fuzzy
+msgid "Staff name"
+msgstr "Nicknaam"
+
+#: conversations/stats.py:155 templates/rooms/chat_client.html:29
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: conversations/stats.py:156
+msgid "Wait time (sec.)"
+msgstr "Wacht tijd (sec.)"
+
+#: conversations/stats.py:157
+#, fuzzy
+msgid "Chat Time (sec.)"
+msgstr "Bericht"
+
+#: conversations/stats.py:242
+#, fuzzy
+msgid "Chats Flat"
+msgstr "Stop chat"
+
+#: conversations/stats.py:246
+msgid "displays statistics of all Chats of a year without aggregation"
+msgstr "toont statistieken van alle Chats van een jaar zonder groepering"
 
 #: groups/models.py:21
 msgid "Chatgroups"
@@ -157,47 +276,48 @@ msgstr "Bijeenkomsten"
 msgid "HelpIM"
 msgstr "HelpIM"
 
-#: questionnaire/fields.py:63
+#: questionnaire/fields.py:64
 msgid "Agree"
 msgstr "Goedkeuren"
 
-#: questionnaire/fields.py:68
+#: questionnaire/fields.py:69
 msgid "Disagree"
 msgstr "Afkeuren"
 
-#: questionnaire/models.py:9
+#: questionnaire/models.py:8
 msgid "Client, before chat"
 msgstr "Hulpvrager, voor de chat"
 
-#: questionnaire/models.py:10
+#: questionnaire/models.py:9
 msgid "Client, after chat"
 msgstr "Hulpvrager, na de chat"
 
-#: questionnaire/models.py:11
+#: questionnaire/models.py:10
 msgid "Staff, after chat"
 msgstr "Hulpverlener, na de chat"
+
+#: questionnaire/models.py:11
+#, fuzzy
+msgid "Staff, on Conversation page"
+msgstr "Gesprek"
 
 #: questionnaire/models.py:22
 msgid "Questionnaire"
 msgstr "Vragenlijst"
 
-#: questionnaire/models.py:23
-msgid "Questionnaires"
-msgstr "Vragenlijsten"
-
-#: questionnaire/models.py:34
+#: questionnaire/models.py:38
 msgid "Questionnaire answer for conversation"
 msgstr "Antwoord op vragen voor de chat"
 
-#: questionnaire/models.py:35
+#: questionnaire/models.py:39
 msgid "Questionnaire answers for conversation"
 msgstr "Antwoorden op vragen voor de chat"
 
-#: questionnaire/models.py:38
+#: questionnaire/models.py:56
 msgid "Scale"
 msgstr "Schaal"
 
-#: questionnaire/models.py:39
+#: questionnaire/models.py:57
 msgid "Double droplist"
 msgstr "Dubbele droplist"
 
@@ -246,16 +366,15 @@ msgstr "Export CSV"
 msgid "Entries"
 msgstr "Gegevens"
 
-#: rooms/bot.py:200
+#: rooms/bot.py:198
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr "U bent op positie %(pos)d van de wachtrij."
 
-#: rooms/bot.py:306
+#: rooms/bot.py:309
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
-msgstr ""
-"%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
+msgstr "%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
 
 #: rooms/models.py:268
 msgid "Room status"
@@ -351,16 +470,21 @@ msgstr "Voeg %(name)s toe"
 msgid "Django site admin"
 msgstr "Django site beheerder"
 
-#: templates/admin/base_site.html:29 templates/admin/index.html:41
+#: templates/admin/base_site.html:29 templates/admin/index.html:46
 #, fuzzy
 msgid "Chat!"
 msgstr "Aan het chatten"
+
+#: templates/admin/base_site.html:32 templates/admin/index.html:41
+#: templates/stats/stats_index.html:7
+msgid "Stats"
+msgstr "Stats"
 
 #: templates/admin/change_form.html:26
 msgid "Home"
 msgstr "Home"
 
-#: templates/admin/change_form.html:29 templates/admin/index.html:62
+#: templates/admin/change_form.html:29 templates/admin/index.html:67
 msgid "Add"
 msgstr "Toevoegen"
 
@@ -374,24 +498,37 @@ msgstr[1] "Corrigeer onderstaande fouten AUB."
 msgid "Quick access"
 msgstr "Snelle toegang"
 
-#: templates/admin/index.html:51
+#: templates/admin/index.html:56
 #, python-format
 msgid "Models available in the %(name)s application."
 msgstr "Modellen beschikbaar in de %(name)s applicatie."
 
-#: templates/admin/index.html:52
+#: templates/admin/index.html:57
 #, fuzzy, python-format
 msgid "%(name)s"
 msgstr "Voeg %(name)s toe"
 
-#: templates/admin/index.html:68
+#: templates/admin/index.html:73
 #, fuzzy
 msgid "Change"
 msgstr "Aan het chatten"
 
-#: templates/admin/index.html:78
+#: templates/admin/index.html:83
 msgid "You don't have permission to edit anything."
 msgstr "U heeft geen toestemming om iets te wijzigen"
+
+#: templates/admin/conversations/conversation/change_form.html:13
+#, python-format
+msgid ""
+"\n"
+"\t\t            %(staffname)s, please take a moment to <b><a href="
+"\"%(questionnaire_url)s\">fill out this form</a></b>!\n"
+"\t\t        "
+msgstr "
+"\n"
+"\t\t            %(staffname)s, neem AUB een moment de tijd om <b><a href="
+"\"%(questionnaire_url)s\">dit formulier in te vullen</a></b>!\n"
+"\t\t        "
 
 #: templates/admin/edit_inline/with_threadedcomments.html:16
 msgid "Delete?"
@@ -421,22 +558,43 @@ msgstr "Ga in volgende beschikbare %(name)s"
 msgid "Add %(name)s"
 msgstr "Voeg %(name)s toe"
 
-#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
-msgid "Blocked"
-msgstr "Geblokkeerd"
-
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
 msgstr "Sorry, je IP address is geblokkeerd voor deze service."
-
-#: templates/rooms/chat_client.html:29
-msgid "Subject"
-msgstr "Onderwerp"
 
 #: templates/rooms/client_get_info.html:5
 #: templates/rooms/client_get_info.html:10
 msgid "Join Chat"
 msgstr "Verbind met chat"
+
+#: templates/stats/stats_index.html:9
+msgid "Show statistics for one of the following topics:"
+msgstr "Toon statistieken voor een van de volgende topics:"
+
+#: templates/stats/stats_index.html:22
+msgid "No module registered that collects stats"
+msgstr "Geen module geregistreerd om statistieken te verzamelen"
+
+#: templates/stats/stats_overview.html:47
+#, python-format
+msgid "Statistics: %(name)s in %(year)s"
+msgstr "Statistieken: %(name)s in %(year)s"
+
+#: templates/stats/stats_overview.html:51
+msgid "Download as:"
+msgstr "Download als:"
+
+#: templates/stats/stats_overview.html:53
+msgid "CSV"
+msgstr "CSV"
+
+#: templates/stats/stats_overview.html:54
+msgid "Excel"
+msgstr "Excel"
+
+#: templates/stats/stats_overview.html:94
+msgid "No stats available for the selected year."
+msgstr "Geen statistieken beschikbaar voor het geselecteerde jaar."
 
 #~ msgid "HelpIM administration"
 #~ msgstr "HelpIM beheer"
