@@ -166,7 +166,6 @@ msgid "Questionnaires"
 msgstr "Vragenlijsten"
 
 #: conversations/stats.py:20 conversations/stats.py:148
-#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
 msgid "Blocked"
 msgstr "Geblokkeerd"
 
