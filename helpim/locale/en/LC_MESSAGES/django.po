@@ -543,10 +543,6 @@ msgstr ""
 msgid "Yo bro'!"
 msgstr ""
 
-#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
-msgid "Blocked"
-msgstr ""
-
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
 msgstr ""
