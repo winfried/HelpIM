@@ -1,19 +1,18 @@
-from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver, Signal
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import Field, Form, FormEntry
 
-POSITION_CHOICES = (
-  ('CB', _('Client, before chat')),
-  ('CA', _('Client, after chat')),
-  ('SA', _('Staff, after chat')),
-  ('SC', _('Staff, on Conversation page')),
-)
+from helpim.common.models import get_position_choices
+from helpim.conversations.models import Conversation
+
+
+questionnaire_saved = Signal(providing_args=["questionnaire", "entry"])
+
 
 class Questionnaire(Form):
-
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES, unique=True, blank=False)
+    position = models.CharField(max_length=3, choices=get_position_choices(), unique=True, blank=False)
 
     def __unicode__(self):
         return self.title
@@ -30,7 +29,7 @@ class ConversationFormEntry(models.Model):
     entry = models.ForeignKey(FormEntry, blank=True, null=True)
     questionnaire = models.ForeignKey(Questionnaire)
     conversation = models.ForeignKey('conversations.Conversation', blank=True, null=True)
-    position = models.CharField(max_length=3, choices=POSITION_CHOICES)
+    position = models.CharField(max_length=3, choices=get_position_choices())
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -51,6 +50,24 @@ class ConversationFormEntry(models.Model):
             result[question.label] = answer.value
 
         return result
+
+
+@receiver(questionnaire_saved)
+def save_conversation_form_entry(sender, **kwargs):
+    # only "staff, on conversation type"
+    if kwargs['questionnaire'].position != 'SC':
+        return
+
+    conversation = Conversation.objects.get(pk=kwargs['extra_object_id'])
+
+    # link FormEntry and Conversation
+    ConversationFormEntry.objects.create(
+        entry=kwargs['entry'],
+        questionnaire=kwargs['questionnaire'],
+        conversation=conversation,
+        position=kwargs['questionnaire'].position
+    )
+
 
 from helpim.questionnaire.fields import register_forms_builder_field_type, ScaleField, ScaleWidget, DoubleDropField, DoubleDropWidget
 register_forms_builder_field_type(100, _('Scale'), ScaleField, ScaleWidget)

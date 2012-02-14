@@ -25,9 +25,15 @@
 {% block nav-global %}
 <div id="navigation">
   <ul>
-    <li><a href="/admin/conversations/conversation/">{% trans "Conversations" %}</a></li>
+    {% if perms.conversations.change_conversation %}
+    <li><a href="{% url admin:conversations_conversation_changelist %}">{% trans "Conversations" %}</a></li>
     <li><a href="{% url staff_join_room %}">{% trans "Chat!" %}</a></li>
-    
+    {% endif %}
+
+    {% if perms.buddychat.is_careworker %}
+    <li><a href="/admin/chatbuddies">{% trans "Chat Buddies" %}</a></li>
+    {% endif %}
+
     {% if perms.stats.can_view_stats %}
     <li><a href="{% url stats_index %}">{% trans "Stats" %}</a></li>
     {% endif %}

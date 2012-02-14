@@ -15,6 +15,9 @@ js_info_dict = {
     'packages': ('helpim',),
 }
 
+if 'helpim.buddychat' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('', (r'', include('helpim.buddychat.urls')))
+
 urlpatterns += patterns(
     '',
 
@@ -23,8 +26,8 @@ urlpatterns += patterns(
     url(r"^forms/entry/(?P<form_entry_id>.*)/$", "helpim.questionnaire.views.form_entry", name="form_entry"),
     url(r"^forms/entry/(?P<form_entry_id>.*)/edit$", "helpim.questionnaire.views.form_entry_edit", name="form_entry_edit"),
     url(r"^forms/(?P<slug>.*)/(?P<entry>.*)/sent/$", "helpim.questionnaire.views.form_sent", kwargs={'template':'questionnaire/form_sent.html'}, name="form_sent"),
-    # shows form, handles submission and links to Conversation referenced by conversation_id
-    url(r"^forms/(?P<slug>.*)/(?P<conversation_id>\d+)/$", "helpim.questionnaire.views.form_detail", name="form_detail"),
+    # shows form, handles submission and links FormEntry to a related object referenced by extra_object_id
+    url(r"^forms/(?P<slug>.*)/(?P<extra_object_id>\d+)/$", "helpim.questionnaire.views.form_detail", name="form_detail"),
     # shows form, handles submission
     url(r"^forms/(?P<slug>.*)/$", "helpim.questionnaire.views.form_detail", name="form_detail"),
 

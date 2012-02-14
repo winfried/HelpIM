@@ -125,17 +125,15 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'helpim.conversations',
-#    'helpim.groups',
-    'helpim.rooms',
-    'helpim.stats',
-    'helpim',
+    'forms_builder.forms',
+    'rosetta',
     'south',
     'threadedcomments',
-    'rosetta',
     'helpim.common',
-    'forms_builder.forms',
+    'helpim.conversations',
+    'helpim.rooms',
     'helpim.questionnaire',
+    'helpim.stats',
 )
 
 # migrations to the forms-builder app reside locally, see #115

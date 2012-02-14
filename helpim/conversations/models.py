@@ -29,7 +29,19 @@ class Conversation(models.Model):
             return Participant.objects.filter(conversation=self,role=Participant.ROLE_STAFF)[0]
         except:
             None
-            
+
+    def get_participant(self, user):
+        try:
+            return Participant.objects.filter(conversation=self, user=user)[0]
+        except:
+            None
+
+    def get_or_create_participant(self, user):
+        participant = self.get_participant(user)
+        if participant is None:
+            participant = Participant.objects.create(conversation=self, name=user.username, user=user)
+        return participant
+
     def client_name(self):
         '''Returns the client's nickname'''
         
@@ -102,11 +114,12 @@ class Participant(models.Model):
         verbose_name_plural = _("Participants")
 
 class Message(models.Model):
-    conversation = models.ForeignKey(Conversation)
+    conversation = models.ForeignKey(Conversation, related_name='messages')
     sender = models.ForeignKey(Participant)
     sender_name = models.CharField(_("Sender"), max_length=64)
     created_at = models.DateTimeField()
     body = models.TextField()
+    read = models.BooleanField(default=False)
 
     comments = models.ManyToManyField(ThreadedComment)
 

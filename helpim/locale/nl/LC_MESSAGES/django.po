@@ -463,7 +463,7 @@ msgstr "Interne server fout"
 
 #: templates/base.html:16
 #, fuzzy, python-format
-msgid "Welcome, %(name)s!"
+msgid "Welcome, %(username)s!"
 msgstr "Voeg %(name)s toe"
 
 #: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
@@ -557,6 +557,18 @@ msgstr "Ga in volgende beschikbare %(name)s"
 #, python-format
 msgid "Add %(name)s"
 msgstr "Voeg %(name)s toe"
+
+#: templates/buddychat/welcome.html:3 templates/buddychat/welcome.html.py:4
+msgid "Welcome"
+msgstr ""
+
+#: templates/buddychat/welcome.html:5
+msgid "Yo bro'!"
+msgstr ""
+
+#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
+msgid "Blocked"
+msgstr "Geblokkeerd"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
