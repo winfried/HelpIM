@@ -166,6 +166,7 @@ msgid "Questionnaires"
 msgstr "Vragenlijsten"
 
 #: conversations/stats.py:20 conversations/stats.py:148
+#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
 msgid "Blocked"
 msgstr "Geblokkeerd"
 
@@ -564,10 +565,6 @@ msgstr ""
 #: templates/buddychat/welcome.html:5
 msgid "Yo bro'!"
 msgstr ""
-
-#: templates/rooms/blocked.html:3 templates/rooms/blocked.html.py:4
-msgid "Blocked"
-msgstr "Geblokkeerd"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
