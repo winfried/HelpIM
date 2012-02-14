@@ -46,6 +46,11 @@ CHAT['log_level'] = 'ALL'
 # (see http://docs.python.org/library/datetime.html#datetime.timedelta)
 #RECURRING_QUESTIONNAIRE_INTERVAL = { 'weeks': 1 }
 
+# for testing, you might not want to send real emails. uncomment this
+# to instead print emails to stdout.
+# (see https://docs.djangoproject.com/en/1.3/topics/email/#e-mail-backends)
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
