@@ -32,7 +32,7 @@
 
     {% if 'helpim.buddychat' in INSTALLED_APPS %}
 	    {% if perms.buddychat.is_careworker or perms.buddychat.is_coordinator  %}
-	    <li><a href="/admin/chatbuddies">{% trans "Chat Buddies" %}</a></li>
+	    <li><a href="{% url chatbuddies_list %}">{% trans "Chat Buddies" %}</a></li>
 	    {% endif %}
     {% endif %}
 
