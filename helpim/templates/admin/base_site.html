@@ -30,11 +30,13 @@
     <li><a href="{% url staff_join_room %}">{% trans "Chat!" %}</a></li>
     {% endif %}
 
-    {% if perms.buddychat.is_careworker %}
-    <li><a href="/admin/chatbuddies">{% trans "Chat Buddies" %}</a></li>
+    {% if 'helpim.buddychat' in INSTALLED_APPS %}
+	    {% if perms.buddychat.is_careworker or perms.buddychat.is_coordinator  %}
+	    <li><a href="/admin/chatbuddies">{% trans "Chat Buddies" %}</a></li>
+	    {% endif %}
     {% endif %}
 
-    {% if perms.stats.can_view_stats %}
+    {% if 'helpim.stats' in INSTALLED_APPS and perms.stats.can_view_stats %}
     <li><a href="{% url stats_index %}">{% trans "Stats" %}</a></li>
     {% endif %}
     
