@@ -14,12 +14,11 @@ class ConfigurationError(Exception):
     def __str__(self):
         return repr(self.value)
 
-""" if helpim.buddychat is loaded, require we're loaded before helpim.rooms and helpim.questionnaires """
+""" check if we're loaded before helpim.rooms and helpim.questionnaires """
 from django.conf import settings
 ia = settings.INSTALLED_APPS
-if 'helpim.buddychat' in ia:
-    if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.buddychat') > ia.index('helpim.questionnaire'):
-        raise ConfigurationError('bad order of INSTALLED_APPS: helpim.buddychat must be loaded before helpim.questionnaire and helpim.rooms')
+if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.buddychat') > ia.index('helpim.questionnaire'):
+    raise ConfigurationError('bad order of INSTALLED_APPS: helpim.buddychat must be loaded before helpim.questionnaire and helpim.rooms')
 
 from helpim.common.models import register_position_choices
 register_position_choices([
