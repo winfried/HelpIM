@@ -15,11 +15,14 @@ from forms_builder.forms.models import Form, FormEntry, Field
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
 
-from helpim.buddychat.models import BuddyChatProfile
 from helpim.conversations.models import Conversation
 from helpim.questionnaire.fields import DoubleDropWidget
 from helpim.questionnaire.models import questionnaire_saved
 
+# ony load buddychat models when buddychat app is installed
+# its needed here to redirect to a BuddyChatProfile after questionnaire submission
+if 'helpim.buddychat' in settings.INSTALLED_APPS:
+    from helpim.buddychat.models import BuddyChatProfile
 
 def form_detail(request, slug, template="questionnaire/form_detail.html", extra_object_id=None):
     """
