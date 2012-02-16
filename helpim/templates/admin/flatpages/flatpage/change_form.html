@@ -25,7 +25,7 @@ src="http://yui.yahooapis.com/2.5.1/build/editor/editor-beta.js"></script>
 
 {% block after_field_sets %}
 <script type="text/javascript">
-    var editor = new YAHOO.widget.Editor('id_content', { handleSubmit: true});
+    var editor = new YAHOO.widget.Editor('id_content', { handleSubmit: true, width: "99%"});
     editor.render();
 </script>
 {% endblock %}
