@@ -4,32 +4,29 @@
 
 # get variables like "buildoutuser"
 . /etc/helpim/helpim.conf
-branch=""
 
-# ask questions
-if test "$1" = ""; then
-  echo
-  read -p "Please give the branch (master or testing): " branch
+if ! test -e /home/$buildoutuser/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
+
+if test -z "$1"
+then
+  echo "Using default branch: $branch."
 else
+  echo "Using branch $1."
   branch="$1"
-  echo "Using branch $branch"
 fi
 
-if ! test -e /$branch-chroot/home/$buildoutuser/HelpIM; then echo "There is no HelpIM git, exit"; exit; fi
-
 # checkout and pull helpim.
-chroot /$branch-chroot su $buildoutuser -c "
+su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
    git checkout $branch
    git reset --hard HEAD # because .po file is changed by makemessages, hmmm.
    git pull
 "
-
-echo "`date` checkout, pull" >> /var/log/hi-build-$branch.log
+echo "`date` checkout, pull" >> /var/log/hi-build.log
 
 # check for changes, warn if they are there
-chroot /$branch-chroot su $buildoutuser -c "
+su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
    if ( ! diff -q ../buildout.cfg buildout.cfg ) then 
@@ -47,7 +44,7 @@ chroot /$branch-chroot su $buildoutuser -c "
 "
 
 # check if all dependencies are there and build
-chroot /$branch-chroot su $buildoutuser -c "
+su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
    python bootstrap.py # --distribute (only needed for Mac)
@@ -57,13 +54,12 @@ chroot /$branch-chroot su $buildoutuser -c "
    cd ~/HelpIM/parts/xmpptk/
    make
 "
-echo "`date` bootstrap, buildout, make" >> /var/log/hi-build-$branch.log
+echo "`date` bootstrap, buildout, make" >> /var/log/hi-build.log
 echo
 read -p 'Press return to continue (give ctrl-c to stop)'
 
-# Collect static files and compile
-chroot /$branch-chroot /etc/init.d/mysql start 
-chroot /$branch-chroot su $buildoutuser -c "
+# Collect static files and compile 
+su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
    echo begin collectstatic
@@ -79,10 +75,9 @@ chroot /$branch-chroot su $buildoutuser -c "
    ../bin/manage.py compilemessages
    echo
 "
-chroot /$branch-chroot /etc/init.d/mysql stop
 
-# build egg
-chroot /$branch-chroot su $buildoutuser -c "
+# Collect static files and compile 
+su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
    rm dist/* > /dev/null 2>&1
@@ -92,14 +87,14 @@ chroot /$branch-chroot su $buildoutuser -c "
 "
 
 # rapportage
-cd "/$branch-chroot/home/$buildoutuser/HelpIM/dist/"
+cd "/home/$buildoutuser/HelpIM/dist/"
 version=`ls`
+cd -
 if test -z "$version"
 then
-  echo "`date` build failed, no egg present" >> /var/log/hi-build-$branch.log
+  echo "`date` build failed, no egg present" >> /var/log/hi-build.log
   echo "Failure! No egg build"
 else
-  cp /$branch-chroot/home/$buildoutuser/HelpIM/dist/* /var/www/helpim/$branch/
-  echo "`date` build succesfull: $version" >> /var/log/hi-build-$branch.log
-  echo "Succes! The egg is in: /var/www/helpim/$branch/$version"
+  echo "`date` build succesfull: $version" >> /var/log/hi-build.log
+  echo "Succes! The egg is in: /home/$buildoutuser/HelpIM/dist/$version"
 fi

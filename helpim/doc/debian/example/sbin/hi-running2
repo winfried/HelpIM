@@ -1,0 +1,31 @@
+#!/bin/bash
+# tells about usage of chats
+
+cd /etc/helpim/sites
+list=`ls -1d *`
+
+for chat in $list; do
+
+echo
+echo "Chatname: $chat"
+
+echo rooms_lobbyroomtoken:
+mysql <<EOD
+use $chat;
+select * from rooms_lobbyroomtoken;
+EOD
+
+echo rooms_one2oneroomtoken:
+mysql <<EOD
+use $chat;
+select * from rooms_waitingroomtoken;
+EOD
+
+echo rooms_waitingroomtoken:
+mysql <<EOD
+use $chat;
+select * from rooms_waitingroomtoken;
+EOD
+
+done
+

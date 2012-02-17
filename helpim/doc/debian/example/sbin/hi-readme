@@ -81,8 +81,9 @@ pip install --no-deps -f http://xen9.vandervlis.nl/helpim helpim
 pip install --no-deps django==1.3.1  # in stabe is 1.2.3, in backports and testing is 1.3.1
 pip install --no-deps django-threadedcomments==0.5.3  # not in stable, but in testing.
 pip install --no-deps django-rosetta==0.6.0  # in stable is 0.5.6, in testing is 0.6.0.
-pip install --no-deps django-forms-builder==0.4.8 # is not in Debian
+# pip install --no-deps django-forms-builder==0.4.8 # is not in Debian
 #in the future we are going to use our own forked django-forms-builder in the helpim-git
+pip install --no-deps http://xen9.vandervlis.nl/django-forms-builder django-forms-builder
 pip install --no-deps south==0.7.3 # 0.7.3 is in testing, 0.7 is in stable.
 pip install --no-deps pip==1.0.2   #new version what can remove. 0.7.2 is in stable, 1.0 is in testing
 #further maybe in the future: django-registration, this was a point of conflict.
@@ -190,3 +191,39 @@ cd /etc/helpim/sites/testchat
 PYTHONPATH='' DJANGO_SETTINGS_MODULE=settings \
   django-admin.py dumpdata --indent 4
 -----------
+upgrade django 1.4 on xen9:
+cd /var/www/django/
+mv Django-1.4-pre-alpha.tar.gz Django-1.4-pre-alpha.tar.gz-backup
+svn co http://code.djangoproject.com/svn/django/trunk/
+cd trunk
+python setup.py sdist
+mv dist/* ../
+----------
+create egg for django forms builder:
+cd /var/www/django-forms-builder
+git clone git://github.com/e-hulp/django-forms-builder.git
+cd django-forms-builder
+mkdir sdist
+python setup.py sdist
+mv dist/* ../
+cd ..
+rm -r django-forms-builder
+---------
+first I did install with this, but it seems not to work anymore:
+pip install --upgrade --no-deps http://xen9.vandervlis.nl/django-forms-builder django-forms-builder
+now I use this:
+pip install --upgrade --no-deps http://xen9.vandervlis.nl/django-forms-builder/django-forms-builder-0.4.11.tar.gz
+---------
+create egg for django registration:
+cd /var/www/django-registration
+git clone git://github.com/e-hulp/django-registration.git
+cd django-registration
+mkdir sdist
+python setup.py sdist
+mv dist/* ../
+cd ..
+rm -r django-registration
+rm -r build
+--------
+pip install --upgrade --no-deps http://xen9.vandervlis.nl/django-registration/django-registration-0.8-alpha-1.tar.gz
+-------

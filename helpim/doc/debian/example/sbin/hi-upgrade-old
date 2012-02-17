@@ -1,24 +1,20 @@
 #!/bin/bash
 # upgrades helpim
 # usage hi-upgrade [egglocation]
-# egglocation does not work at the moment.
 
 # get variables like "buildoutuser"
 . /etc/helpim/helpim.conf
 
-# if test -z "$1"
-# then
-#   # should be only one egg there, but maybe we must check...
-#   egg=`ls /home/$buildoutuser/HelpIM/dist/*`
-# else
-#   egg="$1"
-# fi
+if test -z "$1"
+then
+  # should be only one egg there, but maybe we must check...
+  egg=`ls /home/$buildoutuser/HelpIM/dist/*`
+else
+  egg="$1"
+fi
 
-# pip install --upgrade --no-deps "$egg"
-# echo "`date` pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
-
-pip install --upgrade --no-deps -f http://xen9.vandervlis.nl/helpim/$branch helpim
-echo "`date` pip upgrade to new unknown helpim version" >> /var/log/hi-upgrade.log
+pip install --upgrade --no-deps "$egg"
+echo "`date` pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
 
 echo
 read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
