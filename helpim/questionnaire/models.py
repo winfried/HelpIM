@@ -46,8 +46,13 @@ class ConversationFormEntry(models.Model):
             return result
 
         for answer in self.entry.fields.all():
-            question = Field.objects.get(id=answer.field_id)
-            result[question.label] = answer.value
+            # try to find the question that is answered by this FieldEntry
+            # it is possible that the question cannot be found anymore because the Questionnaire has been changed
+            try:
+                question = Field.objects.get(id=answer.field_id)
+                result[question.label] = answer.value
+            except Field.DoesNotExist:
+                pass
 
         return result
 
