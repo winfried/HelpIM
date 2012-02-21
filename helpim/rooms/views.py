@@ -8,7 +8,6 @@ from django.shortcuts import render_to_response
 from helpim.rooms.models import AccessToken, Participant, IPBlockedException
 from helpim.common.models import AdditionalUserInformation
 
-
 @login_required
 def staff_join_chat(request, room_pk=None):
     

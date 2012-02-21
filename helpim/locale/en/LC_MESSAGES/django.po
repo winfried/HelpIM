@@ -446,7 +446,7 @@ msgstr ""
 
 #: templates/base.html:16
 #, python-format
-msgid "Welcome, %(name)s!"
+msgid "Welcome, %(username)s!"
 msgstr ""
 
 #: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
@@ -533,6 +533,14 @@ msgstr ""
 #: templates/admin/rooms/change_list.html:15
 #, python-format
 msgid "Add %(name)s"
+msgstr ""
+
+#: templates/buddychat/welcome.html:3 templates/buddychat/welcome.html.py:4
+msgid "Welcome"
+msgstr ""
+
+#: templates/buddychat/welcome.html:5
+msgid "Yo bro'!"
 msgstr ""
 
 #: templates/rooms/blocked.html:5

@@ -58,7 +58,7 @@ class EventLogProcessor():
 
                 # continue with next session
                 self.currentSession = event.session
-                map(lambda f: f.start, self.filters)
+                map(lambda f: f.start(), self.filters)
 
             map(lambda f: f.processEvent(event), self.filters)
 

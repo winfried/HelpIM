@@ -9,13 +9,31 @@ else
   echo "Chatname: $chat"
 fi
 
+echo "hi-truncate report about $chat on `date`" > /tmp/hi-truncate
+echo "" >> /tmp/hi-truncate
+echo "Mysqldump of room-tables:" >> /tmp/hi-truncate
+
 # mysqldump
+echo "" >> /tmp/hi-truncate
+echo "Mysqldump of room-tables:" >> /tmp/hi-truncate
 mysqldump $chat rooms_accesstoken rooms_grouproom rooms_lobbyroom \
  rooms_lobbyroomtoken rooms_one2oneroom rooms_one2oneroomtoken \
- rooms_waitingroom rooms_waitingroomtoken | mail -s "hi-truncate dump" helpdesk@e-hulp.nl
+ rooms_waitingroom rooms_waitingroomtoken >> /tmp/hi-truncate
 
-# mail log
-tail -n 250 /var/log/helpim/$chat.log | mail -s "hi-truncate log" helpdesk@e-hulp.nl
+# mail bot-log
+echo "" >> /tmp/hi-truncate
+echo "Last 250 lines of /var/log/helpim/$chat.log:" >> /tmp/hi-truncate
+tail -n 250 /var/log/helpim/$chat.log >> /tmp/hi-truncate
+
+# mail prosody.log
+echo "" >> /tmp/hi-truncate
+echo "Last 70 lines of /var/log/prosody/prosody.log:" >> /tmp/hi-truncate
+tail -n 70 /var/log/prosody/prosody.log >> /tmp/hi-truncate        
+
+# mail prosody.err
+echo "" >> /tmp/hi-truncate
+echo "Last 20 lines of /var/log/prosody/prosody.err:" >> /tmp/hi-truncate
+tail -n 20 /var/log/prosody/prosody.err >> /tmp/hi-truncate
 
 # stop bot
 hi-killbot $chat
@@ -35,6 +53,8 @@ EOD
 
 # start bot
 hi-runbot $chat
+
+cat /tmp/hi-truncate | mail -s hi-truncate helpdesk@e-hulp.nl
 
 echo Done.
 echo

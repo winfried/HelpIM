@@ -1,7 +1,5 @@
 import datetime
 
-import logging
-
 from django.conf import settings
 from django.db import models
 from django.db import transaction
@@ -21,6 +19,7 @@ class Site:
         self.groupRooms   = GroupRoom.objects
         self.lobbyRooms   = LobbyRoom.objects
         self.waitingRooms = WaitingRoom.objects
+        self.simpleRooms  = SimpleRoom.objects
 
 def getSites():
     """ this is a fake sites dict as we're not using real sites right now """
@@ -483,6 +482,136 @@ class One2OneRoom(Room):
         else:
             raise StatusError("Participant left clean while status is '%s'." % status)
 
+class SimpleRoom(Room):
+    """Chatroom for having one-to-one chats.
+       When created, it is just an empty object with the status:
+       'available'. The room object must be created when the room is
+       actually created on the jabber-server.
+
+       A full list of possible statusses of a one-to-one room:
+
+       available    Jid is known, room is created at jabber-server.
+       waiting      A chat participant is waiting for another to join.
+       chatting     Both a staffmember and a client are present in the
+                    room, hopefully they are chatting.
+       closingChat  The staffmembor OR the client is still present, but
+                    one of them initiated the closing of the chat. The
+                    remaining participant(s) should leave or be kicked
+                    if the participant doesn't leave before te time-out.
+       toDestroy    There has been a chat and both partitipants have left.
+                    There is no need anymore to keep the room at the
+                    jabber-server.
+       destroyed    The room is destroyed at the jabber-server.
+       lost         During a chat one of the participants disapeared
+                    without confirming an end of the chat.
+       abandoned    During a chat both the client and the staffmember
+                    disapeared without confirming an end of the chat.
+                    If none of them return before the timeout, the room
+                    must be destroyed.
+       """
+
+
+    class Meta:
+        verbose_name = _('Simple Room')
+
+    def __str__(self):
+        return '<SimpleRoom:%s>' % self.status
+
+    STATUS_CHOICES = (
+        ('available', _('Available')),
+        ('waiting', _('Participant Waiting')),
+        ('chatting', _('Chatting')),
+        ('closingChat', _('Closing Chat')),
+        ('toDestroy', _('To Destroy')),
+        ('destroyed', _('Destroyed')),
+        ('lost', _('Lost')),
+        ('abandoned', _('Abandoned')),
+        )
+
+    staff = models.ForeignKey(Participant, verbose_name=_('Staff member'), related_name='+', null = True, limit_choices_to={'role': 'CW'})
+    staff_nick = models.CharField(_('Staff nickname'), max_length=64, null = True)
+
+    client = models.ForeignKey(Participant, verbose_name=_('Client'), related_name='+', null = True, limit_choices_to={'role': 'CS'})
+    client_nick = models.CharField(_('Client nickname'), max_length=64, null = True)
+    client_allocated_at = models.DateTimeField(
+        _('Allocated by client'),
+        null = False,
+        default = '1000-01-01 00:00:00'
+        )
+
+    objects = RoomManager()
+
+    def getParticipantByNick(self, nick):
+        if self.client_nick == nick:
+            return self.client
+        elif self.staff_nick == nick:
+            return self.staff
+
+    def userJoined(self, muc_user):
+        """To be called after the staffmember has joined
+        the room at the jabber-server.
+        """
+
+        if not self.chat:
+            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat.save()
+            self.chat = chat
+
+        ac = AccessToken.objects.get(jid=muc_user.real_jid)
+        if ac.role == Participant.ROLE_STAFF:
+            if not self.staff:
+                staff = Participant(
+                    conversation=self.chat,
+                    name=muc_user.nick,
+                    user=ac.created_by,
+                    role=Participant.ROLE_STAFF
+                    )
+                staff.save()
+                self.staff = staff
+                self.staff_nick = muc_user.nick
+        else:
+            if not self.client:
+                client = Participant(
+                    conversation=self.chat,
+                    name=muc_user.nick,
+                    user=ac.created_by,
+                    role=Participant.ROLE_CLIENT
+                    )
+                client.save()
+                self.client = client
+                self.client_nick = muc_user.nick
+
+        status = self.getStatus()
+        if status in ("available", "abandoned"):
+            self.setStatus("waiting")
+        elif status in ("waiting", "lost"):
+            self.setStatus("chatting")
+        else:
+            raise StatusError("client joining room while room in status %s" % status)
+
+    def userLeftDirty(self):
+        """To be called when a participant (either client or staff) has left the chat."""
+        status = self.getStatus()
+        if status == 'lost':
+            self.setStatus('abandoned')
+        elif status == 'chatting':
+            self.setStatus('lost')
+        elif status in ('waiting', 'closingChat'):
+            self.setStatus('toDestroy')
+        else:
+            raise StatusError("Participant left dirty while status is '%s'." % status)
+
+    def userLeftClean(self):
+        """To be called when a participant (either client or staff) has left the chat."""
+        status = self.getStatus()
+        if status in ('lost', 'waiting', 'closingChat'):
+            self.setStatus('toDestroy')
+        elif status == 'chatting':
+            self.setStatus('closingChat')
+        else:
+            raise StatusError("Participant left clean while status is '%s'." % status)
+
+
 class GroupRoom(Room):
     """Chatroom for having groupchats.
        When created, it is just an empty object with the status:
@@ -657,3 +786,7 @@ class WaitingRoomToken(models.Model):
     token = models.ForeignKey(AccessToken, unique=True)
     conversation_form_entry = models.ForeignKey(ConversationFormEntry, blank=True, null=True)
     ready = models.BooleanField(default=True)
+
+class SimpleRoomToken(models.Model):
+    token = models.ForeignKey(AccessToken)
+    room = models.ForeignKey(SimpleRoom)

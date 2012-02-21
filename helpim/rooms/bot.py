@@ -21,7 +21,7 @@ from forms_builder.forms.models import FormEntry
 
 from helpim.common.models import EventLog
 from helpim.conversations.models import Participant, ChatMessage
-from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken
+from helpim.rooms.models import getSites, AccessToken, One2OneRoom, GroupRoom, LobbyRoom, WaitingRoom, LobbyRoomToken, One2OneRoomToken, WaitingRoomToken, SimpleRoomToken
 from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
@@ -509,7 +509,84 @@ class One2OneRoomHandler(RoomHandlerBase):
         except FormEntry.DoesNotExist:
             log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
+class SimpleRoomHandler(RoomHandlerBase):
+    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+        self.type = "SimpleRoom"
 
+    def get_helpim_room(self):
+        '''Return the HelpIM-API room-object which this handler handles'''
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        try:
+            return self.site.simpleRooms.getByJid(jidstr)
+        except One2OneRoom.DoesNotExist:
+            log.error("Could not find room '%s' in database." % jidstr)
+            return None
+
+    def room_configured(self):
+        jidstr = self.room_state.room_jid.bare().as_unicode()
+        self.site.simpleRooms.newRoom(jidstr, self.password)
+        log.debug("MUC-Room for simpleRoom '%s' created and configured successfully" % jidstr)
+        return True
+
+    def message_received(self, user, stanza):
+        room = self.get_helpim_room()
+
+        if room is None or user is None or stanza.get_body() is None or stanza.get_body()[0:16] == "[#startuplines#]":
+            return True
+
+        if room.getStatus() != 'chatting':
+            return True
+
+        chatmessage = ChatMessage(event='message', conversation=room.chat, body=stanza.get_body(), sender_name=user.nick)
+
+        if user.nick == room.client_nick:
+            chatmessage.sender = room.client
+        elif user.nick == room.staff_nick:
+            chatmessage.sender = room.staff
+
+        chatmessage.save()
+
+    def user_joined(self, user, stanza):
+        if user.nick == self.nick:
+            log.info("user joined with self nick '%s'" % user.nick)
+            return True
+
+        room = self.get_helpim_room()
+
+        if room is None:
+            log.info("get_helpim_room returned None")
+            return
+
+        status = room.getStatus()
+        log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + status)
+        if status == 'available':
+            self.todo.append((self.fillMucRoomPool, self.site))
+
+        room.userJoined(user)
+        # must be done after call to userJoined as only after we can be sure there's a conversation
+        if status in ('available', 'waiting'):
+            ChatMessage.objects.create(event='join', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
+        else:
+            ChatMessage.objects.create(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
+
+    def user_left(self, user, stanza):
+        if user.nick == self.nick:
+            return False
+        roomname = self.room_state.room_jid.as_unicode()
+        if self.userkicked == user.nick or self.closingDown:
+            self.userkicked = ''
+            log.notice("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
+            return False
+        room = self.get_helpim_room()
+
+        cleanexit = stanza.get_status()
+        if cleanexit is not None and cleanexit.strip() == u"Clean Exit":
+            ChatMessage.objects.create(event='ended', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
+            room.userLeftClean()
+        else:
+            ChatMessage.objects.create(event='left', conversation=room.chat, sender_name=user.nick, sender=room.getParticipantByNick(user.nick))
+            room.userLeftDirty()
 
 class GroupRoomHandler(RoomHandlerBase):
 
@@ -897,6 +974,14 @@ class Bot(JabberClient):
                 log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.waitingRooms.deleteClosed()
+            # SimpleRooms
+            for room in site.simpleRooms.getToDestroy():
+                log.info("Closing simpleRoom %s which was not used anymore." % room.jid)
+                self.closeRoom(room)
+            for room in site.simpleRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
+                log.notice("Closing simpleRoom %s which has timed out in '%s' status." % (room.jid, status))
+                self.closeRoom(room)
+            site.simpleRooms.deleteClosed()
         #DBG: self.printrooms()
 
     def alarmHandler(self, signum, frame):
@@ -1020,7 +1105,9 @@ class Bot(JabberClient):
                  {'nAvailable': len(site.lobbyRooms.getAvailable()),
                   'handler': LobbyRoomHandler},
                  {'nAvailable': len(site.waitingRooms.getAvailable()),
-                  'handler': WaitingRoomHandler}]
+                  'handler': WaitingRoomHandler},
+                 {'nAvailable': len(site.simpleRooms.getAvailable()),
+                  'handler': SimpleRoomHandler}]
         for room in rooms:
             self.__createRooms(site, mucdomain, poolsize, room['nAvailable'], room['handler'])
 
@@ -1072,6 +1159,13 @@ class Bot(JabberClient):
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixwaitingroomstatus(room, mucstate)
+            for room in site.simpleRooms.getNotDestroyed():
+                log.notice("Re-joining simpleRoom '%s'." % room.jid)
+                jid = str2roomjid(room.jid)
+                mucstate = self.joinMucRoom(site, jid, room.password, SimpleRoomHandler, rejoining=True)
+                # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
+                if mucstate:
+                    self.fixsimpleroomstatus(room, mucstate)
 
     def fixroomstatus(self, room, mucstate):
         # Wait until all events are processed
@@ -1290,6 +1384,10 @@ class Bot(JabberClient):
         """ [TODO] """
         pass
 
+    def fixsimpleroomstatus(self, room, mucstate):
+        """ [TODO] """
+        pass
+
     def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
         mucconf = self.getMucSettings(site.name)
         nick = mucconf["nick"].strip() or self.nick
@@ -1377,9 +1475,9 @@ class Bot(JabberClient):
         site = self.sites[sitename]
 
         if roomstatus is None:
-            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed() + site.waitingRooms.getNotDestroyed()
+            rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed() + site.waitingRooms.getNotDestroyed() + site.simpleRooms.getNotDestroyed()
         else:
-            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus)
+            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus) + site.simpleROoms.getByStatus(roomstatus)
         for room in rooms:
             self.closeRoom(room)
 
@@ -1454,6 +1552,12 @@ class Bot(JabberClient):
             """ save jid """
             ac.jid = iq.get_from()
             ac.save()
+
+            try:
+                self.handle_simple_room_token(iq, ac)
+                return
+            except SimpleRoomToken.DoesNotExist:
+                pass
 
             resIq = iq.make_result_response()
             resIq.new_query(NS_HELPIM_ROOMS)
@@ -1530,6 +1634,15 @@ class Bot(JabberClient):
         self.stream.send(resIq)
         if not room is None:
             self.sendInvite(room, iq.get_from())
+
+    def handle_simple_room_token(self, iq, ac):
+        simple_room_token = SimpleRoomToken.objects.get(token=ac)
+        room = simple_room_token.room
+        
+        resIq = iq.make_result_response()
+        resIq.new_query(NS_HELPIM_ROOMS)
+        self.stream.send(resIq)
+        self.sendInvite(room, iq.get_from())
 
     def handle_iq_get_conversationId(self, iq):
         log.stanza(iq)

@@ -1,0 +1,45 @@
+#!/bin/bash
+# upgrades helpim
+# usage hi-upgrade [egglocation]
+
+# get variables like "buildoutuser"
+. /etc/helpim/helpim.conf
+
+if test -z "$1"
+then
+  # should be only one egg there, but maybe we must check...
+  egg=`ls /home/$buildoutuser/HelpIM/dist/*`
+else
+  egg="$1"
+fi
+
+pip install --upgrade --no-deps "$egg"
+echo "`date` pip upgrade to new helpim version from source: $egg" >> /var/log/hi-upgrade.log
+
+echo
+read -p "Press return to run migrate on all chat-databases (give ctrl-c to stop)"
+
+# django-admin.py migrate
+echo "Running django-admin.py migrate on all chats"
+/usr/local/sbin/hi-db-upgrade
+echo "`date` migrate on databases" >> /var/log/hi-upgrade.log
+
+# reload apache
+/etc/init.d/apache2 reload
+
+echo
+if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
+read -p "Press return to sync scripts and skel (give ctrl-c to stop)"
+rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/skel /etc/helpim/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/
+rsync -av --del /usr/local/share/helpim/doc/debian/example/init.d/helpim /etc/init.d/
+
+# workarround, this needs to be fixed in building-process of the egg
+chown :root /usr/local/sbin/hi-*
+chown :root /etc/init.d/helpim
+chown -R :root /etc/helpim/skel
+chown :root /etc/helpim/apache-config
+chmod +x /usr/local/sbin/hi-*
+chmod -x /usr/local/sbin/hi-readme
+chmod +x /etc/init.d/helpim

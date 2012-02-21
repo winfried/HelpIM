@@ -1,0 +1,162 @@
+{% extends "buddychat/base_buddychat.html" %}
+{% load i18n %}
+
+{% block title %}{% blocktrans with username=client.user.username %}Personal page for {{username}}{% endblocktrans %}{% endblock %}
+
+{% block heading %}{% blocktrans with username=client.user.username %}Personal page for {{username}}{% endblocktrans %}{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+{# if its time, display box with link to recurring Questionnaire #}
+{% if recurring_questionnaire_url %}
+    <fieldset class="module aligned ">
+        <div class="form-row">
+            <p>
+                {% blocktrans with username=user.username %}
+                    {{ username }}, please take a moment to <b><a href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
+                {% endblocktrans %}
+            </p>
+        </div>
+    </fieldset>
+{% endif %}
+
+
+{% if not client.ready %}
+questionnaire missing
+{% endif %}
+
+{% if not perms.buddychat.is_coordinator %}
+<a href="{% url buddychat_chat client.user.username %}">Join Chat</a>
+{% endif %}
+<dl>
+<dt>{% trans "Email" %}</dt>
+<dd>{{client.user.email}}</dd>
+{% if perms.buddychat.is_coordinator %}
+<dt>{% trans "Careworker" %}</dt>
+<dd>
+<form method="POST" action="set_cw">{% csrf_token %}
+{{careworkers_form.as_p}}
+<input type="submit" value="{%trans "Submit" %}" />
+</form>
+</dd>
+{% if client.careworker %}
+<dt>{% trans "Careworker's Email" %}</dt>
+<dd>{{client.careworker.email}}</dd>
+<dt>{% trans "Coupled at" %}</dt>
+<dd>{{client.coupled_at}}</dd>
+{% endif %}
+<dt>{% trans "Registered at" %}</dt>
+<dd>{{client.user.date_joined}}</dd>
+{% endif %}
+</dl>
+{% if user.is_staff %}
+<h2>{% trans "Chat Sesssion" %}</h2>
+<ul>
+{% for chat in client.chats %}
+  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.start_time }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if client.careworker or perms.buddychat.is_coordinator %}
+<h2>{% trans "Careworker Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.careworker_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+
+{% if not perms.buddychat.is_coordinator %}
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="careworker" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
+{% endif %}
+{% endif %}
+
+{% if perms.buddychat.is_coordinator or not perms.buddychat.is_careworker %}
+<h2>{% trans "Coordinator Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.coordinator_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="coordinator" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
+{% endif %}
+
+{% if perms.buddychat.is_careworker %}
+<h2>{% trans "Careworker-Coordinator Conversation" %}</h2>
+<table>
+<tr>
+<th>{% trans "Sender" %}</th>
+<th>{% trans "Body" %}</th>
+<th>{% trans "Date" %}</th>
+</tr>
+{% for message in client.careworker_coordinator_conversation.messages.all %}
+<tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
+{% endfor %}
+</table>
+
+<form method="POST">{% csrf_token %}
+{{ form.as_p }}
+<input type="hidden" name="conv" value="careworker_coordinator" />
+<input type="submit" value="{% trans "Submit" %}" />
+</form>
+{% endif %}
+
+
+<h2>Questionnaires</h2>
+<ul>
+	{% for q in questionnaire_history %}
+        {% if q.questionnaire.position == 'CR' %}
+            <li>At Registration<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+
+        {% if q.questionnaire.position == 'CA' %}
+            <li>After Chat<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+
+        {% if q.questionnaire.position == 'CX' %}
+            <li>Recurring<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+		{% endif %}
+
+		{% if q.questionnaire.position == 'SX' %}
+            <li>Recurring for staff<br />
+            <iframe src="{% url form_entry q.entry.pk %}"></iframe>
+            </li>
+        {% endif %}
+	{% endfor %}
+</ul>
+
+{% endblock %}

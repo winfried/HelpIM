@@ -1,0 +1,44 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Chat Buddies" %}{% endblock %}
+
+{% block content %}
+
+<table>
+  <tr>
+    <th>{% trans "Nick" %}</th>
+    {% if perms.is_coordinator %}
+    <th>{% trans "Ready" %}</th>
+    <th>{% trans "Careworker" %}</th>
+    {% endif %}
+    <th>{% trans "Messages" %}</th>
+    <th>{% trans "Unread" %}</th>
+    <th>{% trans "Chats" %}</th>
+    <th>{% trans "Questionnaires" %}</th>
+  </tr>
+{% for buddy in chatbuddies %}
+  <tr>
+    <td><a href="{% url buddychat_profile buddy.user.username %}">{{buddy.user.username}} ({{buddy.user.email}})</a></td>
+    {% if perms.is_coordinator %}
+    <td>{{ buddy.ready }}</td>
+    <td>{{ buddy.careworker.username }}</td>
+    <td>{{ buddy.coordinator_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
+    {% else %}
+    <td>{{ buddy.careworker_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
+    {% endif %}
+    
+    {% if perms.is_coordinator %}
+        <td>{{ buddy.unread_messages_coordinator.count }}</td>
+    {% else %}
+        <td>{{ buddy.unread_messages_careworker.count }}</td>
+    {% endif %}
+    
+    <td>{{buddy.chats|length}}</td>
+    <td>{{buddy.questionnaires.count}}</td>
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+

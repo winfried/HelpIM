@@ -1,8 +1,17 @@
 from optparse import make_option
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils import translation
+
+""" we need to remove helpim.buddychat from INSTALLED_APPS as it
+creates a circular dependency otherwise """
+
+INST_FIXED = ()
+for app in settings.INSTALLED_APPS:
+    if app != 'helpim.buddychat':
+        INST_FIXED += (app, )
+settings.INSTALLED_APPS = INST_FIXED
 
 from helpim.rooms.bot import Bot
 

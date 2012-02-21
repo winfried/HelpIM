@@ -43,6 +43,11 @@ LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
+# Use the two options to set the name and domain of your default Site.
+# The Site object will be created during 'syncdb'.
+SITE_DOMAIN = 'example.com'
+SITE_NAME = 'example.com'
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -125,17 +130,15 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'helpim.conversations',
-#    'helpim.groups',
-    'helpim.rooms',
-    'helpim.stats',
-    'helpim',
+    'forms_builder.forms',
+    'rosetta',
     'south',
     'threadedcomments',
-    'rosetta',
     'helpim.common',
-    'forms_builder.forms',
+    'helpim.conversations',
+    'helpim.rooms',
     'helpim.questionnaire',
+    'helpim.stats',
 )
 
 # migrations to the forms-builder app reside locally, see #115

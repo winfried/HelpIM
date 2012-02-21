@@ -25,9 +25,31 @@ CHAT['debug'] = DEBUG
  # * FINEST  (lowest value)
 CHAT['log_level'] = 'ALL'
 
-CHAT['mode'] = 'light'
+# uncomment to activate 'light' mode (probably not working as of yet)
+#CHAT['mode'] = 'light'
 
+# uncomment to set a common nickname for all staff members
 #CHAT['staff_muc_nick'] = 'foobar'
+
+# uncomment the following lines to enably buddychats please note that
+# 'helpim.buddychat' must be loaded /before/ 'helpim.rooms' and
+# 'helpim.questionnaire'
+#INSTALLED_APPS = ('helpim.buddychat','registration') + INSTALLED_APPS
+
+# how long it may take to actually activate a newly registered account
+# via django_registrations (part of buddychat)
+#ACCOUNT_ACTIVATION_DAYS = 7
+
+# buddychat: time that needs to pass between regular Questionnaires
+# of careseeker and careworker.
+# supply a dictionary that can be passed into datetime.timedelta(..)
+# (see http://docs.python.org/library/datetime.html#datetime.timedelta)
+#RECURRING_QUESTIONNAIRE_INTERVAL = { 'weeks': 1 }
+
+# for testing, you might not want to send real emails. uncomment this
+# to instead print emails to stdout.
+# (see https://docs.djangoproject.com/en/1.3/topics/email/#e-mail-backends)
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
