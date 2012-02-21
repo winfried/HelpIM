@@ -87,7 +87,7 @@ rpl PASSWD $password $chat/settings.py
 rpl BOTPW $botpw $chat/settings.py
 rpl SECRETKEY $secretkey $chat/settings.py
 rpl MAILRECIPIENT $mailrecipient $chat/settings.py
-rpl DOMAIN $domain $chat/settings.py
+rpl DOMAINX $domain $chat/settings.py
 #cp -r /home/buildout/HelpIM/helpim/fixtures $chat/
 #cp -r /home/buildout/HelpIM/helpim/templates $chat/
 #cp -r /home/buildout/HelpIM/helpim/rooms/static/helpim/ $chat/static
