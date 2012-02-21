@@ -272,6 +272,7 @@ class Room(models.Model):
 
     def setStatus(self, status):
         self.status = status
+        self.status_timestamp = datetime.datetime.now()
         self.save()
 
     def setChatId(self, chatId):
