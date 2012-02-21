@@ -1353,7 +1353,7 @@ class Bot(JabberClient):
         self.stream.write_raw(xml)
 
     def inviteClients(self, waitingRoom):
-        rooms = One2OneRoom.objects.filter(status='staffWaiting')
+        rooms = One2OneRoom.objects.filter(status='staffWaiting').order_by('status_timestamp')
         for room in rooms:
             client = waitingRoom.getNextClient()
             if not client is None:
