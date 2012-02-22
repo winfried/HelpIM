@@ -85,7 +85,7 @@ msgid "Request Client"
 msgstr "Hilfesuchenden anfordern"
 
 #: static/xmpptk/helpim/ui/muc/one2oneroom.js:34
-#, fuzzy, perl-format
+#, perl-format
 msgid "Welcome %s, now wait for a participant to join!"
 msgstr "Hallo %s, bitte warte bis ein Gesprächspartner eintritt!"
 
