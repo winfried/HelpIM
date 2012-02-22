@@ -187,18 +187,20 @@ def form_entry_edit(request, form_entry_id, template='forms/form_entry_edit.html
 
     # convert FormEntry to dictionary to initialize FormForForm (django-forms-builder doesnt support editing instances)
     data = QueryDict('', mutable=True)
-    the_fields = []
     for entry_field in form_entry_fields:
-        the_field = Field.objects.get(pk=entry_field.field_id)
-        the_fields.append(the_field)
-        
-        widget = WIDGETS.get(the_field.field_type)
-        
-        if widget == DoubleDropWidget:
-            for i, val in enumerate(DoubleDropWidget().decompress(entry_field.value)):
-                data['field_%s_%s' % (entry_field.field_id, i)] = val
-        else:
-            data['field_%s' % entry_field.field_id] = entry_field.value
+        # skip if question to this entry does not exist anymore 
+        try:
+            the_field = Field.objects.get(pk=entry_field.field_id)
+            
+            widget = WIDGETS.get(the_field.field_type)
+            
+            if widget == DoubleDropWidget:
+                for i, val in enumerate(DoubleDropWidget().decompress(entry_field.value)):
+                    data['field_%s_%s' % (entry_field.field_id, i)] = val
+            else:
+                data['field_%s' % entry_field.field_id] = entry_field.value
+        except Field.DoesNotExist:
+            pass
 
     args = (the_form, data, request.FILES or None)
     form_for_form = FormForForm(*args)
