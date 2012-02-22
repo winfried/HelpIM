@@ -21,6 +21,10 @@ DATABASES['default']['PASSWORD'] = 'PASSWD'
 
 BOT['connection']['username'] = 'CHATX'
 BOT['connection']['password'] = 'BOTPW'
-BOT['muc']['http_domain'] = 'DOMAIN'
+BOT['muc']['http_domain'] = 'https://DOMAINX'
 BOT['logging']['destination'] = 'file:/var/log/helpim/CHATX.log'
 
+# Use the two options to set the name and domain of your default Site.
+# The Site object will be created during 'syncdb'.
+SITE_DOMAIN = 'DOMAINX'
+SITE_NAME = 'DOMAINX'
