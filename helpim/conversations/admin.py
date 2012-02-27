@@ -176,7 +176,7 @@ class ConversationAdmin(admin.ModelAdmin):
         return own
 
     def change_view(self, request, object_id, extra_context=None):
-        questionnaire_context = None
+        extra_context = extra_context or {}
 
         # augment context with SC-type questionnaire, if not yet submitted
         try:
@@ -184,13 +184,11 @@ class ConversationAdmin(admin.ModelAdmin):
 
             # check if already submitted answer to questionnaire
             if sc_questionnaire.conversationformentry_set.filter(conversation__id=object_id).count() == 0:
-                questionnaire_context = {
-                    'staff_questionnaire': sc_questionnaire,
-                }
+                extra_context['staff_questionnaire'] = sc_questionnaire
         except IndexError:
             pass
 
-        return super(ConversationAdmin, self).change_view(request, object_id, extra_context=questionnaire_context)
+        return super(ConversationAdmin, self).change_view(request, object_id, extra_context)
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.disable_action('delete_selected')
