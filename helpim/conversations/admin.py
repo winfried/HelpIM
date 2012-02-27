@@ -170,7 +170,7 @@ class ConversationAdmin(admin.ModelAdmin):
 
             return all_conversations.filter(
               participant__user__additionaluserinformation__branch_office=users_office,
-            )
+            ).distinct()
 
         # restrict user to own conversations
         return own
