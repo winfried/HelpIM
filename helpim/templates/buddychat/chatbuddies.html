@@ -34,11 +34,15 @@
 						<tr class="{% cycle 'row1' 'row2' %}">
 							<th><a href="{% url buddychat_profile buddy.user.username %}">{{buddy.user.username}} ({{buddy.user.email}})</a></th>
 							{% if perms.is_coordinator %}
-							<td>{{ buddy.ready }}</td>
-							<td>{{ buddy.careworker.username }}</td>
-							<td>{{ buddy.coordinator_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
+							    {% if buddy.ready %}
+								    <td><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" alt="{% trans "Yes" %}" /></td>
+								{% else %}
+								    <td><img src="{% admin_media_prefix %}img/admin/icon-no.gif" alt="{% trans "No" %}" /></td>
+								{% endif %}
+								<td>{{ buddy.careworker.username }}</td>
+								<td>{{ buddy.coordinator_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
 							{% else %}
-							<td>{{ buddy.careworker_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
+                                <td>{{ buddy.careworker_conversation.messages.count|add:buddy.careworker_coordinator_conversation.messages.count }}</td>
 							{% endif %}
 							
 							{% if perms.is_coordinator %}
