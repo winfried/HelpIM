@@ -13,6 +13,14 @@
 
 {% block title %}Stats{% endblock %}
 
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+    <a href="/admin">{% trans "Home" %}</a> &rsaquo;
+    <a href="{% url stats_index %}">{% trans "Stats" %}</a> &rsaquo;
+    {{ statsShortName }}
+</div>
+{% endif %}{% endblock %}
+
 {% block content %}
 {% if pagingYears %}
 <ul id="stats_pager">
