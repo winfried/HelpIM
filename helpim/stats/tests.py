@@ -23,6 +23,8 @@ class UrlPatternsTestCase(TestCase):
 
 
     def _assertUrlMapping(self, url, action, params={}):
+        '''assert that when `url` is accessed, the view `action` is invoked with parameters dictionary `params`'''
+        
         response = self.c.get(self.base_url + url, follow=True)
         self.assertTrue(response.status_code != 404, 'URL not found')
 
@@ -40,6 +42,8 @@ class UrlPatternsTestCase(TestCase):
 
 
     def testStatsUrlMappings(self):
+        '''test url mappings for general stats functionality'''
+        
         self._assertUrlMapping('', 'stats_index')
 
         self._assertUrlMapping('chat', 'stats_overview', {'keyword': 'chat'})
