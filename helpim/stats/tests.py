@@ -57,6 +57,12 @@ class UrlPatternsTestCase(TestCase):
 
         self.assertRaisesRegexp(AssertionError, 'URL not found',
                                 lambda: self._assertUrlMapping('keyworddoesntexist', 'stats_overview'))
+    
+    def testReportsUrlMappings(self):
+        '''test url mappings for reports functionality'''
+        
+        self._assertUrlMapping('reports/new', 'reports_new')
+        self._assertUrlMapping('reports/4143', 'reports_show', {'id': 4143})
 
 
     def testPermission(self):
