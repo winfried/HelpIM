@@ -37,8 +37,8 @@ class UrlPatternsTestCase(TestCase):
         self.assertEqual(len(info.kwargs), len(params), 'Number of parameters does not match: expected: %s -- got: %s' % (params, info.kwargs))
 
         for key, value in params.items():
-            self.assertTrue(key in info.kwargs, 'Expected parameter %s not found' % (key))
-            self.assertEqual(info.kwargs[key], value, 'Values for parameter %s do not match' % key)
+            self.assertTrue(key in info.kwargs, 'Expected parameter "%s" not found' % (key))
+            self.assertEqual(info.kwargs[key], value, 'Values for parameter "%s" do not match: "%s" != "%s"' % (key, info.kwargs[key], value))
 
 
     def testStatsUrlMappings(self):
