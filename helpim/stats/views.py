@@ -4,11 +4,12 @@ import xlwt
 
 from django.contrib.auth.decorators import permission_required
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
 from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
 from helpim.stats.forms import ReportForm
+from helpim.stats.models import Report
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
@@ -128,8 +129,14 @@ def report_new(request):
 def report_show(request, id):
     '''generate and show pre-saved Report'''
 
+    report = get_object_or_404(Report, pk=id)
+    rendered_report = _render_report(report)
+    
     return render_to_response('stats/report_show.html',
-        { 'report': id },
+        { 
+          'report': report,
+          'rendered_report': rendered_report,
+        },
         context_instance=RequestContext(request)
     )
 

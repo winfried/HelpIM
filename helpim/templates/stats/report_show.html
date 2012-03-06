@@ -7,11 +7,14 @@
 <div class="breadcrumbs">
     <a href="/admin">{% trans "Home" %}</a> &rsaquo;
     <a href="{% url stats_index %}">{% trans "Stats" %}</a> &rsaquo;
-    Report: TODO {{ report }}
+    {{ report }}
 </div>
 {% endif %}{% endblock %}
 
 
 {% block content %}
-<h1>Showing Report {{ report }}</h1>
+<h1>{% blocktrans %}Report <i>{{ report }}</i>{% endblocktrans %}</h1>
+
+{% include "stats/report_render.html" %}
+
 {% endblock %}

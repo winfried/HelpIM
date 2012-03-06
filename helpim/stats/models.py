@@ -52,3 +52,6 @@ class Report(models.Model):
 
     def get_absolute_url(self):
         return reverse('report_show', args=[self.id])
+    
+    def __unicode__(self):
+        return self.title
