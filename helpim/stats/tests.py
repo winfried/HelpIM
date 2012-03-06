@@ -62,7 +62,7 @@ class UrlPatternsTestCase(TestCase):
         '''test url mappings for reports functionality'''
         
         self._assertUrlMapping('reports/new', 'report_new')
-        self._assertUrlMapping('reports/4143', 'report_show', {'id': 4143})
+        self._assertUrlMapping('reports/4143', 'report_show', {'id': '4143'})
 
 
     def testPermission(self):
