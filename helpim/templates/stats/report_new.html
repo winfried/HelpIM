@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Stats{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+    <a href="/admin">{% trans "Home" %}</a> &rsaquo;
+    <a href="{% url stats_index %}">{% trans "Stats" %}</a> &rsaquo;
+    {% trans "Create new report" %}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Create new report" %}</h1>
+
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {{ report_form.as_p }}
+    <input type="submit" value="{%trans "Generate report" %}" />
+</form>
+{% endblock %}

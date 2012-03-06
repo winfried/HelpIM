@@ -8,6 +8,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
+from helpim.stats.forms import ReportForm
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
@@ -97,6 +98,25 @@ def stats_index(request):
         { 'statProviders': listOfStatsProviders },
         context_instance=RequestContext(request))
 
+@permission_required('stats.can_view_stats', '/admin')
+def report_new(request):
+    '''display form where new Report can be configured'''
+
+    reports_form = ReportForm()
+
+    return render_to_response('stats/report_new.html',
+        { 'report_form': reports_form, },
+        context_instance=RequestContext(request)
+    )
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_show(request, id):
+    '''generate and show pre-saved Report'''
+
+    return render_to_response('stats/report_show.html',
+        { 'report': id },
+        context_instance=RequestContext(request)
+    )
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''
