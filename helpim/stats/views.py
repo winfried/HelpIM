@@ -3,7 +3,7 @@ import datetime
 import xlwt
 
 from django.contrib.auth.decorators import permission_required
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
@@ -101,11 +101,26 @@ def stats_index(request):
 @permission_required('stats.can_view_stats', '/admin')
 def report_new(request):
     '''display form where new Report can be configured'''
+    
+    context = {}
+    
+    if request.method == 'POST':
+        report_form = ReportForm(request.POST)
+        if report_form.is_valid():
+            if len(request.POST.get('action_preview', '')) > 0:
+                # get Report object from ReportForm, unsaved
+                report_obj = report_form.save(commit=False)
+                context['rendered_report'] = _render_report(report_obj)
+            elif len(request.POST.get('action_save', '')) > 0:
+                report_obj = report_form.save()
+                return HttpResponseRedirect(report_obj.get_absolute_url())
+    else:    
+        report_form = ReportForm()
 
-    reports_form = ReportForm()
-
+    context['report_form'] = report_form
+    
     return render_to_response('stats/report_new.html',
-        { 'report_form': reports_form, },
+        context,
         context_instance=RequestContext(request)
     )
 
@@ -117,6 +132,9 @@ def report_show(request, id):
         { 'report': id },
         context_instance=RequestContext(request)
     )
+
+def _render_report(report):
+    return { 'data': report.title }
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''

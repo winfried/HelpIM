@@ -17,7 +17,16 @@
 
 <form method="POST" action="">
     {% csrf_token %}
+    
     {{ report_form.as_p }}
-    <input type="submit" value="{%trans "Generate report" %}" />
+    <input type="submit" name="action_preview" value="{%trans "Preview report" %}" />
+    
+    {% if rendered_report %}
+	    <input type="submit" name="action_save" value="{%trans "Save report" %}" />
+	    
+	    {% include "stats/report_render.html" %}
+	    
+	    <input type="submit" name="action_save" value="{%trans "Save report" %}" />
+    {% endif %}
 </form>
 {% endblock %}
