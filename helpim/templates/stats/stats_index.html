@@ -10,6 +10,7 @@
 </div>
 {% endif %}{% endblock %}
 
+
 {% block content %}
 <h1>{% trans "Stats" %}</h1>
 
@@ -27,6 +28,31 @@
 	{% endif %}
 {% empty %}
     <p>{% trans "No module registered that collects stats" %}</p>
+{% endfor %}
+
+
+
+<h1>{% trans "Reports" %}</h1>
+{% url report_new as report_new_url %}
+
+<p>{% trans "Configurable summaries that can be saved." %}</p>
+
+{% if reports %}
+    <p><a href="{{ report_new_url }}">{% blocktrans %}Create new report{% endblocktrans %}</a></p>
+{% endif %}
+
+{% for report in reports %}
+    {% if forloop.first %}
+    <ul>
+    {% endif %}
+    
+    <li><a href="{{ report.get_absolute_url}}">{{ report.title }}</a></li>
+    
+    {% if forloop.last %}
+    </ul>
+    {% endif %}
+{% empty %}
+    <p>{% blocktrans %}You haven't created any reports yet. <a href="{{ report_new_url }}">Create a first report now!</a>{% endblocktrans %}</p>
 {% endfor %}
 
 {% endblock %}

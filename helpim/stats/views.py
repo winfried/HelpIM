@@ -96,7 +96,10 @@ def stats_index(request):
         })
 
     return render_to_response('stats/stats_index.html',
-        { 'statProviders': listOfStatsProviders },
+        {
+          'statProviders': listOfStatsProviders,
+          'reports': Report.objects.all()
+        },
         context_instance=RequestContext(request))
 
 @permission_required('stats.can_view_stats', '/admin')
