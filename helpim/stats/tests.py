@@ -79,7 +79,7 @@ class UrlPatternsTestCase(TestCase):
 
     def testPermission(self):
         # access allowed for privileged user
-        response = self.c.get(reverse('stats_index'), Follow=True)
+        response = self.c.get(reverse('stats_index'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'stats/stats_index.html')
 
@@ -89,6 +89,6 @@ class UrlPatternsTestCase(TestCase):
         unprivilegedUser = User.objects.create_user('bob', 'me@bob.com', 'bob')
         self.assertTrue(self.c.login(username=unprivilegedUser.username, password='bob'), 'Bob could not login')
 
-        response = self.c.get(reverse('stats_index'), Follow=True)
+        response = self.c.get(reverse('stats_index'))
         self.assertNotEqual(response.status_code, 200)
         self.assertTemplateNotUsed(response, 'stats/stats_index.html')
