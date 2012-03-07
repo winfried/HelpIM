@@ -3,6 +3,7 @@ import datetime
 import xlwt
 
 from django.contrib.auth.decorators import permission_required
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -134,14 +135,23 @@ def report_show(request, id):
 
     report = get_object_or_404(Report, pk=id)
     rendered_report = _render_report(report)
-    
+
     return render_to_response('stats/report_show.html',
-        { 
+        {
           'report': report,
           'rendered_report': rendered_report,
         },
         context_instance=RequestContext(request)
     )
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_delete(request, id):
+    '''deletes a report'''
+
+    report = get_object_or_404(Report, pk=id)
+    report.delete()
+
+    return HttpResponseRedirect(reverse('stats_index'))
 
 def _render_report(report):
     return { 'data': report.title }

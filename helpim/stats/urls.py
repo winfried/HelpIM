@@ -6,6 +6,7 @@ urlpatterns = patterns(
     # Reports
     url(r'^reports/new/$', 'report_new', name='report_new'),
     url(r'^reports/(?P<id>\d+)/$', 'report_show', name='report_show'),
+    url(r'^reports/(?P<id>\d+)/delete/$', 'report_delete', name='report_delete'),
     
     # Stats
     url(r'^(?P<keyword>.+)/(?P<year>\d{4})/(?P<format>.+)/$', 'stats_overview', name='stats_overview'),

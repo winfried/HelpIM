@@ -1,7 +1,11 @@
+from datetime import date
+
 from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import resolve, Resolver404, reverse
 from django.test import TestCase
 from django.test.client import Client
+
+from helpim.stats.models import Report
 
 class UrlPatternsTestCase(TestCase):
     '''Test url design of stats app'''
@@ -22,10 +26,10 @@ class UrlPatternsTestCase(TestCase):
         self.assertTrue(self.c.login(username=self.user.username, password='test'), 'Could not login')
 
 
-    def _assertUrlMapping(self, url, action, params={}):
+    def _assertUrlMapping(self, url, action, params={}, follow=True):
         '''assert that when `url` is accessed, the view `action` is invoked with parameters dictionary `params`'''
         
-        response = self.c.get(self.base_url + url, follow=True)
+        response = self.c.get(self.base_url + url, follow=follow)
         self.assertTrue(response.status_code != 404, 'URL not found')
 
         try:
@@ -43,7 +47,7 @@ class UrlPatternsTestCase(TestCase):
 
     def testStatsUrlMappings(self):
         '''test url mappings for general stats functionality'''
-        
+
         self._assertUrlMapping('', 'stats_index')
 
         self._assertUrlMapping('chat', 'stats_overview', {'keyword': 'chat'})
@@ -57,12 +61,20 @@ class UrlPatternsTestCase(TestCase):
 
         self.assertRaisesRegexp(AssertionError, 'URL not found',
                                 lambda: self._assertUrlMapping('keyworddoesntexist', 'stats_overview'))
-    
+
+
     def testReportsUrlMappings(self):
         '''test url mappings for reports functionality'''
         
-        self._assertUrlMapping('reports/new', 'report_new')
-        self._assertUrlMapping('reports/4143', 'report_show', {'id': '4143'})
+        # create Report with specific id to be used throughout test
+        r = Report(period_start=date(2000,1,1), period_end=date(2000,1,1))
+        r.save()
+        r.id = 4143
+        r.save()
+
+        self._assertUrlMapping('reports/new/', 'report_new')
+        self._assertUrlMapping('reports/4143/', 'report_show', {'id': '4143'})
+        self._assertUrlMapping('reports/4143/delete/', 'report_delete', {'id': '4143'}, follow=False)
 
 
     def testPermission(self):

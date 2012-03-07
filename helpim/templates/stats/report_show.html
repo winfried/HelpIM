@@ -15,6 +15,11 @@
 {% block content %}
 <h1>{% blocktrans %}Report <i>{{ report }}</i>{% endblocktrans %}</h1>
 
+<form method="POST" action="{% url report_delete report.id %}">
+    {% csrf_token %}
+    <input type="submit" value="{%trans "Delete report" %}" onclick="return confirm('{% trans "Are you sure?" %}')"/>
+</form>
+
 {% include "stats/report_render.html" %}
 
 {% endblock %}
