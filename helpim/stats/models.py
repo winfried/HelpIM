@@ -19,8 +19,15 @@ class Report(models.Model):
 
     title = models.CharField(max_length=255)
 
-    period_start = models.DateField()
-    period_end = models.DateField()
+    # leave blank to indicate no lower bound
+    period_start = models.DateField(null=True, blank=True,
+        verbose_name=_('Chats from (inclusive)')
+    )
+    
+    # leave blank to indicate no upper bound
+    period_end = models.DateField(null=True, blank=True,
+        verbose_name=_('Chats until (inclusive)')
+    )
 
     # staff user in chat
     branch = models.ForeignKey(BranchOffice, null=True, blank=True, related_name='+',
