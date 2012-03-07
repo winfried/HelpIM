@@ -5,7 +5,10 @@ from django.core.urlresolvers import resolve, Resolver404, reverse
 from django.test import TestCase
 from django.test.client import Client
 
+from helpim.common.models import BranchOffice
+from helpim.conversations.models import Chat
 from helpim.stats.models import Report
+
 
 class UrlPatternsTestCase(TestCase):
     '''Test url design of stats app'''
@@ -92,3 +95,39 @@ class UrlPatternsTestCase(TestCase):
         response = self.c.get(reverse('stats_index'))
         self.assertNotEqual(response.status_code, 200)
         self.assertTemplateNotUsed(response, 'stats/stats_index.html')
+
+
+class ReportTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_matching_chats(self):
+        r = Report.objects.get(pk=1)
+
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.filter(id__in=[1]), chats)
+
+        # remove lower bound
+        r.period_start = None
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.filter(id__in=[1, 2]), chats)
+
+        # remove upper bound
+        r.period_end = None
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.all(), chats)
+
+        # set careworker only
+        r.careworker = User.objects.get(pk=55)
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.filter(id__in=[2]), chats)
+
+        # set branch office only
+        r.careworker = None
+        r.branch = BranchOffice.objects.get(pk=1)
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.filter(id__in=[2, 3]), chats)
+
+        # set branch and careworker
+        r.careworker = User.objects.get(pk=22)
+        chats = r.matching_chats()
+        self.assertItemsEqual(Chat.objects.filter(id__in=[3]), chats)

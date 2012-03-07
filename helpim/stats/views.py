@@ -154,6 +154,8 @@ def report_delete(request, id):
     return HttpResponseRedirect(reverse('stats_index'))
 
 def _render_report(report):
+    list_of_chats = report.matching_chats()
+
     return { 'data': report.title }
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):

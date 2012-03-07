@@ -1,0 +1,136 @@
+[
+    {
+        "pk": 1,
+        "model": "stats.report",
+        "fields": {
+            "title": "Report with 'start' and 'end'",
+            "period_start": "2010-01-01",
+            "period_end": "2010-01-01",
+            "branch": null,
+            "careworker": null
+        }
+    },
+
+
+    {
+        "pk": 55, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "careworker"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "common.additionaluserinformation",
+        "fields": {
+            "user": 55,
+            "branch_office": 1
+        }
+    },
+    {
+        "pk": 22, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "elseone"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "common.additionaluserinformation",
+        "fields": {
+            "user": 22,
+            "branch_office": 1
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "common.branchoffice", 
+        "fields": {
+            "name": "Office Amsterdam"
+        }
+    },
+
+
+    {
+        "pk": 1, 
+        "model": "conversations.conversation", 
+        "fields": {
+            "start_time": "2010-01-01 15:05:00", 
+            "subject": "Chat"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "nobody", 
+            "ip_hash": "", 
+            "conversation": 1, 
+            "blocked_at": null, 
+            "role": "S", 
+            "user": 1, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "conversations.chat", 
+        "fields": {}
+    },
+    
+    
+    {
+        "pk": 2, 
+        "model": "conversations.conversation", 
+        "fields": {
+            "start_time": "2005-05-05 15:05:00", 
+            "subject": "Chat"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careworker", 
+            "ip_hash": "", 
+            "conversation": 2, 
+            "blocked_at": null, 
+            "role": "S", 
+            "user": 55, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "conversations.chat", 
+        "fields": {}
+    },
+    
+    
+    {
+        "pk": 3, 
+        "model": "conversations.conversation", 
+        "fields": {
+            "start_time": "2011-12-31 15:05:00", 
+            "subject": "Chat"
+        }
+    },
+    {
+        "pk": 3, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "elseone", 
+            "ip_hash": "", 
+            "conversation": 3, 
+            "blocked_at": null, 
+            "role": "S", 
+            "user": 22, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 3, 
+        "model": "conversations.chat", 
+        "fields": {}
+    }
+]
