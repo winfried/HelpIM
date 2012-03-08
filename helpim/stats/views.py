@@ -106,9 +106,9 @@ def stats_index(request):
 @permission_required('stats.can_view_stats', '/admin')
 def report_new(request):
     '''display form where new Report can be configured'''
-    
+
     context = {}
-    
+
     if request.method == 'POST':
         report_form = ReportForm(request.POST)
         if report_form.is_valid():
@@ -119,11 +119,11 @@ def report_new(request):
             elif len(request.POST.get('action_save', '')) > 0:
                 report_obj = report_form.save()
                 return HttpResponseRedirect(report_obj.get_absolute_url())
-    else:    
+    else:
         report_form = ReportForm()
 
     context['report_form'] = report_form
-    
+
     return render_to_response('stats/report_new.html',
         context,
         context_instance=RequestContext(request)
@@ -150,10 +150,6 @@ def report_delete(request, id):
     report.delete()
 
     return HttpResponseRedirect(reverse('stats_index'))
-
-def _render_report(report):
-    rendered_report = report.generate()
-    return rendered_report
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''

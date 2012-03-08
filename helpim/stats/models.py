@@ -95,33 +95,33 @@ class Report(models.Model):
         '''
         Generates the data for the report. Returns a dictionary that can be directly added to the view's context.
         '''
-        
+
         data = defaultdict(dict)
-        
+
         var1_samples = self.variable_samples(self.variable1)
         var2_samples = self.variable_samples(self.variable2)
-        
+
         for var1, var2 in product(var1_samples, var2_samples):
             data[var1][var2] = 0
-        
+
         for chat in self.matching_chats():
             pass
-        
+
         return { 'rendered_report': data,
             'variable1_samples': var1_samples,
             'variable2_samples': var2_samples,
         }
-    
+
     def variable_samples(self, var_name):
         '''
         Returns a list with all values the given variable `var_name` can have.
         '''
-        
+
         if var_name is None:
             return [_('Total')]
-        
+
         appendix = [_('Other'), _('Total')]
-        
+
         if var_name == 'branch':
             return [] + appendix
         elif var_name == 'weekday':
