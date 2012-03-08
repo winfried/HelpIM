@@ -53,7 +53,7 @@ class Report(models.Model):
     variable1 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
         verbose_name=_('select row variable'),
     )
-    variable2 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
+    variable2 = models.CharField(max_length=255, choices=VARIABLE_CHOICES, null=True, blank=True,
         verbose_name=_('select column variable')
     )
     output = models.CharField(max_length=255, choices=OUTPUT_CHOICES, default=OUTPUT_CHOICES[0],
