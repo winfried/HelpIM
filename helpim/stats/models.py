@@ -177,16 +177,25 @@ class Report(models.Model):
         Generates the data for the report. Returns a dictionary that can be directly added to the view's context.
         '''
 
-        data = defaultdict(dict)
-
-        var1_samples = self.variable1_samples()
-        var2_samples = self.variable2_samples()
+        var1 = ReportVariable.find_variable(self.variable1)
+        var2 = ReportVariable.find_variable(self.variable2)
         
-        for var1, var2 in product(var1_samples, var2_samples):
-            data[var1][var2] = 0
+        var1_samples = list(self.variable1_samples())
+        var2_samples = list(self.variable2_samples())
+        
+        data = defaultdict(dict)
+        for val1, val2 in product(var1_samples, var2_samples):
+            data[val1][val2] = 0
 
         for chat in self.matching_chats():
-            pass
+            var1_value = var1.extract_value(chat)
+            
+            if var2 is None:
+                var2_value = _('Total')
+            else:
+                var2_value = var2.extract_value(chat)
+                
+            data[var1_value][var2_value] += 1
 
         return { 'rendered_report': data,
             'variable1_samples': var1_samples,
