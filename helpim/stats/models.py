@@ -186,6 +186,12 @@ class Report(models.Model):
             'variable2_samples': var2_samples,
         }
 
+    def variable1_samples(self):
+        return self.variable_samples(self.variable1)
+
+    def variable2_samples(self):
+        return self.variable_samples(self.variable2)
+
     def variable_samples(self, var_name):
         '''
         Returns a list with all values the given variable `var_name` can have.
