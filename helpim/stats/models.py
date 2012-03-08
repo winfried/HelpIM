@@ -172,8 +172,8 @@ class Report(models.Model):
 
         data = defaultdict(dict)
 
-        var1_samples = self.variable_samples(self.variable1)
-        var2_samples = self.variable_samples(self.variable2)
+        var1_samples = self.variable1_samples()
+        var2_samples = self.variable2_samples()
         
         for var1, var2 in product(var1_samples, var2_samples):
             data[var1][var2] = 0
@@ -187,9 +187,11 @@ class Report(models.Model):
         }
 
     def variable1_samples(self):
+        ''' shortcut method '''
         return self.variable_samples(self.variable1)
 
     def variable2_samples(self):
+        ''' shortcut method '''
         return self.variable_samples(self.variable2)
 
     def variable_samples(self, var_name):
@@ -197,13 +199,17 @@ class Report(models.Model):
         Returns a list with all values the given variable `var_name` can have.
         '''
 
+        # in case only first variable is selected and second is blank
         if var_name is None:
             return [_('Total')]
 
+        # additional buckets that will be appended to variable samples
         appendix = [_('Other'), _('Total')]
 
-        if var_name == 'branch':
-            return [] + appendix
-        elif var_name == 'weekday':
-            return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), ] + appendix
-
+        # lookup variable in registered variables
+        # 
+        var = ReportVariable.find_variable(var_name)
+        if not var is None:
+            return var.values() + appendix
+        else:
+            return appendix
