@@ -1,4 +1,6 @@
-from datetime import date, datetime, time
+from collections import defaultdict
+from datetime import datetime, time
+from itertools import product
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -7,7 +9,6 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, Participant
-
 
 class Report(models.Model):
     VARIABLE_CHOICES = (
@@ -89,3 +90,29 @@ class Report(models.Model):
             chat_query = chat_query.filter(participant__user=self.careworker, participant__role=Participant.ROLE_STAFF)
 
         return chat_query
+
+    def generate(self):
+        report = defaultdict(dict)
+        
+        for var1, var2 in product(self.variable_samples(self.variable1), self.variable_samples(self.variable2)):
+            report[var1][var2] = 0
+        
+        for chat in self.matching_chats():
+            pass
+        
+        return report
+    
+    def variable_samples(self, var_name):
+        '''
+        Returns a list with all values the given variable `var_name` can have.
+        '''
+        
+        if var_name is None:
+            return [_('Total')]
+        
+        appendix = [_('Other'), _('Total')]
+        
+        if var_name == 'branch':
+            return [] + appendix
+        elif var_name == 'weekday':
+            return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), ] + appendix

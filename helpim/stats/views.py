@@ -140,6 +140,8 @@ def report_show(request, id):
         {
           'report': report,
           'rendered_report': rendered_report,
+          'variable1_samples': report.variable_samples(report.variable1),
+          'variable2_samples': report.variable_samples(report.variable2),
         },
         context_instance=RequestContext(request)
     )
@@ -154,9 +156,8 @@ def report_delete(request, id):
     return HttpResponseRedirect(reverse('stats_index'))
 
 def _render_report(report):
-    list_of_chats = report.matching_chats()
-
-    return { 'data': report.title }
+    rendered_report = report.generate()
+    return rendered_report
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''
