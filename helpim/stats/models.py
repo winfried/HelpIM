@@ -10,11 +10,85 @@ from django.utils.translation import ugettext as _
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, Participant
 
+
+class ReportVariable(object):
+    known_variables = {}
+
+    @classmethod
+    def all_variables(cls):
+        '''
+        Returns iterator over all known variables.
+        When this is called for the first time, will auto-register direct subclasses.
+        '''
+        if len(cls.known_variables) == 0:
+            # autodiscover and add direct subclasses
+            for subcls in cls.__subclasses__():
+                cls._register_variable(subcls)
+
+        return cls.known_variables.itervalues()
+
+    @classmethod
+    def find_variable(cls, name):
+        '''
+        Finds the variable class for the given name. Otherwise, returns None.
+        '''
+        return cls.known_variables.get(name, None)
+
+    @classmethod
+    def _register_variable(cls, var):
+        cls.known_variables[var.get_choices_tuple()[0]] = var
+
+    @classmethod
+    def get_choices_tuple(cls):
+        '''
+        Returns a 2-tuple consisting of an internal and public name for this variable.
+        This tuple is used with django's `choices`-feature of model classes.
+        '''
+        raise NotImplementedError("Subclass should implement this method.")
+
+    @classmethod
+    def extract_value(cls, obj):
+        '''
+        Return the value for this variable in the context of the given object. 
+        '''
+        raise NotImplementedError("Subclass should implement this method.")
+
+    @classmethod
+    def values(cls):
+        '''
+        Return a list of values this variable can have.
+        '''
+        raise NotImplementedError("Subclass should implement this method.")
+
+class WeekdayReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('weekday', _('Weekday'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        return ""
+
+    @classmethod
+    def values(cls):
+        return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), ]
+
+class BranchReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('branch', _('Branch office'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        return ""
+
+    @classmethod
+    def values(cls):
+        return []
+
+
 class Report(models.Model):
-    VARIABLE_CHOICES = (
-        ('branch', _('Branch office')),
-        ('weekday', _('Weekday')),
-    )
+    VARIABLE_CHOICES = [ x.get_choices_tuple() for x in ReportVariable.all_variables() ]
 
     OUTPUT_CHOICES = (
         ('hits', _('Hits')),
@@ -100,7 +174,7 @@ class Report(models.Model):
 
         var1_samples = self.variable_samples(self.variable1)
         var2_samples = self.variable_samples(self.variable2)
-
+        
         for var1, var2 in product(var1_samples, var2_samples):
             data[var1][var2] = 0
 
@@ -126,3 +200,4 @@ class Report(models.Model):
             return [] + appendix
         elif var_name == 'weekday':
             return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), ] + appendix
+

@@ -4,10 +4,11 @@ from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import resolve, Resolver404, reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat
-from helpim.stats.models import Report
+from helpim.stats.models import Report, ReportVariable, WeekdayReportVariable
 
 
 class UrlPatternsTestCase(TestCase):
@@ -70,7 +71,7 @@ class UrlPatternsTestCase(TestCase):
         '''test url mappings for reports functionality'''
         
         # create Report with specific id to be used throughout test
-        r = Report(period_start=date(2000,1,1), period_end=date(2000,1,1))
+        r = Report(period_start=date(2000,1,1), period_end=date(2000,1,1), variable1='weekday', variable2='branch')
         r.save()
         r.id = 4143
         r.save()
@@ -131,3 +132,26 @@ class ReportTestCase(TestCase):
         r.careworker = User.objects.get(pk=22)
         chats = r.matching_chats()
         self.assertItemsEqual(Chat.objects.filter(id__in=[3]), chats)
+
+
+class ReportVariableTestCase(TestCase):
+    def setUp(self):
+        super(ReportVariableTestCase, self).setUp()
+
+        ReportVariable.all_variables()
+
+    def test_register_variable(self):
+        # clear state, might have been set by previous tests
+        ReportVariable.known_variables = {}
+
+        self.assertEqual(0, len(ReportVariable.known_variables), "No variables should be registered")
+
+        # calling all_variables() triggers auto-discovery and addition of variables
+        self.assertTrue(WeekdayReportVariable in ReportVariable.all_variables(), "Weekday variable should be registered")
+        self.assertTrue(len(ReportVariable.known_variables) > 0, "No variables should be registered")
+
+    def test_find(self):
+        self.assertEqual(WeekdayReportVariable, ReportVariable.find_variable('weekday'))
+        self.assertEqual(('weekday', _('Weekday')), ReportVariable.find_variable('weekday').get_choices_tuple())
+
+        self.assertEqual(None, ReportVariable.find_variable('doesntexist'))

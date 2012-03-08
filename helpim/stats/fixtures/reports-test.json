@@ -7,7 +7,9 @@
             "period_start": "2010-01-01",
             "period_end": "2010-01-01",
             "branch": null,
-            "careworker": null
+            "careworker": null,
+            "variable1": "weekday",
+            "variable2": "branch"
         }
     },
 
