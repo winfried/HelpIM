@@ -92,15 +92,25 @@ class Report(models.Model):
         return chat_query
 
     def generate(self):
-        report = defaultdict(dict)
+        '''
+        Generates the data for the report. Returns a dictionary that can be directly added to the view's context.
+        '''
         
-        for var1, var2 in product(self.variable_samples(self.variable1), self.variable_samples(self.variable2)):
-            report[var1][var2] = 0
+        data = defaultdict(dict)
+        
+        var1_samples = self.variable_samples(self.variable1)
+        var2_samples = self.variable_samples(self.variable2)
+        
+        for var1, var2 in product(var1_samples, var2_samples):
+            data[var1][var2] = 0
         
         for chat in self.matching_chats():
             pass
         
-        return report
+        return { 'rendered_report': data,
+            'variable1_samples': var1_samples,
+            'variable2_samples': var2_samples,
+        }
     
     def variable_samples(self, var_name):
         '''

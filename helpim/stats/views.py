@@ -115,7 +115,7 @@ def report_new(request):
             if len(request.POST.get('action_preview', '')) > 0:
                 # get Report object from ReportForm, unsaved
                 report_obj = report_form.save(commit=False)
-                context['rendered_report'] = _render_report(report_obj)
+                context.update(report_obj.generate())
             elif len(request.POST.get('action_save', '')) > 0:
                 report_obj = report_form.save()
                 return HttpResponseRedirect(report_obj.get_absolute_url())
@@ -134,15 +134,11 @@ def report_show(request, id):
     '''generate and show pre-saved Report'''
 
     report = get_object_or_404(Report, pk=id)
-    rendered_report = _render_report(report)
+    context = { 'report': report }
+    context.update(report.generate())
 
     return render_to_response('stats/report_show.html',
-        {
-          'report': report,
-          'rendered_report': rendered_report,
-          'variable1_samples': report.variable_samples(report.variable1),
-          'variable2_samples': report.variable_samples(report.variable2),
-        },
+        context,
         context_instance=RequestContext(request)
     )
 
