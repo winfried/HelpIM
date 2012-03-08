@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import resolve, Resolver404, reverse
@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat
-from helpim.stats.models import Report, ReportVariable, WeekdayReportVariable
+from helpim.stats.models import BranchReportVariable, Report, ReportVariable, WeekdayReportVariable
 
 
 class UrlPatternsTestCase(TestCase):
@@ -137,18 +137,18 @@ class ReportTestCase(TestCase):
         r = Report.objects.get(pk=1)
         
         # empty variable -> only contains 'Total' to sum up results in columns
-        result = r.variable_samples(None) 
+        result = list(r.variable_samples(None)) 
         self.assertEqual(1, len(result))
         self.assertItemsEqual([_('Total')], result)
         
         # normal, successful lookup
-        result = r.variable_samples('weekday')
+        result = list(r.variable_samples('weekday'))
         self.assertEqual(len(WeekdayReportVariable.values()) + 2, len(result))
         self.assertTrue(_('Other') in result)
         self.assertTrue(_('Total') in result)
         
         # failed lookup for variable that does not exist -> all values will go to 'Other'
-        result = r.variable_samples('doesntexist')
+        result = list(r.variable_samples('doesntexist'))
         self.assertEqual(2, len(result))
         self.assertItemsEqual([_('Other'), _('Total')], result)
 
@@ -174,3 +174,37 @@ class ReportVariableTestCase(TestCase):
         self.assertEqual(('weekday', _('Weekday')), ReportVariable.find_variable('weekday').get_choices_tuple())
 
         self.assertEqual(None, ReportVariable.find_variable('doesntexist'))
+
+
+class WeekdayReportVariableTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_values(self):
+        self.assertEqual(7, len(WeekdayReportVariable.values()))
+
+    def test_extract(self):
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        self.assertEqual(_('Friday'), WeekdayReportVariable.extract_value(c1))
+        self.assertEqual(_('Thursday'), WeekdayReportVariable.extract_value(c2))
+        self.assertEqual(_('Saturday'), WeekdayReportVariable.extract_value(c3))
+
+class BranchReportVariableTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_values(self):
+        self.assertEqual(len(BranchOffice.objects.all()), len(list(BranchReportVariable.values())))
+
+        self.assertTrue('Office Amsterdam' in BranchReportVariable.values())
+        self.assertTrue('Office Rotterdam' in BranchReportVariable.values())
+
+    def test_extract(self):
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        self.assertEqual(_('Other'), BranchReportVariable.extract_value(c1))
+        self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c2))
+        self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c3))

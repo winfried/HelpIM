@@ -51,6 +51,13 @@
             "name": "Office Amsterdam"
         }
     },
+    {
+        "pk": 2, 
+        "model": "common.branchoffice", 
+        "fields": {
+            "name": "Office Rotterdam"
+        }
+    },
 
 
     {

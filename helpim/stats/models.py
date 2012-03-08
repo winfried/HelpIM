@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, time
-from itertools import product
+from itertools import chain, product
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -67,11 +67,14 @@ class WeekdayReportVariable(ReportVariable):
 
     @classmethod
     def extract_value(cls, obj):
-        return ""
+        try:
+            return cls.values()[obj.start_time.weekday()]
+        except:
+            return _('Other')
 
     @classmethod
     def values(cls):
-        return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), ]
+        return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday')]
 
 class BranchReportVariable(ReportVariable):
     @classmethod
@@ -80,11 +83,15 @@ class BranchReportVariable(ReportVariable):
 
     @classmethod
     def extract_value(cls, obj):
-        return ""
+        try:
+            return obj.getStaff().user.additionaluserinformation.branch_office.name
+        except:
+            return _('Other')
 
     @classmethod
     def values(cls):
-        return []
+        for office in BranchOffice.objects.all():
+            yield office.name
 
 
 class Report(models.Model):
@@ -210,6 +217,6 @@ class Report(models.Model):
         # 
         var = ReportVariable.find_variable(var_name)
         if not var is None:
-            return var.values() + appendix
+            return chain(var.values(), appendix)
         else:
             return appendix
