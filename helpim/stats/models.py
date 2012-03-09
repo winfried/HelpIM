@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, time
-from itertools import chain, product
+from itertools import product
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse

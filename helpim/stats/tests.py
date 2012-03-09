@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 
 from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import resolve, Resolver404, reverse
