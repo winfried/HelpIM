@@ -169,6 +169,71 @@ class ReportTestCase(TestCase):
         # table sum
         self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
 
+    def test_generate_1variable(self):
+        r = Report.objects.get(pk=1)
+        
+        # remove variable2
+        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        
+        data = r.generate()['rendered_report']
+        self.assertTrue(len(data) > 0)
+        
+        # determine number of cells
+        cells = 0
+        for col in data.iterkeys():
+            for cell in data[col].iterkeys():
+                cells += 1
+                
+        # +1 for 'Total' column
+        var1_samples = list(ReportVariable.find_variable(r.variable1).values())
+        var2_samples = list(ReportVariable.find_variable(r.variable2).values())
+        self.assertEqual((len(var1_samples) + 1) * (len(var2_samples) + 1), cells)
+        
+        # cells
+        self.assertEqual(1, data[_('Thursday')][NoneReportVariable.EMPTY])
+        self.assertEqual(1, data[_('Friday')][NoneReportVariable.EMPTY])
+        self.assertEqual(1, data[_('Saturday')][NoneReportVariable.EMPTY])
+        
+        # row sums
+        self.assertEqual(3, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
+        
+        # col sums
+        self.assertEqual(1, data[_('Thursday')][Report.TOTAL_COLUMN])
+        self.assertEqual(1, data[_('Friday')][Report.TOTAL_COLUMN])
+        self.assertEqual(1, data[_('Saturday')][Report.TOTAL_COLUMN])
+        
+        # table sum
+        self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
+
+    def test_generate_0variables(self):
+        r = Report.objects.get(pk=1)
+        
+        # remove both variables
+        r.variable1 = NoneReportVariable.get_choices_tuple()[0]
+        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        
+        data = r.generate()['rendered_report']
+        self.assertTrue(len(data) > 0)
+        
+        # determine number of cells
+        cells = 0
+        for col in data.iterkeys():
+            for cell in data[col].iterkeys():
+                cells += 1
+        
+        # +1 for 'Total' column
+        var1_samples = list(ReportVariable.find_variable(r.variable1).values())
+        var2_samples = list(ReportVariable.find_variable(r.variable2).values())
+        self.assertEqual((len(var1_samples) + 1) * (len(var2_samples) + 1), cells)
+        
+        # cells
+        self.assertEqual(3, data[NoneReportVariable.EMPTY][NoneReportVariable.EMPTY])
+        
+        # row/col/table sums
+        self.assertEqual(3, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
+        self.assertEqual(3, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
+        self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
+        
 
 class ReportVariableTestCase(TestCase):
     def setUp(self):
