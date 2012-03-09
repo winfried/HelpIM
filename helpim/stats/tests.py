@@ -78,6 +78,7 @@ class UrlPatternsTestCase(TestCase):
 
         self._assertUrlMapping('reports/new/', 'report_new')
         self._assertUrlMapping('reports/4143/', 'report_show', {'id': '4143'})
+        self._assertUrlMapping('reports/4143/edit/', 'report_edit', {'id': '4143'})
         self._assertUrlMapping('reports/4143/delete/', 'report_delete', {'id': '4143'}, follow=False)
 
 

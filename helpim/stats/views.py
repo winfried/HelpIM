@@ -104,13 +104,13 @@ def stats_index(request):
         context_instance=RequestContext(request))
 
 @permission_required('stats.can_view_stats', '/admin')
-def report_new(request):
+def report_new(request, instance=None):
     '''display form where new Report can be configured'''
 
     context = {}
 
     if request.method == 'POST':
-        report_form = ReportForm(request.POST)
+        report_form = ReportForm(request.POST, instance=instance)
         if report_form.is_valid():
             if len(request.POST.get('action_preview', '')) > 0:
                 # get Report object from ReportForm, unsaved
@@ -120,14 +120,22 @@ def report_new(request):
                 report_obj = report_form.save()
                 return HttpResponseRedirect(report_obj.get_absolute_url())
     else:
-        report_form = ReportForm()
+        report_form = ReportForm(instance=instance)
 
     context['report_form'] = report_form
-
+    context['is_edit'] = not instance is None
+    
     return render_to_response('stats/report_new.html',
         context,
         context_instance=RequestContext(request)
     )
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_edit(request, id):
+    '''edit report'''
+    
+    saved_report = get_object_or_404(Report, pk=id)
+    return report_new(request, instance=saved_report)
 
 @permission_required('stats.can_view_stats', '/admin')
 def report_show(request, id):

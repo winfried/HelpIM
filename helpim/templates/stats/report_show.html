@@ -17,8 +17,10 @@
 
 <form method="POST" action="{% url report_delete report.id %}">
     {% csrf_token %}
-    <input type="submit" value="{%trans "Delete report" %}" onclick="return confirm('{% trans "Are you sure?" %}')"/>
+    <input type="submit" value="{%trans "Delete report" %}" onclick="return confirm('{% trans "Are you sure?" %}')" />
 </form>
+
+<p><a class="button form-row" href="{% url report_edit report.id %}">{%trans "Edit report" %}</a></p>
 
 {% include "stats/report_render.html" %}
 
