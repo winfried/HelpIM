@@ -136,21 +136,19 @@ class ReportTestCase(TestCase):
     def test_variable_samples(self):
         r = Report.objects.get(pk=1)
         
-        # empty variable -> only contains 'Total' to sum up results in columns
+        # empty variable -> empty list
         result = list(r.variable_samples(None)) 
-        self.assertEqual(1, len(result))
-        self.assertItemsEqual([_('Total')], result)
+        self.assertEqual(0, len(result))
         
         # normal, successful lookup
         result = list(r.variable_samples('weekday'))
-        self.assertEqual(len(WeekdayReportVariable.values()) + 2, len(result))
+        self.assertEqual(len(WeekdayReportVariable.values()) + 1, len(result))
         self.assertTrue(_('Other') in result)
-        self.assertTrue(_('Total') in result)
         
         # failed lookup for variable that does not exist -> all values will go to 'Other'
         result = list(r.variable_samples('doesntexist'))
-        self.assertEqual(2, len(result))
-        self.assertItemsEqual([_('Other'), _('Total')], result)
+        self.assertEqual(1, len(result))
+        self.assertItemsEqual([_('Other')], result)
 
 
 class ReportVariableTestCase(TestCase):

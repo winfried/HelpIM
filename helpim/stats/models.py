@@ -182,10 +182,12 @@ class Report(models.Model):
         var1_samples = list(self.variable1_samples())
         var2_samples = list(self.variable2_samples())
         
+        # create table, extended by extra row and column for row/col/table sums
         data = defaultdict(dict)
-        for val1, val2 in product(var1_samples, var2_samples):
+        for val1, val2 in product(var1_samples + [_('Total')], var2_samples + [_('Total')]):
             data[val1][val2] = 0
 
+        # fill inner cells
         for chat in self.matching_chats():
             var1_value = var1.extract_value(chat)
             
@@ -196,9 +198,16 @@ class Report(models.Model):
                 
             data[var1_value][var2_value] += 1
 
+        # calc row/col/table sums (outer cells)
+        for val1, val2 in product(var1_samples, var2_samples):
+            current = data[val1][val2]
+            data[_('Total')][_('Total')] += current
+            data[val1][_('Total')] += current
+            data[_('Total')][val2] += current
+        
         return { 'rendered_report': data,
-            'variable1_samples': var1_samples,
-            'variable2_samples': var2_samples,
+            'variable1_samples': var1_samples + [_('Total')],
+            'variable2_samples': var2_samples + [_('Total')],
         }
 
     def variable1_samples(self):
@@ -211,15 +220,15 @@ class Report(models.Model):
 
     def variable_samples(self, var_name):
         '''
-        Returns a list with all values the given variable `var_name` can have.
+        Returns a list with all expected values the given variable `var_name` can have.
         '''
 
         # in case only first variable is selected and second is blank
         if var_name is None:
-            return [_('Total')]
+            return []
 
         # additional buckets that will be appended to variable samples
-        appendix = [_('Other'), _('Total')]
+        appendix = [_('Other')]
 
         # lookup variable in registered variables
         # 
