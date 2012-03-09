@@ -135,23 +135,6 @@ class ReportTestCase(TestCase):
         chats = r.matching_chats()
         self.assertItemsEqual(Chat.objects.filter(id__in=[3]), chats)
 
-    def test_variable_samples(self):
-        r = Report.objects.get(pk=1)
-        
-        # empty variable -> empty list
-        result = list(r.variable_samples(None)) 
-        self.assertEqual(0, len(result))
-        
-        # normal, successful lookup
-        result = list(r.variable_samples('weekday'))
-        self.assertEqual(len(WeekdayReportVariable.values()) + 1, len(result))
-        self.assertTrue(Report.OTHER_COLUMN in result)
-        
-        # failed lookup for variable that does not exist -> all values will go to 'Other'
-        result = list(r.variable_samples('doesntexist'))
-        self.assertEqual(1, len(result))
-        self.assertItemsEqual([Report.OTHER_COLUMN], result)
-
     def test_generate_2variables(self):
         r = Report.objects.get(pk=1)
 
@@ -165,7 +148,9 @@ class ReportTestCase(TestCase):
                 cells += 1
 
         # +1 for 'Total' column
-        self.assertEqual((len(list(r.variable1_samples())) + 1) * (len(list(r.variable2_samples())) + 1), cells)
+        var1_samples = list(ReportVariable.find_variable(r.variable1).values())
+        var2_samples = list(ReportVariable.find_variable(r.variable2).values())
+        self.assertEqual((len(var1_samples) + 1) * (len(var2_samples) + 1), cells)
 
         # cells
         self.assertEqual(1, data[_('Thursday')]['Office Amsterdam'])
@@ -206,13 +191,15 @@ class ReportVariableTestCase(TestCase):
         self.assertEqual(('weekday', _('Weekday')), ReportVariable.find_variable('weekday').get_choices_tuple())
 
         self.assertEqual(None, ReportVariable.find_variable('doesntexist'))
+        self.assertEqual(None, ReportVariable.find_variable(None))
 
 
 class WeekdayReportVariableTestCase(TestCase):
     fixtures = ['reports-test.json']
 
     def test_values(self):
-        self.assertEqual(7, len(WeekdayReportVariable.values()))
+        # 7 weekdays, +1 for Other/No value
+        self.assertEqual(7 + 1, len(WeekdayReportVariable.values()))
 
     def test_extract(self):
         c1 = Chat.objects.get(pk=1)
@@ -227,7 +214,8 @@ class BranchReportVariableTestCase(TestCase):
     fixtures = ['reports-test.json']
 
     def test_values(self):
-        self.assertEqual(len(BranchOffice.objects.all()), len(list(BranchReportVariable.values())))
+        # +1 for Other/No value
+        self.assertEqual(len(BranchOffice.objects.all()) + 1, len(list(BranchReportVariable.values())))
 
         self.assertTrue('Office Amsterdam' in BranchReportVariable.values())
         self.assertTrue('Office Rotterdam' in BranchReportVariable.values())

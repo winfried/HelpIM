@@ -74,7 +74,7 @@ class WeekdayReportVariable(ReportVariable):
 
     @classmethod
     def values(cls):
-        return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday')]
+        return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), Report.OTHER_COLUMN]
 
 class BranchReportVariable(ReportVariable):
     @classmethod
@@ -92,7 +92,7 @@ class BranchReportVariable(ReportVariable):
     def values(cls):
         for office in BranchOffice.objects.all():
             yield office.name
-
+        yield Report.OTHER_COLUMN
 
 class Report(models.Model):
     VARIABLE_CHOICES = [ x.get_choices_tuple() for x in ReportVariable.all_variables() ]
@@ -180,12 +180,14 @@ class Report(models.Model):
         Generates the data for the report. Returns a dictionary that can be directly added to the view's context.
         '''
 
+        # get Variable objects for variables selected in Report
         var1 = ReportVariable.find_variable(self.variable1)
         var2 = ReportVariable.find_variable(self.variable2)
-        
-        var1_samples = list(self.variable1_samples())
-        var2_samples = list(self.variable2_samples())
-        
+
+        # find their possible values to use in row/column headings of table 
+        var1_samples = list(var1.values())
+        var2_samples = list(var2.values())
+
         # create table, extended by extra row and column for row/col/table sums
         data = defaultdict(dict)
         for val1, val2 in product(var1_samples + [Report.TOTAL_COLUMN], var2_samples + [Report.TOTAL_COLUMN]):
@@ -194,50 +196,24 @@ class Report(models.Model):
         # fill inner cells
         for chat in self.matching_chats():
             var1_value = var1.extract_value(chat)
-            
+
             if var2 is None:
                 var2_value = Report.TOTAL_COLUMN
             else:
                 var2_value = var2.extract_value(chat)
-                
+
             data[var1_value][var2_value] += 1
 
         # calc row/col/table sums (outer cells)
         for val1, val2 in product(var1_samples, var2_samples):
             current = data[val1][val2]
+
+            # add to: table sum, col sum, row sum
             data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN] += current
             data[val1][Report.TOTAL_COLUMN] += current
             data[Report.TOTAL_COLUMN][val2] += current
-        
+
         return { 'rendered_report': data,
             'variable1_samples': var1_samples + [Report.TOTAL_COLUMN],
             'variable2_samples': var2_samples + [Report.TOTAL_COLUMN],
         }
-
-    def variable1_samples(self):
-        ''' shortcut method '''
-        return self.variable_samples(self.variable1)
-
-    def variable2_samples(self):
-        ''' shortcut method '''
-        return self.variable_samples(self.variable2)
-
-    def variable_samples(self, var_name):
-        '''
-        Returns a list with all expected values the given variable `var_name` can have.
-        '''
-
-        # in case only first variable is selected and second is blank
-        if var_name is None:
-            return []
-
-        # additional buckets that will be appended to variable samples
-        appendix = [Report.OTHER_COLUMN]
-
-        # lookup variable in registered variables
-        # 
-        var = ReportVariable.find_variable(var_name)
-        if not var is None:
-            return chain(var.values(), appendix)
-        else:
-            return appendix
