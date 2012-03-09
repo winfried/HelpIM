@@ -190,8 +190,8 @@ class ReportVariableTestCase(TestCase):
         self.assertEqual(WeekdayReportVariable, ReportVariable.find_variable('weekday'))
         self.assertEqual(('weekday', _('Weekday')), ReportVariable.find_variable('weekday').get_choices_tuple())
 
-        self.assertEqual(None, ReportVariable.find_variable('doesntexist'))
-        self.assertEqual(None, ReportVariable.find_variable(None))
+        self.assertEqual(NoneReportVariable, ReportVariable.find_variable('doesntexist'))
+        self.assertEqual(NoneReportVariable, ReportVariable.find_variable(None))
 
 
 class WeekdayReportVariableTestCase(TestCase):

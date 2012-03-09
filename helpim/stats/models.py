@@ -30,9 +30,9 @@ class ReportVariable(object):
     @classmethod
     def find_variable(cls, name):
         '''
-        Finds the variable class for the given name. Otherwise, returns None.
+        Finds the variable class for the given name. Otherwise, returns NoneReportVariable.
         '''
-        return cls.known_variables.get(name, None)
+        return cls.known_variables.get(name, NoneReportVariable)
 
     @classmethod
     def _register_variable(cls, var):
