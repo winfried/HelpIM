@@ -145,12 +145,12 @@ class ReportTestCase(TestCase):
         # normal, successful lookup
         result = list(r.variable_samples('weekday'))
         self.assertEqual(len(WeekdayReportVariable.values()) + 1, len(result))
-        self.assertTrue(_('Other') in result)
+        self.assertTrue(Report.OTHER_COLUMN in result)
         
         # failed lookup for variable that does not exist -> all values will go to 'Other'
         result = list(r.variable_samples('doesntexist'))
         self.assertEqual(1, len(result))
-        self.assertItemsEqual([_('Other')], result)
+        self.assertItemsEqual([Report.OTHER_COLUMN], result)
 
     def test_generate_2variables(self):
         r = Report.objects.get(pk=1)
@@ -169,20 +169,20 @@ class ReportTestCase(TestCase):
 
         # cells
         self.assertEqual(1, data[_('Thursday')]['Office Amsterdam'])
-        self.assertEqual(1, data[_('Friday')][_('Other')])
+        self.assertEqual(1, data[_('Friday')][Report.OTHER_COLUMN])
         self.assertEqual(1, data[_('Saturday')]['Office Amsterdam'])
 
         # row sums
-        self.assertEqual(2, data[_('Total')]['Office Amsterdam'])
-        self.assertEqual(1, data[_('Total')][_('Other')])
+        self.assertEqual(2, data[Report.TOTAL_COLUMN]['Office Amsterdam'])
+        self.assertEqual(1, data[Report.TOTAL_COLUMN][Report.OTHER_COLUMN])
 
         # col sums
-        self.assertEqual(1, data[_('Thursday')][_('Total')])
-        self.assertEqual(1, data[_('Friday')][_('Total')])
-        self.assertEqual(1, data[_('Saturday')][_('Total')])
+        self.assertEqual(1, data[_('Thursday')][Report.TOTAL_COLUMN])
+        self.assertEqual(1, data[_('Friday')][Report.TOTAL_COLUMN])
+        self.assertEqual(1, data[_('Saturday')][Report.TOTAL_COLUMN])
 
         # table sum
-        self.assertEqual(3, data[_('Total')][_('Total')])
+        self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
 
 
 class ReportVariableTestCase(TestCase):
@@ -237,6 +237,6 @@ class BranchReportVariableTestCase(TestCase):
         c2 = Chat.objects.get(pk=2)
         c3 = Chat.objects.get(pk=3)
 
-        self.assertEqual(_('Other'), BranchReportVariable.extract_value(c1))
+        self.assertEqual(Report.OTHER_COLUMN, BranchReportVariable.extract_value(c1))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c2))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c3))

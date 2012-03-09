@@ -70,7 +70,7 @@ class WeekdayReportVariable(ReportVariable):
         try:
             return cls.values()[obj.start_time.weekday()]
         except:
-            return _('Other')
+            return Report.OTHER_COLUMN
 
     @classmethod
     def values(cls):
@@ -86,7 +86,7 @@ class BranchReportVariable(ReportVariable):
         try:
             return obj.getStaff().user.additionaluserinformation.branch_office.name
         except:
-            return _('Other')
+            return Report.OTHER_COLUMN
 
     @classmethod
     def values(cls):
@@ -101,6 +101,10 @@ class Report(models.Model):
         ('hits', _('Hits')),
         ('unique', _('Unique IPs'))
     )
+    
+    # special column names
+    OTHER_COLUMN = _('No value')
+    TOTAL_COLUMN = _('Total')
 
     title = models.CharField(max_length=255)
 
@@ -184,7 +188,7 @@ class Report(models.Model):
         
         # create table, extended by extra row and column for row/col/table sums
         data = defaultdict(dict)
-        for val1, val2 in product(var1_samples + [_('Total')], var2_samples + [_('Total')]):
+        for val1, val2 in product(var1_samples + [Report.TOTAL_COLUMN], var2_samples + [Report.TOTAL_COLUMN]):
             data[val1][val2] = 0
 
         # fill inner cells
@@ -192,7 +196,7 @@ class Report(models.Model):
             var1_value = var1.extract_value(chat)
             
             if var2 is None:
-                var2_value = _('Total')
+                var2_value = Report.TOTAL_COLUMN
             else:
                 var2_value = var2.extract_value(chat)
                 
@@ -201,13 +205,13 @@ class Report(models.Model):
         # calc row/col/table sums (outer cells)
         for val1, val2 in product(var1_samples, var2_samples):
             current = data[val1][val2]
-            data[_('Total')][_('Total')] += current
-            data[val1][_('Total')] += current
-            data[_('Total')][val2] += current
+            data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN] += current
+            data[val1][Report.TOTAL_COLUMN] += current
+            data[Report.TOTAL_COLUMN][val2] += current
         
         return { 'rendered_report': data,
-            'variable1_samples': var1_samples + [_('Total')],
-            'variable2_samples': var2_samples + [_('Total')],
+            'variable1_samples': var1_samples + [Report.TOTAL_COLUMN],
+            'variable2_samples': var2_samples + [Report.TOTAL_COLUMN],
         }
 
     def variable1_samples(self):
@@ -228,7 +232,7 @@ class Report(models.Model):
             return []
 
         # additional buckets that will be appended to variable samples
-        appendix = [_('Other')]
+        appendix = [Report.OTHER_COLUMN]
 
         # lookup variable in registered variables
         # 
