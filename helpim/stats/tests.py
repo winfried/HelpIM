@@ -152,6 +152,38 @@ class ReportTestCase(TestCase):
         self.assertEqual(1, len(result))
         self.assertItemsEqual([_('Other')], result)
 
+    def test_generate_2variables(self):
+        r = Report.objects.get(pk=1)
+
+        data = r.generate()['rendered_report']
+        self.assertTrue(len(data) > 0)
+
+        # determine number of cells
+        cells = 0
+        for col in data.iterkeys():
+            for cell in data[col].iterkeys():
+                cells += 1
+
+        # +1 for 'Total' column
+        self.assertEqual((len(list(r.variable1_samples())) + 1) * (len(list(r.variable2_samples())) + 1), cells)
+
+        # cells
+        self.assertEqual(1, data[_('Thursday')]['Office Amsterdam'])
+        self.assertEqual(1, data[_('Friday')][_('Other')])
+        self.assertEqual(1, data[_('Saturday')]['Office Amsterdam'])
+
+        # row sums
+        self.assertEqual(2, data[_('Total')]['Office Amsterdam'])
+        self.assertEqual(1, data[_('Total')][_('Other')])
+
+        # col sums
+        self.assertEqual(1, data[_('Thursday')][_('Total')])
+        self.assertEqual(1, data[_('Friday')][_('Total')])
+        self.assertEqual(1, data[_('Saturday')][_('Total')])
+
+        # table sum
+        self.assertEqual(3, data[_('Total')][_('Total')])
+
 
 class ReportVariableTestCase(TestCase):
     def setUp(self):
