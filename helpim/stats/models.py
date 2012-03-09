@@ -124,7 +124,6 @@ class Report(models.Model):
     )
 
     # filter by properties of chat
-    filter_none = models.BooleanField(default=True, verbose_name=_('Show all'))
     filter_business_hours = models.BooleanField(verbose_name=_('Hits outside of business hours'))
     filter_blocked = models.BooleanField(verbose_name=_('Hits from blocked IPs'))
     filter_queued = models.BooleanField(verbose_name=_('Hits when waiting queue was full'))
