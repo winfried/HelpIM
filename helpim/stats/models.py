@@ -217,12 +217,9 @@ class Report(models.Model):
 
         # fill inner cells
         for chat in self.matching_chats():
+            # find bucket to change
             var1_value = var1.extract_value(chat)
-
-            if var2 is None:
-                var2_value = Report.TOTAL_COLUMN
-            else:
-                var2_value = var2.extract_value(chat)
+            var2_value = var2.extract_value(chat)
 
             data[var1_value][var2_value] += 1
 
