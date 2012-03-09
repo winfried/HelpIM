@@ -94,6 +94,26 @@ class BranchReportVariable(ReportVariable):
             yield office.name
         yield Report.OTHER_COLUMN
 
+class NoneReportVariable(ReportVariable):
+    '''
+    Special kind of report variable that only has one bucket EMPTY and sorts every object into it.
+    Used as a fallback when no variable is selected in the report.
+    '''
+    
+    EMPTY = _('All')
+    
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('none', _('None'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        return NoneReportVariable.EMPTY
+
+    @classmethod
+    def values(cls):
+        yield NoneReportVariable.EMPTY
+    
 class Report(models.Model):
     VARIABLE_CHOICES = [ x.get_choices_tuple() for x in ReportVariable.all_variables() ]
 

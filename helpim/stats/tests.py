@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat
-from helpim.stats.models import BranchReportVariable, Report, ReportVariable, WeekdayReportVariable
+from helpim.stats.models import BranchReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
 
 
 class UrlPatternsTestCase(TestCase):
@@ -228,3 +228,19 @@ class BranchReportVariableTestCase(TestCase):
         self.assertEqual(Report.OTHER_COLUMN, BranchReportVariable.extract_value(c1))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c2))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c3))
+
+class NoneReportVariableTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_values(self):
+        self.assertEqual(1, len(list(NoneReportVariable.values())))
+        self.assertTrue(NoneReportVariable.EMPTY in NoneReportVariable.values())
+
+    def test_extract(self):
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        self.assertEqual(NoneReportVariable.EMPTY, NoneReportVariable.extract_value(c1))
+        self.assertEqual(NoneReportVariable.EMPTY, NoneReportVariable.extract_value(c2))
+        self.assertEqual(NoneReportVariable.EMPTY, NoneReportVariable.extract_value(c3))
