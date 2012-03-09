@@ -210,10 +210,8 @@ class Report(models.Model):
         var1_samples = list(var1.values())
         var2_samples = list(var2.values())
 
-        # create table, extended by extra row and column for row/col/table sums
-        data = defaultdict(dict)
-        for val1, val2 in product(var1_samples + [Report.TOTAL_COLUMN], var2_samples + [Report.TOTAL_COLUMN]):
-            data[val1][val2] = 0
+        # create 2-dimensional table, new cells will be initialized with 0 
+        data = defaultdict(lambda: defaultdict(lambda: 0))
 
         # fill inner cells
         for chat in self.matching_chats():
