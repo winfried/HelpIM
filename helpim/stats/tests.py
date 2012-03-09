@@ -103,7 +103,9 @@ class ReportTestCase(TestCase):
 
     def test_matching_chats(self):
         r = Report.objects.get(pk=1)
-
+        r.period_start = date(2010, 1, 1)
+        r.period_end = date(2010, 1, 1)
+        
         chats = r.matching_chats()
         self.assertItemsEqual(Chat.objects.filter(id__in=[1]), chats)
 

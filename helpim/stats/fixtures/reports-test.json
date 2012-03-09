@@ -4,8 +4,8 @@
         "model": "stats.report",
         "fields": {
             "title": "Report with 'start' and 'end'",
-            "period_start": "2010-01-01",
-            "period_end": "2010-01-01",
+            "period_start": null,
+            "period_end": null,
             "branch": null,
             "careworker": null,
             "variable1": "weekday",
