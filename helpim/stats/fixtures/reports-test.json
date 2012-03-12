@@ -60,6 +60,8 @@
     },
 
 
+
+
     {
         "pk": 1, 
         "model": "conversations.conversation", 
@@ -78,6 +80,18 @@
             "blocked_at": null, 
             "role": "S", 
             "user": 1, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 4, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careseekerONE", 
+            "ip_hash": "aabbccddeeff", 
+            "conversation": 1, 
+            "blocked_at": null, 
+            "role": "C", 
             "blocked": false
         }
     },
@@ -110,6 +124,18 @@
         }
     },
     {
+        "pk": 5, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careseekerTWO", 
+            "ip_hash": "aabbccddeeff", 
+            "conversation": 2, 
+            "blocked_at": null, 
+            "role": "C", 
+            "blocked": false
+        }
+    },
+    {
         "pk": 2, 
         "model": "conversations.chat", 
         "fields": {}
@@ -134,6 +160,18 @@
             "blocked_at": null, 
             "role": "S", 
             "user": 22, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 6, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careseekerTHREE", 
+            "ip_hash": "xxyyzz", 
+            "conversation": 3, 
+            "blocked_at": null, 
+            "role": "C", 
             "blocked": false
         }
     },

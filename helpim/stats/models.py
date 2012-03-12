@@ -90,6 +90,7 @@ class BranchReportVariable(ReportVariable):
 
     @classmethod
     def values(cls):
+        # TODO: distinct `name`
         for office in BranchOffice.objects.all():
             yield office.name
         yield Report.OTHER_COLUMN
@@ -210,24 +211,48 @@ class Report(models.Model):
         var1_samples = list(var1.values())
         var2_samples = list(var2.values())
 
-        # create 2-dimensional table, new cells will be initialized with 0 
-        data = defaultdict(lambda: defaultdict(lambda: 0))
+        # how to init, update and produce result of cells depends on output mode of report
+        if self.output == 'unique':
+            # set-based, unique, looking at ip_hash of client
+            init_cell = lambda: set()
+            update_cell = lambda total, chat: total.add(chat.getClient().ip_hash) or total
+            reduce_cell = lambda x: len(x)
+        else:
+            # integer-based, counting all chat objects
+            init_cell = lambda: 0
+            update_cell = lambda total, chat: total + 1
+            reduce_cell = lambda x: x
+            
+        # create 2-dimensional table
+        # defaultdict automatically handles proper on-demand initialization of new map entries 
+        data = defaultdict(lambda: defaultdict(init_cell))
 
         # fill inner cells
         for chat in self.matching_chats():
-            # find bucket to change
-            var1_value = var1.extract_value(chat)
-            var2_value = var2.extract_value(chat)
+            try:
+                # find bucket to change
+                var1_value = var1.extract_value(chat)
+                var2_value = var2.extract_value(chat)
+                
+                data[var1_value][var2_value] = update_cell(data[var1_value][var2_value], chat)
+            except AttributeError:
+                pass
 
-            data[var1_value][var2_value] += 1
-
-        # calc row/col/table sums (outer cells)
+        # calc result of cell and row/col/table sums (outer cells)
         for val1, val2 in product(var1_samples, var2_samples):
-            current = data[val1][val2]
+            # compress cell result
+            current = reduce_cell(data[val1][val2])
+            data[val1][val2] = current
 
             # add to: table sum, col sum, row sum
+            # setdefault sets value only when it didnt exist already
+            data.setdefault(Report.TOTAL_COLUMN, {}).setdefault(Report.TOTAL_COLUMN, 0)
             data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN] += current
+            
+            data.setdefault(val1, {}).setdefault(Report.TOTAL_COLUMN, 0)
             data[val1][Report.TOTAL_COLUMN] += current
+            
+            data.setdefault(Report.TOTAL_COLUMN, {}).setdefault(val2, 0)
             data[Report.TOTAL_COLUMN][val2] += current
 
         return { 'rendered_report': data,

@@ -235,7 +235,23 @@ class ReportTestCase(TestCase):
         self.assertEqual(3, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
         self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
         
-
+    def test_generate_0variables_unique(self):
+        r = Report.objects.get(pk=1)
+        r.variable1 = NoneReportVariable.get_choices_tuple()[0]
+        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        r.output = 'unique'
+        
+        data = r.generate()['rendered_report']
+        self.assertTrue(len(data) > 0)
+        
+        # cells
+        self.assertEqual(2, data[NoneReportVariable.EMPTY][NoneReportVariable.EMPTY])
+        
+        # row/col/table sums
+        self.assertEqual(2, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
+        self.assertEqual(2, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
+        self.assertEqual(2, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
+        
 class ReportVariableTestCase(TestCase):
     def setUp(self):
         super(ReportVariableTestCase, self).setUp()
