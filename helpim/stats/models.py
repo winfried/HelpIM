@@ -90,9 +90,8 @@ class BranchReportVariable(ReportVariable):
 
     @classmethod
     def values(cls):
-        # TODO: distinct `name`
-        for office in BranchOffice.objects.all():
-            yield office.name
+        for office in BranchOffice.objects.values('name').distinct():
+            yield office['name']
         yield Report.OTHER_COLUMN
 
 class NoneReportVariable(ReportVariable):
