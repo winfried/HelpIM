@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, Participant
+from helpim.utils import total_seconds
 
 
 class ReportVariable(object):
@@ -93,6 +94,37 @@ class BranchReportVariable(ReportVariable):
         for office in BranchOffice.objects.values('name').distinct():
             yield office['name']
         yield Report.OTHER_COLUMN
+
+class DurationReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('duration', _('Duration of chat'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        try:
+            duration_minutes = total_seconds(obj.duration()) / 60.0
+
+            if duration_minutes >= 0 and duration_minutes < 5.0:
+                return _('0-5')
+            elif duration_minutes >= 5.0 and duration_minutes < 10.0:
+                return _('5-10')
+            elif duration_minutes >= 10.0 and duration_minutes < 15.0:
+                return _('10-15')
+            elif duration_minutes >= 15.0 and duration_minutes < 25.0:
+                return _('15-25')
+            elif duration_minutes >= 25.0 and duration_minutes < 45.0:
+                return _('25-45')
+            elif duration_minutes >= 45.0:
+                return _('45+')
+            else:
+                return Report.OTHER_COLUMN
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls):
+        return [_('0-5'), _('5-10'), _('10-15'), _('15-25'), _('25-45'), _('45+'), Report.OTHER_COLUMN]
 
 class NoneReportVariable(ReportVariable):
     '''
