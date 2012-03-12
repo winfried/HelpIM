@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat
-from helpim.stats.models import BranchReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
+from helpim.stats.models import BranchReportVariable, CareworkerReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
 
 
 class UrlPatternsTestCase(TestCase):
@@ -329,7 +329,7 @@ class BranchReportVariableTestCase(TestCase):
 
     def test_values(self):
         # +1 for Other/No value
-        self.assertEqual(len(BranchOffice.objects.all()) + 1, len(list(BranchReportVariable.values())))
+        self.assertEqual(len(BranchOffice.objects.distinct()) + 1, len(list(BranchReportVariable.values())))
 
         self.assertTrue('Office Amsterdam' in BranchReportVariable.values())
         self.assertTrue('Office Rotterdam' in BranchReportVariable.values())
@@ -342,6 +342,23 @@ class BranchReportVariableTestCase(TestCase):
         self.assertEqual(Report.OTHER_COLUMN, BranchReportVariable.extract_value(c1))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c2))
         self.assertEqual('Office Amsterdam', BranchReportVariable.extract_value(c3))
+
+class CareworkerReportVariableTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_values(self):
+        # +1 for Other/No value
+        self.assertEqual(2 + 1, len(list(CareworkerReportVariable.values())))
+        self.assertItemsEqual(['careworker', 'elseone', Report.OTHER_COLUMN], CareworkerReportVariable.values())
+
+    def test_extract(self):
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        self.assertEqual(Report.OTHER_COLUMN, CareworkerReportVariable.extract_value(c1))
+        self.assertEqual('careworker', CareworkerReportVariable.extract_value(c2))
+        self.assertEqual('elseone', CareworkerReportVariable.extract_value(c3))
 
 class NoneReportVariableTestCase(TestCase):
     fixtures = ['reports-test.json']

@@ -18,7 +18,10 @@
         "pk": 55, 
         "model": "auth.user", 
         "fields": {
-            "username": "careworker"
+            "username": "careworker",
+            "groups": [
+                1
+            ]
         }
     },
     {
@@ -33,7 +36,10 @@
         "pk": 22, 
         "model": "auth.user", 
         "fields": {
-            "username": "elseone"
+            "username": "elseone",
+            "groups": [
+                1
+            ]
         }
     },
     {
@@ -58,6 +64,15 @@
             "name": "Office Rotterdam"
         }
     },
+    {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "careworkers", 
+            "permissions": []
+        }
+    }, 
+    
 
 
 

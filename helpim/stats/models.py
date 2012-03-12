@@ -127,6 +127,34 @@ class BranchReportVariable(ReportVariable):
             yield office['name']
         yield Report.OTHER_COLUMN
 
+class CareworkerReportVariable(ReportVariable):
+    '''
+    Regards only users who belong to 'careworker' group. All other users will go to `OTHER_COLUMN`
+    '''
+
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('careworker', _('Careworker'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        try:
+            careworker = obj.getStaff().user
+
+            # is `careworker` user object in group 'careworker'?
+            if careworker.groups.filter(name='careworkers').count() > 0:
+                return careworker.username
+            else:
+                return Report.OTHER_COLUMN
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls):
+        for careworker in User.objects.filter(groups__name='careworkers').all():
+            yield careworker.username
+        yield Report.OTHER_COLUMN
+
 class DurationReportVariable(ReportVariable):
     @classmethod
     def get_choices_tuple(cls):
