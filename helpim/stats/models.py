@@ -61,6 +61,22 @@ class ReportVariable(object):
         '''
         raise NotImplementedError("Subclass should implement this method.")
 
+class HourReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('hour', _('Hour'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        try:
+            return obj.start_time.hour
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls):
+        return range(0, 24) + [Report.OTHER_COLUMN]
+
 class WeekdayReportVariable(ReportVariable):
     @classmethod
     def get_choices_tuple(cls):
