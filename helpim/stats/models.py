@@ -77,6 +77,22 @@ class WeekdayReportVariable(ReportVariable):
     def values(cls):
         return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), Report.OTHER_COLUMN]
 
+class MonthReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuple(cls):
+        return ('month', _('Month'))
+
+    @classmethod
+    def extract_value(cls, obj):
+        try:
+            return cls.values()[obj.start_time.month - 1]
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls):
+        return [_('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December'), Report.OTHER_COLUMN]
+
 class BranchReportVariable(ReportVariable):
     @classmethod
     def get_choices_tuple(cls):
