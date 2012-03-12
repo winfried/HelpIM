@@ -13,7 +13,7 @@ from helpim.stats.models import BranchReportVariable, NoneReportVariable, Report
 
 class UrlPatternsTestCase(TestCase):
     '''Test url design of stats app'''
-    
+
     # base url where stats app runs
     base_url = "/admin/stats/"
 
@@ -32,7 +32,7 @@ class UrlPatternsTestCase(TestCase):
 
     def _assertUrlMapping(self, url, action, params={}, follow=True):
         '''assert that when `url` is accessed, the view `action` is invoked with parameters dictionary `params`'''
-        
+
         response = self.c.get(self.base_url + url, follow=follow)
         self.assertTrue(response.status_code != 404, 'URL not found')
 
@@ -69,9 +69,9 @@ class UrlPatternsTestCase(TestCase):
 
     def testReportsUrlMappings(self):
         '''test url mappings for reports functionality'''
-        
+
         # create Report with specific id to be used throughout test
-        r = Report(period_start=date(2000,1,1), period_end=date(2000,1,1), variable1='weekday', variable2='branch')
+        r = Report(period_start=date(2000, 1, 1), period_end=date(2000, 1, 1), variable1='weekday', variable2='branch')
         r.save()
         r.id = 4143
         r.save()
@@ -106,7 +106,7 @@ class ReportTestCase(TestCase):
         r = Report.objects.get(pk=1)
         r.period_start = date(2010, 1, 1)
         r.period_end = date(2010, 1, 1)
-        
+
         chats = r.matching_chats()
         self.assertItemsEqual(Chat.objects.filter(id__in=[1]), chats)
 
@@ -172,86 +172,86 @@ class ReportTestCase(TestCase):
 
     def test_generate_1variable(self):
         r = Report.objects.get(pk=1)
-        
+
         # remove variable2
         r.variable2 = NoneReportVariable.get_choices_tuple()[0]
-        
+
         data = r.generate()['rendered_report']
         self.assertTrue(len(data) > 0)
-        
+
         # determine number of cells
         cells = 0
         for col in data.iterkeys():
             for cell in data[col].iterkeys():
                 cells += 1
-                
+
         # +1 for 'Total' column
         var1_samples = list(ReportVariable.find_variable(r.variable1).values())
         var2_samples = list(ReportVariable.find_variable(r.variable2).values())
         self.assertEqual((len(var1_samples) + 1) * (len(var2_samples) + 1), cells)
-        
+
         # cells
         self.assertEqual(1, data[_('Thursday')][NoneReportVariable.EMPTY])
         self.assertEqual(1, data[_('Friday')][NoneReportVariable.EMPTY])
         self.assertEqual(1, data[_('Saturday')][NoneReportVariable.EMPTY])
-        
+
         # row sums
         self.assertEqual(3, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
-        
+
         # col sums
         self.assertEqual(1, data[_('Thursday')][Report.TOTAL_COLUMN])
         self.assertEqual(1, data[_('Friday')][Report.TOTAL_COLUMN])
         self.assertEqual(1, data[_('Saturday')][Report.TOTAL_COLUMN])
-        
+
         # table sum
         self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
 
     def test_generate_0variables(self):
         r = Report.objects.get(pk=1)
-        
+
         # remove both variables
         r.variable1 = NoneReportVariable.get_choices_tuple()[0]
         r.variable2 = NoneReportVariable.get_choices_tuple()[0]
-        
+
         data = r.generate()['rendered_report']
         self.assertTrue(len(data) > 0)
-        
+
         # determine number of cells
         cells = 0
         for col in data.iterkeys():
             for cell in data[col].iterkeys():
                 cells += 1
-        
+
         # +1 for 'Total' column
         var1_samples = list(ReportVariable.find_variable(r.variable1).values())
         var2_samples = list(ReportVariable.find_variable(r.variable2).values())
         self.assertEqual((len(var1_samples) + 1) * (len(var2_samples) + 1), cells)
-        
+
         # cells
         self.assertEqual(3, data[NoneReportVariable.EMPTY][NoneReportVariable.EMPTY])
-        
+
         # row/col/table sums
         self.assertEqual(3, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
         self.assertEqual(3, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
         self.assertEqual(3, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
-        
+
     def test_generate_0variables_unique(self):
         r = Report.objects.get(pk=1)
         r.variable1 = NoneReportVariable.get_choices_tuple()[0]
         r.variable2 = NoneReportVariable.get_choices_tuple()[0]
         r.output = 'unique'
-        
+
         data = r.generate()['rendered_report']
         self.assertTrue(len(data) > 0)
-        
+
         # cells
         self.assertEqual(2, data[NoneReportVariable.EMPTY][NoneReportVariable.EMPTY])
-        
+
         # row/col/table sums
         self.assertEqual(2, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
         self.assertEqual(2, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
         self.assertEqual(2, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
-        
+
 class ReportVariableTestCase(TestCase):
     def setUp(self):
         super(ReportVariableTestCase, self).setUp()

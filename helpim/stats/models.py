@@ -100,9 +100,9 @@ class NoneReportVariable(ReportVariable):
     Special kind of report variable that only has one bucket EMPTY and sorts every object into it.
     Used as a fallback when no variable is selected in the report.
     '''
-    
+
     EMPTY = _('All')
-    
+
     @classmethod
     def get_choices_tuple(cls):
         return ('none', _('None'))
@@ -114,7 +114,7 @@ class NoneReportVariable(ReportVariable):
     @classmethod
     def values(cls):
         yield NoneReportVariable.EMPTY
-    
+
 class Report(models.Model):
     VARIABLE_CHOICES = [ x.get_choices_tuple() for x in ReportVariable.all_variables() ]
 
@@ -122,7 +122,7 @@ class Report(models.Model):
         ('hits', _('Hits')),
         ('unique', _('Unique IPs'))
     )
-    
+
     # special column names
     OTHER_COLUMN = _('No value')
     TOTAL_COLUMN = _('Total')
@@ -133,7 +133,7 @@ class Report(models.Model):
     period_start = models.DateField(null=True, blank=True,
         verbose_name=_('Chats from (inclusive)')
     )
-    
+
     # leave blank to indicate no upper bound
     period_end = models.DateField(null=True, blank=True,
         verbose_name=_('Chats until (inclusive)')
@@ -170,7 +170,7 @@ class Report(models.Model):
 
     def get_absolute_url(self):
         return reverse('report_show', args=[self.id])
-    
+
     def __unicode__(self):
         return self.title
 
@@ -222,7 +222,7 @@ class Report(models.Model):
             init_cell = lambda: 0
             update_cell = lambda total, chat: total + 1
             reduce_cell = lambda x: x
-            
+
         # create 2-dimensional table
         # defaultdict automatically handles proper on-demand initialization of new map entries 
         data = defaultdict(lambda: defaultdict(init_cell))
@@ -233,7 +233,7 @@ class Report(models.Model):
                 # find bucket to change
                 var1_value = var1.extract_value(chat)
                 var2_value = var2.extract_value(chat)
-                
+
                 data[var1_value][var2_value] = update_cell(data[var1_value][var2_value], chat)
             except AttributeError:
                 pass
@@ -248,10 +248,10 @@ class Report(models.Model):
             # setdefault sets value only when it didnt exist already
             data.setdefault(Report.TOTAL_COLUMN, {}).setdefault(Report.TOTAL_COLUMN, 0)
             data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN] += current
-            
+
             data.setdefault(val1, {}).setdefault(Report.TOTAL_COLUMN, 0)
             data[val1][Report.TOTAL_COLUMN] += current
-            
+
             data.setdefault(Report.TOTAL_COLUMN, {}).setdefault(val2, 0)
             data[Report.TOTAL_COLUMN][val2] += current
 

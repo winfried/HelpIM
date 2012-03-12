@@ -35,23 +35,23 @@ def stats_overview(request, keyword, year=None, format=None):
 
     insertIndex = 0
     currentPageIndex = None
-    
+
     # try to find index of requested year in `listOfPages`. also determine insert position if requested year is not in that list.
     for (idx, x) in enumerate(listOfPages):
         # get index of current year in listOfPages
         if x['value'] == year:
             currentPageIndex = idx
-        
+
         # find largest value that is smaller than requested year, insert after that index
         # if no such value exists, use default insertIndex of 0
         if x['value'] < year:
             insertIndex = idx + 1
-        
+
     # requested year is not in list, "fake" add it
     if currentPageIndex is None:
         listOfPages.insert(insertIndex, {'count': 0, 'value': year})
         currentPageIndex = insertIndex
-    
+
     # derive "prev" and "next" indices, if possible
     if currentPageIndex is not None:
         prevPageIndex = currentPageIndex - 1 if currentPageIndex > 0 else None
@@ -124,7 +124,7 @@ def report_new(request, instance=None):
 
     context['report_form'] = report_form
     context['is_edit'] = not instance is None
-    
+
     return render_to_response('stats/report_new.html',
         context,
         context_instance=RequestContext(request)
@@ -133,7 +133,7 @@ def report_new(request, instance=None):
 @permission_required('stats.can_view_stats', '/admin')
 def report_edit(request, id):
     '''edit report'''
-    
+
     saved_report = get_object_or_404(Report, pk=id)
     return report_new(request, instance=saved_report)
 
@@ -167,7 +167,7 @@ def _stats_overview_csv(knownStats, dictStats, keyword, year):
 
     # apparently, in this loop, datetime.date objects in dictStats are automatically formatted according to ISO
     # which is 'YYYY-MM-DD' and looks good in CSV
-    
+
     writer = csv.writer(response)
     writer.writerow(knownStats.values())
     for statRow in dictStats.itervalues():
@@ -197,7 +197,7 @@ def _stats_overview_xls(knownStats, dictStats, keyword, year):
     for statRow in dictStats.itervalues():
         for statName in knownStats.iterkeys():
             stat = statRow.get(statName, '')
-            
+
             if isinstance(stat, datetime.date):
                 style = xlwt.Style.XFStyle()
                 style.num_format_str = 'YYYY-MM-DD'
