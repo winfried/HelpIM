@@ -37,13 +37,14 @@ class ReportVariable(object):
 
     @classmethod
     def _register_variable(cls, var):
-        cls.known_variables[var.get_choices_tuple()[0]] = var
+        for choice in var.get_choices_tuples():
+            cls.known_variables[choice[0]] = var
 
     @classmethod
-    def get_choices_tuple(cls):
+    def get_choices_tuples(cls):
         '''
-        Returns a 2-tuple consisting of an internal and public name for this variable.
-        This tuple is used with django's `choices`-feature of model classes.
+        Returns a list of 2-tuples consisting of an internal and public name for this variable.
+        These tuples are used with django's `choices`-feature of model classes.
         '''
         raise NotImplementedError("Subclass should implement this method.")
 
@@ -63,8 +64,8 @@ class ReportVariable(object):
 
 class HourReportVariable(ReportVariable):
     @classmethod
-    def get_choices_tuple(cls):
-        return ('hour', _('Hour'))
+    def get_choices_tuples(cls):
+        return [('hour', _('Hour'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -79,8 +80,8 @@ class HourReportVariable(ReportVariable):
 
 class WeekdayReportVariable(ReportVariable):
     @classmethod
-    def get_choices_tuple(cls):
-        return ('weekday', _('Weekday'))
+    def get_choices_tuples(cls):
+        return [('weekday', _('Weekday'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -95,8 +96,8 @@ class WeekdayReportVariable(ReportVariable):
 
 class MonthReportVariable(ReportVariable):
     @classmethod
-    def get_choices_tuple(cls):
-        return ('month', _('Month'))
+    def get_choices_tuples(cls):
+        return [('month', _('Month'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -111,8 +112,8 @@ class MonthReportVariable(ReportVariable):
 
 class BranchReportVariable(ReportVariable):
     @classmethod
-    def get_choices_tuple(cls):
-        return ('branch', _('Branch office'))
+    def get_choices_tuples(cls):
+        return [('branch', _('Branch office'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -133,8 +134,8 @@ class CareworkerReportVariable(ReportVariable):
     '''
 
     @classmethod
-    def get_choices_tuple(cls):
-        return ('careworker', _('Careworker'))
+    def get_choices_tuples(cls):
+        return [('careworker', _('Careworker'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -157,8 +158,8 @@ class CareworkerReportVariable(ReportVariable):
 
 class DurationReportVariable(ReportVariable):
     @classmethod
-    def get_choices_tuple(cls):
-        return ('duration', _('Duration of chat'))
+    def get_choices_tuples(cls):
+        return [('duration', _('Duration of chat'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -195,8 +196,8 @@ class NoneReportVariable(ReportVariable):
     EMPTY = _('All')
 
     @classmethod
-    def get_choices_tuple(cls):
-        return ('none', _('None'))
+    def get_choices_tuples(cls):
+        return [('none', _('None'))]
 
     @classmethod
     def extract_value(cls, obj):
@@ -207,7 +208,7 @@ class NoneReportVariable(ReportVariable):
         yield NoneReportVariable.EMPTY
 
 class Report(models.Model):
-    VARIABLE_CHOICES = [ x.get_choices_tuple() for x in ReportVariable.all_variables() ]
+    VARIABLE_CHOICES = [ tup for tupList in ReportVariable.all_variables() for tup in tupList.get_choices_tuples() ]
 
     OUTPUT_CHOICES = (
         ('hits', _('Hits')),
@@ -248,11 +249,11 @@ class Report(models.Model):
 
     # what to show in result
     variable1 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
-        default=NoneReportVariable.get_choices_tuple()[0],
+        default=NoneReportVariable.get_choices_tuples()[0][0],
         verbose_name=_('select row variable'),
     )
     variable2 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
-        default=NoneReportVariable.get_choices_tuple()[0],
+        default=NoneReportVariable.get_choices_tuples()[0][0],
         verbose_name=_('select column variable')
     )
     output = models.CharField(max_length=255, choices=OUTPUT_CHOICES, default=OUTPUT_CHOICES[0],

@@ -174,7 +174,7 @@ class ReportTestCase(TestCase):
         r = Report.objects.get(pk=1)
 
         # remove variable2
-        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        r.variable2 = NoneReportVariable.get_choices_tuples()[0][0]
 
         data = r.generate()['rendered_report']
         self.assertTrue(len(data) > 0)
@@ -210,8 +210,8 @@ class ReportTestCase(TestCase):
         r = Report.objects.get(pk=1)
 
         # remove both variables
-        r.variable1 = NoneReportVariable.get_choices_tuple()[0]
-        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        r.variable1 = NoneReportVariable.get_choices_tuples()[0][0]
+        r.variable2 = NoneReportVariable.get_choices_tuples()[0][0]
 
         data = r.generate()['rendered_report']
         self.assertTrue(len(data) > 0)
@@ -237,8 +237,8 @@ class ReportTestCase(TestCase):
 
     def test_generate_0variables_unique(self):
         r = Report.objects.get(pk=1)
-        r.variable1 = NoneReportVariable.get_choices_tuple()[0]
-        r.variable2 = NoneReportVariable.get_choices_tuple()[0]
+        r.variable1 = NoneReportVariable.get_choices_tuples()[0][0]
+        r.variable2 = NoneReportVariable.get_choices_tuples()[0][0]
         r.output = 'unique'
 
         data = r.generate()['rendered_report']
@@ -261,16 +261,24 @@ class ReportVariableTestCase(TestCase):
     def test_register_variable(self):
         # clear state, might have been set by previous tests
         ReportVariable.known_variables = {}
-
         self.assertEqual(0, len(ReportVariable.known_variables), "No variables should be registered")
 
         # calling all_variables() triggers auto-discovery and addition of variables
         self.assertTrue(WeekdayReportVariable in ReportVariable.all_variables(), "Weekday variable should be registered")
         self.assertTrue(len(ReportVariable.known_variables) > 0, "No variables should be registered")
-
+        
+        # test adding multiple choices at once, create mocking Variable that just has the one function needed
+        ReportVariable.known_variables = {}
+        ReportVariable._register_variable(type('TestReportVariable', (ReportVariable,),
+          { 'get_choices_tuples': classmethod(lambda cls: [('v1', _('Var1')), ('v2', _('Var2'))]) }
+        ))
+        
+        self.assertTrue(len(ReportVariable.known_variables) == 2)
+        self.assertItemsEqual(['v1', 'v2'], ReportVariable.known_variables.keys())
+        
     def test_find(self):
         self.assertEqual(WeekdayReportVariable, ReportVariable.find_variable('weekday'))
-        self.assertEqual(('weekday', _('Weekday')), ReportVariable.find_variable('weekday').get_choices_tuple())
+        self.assertItemsEqual([('weekday', _('Weekday'))], ReportVariable.find_variable('weekday').get_choices_tuples())
 
         self.assertEqual(NoneReportVariable, ReportVariable.find_variable('doesntexist'))
         self.assertEqual(NoneReportVariable, ReportVariable.find_variable(None))
