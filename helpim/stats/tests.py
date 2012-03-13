@@ -252,34 +252,38 @@ class ReportTestCase(TestCase):
         self.assertEqual(2, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
         self.assertEqual(2, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
 
+
 class ReportVariableTestCase(TestCase):
     def setUp(self):
         super(ReportVariableTestCase, self).setUp()
 
-        ReportVariable.all_variables()
-
-    def test_register_variable(self):
         # clear state, might have been set by previous tests
         ReportVariable.known_variables = {}
         self.assertEqual(0, len(ReportVariable.known_variables), "No variables should be registered")
 
-        # calling all_variables() triggers auto-discovery and addition of variables
-        self.assertTrue(WeekdayReportVariable in ReportVariable.all_variables(), "Weekday variable should be registered")
-        self.assertTrue(len(ReportVariable.known_variables) > 0, "No variables should be registered")
-        
+    def test_register_variable(self):
         # test adding multiple choices at once, create mocking Variable that just has the one function needed
-        ReportVariable.known_variables = {}
         ReportVariable._register_variable(type('TestReportVariable', (ReportVariable,),
           { 'get_choices_tuples': classmethod(lambda cls: [('v1', _('Var1')), ('v2', _('Var2'))]) }
         ))
-        
+
         self.assertTrue(len(ReportVariable.known_variables) == 2)
         self.assertItemsEqual(['v1', 'v2'], ReportVariable.known_variables.keys())
-        
+
+    def test_all_variables(self):
+        # calling all_variables() triggers auto-discovery and addition of variables
+        self.assertTrue(WeekdayReportVariable in ReportVariable.all_variables(), "Weekday variable should be registered")
+        self.assertTrue(len(ReportVariable.known_variables) > 0, "There should be variables registered")
+
     def test_find(self):
+        # discover Variable classes
+        ReportVariable.all_variables()
+
+        # successful lookup
         self.assertEqual(WeekdayReportVariable, ReportVariable.find_variable('weekday'))
         self.assertItemsEqual([('weekday', _('Weekday'))], ReportVariable.find_variable('weekday').get_choices_tuples())
 
+        # fallbacks
         self.assertEqual(NoneReportVariable, ReportVariable.find_variable('doesntexist'))
         self.assertEqual(NoneReportVariable, ReportVariable.find_variable(None))
 
