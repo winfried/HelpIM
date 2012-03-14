@@ -49,14 +49,22 @@ class ReportVariable(object):
         raise NotImplementedError("Subclass should implement this method.")
 
     @classmethod
-    def extract_value(cls, obj):
+    def create_context(cls, choice_name):
+        """
+        Variable can create a context here that is later passed to extract_value() and values().
+        `choice_name` is one of the names of a choice as returned by the variable's get_choices_tuples() method.
+        """
+        return None
+    
+    @classmethod
+    def extract_value(cls, obj, context=None):
         '''
         Return the value for this variable in the context of the given object. 
         '''
         raise NotImplementedError("Subclass should implement this method.")
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         '''
         Return a list of values this variable can have.
         '''
@@ -68,14 +76,14 @@ class HourReportVariable(ReportVariable):
         return [('hour', _('Hour'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             return obj.start_time.hour
         except:
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         return range(0, 24) + [Report.OTHER_COLUMN]
 
 class WeekdayReportVariable(ReportVariable):
@@ -84,14 +92,14 @@ class WeekdayReportVariable(ReportVariable):
         return [('weekday', _('Weekday'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             return cls.values()[obj.start_time.weekday()]
         except:
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         return [_('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'), _('Sunday'), Report.OTHER_COLUMN]
 
 class MonthReportVariable(ReportVariable):
@@ -100,14 +108,14 @@ class MonthReportVariable(ReportVariable):
         return [('month', _('Month'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             return cls.values()[obj.start_time.month - 1]
         except:
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         return [_('January'), _('February'), _('March'), _('April'), _('May'), _('June'), _('July'), _('August'), _('September'), _('October'), _('November'), _('December'), Report.OTHER_COLUMN]
 
 class BranchReportVariable(ReportVariable):
@@ -116,14 +124,14 @@ class BranchReportVariable(ReportVariable):
         return [('branch', _('Branch office'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             return obj.getStaff().user.additionaluserinformation.branch_office.name
         except:
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         for office in BranchOffice.objects.values('name').distinct():
             yield office['name']
         yield Report.OTHER_COLUMN
@@ -138,7 +146,7 @@ class CareworkerReportVariable(ReportVariable):
         return [('careworker', _('Careworker'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             careworker = obj.getStaff().user
 
@@ -151,7 +159,7 @@ class CareworkerReportVariable(ReportVariable):
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         for careworker in User.objects.filter(groups__name='careworkers').all():
             yield careworker.username
         yield Report.OTHER_COLUMN
@@ -162,7 +170,7 @@ class DurationReportVariable(ReportVariable):
         return [('duration', _('Duration of chat'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         try:
             duration_minutes = total_seconds(obj.duration()) / 60.0
 
@@ -184,7 +192,7 @@ class DurationReportVariable(ReportVariable):
             return Report.OTHER_COLUMN
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         return [_('0-5'), _('5-10'), _('10-15'), _('15-25'), _('25-45'), _('45+'), Report.OTHER_COLUMN]
 
 class NoneReportVariable(ReportVariable):
@@ -200,11 +208,11 @@ class NoneReportVariable(ReportVariable):
         return [('none', _('None'))]
 
     @classmethod
-    def extract_value(cls, obj):
+    def extract_value(cls, obj, context=None):
         return NoneReportVariable.EMPTY
 
     @classmethod
-    def values(cls):
+    def values(cls, context=None):
         yield NoneReportVariable.EMPTY
 
 class Report(models.Model):
@@ -299,9 +307,12 @@ class Report(models.Model):
         var1 = ReportVariable.find_variable(self.variable1)
         var2 = ReportVariable.find_variable(self.variable2)
 
+        var1_context = var1.create_context(self.variable1)
+        var2_context = var2.create_context(self.variable2)
+
         # find their possible values to use in row/column headings of table 
-        var1_samples = list(var1.values())
-        var2_samples = list(var2.values())
+        var1_samples = list(var1.values(var1_context))
+        var2_samples = list(var2.values(var2_context))
 
         # how to init, update and produce result of cells depends on output mode of report
         if self.output == 'unique':
@@ -323,8 +334,8 @@ class Report(models.Model):
         for chat in self.matching_chats():
             try:
                 # find bucket to change
-                var1_value = var1.extract_value(chat)
-                var2_value = var2.extract_value(chat)
+                var1_value = var1.extract_value(chat, var1_context)
+                var2_value = var2.extract_value(chat, var2_context)
 
                 data[var1_value][var2_value] = update_cell(data[var1_value][var2_value], chat)
             except AttributeError:
