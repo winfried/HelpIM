@@ -15,6 +15,28 @@
 
 
     {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "careworkers", 
+            "permissions": []
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "common.branchoffice", 
+        "fields": {
+            "name": "Office Amsterdam"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "common.branchoffice", 
+        "fields": {
+            "name": "Office Rotterdam"
+        }
+    },
+    {
         "pk": 55, 
         "model": "auth.user", 
         "fields": {
@@ -50,28 +72,6 @@
             "branch_office": 1
         }
     },
-    {
-        "pk": 1, 
-        "model": "common.branchoffice", 
-        "fields": {
-            "name": "Office Amsterdam"
-        }
-    },
-    {
-        "pk": 2, 
-        "model": "common.branchoffice", 
-        "fields": {
-            "name": "Office Rotterdam"
-        }
-    },
-    {
-        "pk": 1, 
-        "model": "auth.group", 
-        "fields": {
-            "name": "careworkers", 
-            "permissions": []
-        }
-    }, 
     
 
 
@@ -83,6 +83,31 @@
         "fields": {
             "start_time": "2010-01-01 15:05:00", 
             "subject": "Chat"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "nobody", 
+            "ip_hash": "", 
+            "conversation": 1, 
+            "blocked_at": null, 
+            "role": "S", 
+            "user": null, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 4, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careseekerONE", 
+            "ip_hash": "aabbccddeeff", 
+            "conversation": 1, 
+            "blocked_at": null, 
+            "role": "C", 
+            "blocked": false
         }
     },
     {
@@ -107,31 +132,6 @@
     },
     {
         "pk": 1, 
-        "model": "conversations.participant", 
-        "fields": {
-            "name": "nobody", 
-            "ip_hash": "", 
-            "conversation": 1, 
-            "blocked_at": null, 
-            "role": "S", 
-            "user": 1, 
-            "blocked": false
-        }
-    },
-    {
-        "pk": 4, 
-        "model": "conversations.participant", 
-        "fields": {
-            "name": "careseekerONE", 
-            "ip_hash": "aabbccddeeff", 
-            "conversation": 1, 
-            "blocked_at": null, 
-            "role": "C", 
-            "blocked": false
-        }
-    },
-    {
-        "pk": 1, 
         "model": "conversations.chat", 
         "fields": {}
     },
@@ -143,6 +143,31 @@
         "fields": {
             "start_time": "2005-05-05 00:05:00", 
             "subject": "Chat"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careworker", 
+            "ip_hash": "", 
+            "conversation": 2, 
+            "blocked_at": null, 
+            "role": "S", 
+            "user": 55, 
+            "blocked": false
+        }
+    },
+    {
+        "pk": 5, 
+        "model": "conversations.participant", 
+        "fields": {
+            "name": "careseekerTWO", 
+            "ip_hash": "aabbccddeeff", 
+            "conversation": 2, 
+            "blocked_at": null, 
+            "role": "C",
+            "blocked": false
         }
     },
     {
@@ -167,31 +192,6 @@
     },
     {
         "pk": 2, 
-        "model": "conversations.participant", 
-        "fields": {
-            "name": "careworker", 
-            "ip_hash": "", 
-            "conversation": 2, 
-            "blocked_at": null, 
-            "role": "S", 
-            "user": 55, 
-            "blocked": false
-        }
-    },
-    {
-        "pk": 5, 
-        "model": "conversations.participant", 
-        "fields": {
-            "name": "careseekerTWO", 
-            "ip_hash": "aabbccddeeff", 
-            "conversation": 2, 
-            "blocked_at": null, 
-            "role": "C", 
-            "blocked": false
-        }
-    },
-    {
-        "pk": 2, 
         "model": "conversations.chat", 
         "fields": {}
     },
@@ -203,26 +203,6 @@
         "fields": {
             "start_time": "2011-12-31 21:05:00", 
             "subject": "Chat"
-        }
-    },
-    {
-        "pk": 5,
-        "model": "conversations.message",
-        "fields": {
-            "conversation": 3,
-            "created_at": "2011-12-31 21:05:00",
-            "sender": 3,
-            "body": "."
-        }
-    },
-    {
-        "pk": 6,
-        "model": "conversations.message",
-        "fields": {
-            "conversation": 3,
-            "created_at": "2011-12-31 23:00:00",
-            "sender": 3,
-            "body": "."
         }
     },
     {
@@ -248,6 +228,26 @@
             "blocked_at": null, 
             "role": "C", 
             "blocked": false
+        }
+    },
+    {
+        "pk": 5,
+        "model": "conversations.message",
+        "fields": {
+            "conversation": 3,
+            "created_at": "2011-12-31 21:05:00",
+            "sender": 3,
+            "body": "."
+        }
+    },
+    {
+        "pk": 6,
+        "model": "conversations.message",
+        "fields": {
+            "conversation": 3,
+            "created_at": "2011-12-31 23:00:00",
+            "sender": 3,
+            "body": "."
         }
     },
     {
