@@ -23,7 +23,7 @@ helpim.DoubleDrop.prototype.start = function() {
 		
 		/* fill second combobox with new options */
 		goog.iter.forEach(this._subListOptions[e.target.selectedIndex], function(opt) {
-			var el = goog.dom.createDom('option', {'value': opt, 'text': opt});
+			var el = goog.dom.createDom('option', {'value': opt}, goog.dom.createTextNode(opt));
 			goog.dom.appendChild(this._subList, el);
 		}, this);
 	}, false, this);

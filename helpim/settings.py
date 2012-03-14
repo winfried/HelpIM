@@ -153,6 +153,7 @@ CHAT = {
     'httpbase': '/http-bind/',
     'authtype': 'saslanon',
     'composing_timeout': 10,
+    'wait': 59,
     'debug': DEBUG,
     }
 
