@@ -18,7 +18,7 @@ class ReportVariable(object):
     @classmethod
     def all_variables(cls):
         '''
-        Returns iterator over all known variables.
+        Returns iterator over all known distinct variables.
         When this is called for the first time, will auto-register direct subclasses.
         '''
         if len(cls.known_variables) == 0:
@@ -26,7 +26,7 @@ class ReportVariable(object):
             for subcls in cls.__subclasses__():
                 cls._register_variable(subcls)
 
-        return cls.known_variables.itervalues()
+        return set(cls.known_variables.itervalues())
 
     @classmethod
     def find_variable(cls, name):
@@ -208,7 +208,7 @@ class NoneReportVariable(ReportVariable):
         yield NoneReportVariable.EMPTY
 
 class Report(models.Model):
-    VARIABLE_CHOICES = [ tup for tupList in ReportVariable.all_variables() for tup in tupList.get_choices_tuples() ]
+    VARIABLE_CHOICES = [ tup for var in ReportVariable.all_variables() for tup in var.get_choices_tuples() ]
 
     OUTPUT_CHOICES = (
         ('hits', _('Hits')),

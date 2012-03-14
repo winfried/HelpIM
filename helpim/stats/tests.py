@@ -275,6 +275,16 @@ class ReportVariableTestCase(TestCase):
         self.assertTrue(WeekdayReportVariable in ReportVariable.all_variables(), "Weekday variable should be registered")
         self.assertTrue(len(ReportVariable.known_variables) > 0, "There should be variables registered")
 
+        # all_variables() must return unique list of variables
+        ReportVariable.known_variables = {}
+        ReportVariable._register_variable(type('TestReportVariable', (ReportVariable,),
+          { 'get_choices_tuples': classmethod(lambda cls: [('v1', _('Var1')), ('v2', _('Var2'))]) }
+        ))
+
+        # TestReportVariable appears only once, although it registered 2 choices
+        self.assertEqual(2, len(ReportVariable.known_variables))
+        self.assertEqual(1, len(ReportVariable.all_variables()))
+
     def test_find(self):
         # discover Variable classes
         ReportVariable.all_variables()
