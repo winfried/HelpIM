@@ -22,10 +22,11 @@ if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.b
 
 from helpim.common.models import register_position_choices
 register_position_choices([
-  ('CR', _('Client, after Registration')),
+  ('CB', _('Client, before chat')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
   ('SC', _('Staff, on Conversation page')),
+  ('CR', _('Client, after Registration')),
   ('CX', _('Client, recurring')),
   ('SX', _('Staff, recurring')),
 ])
