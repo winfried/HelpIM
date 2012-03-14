@@ -201,7 +201,7 @@ class ConversationFormsReportVariable(ReportVariable):
     @classmethod
     def get_choices_tuples(cls):
         '''
-        Return all questions in each questionnaire that has to do with conversations app (via conversationformentry relation).
+        Return all questions in each questionnaire that has to do with conversations app (via questionnaire_conversationformentry relation).
         '''
 
         for question in Field.objects.filter(form__questionnaire__position__in=['CB', 'CA', 'SA', 'SC']).values('pk', 'label', 'form__title').order_by("form__id"):
@@ -316,7 +316,7 @@ class Report(models.Model):
 
     def matching_chats(self):
         '''
-        Returns a QuerySet for Chat objects that match the following criteria as specified in this Report:
+        Returns an iterator for Chat objects that match the following criteria as specified in this Report:
           - `period_start`
           - `period_end`
           - `branch`
@@ -336,7 +336,27 @@ class Report(models.Model):
         if not self.careworker is None:
             chat_query = chat_query.filter(participant__user=self.careworker, participant__role=Participant.ROLE_STAFF)
 
-        return chat_query
+        # only return chats that match checkbox-filters
+        for chat in chat_query.all():
+            if self.apply_filters(chat):
+                yield chat
+
+    def apply_filters(self, chat):
+        '''
+        Only returns True if `chat` fulfills all checkbox filters and should be regarded in calculation.
+        '''
+
+        clientParticipant = chat.getClient()
+        staffParticipant = chat.getStaff()
+
+        if self.filter_blocked and (not clientParticipant is None and clientParticipant.blocked):
+            return False
+        if self.filter_assigned and (staffParticipant is None or clientParticipant is None):
+            return False
+        if self.filter_interactive and not chat.hasInteraction():
+            return False
+
+        return True
 
     def generate(self):
         '''

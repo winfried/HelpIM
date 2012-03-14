@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.auth.models import ContentType, Permission, User
 from django.core.urlresolvers import resolve, Resolver404, reverse
@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
-from helpim.conversations.models import Chat
+from helpim.conversations.models import Chat, ChatMessage
 from helpim.stats.models import BranchReportVariable, CareworkerReportVariable, ConversationFormsReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
 
 
@@ -135,6 +135,59 @@ class ReportTestCase(TestCase):
         r.careworker = User.objects.get(pk=22)
         chats = r.matching_chats()
         self.assertItemsEqual(Chat.objects.filter(id__in=[3]), chats)
+
+    def test_apply_filters(self):
+        r = Report.objects.get(pk=1)
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        # r doesnt have any filters set
+        self.assertEqual(True, r.apply_filters(c1))
+        self.assertEqual(True, r.apply_filters(c2))
+        self.assertEqual(True, r.apply_filters(c3))
+
+    def test_filter_blocked(self):
+        r = Report.objects.get(pk=1)
+        c1 = Chat.objects.get(pk=1)
+
+        # set filtering
+        r.filter_blocked = True
+        self.assertEqual(True, r.apply_filters(c1))
+
+        # block client
+        p = c1.getClient()
+        p.blocked = True
+        p.save()
+        self.assertEqual(False, r.apply_filters(c1))
+
+    def test_filter_assigned(self):
+        r = Report.objects.get(pk=1)
+        c1 = Chat.objects.get(pk=1)
+
+        # set filtering
+        r.filter_assigned = True
+        self.assertEqual(True, r.apply_filters(c1))
+
+        # make c1 un-assigned
+        c1.getStaff().delete()
+        self.assertEqual(False, r.apply_filters(c1))
+
+        c1.getClient().delete()
+        self.assertEqual(False, r.apply_filters(c1))
+
+    def test_filter_interactive(self):
+        r = Report.objects.get(pk=1)
+        c1 = Chat.objects.get(pk=1)
+
+        # set filtering
+        r.filter_interactive = True
+        self.assertEqual(False, r.apply_filters(c1))
+
+        # make c1 interactive by adding message from both participants
+        ChatMessage(conversation=c1, sender=c1.getClient(), sender_name=c1.getClient().name, created_at=datetime.now(), body="?").save()
+        ChatMessage(conversation=c1, sender=c1.getStaff(), sender_name=c1.getStaff().name, created_at=datetime.now(), body="!").save()
+        self.assertEqual(True, r.apply_filters(c1))
 
     def test_generate_2variables(self):
         r = Report.objects.get(pk=1)
