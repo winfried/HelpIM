@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from forms_builder.forms.models import Field, FieldEntry
+
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, Participant
 from helpim.utils import total_seconds
@@ -194,6 +196,44 @@ class DurationReportVariable(ReportVariable):
     @classmethod
     def values(cls, context=None):
         return [_('0-5'), _('5-10'), _('10-15'), _('15-25'), _('25-45'), _('45+'), Report.OTHER_COLUMN]
+
+class ConversationFormsReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuples(cls):
+        '''
+        Return all questions in each questionnaire that has to do with conversations app (via conversationformentry relation).
+        '''
+
+        for question in Field.objects.filter(form__questionnaire__position__in=['CB', 'CA', 'SA', 'SC']).values('pk', 'label', 'form__title').order_by("form__id"):
+            yield ('questionnaire-field-%s' % (question['pk']), _('Question: %(question)s on: %(form)s') % { 'form': question['form__title'], 'question': question['label'] })
+
+    @classmethod
+    def create_context(cls, choice_name):
+        '''
+        returns the pk of the Field which this variable will analyze
+        '''
+        return int(choice_name.split('-')[2])
+
+    @classmethod
+    def extract_value(cls, obj, context=None):
+        try:
+            # for the current conversation, find the questionnaire that was sent with it that has an answer to the chosen question. retun this answer
+            # "give me the answer to question `context` in questionnaire related to conversation `obj`?"
+            return FieldEntry.objects.filter(field_id=context).filter(entry__conversationformentry__conversation=obj).values("value")[0]['value']
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls, context=None):
+        '''
+        Return all given answeres to selected question
+        '''
+
+        # iterate all answers to selected question
+        for answer in FieldEntry.objects.filter(field_id=context).values("value").distinct().order_by("value"):
+            yield answer['value']
+
+        yield Report.OTHER_COLUMN
 
 class NoneReportVariable(ReportVariable):
     '''
