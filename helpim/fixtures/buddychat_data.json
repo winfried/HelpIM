@@ -1,0 +1,100 @@
+[
+    {
+        "pk": 2, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "coordinators", 
+            "permissions": [
+                 [
+                    "add_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "change_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "delete_user", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "add_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "change_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "delete_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "view_conversations_of_own_branch_office", 
+                    "common", 
+                    "branchoffice"
+                ], 
+                [
+                    "change_chat", 
+                    "conversations", 
+                    "chat"
+                ], 
+                [
+                    "change_chatmessage", 
+                    "conversations", 
+                    "chatmessage"
+                ], 
+                [
+                    "change_conversation", 
+                    "conversations", 
+                    "conversation"
+                ], 
+                [
+                    "change_message", 
+                    "conversations", 
+                    "message"
+                ], 
+                [
+                    "change_flatpage", 
+                    "flatpages", 
+                    "flatpage"
+                ],
+                [ 
+                    "change_buddychatprofile",
+                    "buddychat",
+                    "buddychatprofile"
+                ],
+                [
+                    "is_coordinator",
+                    "buddychat",
+                    "buddychatprofile"
+                ]
+            ]
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.group",
+        "fields": {
+            "name": "careworkers",
+            "permissions": [
+                [
+                    "change_conversation",
+                    "conversations",
+                    "conversation"
+                ],
+                [
+                    "is_careworker",
+                    "buddychat",
+                    "buddychatprofile"
+                ]
+            ]
+        }
+    }
+]
