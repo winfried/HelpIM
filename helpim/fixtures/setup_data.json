@@ -160,16 +160,6 @@
                     "change_flatpage", 
                     "flatpages", 
                     "flatpage"
-                ],
-                [
-                    "change_buddychatprofile",
-                    "buddychat",
-                    "buddychatprofile"
-                ],
-                [
-                    "is_coordinator",
-                    "buddychat",
-                    "buddychatprofile"
                 ]
             ]
         }
@@ -184,11 +174,6 @@
                     "change_conversation",
                     "conversations",
                     "conversation"
-                ],
-                [
-                    "is_careworker",
-                    "buddychat",
-                    "buddychatprofile"
                 ]
             ]
         }
