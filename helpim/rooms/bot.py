@@ -26,6 +26,87 @@ from helpim.questionnaire.models import Questionnaire, ConversationFormEntry
 
 NS_HELPIM_ROOMS = "http://helpim.org/protocol/rooms"
 
+logger = logging.getLogger(__name__)
+def log_form(form):
+    logger.debug("MUC-room configuration form ==BEGIN==")
+    for field in form:
+        logger.debug("  Field '%s':" % field.name)
+        logger.debug("    Label = %s" % field.label)
+        logger.debug("    Description = %s" % field.desc)
+        logger.debug("    Type = %s" % field.type)
+        logger.debug("    Required = %s" % field.required)
+        logger.debug("    Value = %s" % field.value)
+        logger.debug("    Options:")
+        for option in field.options:
+            logger.debug("      Label = %s" % option.label)
+            logger.debug("      Values = %s" % option.values)
+        logger.debug("    Values = %s" % field.values)
+    logger.debug("MUC-room confugration form ==END==")
+
+def log_stanza(stanza):
+    stanzaType = stanza.get_stanza_type()
+    objectType = None
+    if isinstance(stanza, MucPresence):
+        objectType = "MucPresence"
+    elif isinstance(stanza, Presence):
+        objectType = "Presence"
+    elif isinstance(stanza, Message):
+        objectType = "Message"
+    logger.debug("Stanza log ==BEGIN==")
+    logger.debug("  Stanza type = %s" % stanzaType)
+    logger.debug("  XMPP object type = %s" % objectType)
+    logger.debug("  From = %s" % stanza.get_from().as_unicode())
+    logger.debug("  To   = %s" % stanza.get_from().as_unicode())
+    if objectType == "Message":
+        logger.debug("  Subject = %s" % stanza.get_subject())
+        logger.debug("  Body = %s" % stanza.get_body())
+    elif objectType == "Presence" or objectType == "MucPresence":
+        logger.debug("  Priority = %s" % stanza.get_priority())
+        logger.debug("  Status = %s" % stanza.get_status())
+        logger.debug("  Show = %s" % stanza.get_show())
+    elif objectType == "MucPresence":
+        joininfo = stanza.get_join_info()
+        logger.debug("  Password = %s" % joininfo.get_password())
+        logger.debug("  History = %s" % joininfo.get_history())
+        mucchild = stanza.get_muc_child()
+        logger.debug("MUC child = %s" % mucchild)
+    logger.debug("Stanza log ==END==")
+
+def str2roomjid(jidstr):
+    tmp = jidstr.split('@')
+    node = tmp[0]
+    domain = tmp[1].split('/')[0]
+    roomjid = JID(node, domain)
+    return roomjid
+
+"""Utility function for using cryptografic Hashes in HelpIM"""
+hash_initdone = False
+def newHash():
+    """Creates an unpredictable hash.
+       Returns an 64 character long string, containing an
+       hexadecimal encoded hash.
+       Usage: hash = newHash()
+    """
+    import random
+    from hashlib import sha256
+    global hash_initdone
+    if not hash_initdone:
+        random.seed()
+        hash_initdone = True
+    string = str(datetime.now()) + str(random.random())
+    hash = sha256(string).hexdigest()
+    return hash
+
+def get_questionnaire_entry_id(stanza):
+    try:
+        entry_id = stanza.xpath_eval('d:query/d:questionnaire',
+                                     {'d': NS_HELPIM_ROOMS})[0]
+        entry_id = entry_id.getContent()
+        logger.debug("got entry id: %s" % entry_id)
+        return entry_id
+    except IndexError:
+        logger.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
+
 class RoomHandlerBase(MucRoomHandler):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
         MucRoomHandler.__init__(self)
@@ -52,12 +133,12 @@ class RoomHandlerBase(MucRoomHandler):
             self.rejoinCount = None
 
     def affiliation_changed(self, user, old_aff, new_aff, stanza):
-        log.debug("Callback: affiliation_changed(%s, %s, %s, %s)" % (user, old_aff, new_aff, stanza))
+        logger.debug("Callback: affiliation_changed(%s, %s, %s, %s)" % (user, old_aff, new_aff, stanza))
         return True
 
     def configuration_form_received(self, form):
-        log.debug("MUC-Room callback: configuration_form_received(%s)" % (form))
-        log.debug("Configuring MUC-room '%s'" % self.room_state.room_jid.as_unicode())
+        logger.debug("MUC-Room callback: configuration_form_received(%s)" % (form))
+        logger.debug("Configuring MUC-room '%s'" % self.room_state.room_jid.as_unicode())
 
         # prosody as of 0.8.2 misses a field in its configuration - we
         # check for it manually to fix this client side
@@ -73,7 +154,7 @@ class RoomHandlerBase(MucRoomHandler):
                 field.value = 1
             elif field.name == u'muc#roomconfig_roomsecret':
                 field.value = self.password
-                log.debug("Setting MUC-room password to: '%s'" % self.password)
+                logger.debug("Setting MUC-room password to: '%s'" % self.password)
             elif field.name == u'muc#roomconfig_roomname':
                 field.value = u'HelpIM'  # FIXME: Make this the name of the site the room belongs to?
             elif field.name == u'muc#roomconfig_persistentroom':
@@ -89,15 +170,15 @@ class RoomHandlerBase(MucRoomHandler):
                     try:
                         value = int(option.values[0])
                     except ValueError:
-                        log.warning("Form option for 'muc#roomconfig_maxusers' does not convert to int?")
-                        log.warning("Option values received from server were: %s" % option.values)
+                        logger.warning("Form option for 'muc#roomconfig_maxusers' does not convert to int?")
+                        logger.warning("Option values received from server were: %s" % option.values)
                     if value >= self.maxusers and value < maxusers:
                         maxusers = value
                 if maxusers == 0:
-                    log.warning("Could not configure 'muc#roomconfig_maxusers'. No usable option found in form")
-                    log.warning("Continuing with this option at default value, which is: %s" % field.value)
+                    logger.warning("Could not configure 'muc#roomconfig_maxusers'. No usable option found in form")
+                    logger.warning("Continuing with this option at default value, which is: %s" % field.value)
                 else:
-                    log.debug("Setting maxuser to %d." % maxusers)
+                    logger.debug("Setting maxuser to %d." % maxusers)
                     field.value = unicode(maxusers)
             elif field.name == u'muc#roomconfig_whois':
                 for option in field.options:
@@ -105,8 +186,8 @@ class RoomHandlerBase(MucRoomHandler):
                         field.value = unicode(self.mucconf["whoisaccess"])
                         break
                 else:
-                    log.warning("Configuration setting 'whoisaccess=\"%s\"' not valid according to form received from server" % self.mucconf["whoisaccess"])
-                    log.warning("Continuing with this option at default value, which is: %s" % field.value)
+                    logger.warning("Configuration setting 'whoisaccess=\"%s\"' not valid according to form received from server" % self.mucconf["whoisaccess"])
+                    logger.warning("Continuing with this option at default value, which is: %s" % field.value)
             elif field.name == u'muc#roomconfig_membersonly':
                 field.value = False
             elif field.name == u'muc#roomconfig_moderatedroom':
@@ -128,7 +209,7 @@ class RoomHandlerBase(MucRoomHandler):
             form.add_field(name=u'muc#roomconfig_passwordprotectedroom',
                            value=True)
 
-        log.form(form)
+        log_form(form)
         form = form.make_submit(True)
         self.room_state.configure_room(form)
         return True
@@ -140,47 +221,33 @@ class RoomHandlerBase(MucRoomHandler):
         stanzaclass = stanza.__class__.__name__
         errortype = str(errnode.get_type().lower())
         errormsg = errnode.get_message()
-        log.debug("XMPP error type: '%s'.  PyXMPP error class: '%s'.  Message: '%s'." % (errortype, stanzaclass, errormsg))
+        logger.debug("XMPP error type: '%s'.  PyXMPP error class: '%s'.  Message: '%s'." % (errortype, stanzaclass, errormsg))
         return True
 
     def nick_change(self, user, new_nick, stanza):
-        #DBG log.debug("MUC-Room callback: nick_change(%s, %s, %s)" % (user, new_nick, stanza))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
-        log.debug("New nick = %s" % new_nick)
+        logger.debug("New nick = %s" % new_nick)
         return True
 
     def nick_changed(self, user, old_nick, stanza):
-        #DBG log.debug("MUC-Room callback: nick_changed(%s, %s, %s)" % (user, old_nick, stanza))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
-        log.debug("New nick = %s" % old_nick)
+        logger.debug("New nick = %s" % old_nick)
         return True
 
     def presence_changed(self, user, stanza):
-        #DBG log.debug("MUC-Room callback: presence_changed(%s, %s)" % (user, stanza))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
         return False
 
     def role_changed(self, user, old_role, new_role, stanza):
-        #DBG log.debug("Role changed: Old role = %s.  New role = %s" % (old_role, new_role))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
         return True
 
     def room_configuration_error(self, stanza):
-        log.error("MUC-Room callback: room_configuration_error(%s)" % (stanza))
+        logger.error("MUC-Room callback: room_configuration_error(%s)" % (stanza))
         return True
 
     def room_created(self, stanza):
-        log.debug("MUC-Room '%s' created" % self.room_state.room_jid.as_unicode())
+        logger.debug("MUC-Room '%s' created" % self.room_state.room_jid.as_unicode())
         return True
 
     def subject_changed(self, user, stanza):
-        log.debug("MUC-Room callback: subject_changed(%s, %s)" % (user, stanza))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
+        logger.debug("MUC-Room callback: subject_changed(%s, %s)" % (user, stanza))
         room = self.get_helpim_room()
         if not room is None and not room.chat is None:
             chat = room.chat
@@ -221,10 +288,10 @@ class RoomHandlerBase(MucRoomHandler):
         self.client.stream.send(iq)
 
     def __questionnaire_result(self, stanza):
-        log.stanza(stanza)
+        log_stanza(stanza)
 
     def __questionnaire_error(self, stanza):
-        log.stanza(stanza)
+        log_stanza(stanza)
 
 class One2OneRoomHandler(RoomHandlerBase):
 
@@ -236,7 +303,7 @@ class One2OneRoomHandler(RoomHandlerBase):
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         self.site.rooms.newRoom(jidstr, self.password)
-        log.debug("MUC-Room '%s' created and configured successfully" % jidstr)
+        logger.debug("MUC-Room '%s' created and configured successfully" % jidstr)
         return True
 
     def message_received(self, user, stanza):
@@ -259,13 +326,13 @@ class One2OneRoomHandler(RoomHandlerBase):
 
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
-            log.info("user joined with self nick '%s'" % user.nick)
+            logger.info("user joined with self nick '%s'" % user.nick)
             return True
 
         room = self.get_helpim_room()
 
         if room is None:
-            log.info("get_helpim_room returned None")
+            logger.info("get_helpim_room returned None")
             return
 
         # log event when careseeker has joined
@@ -274,13 +341,13 @@ class One2OneRoomHandler(RoomHandlerBase):
             EventLog(type='helpim.rooms.one2one.client_joined', session=accessToken.token, payload=room.chat.pk).save()
 
         status = room.getStatus()
-        log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
+        logger.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + room.getStatus())
 
         if status == 'available':
             room.staffJoined(user)
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender=room.staff, sender_name=user.nick)
             self.todo.append((self.fillMucRoomPool, self.site))
-            log.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
+            logger.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
 
             """ send invite to a client """
@@ -290,7 +357,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 waitingRoom = WaitingRoom.objects.filter(status='chatting').filter(lobbyroom=token.room)[0]
                 self.todo.append((self.inviteClients, waitingRoom))
             except IndexError:
-                log.warning("no waiting room found for lobby with jid %s" % token.room.jid)
+                logger.warning("no waiting room found for lobby with jid %s" % token.room.jid)
                 # wheee
                 pass
 
@@ -298,7 +365,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             room.staffJoined(user)
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.staff)
             self.todo.append((self.fillMucRoomPool, self.site))
-            log.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+            logger.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             self.rejoinCount = None
         elif status == 'staffWaiting':
             if self.rejoinCount is None:
@@ -307,21 +374,21 @@ class One2OneRoomHandler(RoomHandlerBase):
                 if not formEntry is None:
                     # tell staff about
                     self.send_private_message(room.staff_nick, _("%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/") % {'nick':user.nick, 'domain':self.mucconf.http_domain, 'id':formEntry.pk})
-                log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
+                logger.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
                 self.rejoinCount = None
                 chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                log.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+                logger.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'staffWaitingForInvitee':
             if self.rejoinCount is None:
                 room.clientJoined(user)
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                log.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+                logger.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
             else:
                 # hmmm... this should happen, doesn't it?
                 self.rejoinCount = None
                 chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                log.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+                logger.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'chatting':
 
             chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick)
@@ -334,11 +401,11 @@ class One2OneRoomHandler(RoomHandlerBase):
                 self.rejoinCount += 1
                 if self.rejoinCount == 2:
                     self.rejoinCount = None
-                    log.info("The second user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+                    logger.info("The second user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
         else:
             if self.rejoinCount is not None:
-                log.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
-                log.error("Kicking user: Nick = '%s'" % user.nick)
+                logger.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
+                logger.error("Kicking user: Nick = '%s'" % user.nick)
                 self.kick(self.room_state.room_jid.bare(), user.nick)
                 self.userkicked = user.nick
             return False
@@ -353,7 +420,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         roomname = self.room_state.room_jid.as_unicode()
         if self.userkicked == user.nick or self.closingDown:
             self.userkicked = ''
-            log.notice("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
+            logger.warning("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
             return False
         room = self.get_helpim_room()
         roomstatus = room.getStatus()
@@ -374,28 +441,28 @@ class One2OneRoomHandler(RoomHandlerBase):
             return False
         if roomstatus == 'staffWaiting':
             if cleanexit:
-                log.notice("Staffmember waiting for chat has left room '%s' (clean exit)." % roomname)
+                logger.warning("Staffmember waiting for chat has left room '%s' (clean exit)." % roomname)
                 room.userLeftClean()
             else:
-                log.notice("Staffmember waiting for chat has disappeared from room '%s' (un-clean exit)." % roomname)
+                logger.warning("Staffmember waiting for chat has disappeared from room '%s' (un-clean exit)." % roomname)
                 room.userLeftDirty()
         elif roomstatus == 'staffWaitingForInvitee':
             if cleanexit:
-                log.notice("Staffmember waiting for invitation chat has left room '%s' (clean exit)." % roomname)
+                logger.warning("Staffmember waiting for invitation chat has left room '%s' (clean exit)." % roomname)
                 room.userLeftClean()
             else:
-                log.notice("Staffmember waiting for invitation chat has disappeared from room '%s' (un-clean exit)." % roomname)
+                logger.warning("Staffmember waiting for invitation chat has disappeared from room '%s' (un-clean exit)." % roomname)
                 room.userLeftDirty()
 
         elif roomstatus == 'chatting':
             if cleanexit:
                 room.userLeftClean()
-                log.info("A user left room '%s' (clean exit)." % self.room_state.room_jid.as_unicode())
+                logger.info("A user left room '%s' (clean exit)." % self.room_state.room_jid.as_unicode())
                 chatmessage = ChatMessage(event='ended', conversation=room.chat, sender_name=user.nick)
             else:
                 room.userLeftDirty()
                 chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
-                log.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
+                logger.info("A user left room '%s' (un-clean exit)." % self.room_state.room_jid.as_unicode())
 
             if user.nick == room.client_nick:
                 chatmessage.sender = room.staff
@@ -404,16 +471,16 @@ class One2OneRoomHandler(RoomHandlerBase):
 
             chatmessage.save()
 
-            log.info("User was: Nick = '%s'." % user.nick)
+            logger.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'closingChat':
             if cleanexit:
                 room.userLeftClean()
                 chatmessage = ChatMessage(event='ended', conversation=room.chat, sender_name=user.nick)
-                log.info("A user left room '%s' while the other user already left clean before (clean exit)." % self.room_state.room_jid.as_unicode())
+                logger.info("A user left room '%s' while the other user already left clean before (clean exit)." % self.room_state.room_jid.as_unicode())
             else:
                 room.userLeftDirty()
                 chatmessage = ChatMessage(event='left', conversation=room.chat, sender_name=user.nick)
-                log.info("A user left room '%s' while the other user already left clean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
+                logger.info("A user left room '%s' while the other user already left clean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
 
             if user.nick == room.client_nick:
                 chatmessage.sender = room.staff
@@ -422,18 +489,18 @@ class One2OneRoomHandler(RoomHandlerBase):
 
             chatmessage.save()
 
-            log.info("User was: Nick = '%s'." % user.nick)
+            logger.info("User was: Nick = '%s'." % user.nick)
         elif roomstatus == 'lost':
             if cleanexit:
                 room.userLeftClean()
-                log.info("A user left room '%s' while the other user already left unclean before (clean exit)." % self.room_state.room_jid.as_unicode())
+                logger.info("A user left room '%s' while the other user already left unclean before (clean exit)." % self.room_state.room_jid.as_unicode())
             else:
                 room.userLeftDirty()
-                log.info("A user left room '%s' while the other user already left unclean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
-            log.info("User was: Nick = '%s'." % user.nick)
+                logger.info("A user left room '%s' while the other user already left unclean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
+            logger.info("User was: Nick = '%s'." % user.nick)
         else:
-            log.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
-            log.info("User was: Nick = '%s'." % user.nick)
+            logger.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
+            logger.info("User was: Nick = '%s'." % user.nick)
 
         # request questionnaire from participant
 
@@ -474,7 +541,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         try:
             return self.site.rooms.getByJid(jidstr)
         except One2OneRoom.DoesNotExist:
-            log.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find room '%s' in database." % jidstr)
             return None
 
     def __questionnaire_result_for_staff(self, stanza):
@@ -487,7 +554,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         try:
             room = self.get_helpim_room()
             if room is None:
-                log.warning("get_helpim_room couldn't find a room")
+                logger.warning("get_helpim_room couldn't find a room")
                 return
             # For now we assume that the questionnaire hasn't changed
             # in between sending and receiving it. The correct
@@ -507,7 +574,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 position = position)
 
         except FormEntry.DoesNotExist:
-            log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
+            logger.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
 class SimpleRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -520,13 +587,13 @@ class SimpleRoomHandler(RoomHandlerBase):
         try:
             return self.site.simpleRooms.getByJid(jidstr)
         except One2OneRoom.DoesNotExist:
-            log.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find room '%s' in database." % jidstr)
             return None
 
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         self.site.simpleRooms.newRoom(jidstr, self.password)
-        log.debug("MUC-Room for simpleRoom '%s' created and configured successfully" % jidstr)
+        logger.debug("MUC-Room for simpleRoom '%s' created and configured successfully" % jidstr)
         return True
 
     def message_received(self, user, stanza):
@@ -549,17 +616,17 @@ class SimpleRoomHandler(RoomHandlerBase):
 
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
-            log.info("user joined with self nick '%s'" % user.nick)
+            logger.info("user joined with self nick '%s'" % user.nick)
             return True
 
         room = self.get_helpim_room()
 
         if room is None:
-            log.info("get_helpim_room returned None")
+            logger.info("get_helpim_room returned None")
             return
 
         status = room.getStatus()
-        log.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + status)
+        logger.info("user with nick " + user.nick + " joined room " + room.jid + " with status: " + status)
         if status == 'available':
             self.todo.append((self.fillMucRoomPool, self.site))
 
@@ -576,7 +643,7 @@ class SimpleRoomHandler(RoomHandlerBase):
         roomname = self.room_state.room_jid.as_unicode()
         if self.userkicked == user.nick or self.closingDown:
             self.userkicked = ''
-            log.notice("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
+            logger.warning("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
             return False
         room = self.get_helpim_room()
 
@@ -598,7 +665,7 @@ class GroupRoomHandler(RoomHandlerBase):
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         self.site.groupRooms.newRoom(jidstr, self.password)
-        log.debug("MUC-Room for groupchat '%s' created and configured successfully" % jidstr)
+        logger.debug("MUC-Room for groupchat '%s' created and configured successfully" % jidstr)
         return True
 
     def message_received(self, user, stanza):
@@ -611,7 +678,7 @@ class GroupRoomHandler(RoomHandlerBase):
             chatmessage = ChatMessage(event='message', conversation=room.chat, body=stanza.get_body(), sender_name=user.nick)
             chatmessage.save()
 
-        log.debug("MUC-Room for groupchat callback: message_received(). User = '%s'" % (user))
+        logger.debug("MUC-Room for groupchat callback: message_received(). User = '%s'" % (user))
 
         return True
 
@@ -621,7 +688,7 @@ class GroupRoomHandler(RoomHandlerBase):
         try:
             return self.site.groupRooms.getByJid(jidstr)
         except GroupRoom.DoesNotExist:
-            log.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find room '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -631,27 +698,27 @@ class GroupRoomHandler(RoomHandlerBase):
         if room is None:
             return
         status = room.getStatus()
-        log.debug("user with nick " + user.nick + " joined group room " + room.jid + " with status: " + status)
+        logger.debug("user with nick " + user.nick + " joined group room " + room.jid + " with status: " + status)
         if status == "available":
             room.setStatus("chatting")
-            log.info("User '%s' joined as first user group room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
+            logger.info("User '%s' joined as first user group room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
         elif status == "abandoned":
             room.setStatus("chatting")
-            log.info("User '%s' joined abandoned group room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
+            logger.info("User '%s' joined abandoned group room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
         elif status == "chatting":
-            log.info("User '%s' joined room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
+            logger.info("User '%s' joined room '%s' for chat_id '%s'." % (user.nick, room.jid, room.chat_id))
         else:
-            log.warning("User '%s' joined room '%s' while not expected (roomstatus == %s)." % (user.nick, room.jid, status))
+            logger.warning("User '%s' joined room '%s' while not expected (roomstatus == %s)." % (user.nick, room.jid, status))
             return False
 
         groupMember = Participant.objects.get(room=room, name=user.nick)
 
         if groupMember.role == Participant.ROLE_STAFF:
             if not self.room_state.configured:
-                log.warning("Should make participant moderator, but room is not configured. (Room: '%s')" % room.jid)
+                logger.warning("Should make participant moderator, but room is not configured. (Room: '%s')" % room.jid)
             if not self.room_state.me.affiliation=="admin" and not  self.room_state.me.affiliation=="owner":
-                log.warning("Should make participant moderator, but bot is not admin. (Bot affiliation: '%s', Room: '%s')" % (self.room_state.me.affiliation, room.jid))
-            log.info("Making user moderator: Nick = '%s'" % user.nick)
+                logger.warning("Should make participant moderator, but bot is not admin. (Bot affiliation: '%s', Room: '%s')" % (self.room_state.me.affiliation, room.jid))
+            logger.info("Making user moderator: Nick = '%s'" % user.nick)
             self.makeModerator(self.room_state.room_jid.bare(), user.nick)
 
         return False
@@ -665,7 +732,7 @@ class GroupRoomHandler(RoomHandlerBase):
 
         if self.userkicked == user.nick or self.closingDown:
             self.userkicked = ''
-            log.notice("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
+            logger.warning("Kicked user '%s' has left room '%s'." % (user.nick, roomname))
             return False
 
         status = room.getStatus()
@@ -692,26 +759,23 @@ class GroupRoomHandler(RoomHandlerBase):
         else:
             cleanexit = False
 
-        log.debug("user with nick " + user.nick + " left group room " + room.jid + " with status: " + status)
+        logger.debug("user with nick " + user.nick + " left group room " + room.jid + " with status: " + status)
         if status == "chatting":
             if nUsers == 1:
                 if cleanexit:
-                    log.info("Last user '%s' left group room '%s' (clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
+                    logger.info("Last user '%s' left group room '%s' (clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
                     room.lastUserLeftClean()
                 else:
-                    log.info("Last user '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
+                    logger.info("Last user '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
                     room.lastUserLeftDirty()
             else:
                 if cleanexit:
-                    log.info("User '%s' left group room '%s' (clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
+                    logger.info("User '%s' left group room '%s' (clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
                 else:
-                    log.info("User '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
+                    logger.info("User '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
         else:
-            log.warning("User '%s' left  room '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
-            log.info("User was: Nick = '%s'." % user.nick)
-        #DBG log.debug("MUC-Room callback: user_joined(). User = '%s'" % (user))
-        #DBG log.stanza(stanza)
-        #DBG log.user(user)
+            logger.warning("User '%s' left  room '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
+            logger.info("User was: Nick = '%s'." % user.nick)
         return False
 
 class LobbyRoomHandler(RoomHandlerBase):
@@ -723,7 +787,7 @@ class LobbyRoomHandler(RoomHandlerBase):
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         self.site.lobbyRooms.newRoom(jidstr, self.password)
-        log.debug("MUC-Room for lobby '%s' created and configured successfully" % jidstr)
+        logger.debug("MUC-Room for lobby '%s' created and configured successfully" % jidstr)
         return True
 
     def get_helpim_room(self):
@@ -732,7 +796,7 @@ class LobbyRoomHandler(RoomHandlerBase):
         try:
             return self.site.lobbyRooms.getByJid(jidstr)
         except LobbyRoom.DoesNotExist:
-            log.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find room '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -777,7 +841,7 @@ class WaitingRoomHandler(RoomHandlerBase):
     def room_configured(self):
         jidstr = self.room_state.room_jid.bare().as_unicode()
         self.site.waitingRooms.newRoom(jidstr, self.password)
-        log.debug("MUC-Room for waiting room '%s' created and configured successfully" % jidstr)
+        logger.debug("MUC-Room for waiting room '%s' created and configured successfully" % jidstr)
         return True
 
     def get_helpim_room(self):
@@ -786,7 +850,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         try:
             return self.site.waitingRooms.getByJid(jidstr)
         except WaitingRoom.DoesNotExist:
-            log.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find room '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -836,14 +900,14 @@ class WaitingRoomHandler(RoomHandlerBase):
         self.todo.append((self.fillMucRoomPool, self.site))
 
     def user_left(self, user, stanza):
-        log.debug("user left waiting room: %s" % user.nick)
+        logger.debug("user left waiting room: %s" % user.nick)
 
         try:
             accessToken = AccessToken.objects.get(jid=user.real_jid)
             EventLog(type='helpim.rooms.waitingroom.left', session=accessToken.token).save()
         except AccessToken.DoesNotExist:
             """ this shouldn't happen """
-            log.warning("got no access token for user with jid %s" % user.real_jid)
+            logger.warning("got no access token for user with jid %s" % user.real_jid)
 
         if user.nick == self.nick:
             return True
@@ -855,7 +919,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         room.removeClient(user)
 
         for client in room.getWaitingClients():
-            log.debug("sending update to %s" % client.nick)
+            logger.debug("sending update to %s" % client.nick)
             self.send_queue_update(client.nick, room.getWaitingPos(client))
 
         if self.userCount > 0:
@@ -873,7 +937,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             room.setStatus('toDestroy')
 
     def __questionnaire_result(self, stanza):
-        log.stanza(stanza)
+        log_stanza(stanza)
 
         room = self.get_helpim_room()
         if room is None:
@@ -899,7 +963,7 @@ class WaitingRoomHandler(RoomHandlerBase):
             conversationFormEntry.entry_at = datetime.now()
             conversationFormEntry.save()
         except FormEntry.DoesNotExist:
-            log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
+            logger.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
         token.save()
         self.todo.append((self.inviteClients, room))
@@ -921,65 +985,50 @@ class Bot(JabberClient):
         self.port = int(c.port)
         self.sites = getSites()
 
-        global log
-        log = Log()
-        error = log.set_Destination(conf.logging.destination)
-        if error:
-            raise LogError(error)
-        error = log.set_Level(conf.logging.level)
-        if error:
-            raise LogError(error)
-        error = log.set_Level(conf.logging.level_pyxmpp, 'pyxmpp')
-        if error:
-            raise LogError(error)
-        global logger
-        logger = log
-
-
     def roomCleanup(self):
         for name, site in self.sites.iteritems():
             # One2OneRooms
             for room in site.rooms.getToDestroy():
-                log.info("Closing room %s which was not used anymore." % room.jid)
+                logger.info("Closing room %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for status in 'lost', 'closingChat', 'abandoned':
                 for room in site.rooms.getTimedOut(status, int(self.conf.mainloop.cleanup)):
-                    log.notice("Closing room %s which has timed out in '%s' status." % (room.jid, status))
+                    logger.warning("Closing room %s which has timed out in '%s' status." % (room.jid, status))
                     self.closeRoom(room)
             for room in site.rooms.getHangingStaffStart(int(self.conf.mainloop.cleanup)):
-                log.notice("Closing room %s which is has timed out while waiting for staff to enter room" % (room.jid))
+                logger.warning("Closing room %s which is has timed out while waiting for staff to enter room" % (room.jid))
                 self.closeRoom(room)
             site.rooms.deleteClosed()
             # GroupRooms
             for room in site.groupRooms.getToDestroy():
-                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                logger.info("Closing groupRoom %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for room in site.groupRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
-                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                logger.warning("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.groupRooms.deleteClosed()
             # LobbyRooms
             for room in site.lobbyRooms.getToDestroy():
-                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                logger.info("Closing groupRoom %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for room in site.lobbyRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
-                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                logger.warning("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.lobbyRooms.deleteClosed()
             # LobbyRooms
             for room in site.waitingRooms.getToDestroy():
-                log.info("Closing groupRoom %s which was not used anymore." % room.jid)
+                logger.info("Closing groupRoom %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for room in site.waitingRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
-                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
+                logger.warning("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.waitingRooms.deleteClosed()
             # SimpleRooms
             for room in site.simpleRooms.getToDestroy():
-                log.info("Closing simpleRoom %s which was not used anymore." % room.jid)
+                logger.info("Closing simpleRoom %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for room in site.simpleRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
-                log.notice("Closing simpleRoom %s which has timed out in '%s' status." % (room.jid, status))
+                logger.warning("Closing simpleRoom %s which has timed out in '%s' status." % (room.jid, status))
                 self.closeRoom(room)
             site.simpleRooms.deleteClosed()
         #DBG: self.printrooms()
@@ -1025,7 +1074,7 @@ class Bot(JabberClient):
 
                 except (AttributeError, socket.error):
                     self.__lost_connection = True
-                    log.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
+                    logger.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
                     reconnectcount = 1
                     self.stats.connectionLost += 1
                     while True:
@@ -1034,9 +1083,9 @@ class Bot(JabberClient):
                             self.connect()
                         except socket.error:
                             reconnectcount += 1
-                            log.notice("Tried to reconnect %d times. Trying again in %d seconds" % (reconnectcount, reconnectdelay))
+                            logger.warning("Tried to reconnect %d times. Trying again in %d seconds" % (reconnectcount, reconnectdelay))
                         else:
-                            log.notice("Reconnected  after %d attempts" % reconnectcount)
+                            logger.warning("Reconnected  after %d attempts" % reconnectcount)
                             break
             self.stats.mainloopcount += 1
             if self.stats.mainloopcount >= sys.maxint:
@@ -1044,7 +1093,7 @@ class Bot(JabberClient):
                 self.stats.busycount = 0
 
         except KeyboardInterrupt:
-            log.notice("Keyboard interrupt. Exit...")
+            logger.warning("Keyboard interrupt. Exit...")
             self.closeRooms()
             self.disconnect()
 
@@ -1092,7 +1141,7 @@ class Bot(JabberClient):
         else:
             sitename = site.name
         site = self.sites[sitename]
-        log.info("Refilling room pool for '%s'." % sitename)
+        logger.info("Refilling room pool for '%s'." % sitename)
         mucconf = self.getMucSettings(sitename)
         mucdomain = mucconf["domain"]
         poolsize = int(mucconf["poolsize"])
@@ -1114,12 +1163,12 @@ class Bot(JabberClient):
     def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):
         sitename = site.name
         nToCreate =  poolsize - nAvailable
-        log.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
-        log.info("Creating %d new rooms for site '%s'." % (nToCreate, sitename))
+        logger.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
+        logger.info("Creating %d new rooms for site '%s'." % (nToCreate, sitename))
         for tmp in range(nToCreate):
             roomname = self.newRoomName(sitename)
             password = unicode(newHash())
-            log.info("Creating MUC-room '%s@%s'." % (roomname, mucdomain))
+            logger.info("Creating MUC-room '%s@%s'." % (roomname, mucdomain))
             mucstate = self.joinMucRoom(site, JID(roomname, mucdomain), password, handler)
             if mucstate:
                 mucstate.request_configuration_form()
@@ -1132,35 +1181,35 @@ class Bot(JabberClient):
         '''
         for name, site in self.sites.iteritems():
             for room in site.rooms.getNotDestroyed():
-                log.notice("Re-joining room '%s'." % room.jid)
+                logger.warning("Re-joining room '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
                 mucstate = self.joinMucRoom(site, jid, room.password, One2OneRoomHandler, rejoining=True)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixroomstatus(room, mucstate)
             for room in site.groupRooms.getNotDestroyed():
-                log.notice("Re-joining groupRoom '%s'." % room.jid)
+                logger.warning("Re-joining groupRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
                 mucstate = self.joinMucRoom(site, jid, room.password, GroupRoomHandler, rejoining=True)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixgrouproomstatus(room, mucstate)
             for room in site.lobbyRooms.getNotDestroyed():
-                log.notice("Re-joining lobbyRoom '%s'." % room.jid)
+                logger.warning("Re-joining lobbyRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
                 mucstate = self.joinMucRoom(site, jid, room.password, LobbyRoomHandler, rejoining=True)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixlobbyroomstatus(room, mucstate)
             for room in site.waitingRooms.getNotDestroyed():
-                log.notice("Re-joining waitingRoom '%s'." % room.jid)
+                logger.warning("Re-joining waitingRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
                 mucstate = self.joinMucRoom(site, jid, room.password, WaitingRoomHandler, rejoining=True)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
                 if mucstate:
                     self.fixwaitingroomstatus(room, mucstate)
             for room in site.simpleRooms.getNotDestroyed():
-                log.notice("Re-joining simpleRoom '%s'." % room.jid)
+                logger.warning("Re-joining simpleRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
                 mucstate = self.joinMucRoom(site, jid, room.password, SimpleRoomHandler, rejoining=True)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
@@ -1172,73 +1221,73 @@ class Bot(JabberClient):
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
         while self.stream.loop_iter(1):
-            log.debug("Looping until all pending events are processed.")
+            logger.debug("Looping until all pending events are processed.")
 
-        log.notice("Checking status for room '%s'." % room.jid)
+        logger.warning("Checking status for room '%s'." % room.jid)
         status = room.getStatus()
-        log.notice("Status is '%s' for room '%s'." % (status, room.jid))
+        logger.warning("Status is '%s' for room '%s'." % (status, room.jid))
         client_id = room.client_id
         staff_id = room.staff_id
         userexited = room.getCleanExit()
         nUsers = len(mucstate.users) - 1 # -1 for not counting the bot itself
-        log.info("There are %d users in '%s'." % (nUsers, room.jid))
+        logger.info("There are %d users in '%s'." % (nUsers, room.jid))
 
         if status in ("available", "availableForInvitaton"):
             if staff_id:
                 if client_id:
-                    log.critical("BUG: a client was send to this room while status was still 'available' or 'availableForInvitation'. Room: '%s'." % room.jid)
+                    logger.critical("BUG: a client was send to this room while status was still 'available' or 'availableForInvitation'. Room: '%s'." % room.jid)
                     room.setStatus("toDestroy")
                 else:
                     if nUsers >= 2:
-                        log.error("BUG: two users in the room while only staff was expected. Room: '%s'." % room.jid)
+                        logger.error("BUG: two users in the room while only staff was expected. Room: '%s'." % room.jid)
                         room.setStatus("toDestroy")
                     elif nUsers == 1:
-                        log.notice("Fixing status to 'staffWaiting'. Room: '%s'." % room.jid)
+                        logger.warning("Fixing status to 'staffWaiting'. Room: '%s'." % room.jid)
                         room.setStatus("staffWaiting")
                     else: # nUsers == 0
-                        log.notice("Expected staff member not present anymore: to be destroyed. Room: '%s'." % (room.jid))
+                        logger.warning("Expected staff member not present anymore: to be destroyed. Room: '%s'." % (room.jid))
                         room.setStatus("toDestroy")
             else:
                 if client_id:
-                    log.critical("BUG: a client was send to room while no staff ever was: to be destroyed. Room: '%s'." % room.jid)
+                    logger.critical("BUG: a client was send to room while no staff ever was: to be destroyed. Room: '%s'." % room.jid)
                     room.setStatus("toDestroy")
                 else:
-                    log.info("Status is correct.")
+                    logger.info("Status is correct.")
 
         elif status in ("staffWaiting", "staffWaitingForInvitee"):
             if staff_id:
                 if client_id:
                     if userexited:
                         if nUsers >= 2:
-                            log.error("Two users in the room while at least one has exited cleanly: to be destroyed. Room: '%s'." % room.jid)
+                            logger.error("Two users in the room while at least one has exited cleanly: to be destroyed. Room: '%s'." % room.jid)
                             room.setStatus("toDestroy")
                         elif nUsers == 1:
-                            log.notice("Fixing status to 'closingChat'. A user has exited cleanly. Room: '%s'." % room.jid)
+                            logger.warning("Fixing status to 'closingChat'. A user has exited cleanly. Room: '%s'." % room.jid)
                             room.setStatus("closingChat")
                         else: # nUsers == 0
-                            log.notice("Both users seem to have left. At least one exited cleanly: to be destroyed Room: '%s'." % room.jid)
+                            logger.warning("Both users seem to have left. At least one exited cleanly: to be destroyed Room: '%s'." % room.jid)
                             room.setStatus("toDestroy")
                     else:
                         if nUsers >= 2:
-                            log.error("Fixing status to 'chatting'. Two users in the room now and client was send here. Room: '%s'." % room.jid)
+                            logger.error("Fixing status to 'chatting'. Two users in the room now and client was send here. Room: '%s'." % room.jid)
                             room.setStatus("chatting")
                         elif nUsers == 1:
-                            log.notice("Fixing status to 'lost'. One user is missing. Room: '%s'." % room.jid)
+                            logger.warning("Fixing status to 'lost'. One user is missing. Room: '%s'." % room.jid)
                             room.setStatus("lost")
                         else: # nUsers == 0
-                            log.notice("Fixing status to 'abandoned'. Both users missing. Room: '%s'." % room.jid)
+                            logger.warning("Fixing status to 'abandoned'. Both users missing. Room: '%s'." % room.jid)
                             room.setStatus("abandoned")
                 else: # no client_id
                     if nUsers >= 2:
-                        log.error("BUG: two users in the room while only staff was expected. Room: '%s'." % room.jid)
+                        logger.error("BUG: two users in the room while only staff was expected. Room: '%s'." % room.jid)
                         room.setStatus("toDestroy")
                     elif nUsers == 1:
-                        log.info("Status is correct.")
+                        logger.info("Status is correct.")
                     else: # nUsers == 0
-                        log.notice("Expected staff member not present anymore: to be destroyed. Room: '%s'." % room.jid)
+                        logger.warning("Expected staff member not present anymore: to be destroyed. Room: '%s'." % room.jid)
                         room.setStatus("toDestroy")
             else: # no staff_id
-                log.critical("BUG: a staff member was never send here: to be destroyed. Room: '%s'." % room.jid)
+                logger.critical("BUG: a staff member was never send here: to be destroyed. Room: '%s'." % room.jid)
                 room.setStatus("toDestroy")
 
         elif status == "chatting":
@@ -1246,89 +1295,89 @@ class Bot(JabberClient):
                 if client_id:
                     if userexited:
                         if nUsers >= 2:
-                            log.error("Two users in the room while at least one has exited cleanly: to be destroyed. Room: '%s'." % room.jid)
+                            logger.error("Two users in the room while at least one has exited cleanly: to be destroyed. Room: '%s'." % room.jid)
                             room.setStatus("toDestroy")
                         elif nUsers == 1:
-                            log.info("One user left cleanly. Fixing status to 'closingChat'.")
+                            logger.info("One user left cleanly. Fixing status to 'closingChat'.")
                             room.setStatus("closingChat")
                         else: # nUsers == 0
-                            log.notice("Both users seem to have left. At least one exited cleanly: to be destroyed Room: '%s'." % room.jid)
+                            logger.warning("Both users seem to have left. At least one exited cleanly: to be destroyed Room: '%s'." % room.jid)
                             room.setStatus("toDestroy")
                     else: # no clean exit
                         if nUsers >= 2:
-                            log.info("Status is correct.")
+                            logger.info("Status is correct.")
                         elif nUsers == 1:
-                            log.notice("Fixing status to 'lost'. One user is missing. Room: '%s'." % room.jid)
+                            logger.warning("Fixing status to 'lost'. One user is missing. Room: '%s'." % room.jid)
                             room.setStatus("lost")
                         else: # nUsers == 0
-                            log.notice("Fixing status to 'abandoned'. Both users missing. Room: '%s'." % room.jid)
+                            logger.warning("Fixing status to 'abandoned'. Both users missing. Room: '%s'." % room.jid)
                             room.setStatus("abandoned")
                 else: # no client_id
-                    log.error("Status 'chatting' invalid since no client was ever send here. Room: '%s'." % room.jid)
+                    logger.error("Status 'chatting' invalid since no client was ever send here. Room: '%s'." % room.jid)
                     room.setStatus("toDestroy")
             else: # no staff_id
-                log.error("Status 'chatting' invalid since no staff member was ever send here. Room: '%s'." % room.jid)
+                logger.error("Status 'chatting' invalid since no staff member was ever send here. Room: '%s'." % room.jid)
                 room.setStatus("toDestroy")
 
         elif status == 'closingChat':
             if nUsers >= 2:
-                log.error("Two users in room while status was already 'closingChat'. Room: '%s'." % room.jid)
+                logger.error("Two users in room while status was already 'closingChat'. Room: '%s'." % room.jid)
                 room.setStatus("toDestroy")
             elif nUsers == 1:
-                log.info("Status is correct.")
+                logger.info("Status is correct.")
             else: # nUsers == 0
-                log.notice("No user left in room. To be destroyed. Room: '%s'." % room.jid)
+                logger.warning("No user left in room. To be destroyed. Room: '%s'." % room.jid)
                 room.setStatus("abandoned")
 
         elif status == 'toDestroy':
             if nUsers >= 1:
-                log.error("Unexpected users in room: '%s'."  % room.jid)
+                logger.error("Unexpected users in room: '%s'."  % room.jid)
                 room.setStatus("toDestroy")
             else: # nUsers == 0
-                log.info("Status correct.")
+                logger.info("Status correct.")
 
         elif status == 'lost':
             if userexited:
                 if nUsers >= 2:
-                    log.error("Unexpected user in room: '%s'."  % room.jid)
+                    logger.error("Unexpected user in room: '%s'."  % room.jid)
                     room.setStatus("toDestroy")
                 elif nUsers == 1:
-                    log.notice("Only one user in room. Closing this chat. Room: '%s'." % room.jid)
+                    logger.warning("Only one user in room. Closing this chat. Room: '%s'." % room.jid)
                     room.setStatus("closingChat")
                 else: # nUsers == 0
-                    log.notice("No user has returned. To be destroyed. Room: '%s'." % room.jid)
+                    logger.warning("No user has returned. To be destroyed. Room: '%s'." % room.jid)
                     room.setStatus("toDestroy")
             else:
                 if nUsers >= 2:
-                    log.info("Both user returned to room. Fixing status to 'chatting'. Room: '%s'."  % room.jid)
+                    logger.info("Both user returned to room. Fixing status to 'chatting'. Room: '%s'."  % room.jid)
                     room.setStatus("chatting")
                 elif nUsers == 1:
-                    log.notice("Status is correct.")
+                    logger.warning("Status is correct.")
                     room.setStatus("lost")
                 else: # nUsers == 0
-                    log.notice("No user has returned. Fixing status to 'abandoned'. Room: '%s'." % room.jid)
+                    logger.warning("No user has returned. Fixing status to 'abandoned'. Room: '%s'." % room.jid)
                     room.setStatus("abandoned")
 
         elif status == 'abandoned':
             if userexited:
                 if nUsers >= 2:
-                    log.error("Unexpected users in room: '%s'."  % room.jid)
+                    logger.error("Unexpected users in room: '%s'."  % room.jid)
                     room.setStatus("toDestroy")
                 elif nUsers == 1:
-                    log.notice("Only one user returned. Closing this chat. Room: '%s'." % room.jid)
+                    logger.warning("Only one user returned. Closing this chat. Room: '%s'." % room.jid)
                     room.setStatus("closingChat")
                 else: # nUsers == 0
-                    log.notice("No user has returned. To be destroyed. Room: '%s'." % room.jid)
+                    logger.warning("No user has returned. To be destroyed. Room: '%s'." % room.jid)
                     room.setStatus("toDestroy")
             else:
                 if nUsers >= 2:
-                    log.info("Both users returned to room. Fixing status to 'chatting'. Room: '%s'."  % room.jid)
+                    logger.info("Both users returned to room. Fixing status to 'chatting'. Room: '%s'."  % room.jid)
                     room.setStatus("chatting")
                 elif nUsers == 1:
-                    log.notice("One user has returned to room. Fixing status to 'lost'. Room: '%s'."  % room.jid)
+                    logger.warning("One user has returned to room. Fixing status to 'lost'. Room: '%s'."  % room.jid)
                     room.setStatus("lost")
                 else: # nUsers == 0
-                    log.notice("Status is correct.")
+                    logger.warning("Status is correct.")
         # Finished fixing, set rejoinCount to None
         room.rejoinCount = None
 
@@ -1338,41 +1387,41 @@ class Bot(JabberClient):
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
         while self.stream.loop_iter(1):
-            log.debug("Looping until all pending events are processed.")
+            logger.debug("Looping until all pending events are processed.")
 
-        log.notice("Checking status for group room '%s'." % room.jid)
+        logger.warning("Checking status for group room '%s'." % room.jid)
         status = room.getStatus()
-        log.notice("Status is '%s' for group room '%s'." % (status, room.jid))
+        logger.warning("Status is '%s' for group room '%s'." % (status, room.jid))
         chat_id = room.chat_id
         nUsers = len(mucstate.users) - 1 # -1 for not counting the bot itself
-        log.info("There are %d users in '%s'." % (nUsers, room.jid))
+        logger.info("There are %d users in '%s'." % (nUsers, room.jid))
 
         if status in ("available"):
             if chat_id: # room has been assigned to a chat in meanwhile
                 if nUsers >= 1:
-                    log.notice("Fixing status to 'chatting'. GroupRoom: '%s'." % room.jid)
+                    logger.warning("Fixing status to 'chatting'. GroupRoom: '%s'." % room.jid)
                     room.setStatus("chatting")
                 else: # nUsers == 0
-                    log.notice("Expected users not present: mark as abandoned. GroupRoom: '%s'." % room.jid)
+                    logger.warning("Expected users not present: mark as abandoned. GroupRoom: '%s'." % room.jid)
                     room.setStatus("abandoned")
 
         elif status == "chatting":
             if chat_id:
                 if nUsers >= 1:
-                    log.info("Status is correct.")
+                    logger.info("Status is correct.")
                 else: # nUsers == 0
-                    log.notice("Fixing status to 'abandoned'. All users missing. GroupRoom: '%s'." % room.jid)
+                    logger.warning("Fixing status to 'abandoned'. All users missing. GroupRoom: '%s'." % room.jid)
                     room.setStatus("abandoned")
             else: # no chat_id
-                log.error("Status 'chatting' invalid since no chat has been assigned. GroupRoom: '%s'." % room.jid)
+                logger.error("Status 'chatting' invalid since no chat has been assigned. GroupRoom: '%s'." % room.jid)
                 room.setStatus("toDestroy")
 
         elif status == 'abandoned':
             if nUsers >= 1:
-                log.info("User(s) returned to group room. Fixing status to 'chatting'. GroupRoom: '%s'."  % room.jid)
+                logger.info("User(s) returned to group room. Fixing status to 'chatting'. GroupRoom: '%s'."  % room.jid)
                 room.setStatus("chatting")
             else: # nUsers == 0
-                log.notice("Status is correct.")
+                logger.warning("Status is correct.")
         # Finished fixing, set rejoinCount to None
         room.rejoinCount = None
 
@@ -1392,7 +1441,7 @@ class Bot(JabberClient):
         mucconf = self.getMucSettings(site.name)
         nick = mucconf["nick"].strip() or self.nick
         muchandler = handlerClass(self, site, mucconf, nick, password, rejoining)
-        log.debug("MUC-room setting: history_maxchars=%s,  history_stanzas=%s, history_seconds=%s" % (
+        logger.debug("MUC-room setting: history_maxchars=%s,  history_stanzas=%s, history_seconds=%s" % (
                 mucconf["history_maxchars"],
                 mucconf["history_maxstanzas"],
                 mucconf["history_seconds"]
@@ -1406,7 +1455,7 @@ class Bot(JabberClient):
             muchandler.assign_state(mucstate)
             return mucstate
         except RuntimeError, e:
-            log.warning("Could not join room %s: %s" % (jid.as_string(), str(e)))
+            logger.warning("Could not join room %s: %s" % (jid.as_string(), str(e)))
             return False
 
     def newRoomName(self, site):
@@ -1431,7 +1480,7 @@ class Bot(JabberClient):
     def kick(self, roomjid, nick):
         if isinstance(roomjid, str) or isinstance(roomjid, unicode):
             roomjid = str2roomjid(roomjid)
-        log.info("Kicking user with nick '%s'." % nick)
+        logger.info("Kicking user with nick '%s'." % nick)
         kickIq = MucIq(to_jid=roomjid, stanza_type="set")
         kickIq.make_kick_request(nick, reason=None)
         self.stream.send(kickIq)
@@ -1439,15 +1488,15 @@ class Bot(JabberClient):
     def makeModerator(self, roomjid, nick):
         if isinstance(roomjid, str) or isinstance(roomjid, unicode):
             roomjid = str2roomjid(roomjid)
-        log.info("Making user with nick '%s' moderator." % nick)
+        logger.info("Making user with nick '%s' moderator." % nick)
 
         xml = "<iq to='%s' type='set' id='mod'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, nick)
-        log.debug(xml)
+        logger.debug(xml)
         self.stream.write_raw(xml)
 
     def sendInvite(self, room, to):
         xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid, to)
-        log.info("sending invite: %s" % xml)
+        logger.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
     def inviteClients(self, waitingRoom):
@@ -1483,14 +1532,14 @@ class Bot(JabberClient):
 
     def closeRoom(self, room):
         roomjid = str2roomjid(room.jid)
-        log.info("Closing down MUC-room '%s'." % room.jid)
+        logger.info("Closing down MUC-room '%s'." % room.jid)
         roomstate = self.mucmanager.rooms[unicode(roomjid)]
         roomstate.handler.closingDown = True
         mynick = roomstate.get_nick()
         for nick in roomstate.users.iterkeys():
             if nick != mynick:
                 self.kick(roomjid, nick)
-        log.info("Leaving MUC-room '%s'." % room.jid)
+        logger.info("Leaving MUC-room '%s'." % room.jid)
         room.destroyed()
         roomstate.leave()
 
@@ -1519,7 +1568,7 @@ class Bot(JabberClient):
         except ValueError:
             return "MUC-room pool size invalid"
         self.conf.muc.poolsize = newSize
-        log.info("MUC-room pool size set to %s" % newSize)
+        logger.info("MUC-room pool size set to %s" % newSize)
         self.todo.append((self.fillMucRoomPool,))
         return str()
 
@@ -1528,7 +1577,7 @@ class Bot(JabberClient):
     def handle_message(self, s):
         if s.get_type() == "headline":
             return True
-        log.stanza(s)
+        log_stanza(s)
         message = u"Don't call us. We call you.."
         msg = Message(None, s.get_to(), s.get_from(), s.get_type(), None, None, message)
         self.stream.send(msg)
@@ -1536,7 +1585,7 @@ class Bot(JabberClient):
         return True
 
     def handle_iq_get_room(self, iq):
-        log.stanza(iq)
+        log_stanza(iq)
         room = None
         try:
             try:
@@ -1544,10 +1593,10 @@ class Bot(JabberClient):
             except IndexError:
                 raise BadRequestError()
 
-            log.info("token: %s" % token_n.getContent())
+            logger.info("token: %s" % token_n.getContent())
 
             ac = AccessToken.objects.get(token=token_n.getContent())
-            log.info("got accessToken: %s" % ac)
+            logger.info("got accessToken: %s" % ac)
 
             """ save jid """
             ac.jid = iq.get_from()
@@ -1564,7 +1613,7 @@ class Bot(JabberClient):
 
             if ac.role == Participant.ROLE_CLIENT:
                 """ send invite to waiting room """
-                log.info("got a client, sending to waiting room")
+                logger.info("got a client, sending to waiting room")
                 try:
                     room = WaitingRoom.objects.filter(status='chatting')[0]
                 except IndexError:
@@ -1582,7 +1631,7 @@ class Bot(JabberClient):
                     WaitingRoomToken.objects.create(token=ac, room=room)
 
             else:
-                log.info("got token from staff member")
+                logger.info("got token from staff member")
                 """ first we try to find an already allocated room which has status 'chatting' """
 
                 try:
@@ -1593,11 +1642,11 @@ class Bot(JabberClient):
                     to one2one room otherwise """
                     if not self.mucmanager.get_room_state(JID(room.jid)).get_user(iq.get_from()) is None:
                         if One2OneRoomToken.objects.filter(token=ac).filter(room__status__in=['staffWaiting', 'chatting']).count() < self.conf.muc.max_chats_per_staff:
-                            log.info("assigning new one2one room to token %s" % ac.token)
+                            logger.info("assigning new one2one room to token %s" % ac.token)
                             room = One2OneRoom.objects.filter(status='available')[0]
                             One2OneRoomToken.objects.create(token=ac, room=room)
                         else:
-                            log.info("user exceeded one2oneroom limit with token %s" % ac.token)
+                            logger.info("user exceeded one2oneroom limit with token %s" % ac.token)
                             room = None
                             raise NotAllowedError()
 
@@ -1618,17 +1667,17 @@ class Bot(JabberClient):
                     LobbyRoomToken.objects.create(token=ac, room=room)
 
         except AccessToken.DoesNotExist:
-            log.info("Bad AccessToken given: %s" % token_n.getContent())
+            logger.info("Bad AccessToken given: %s" % token_n.getContent())
             resIq = iq.make_error_response(u"not-authorized")
         except IndexError:
             """ is this the only index error that might appear? """
-            log.info("No available room found")
+            logger.info("No available room found")
             resIq = iq.make_error_response(u"item-not-found")
         except BadRequestError:
-            log.info("request xml was malformed: %s" % iq.serialize())
+            logger.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
         except NotAllowedError:
-            log.info("not allowed to join more rooms with token %s" % ac.token)
+            logger.info("not allowed to join more rooms with token %s" % ac.token)
             resIq = iq.make_error_response(u"not-allowed")
 
         self.stream.send(resIq)
@@ -1645,7 +1694,7 @@ class Bot(JabberClient):
         self.sendInvite(room, iq.get_from())
 
     def handle_iq_get_conversationId(self, iq):
-        log.stanza(iq)
+        log_stanza(iq)
 
         try:
             room_jid = iq.get_from().bare()
@@ -1663,7 +1712,7 @@ class Bot(JabberClient):
         """ [TODO] actually this should be connected to a room so that
         we know whether we are talking about a one2OneRoom or not """
 
-        log.stanza(iq)
+        log_stanza(iq)
 
         try:
             try:
@@ -1671,7 +1720,7 @@ class Bot(JabberClient):
             except IndexError:
                 raise BadRequestError()
 
-            log.info("got block request from %s" % iq.get_from())
+            logger.info("got block request from %s" % iq.get_from())
             from_jid = iq.get_from()
 
             room_jid = from_jid.bare()
@@ -1698,7 +1747,7 @@ class Bot(JabberClient):
             resIq = iq.make_error_response(u"not-authorized")
 
         except BadRequestError:
-            log.info("request xml was malformed: %s" % iq.serialize())
+            logger.info("request xml was malformed: %s" % iq.serialize())
             resIq = iq.make_error_response(u"bad-request")
 
         self.stream.send(resIq)
@@ -1717,12 +1766,6 @@ class Bot(JabberClient):
             return True
         # Ignore other requests
         return True
-
-class LogError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-    def __str__(self):
-        return repr(self.msg)
 
 class BotError(Exception):
     def __init__(self, msg):
@@ -1750,183 +1793,3 @@ class NotAllowedError(Exception):
 
 class Stats:
     pass
-
-class Log:
-    def __init__(self):
-        logging.addLevelName(25, "NOTICE")
-        self.__log = logging.getLogger()
-        self.__helpimlog = logging.getLogger('HelpIM3.bot')
-        self.__pyxmpplog = logging.getLogger('pyxmpp')
-        self.__pyxmpplog.setLevel(logging.DEBUG)
-        self.__logHandler = None
-
-    def form(self, form):
-        self.debug("MUC-room configuration form ==BEGIN==")
-        for field in form:
-            self.debug("  Field '%s':" % field.name)
-            self.debug("    Label = %s" % field.label)
-            self.debug("    Description = %s" % field.desc)
-            self.debug("    Type = %s" % field.type)
-            self.debug("    Required = %s" % field.required)
-            self.debug("    Value = %s" % field.value)
-            self.debug("    Options:")
-            for option in field.options:
-                self.debug("      Label = %s" % option.label)
-                self.debug("      Values = %s" % option.values)
-            self.debug("    Values = %s" % field.values)
-        self.debug("MUC-room confugration form ==END==")
-
-    def user(self, user):
-        self.debug("User log ==BEGIN==")
-        if user.real_jid:
-            self.debug("  Real JID = %s" % user.real_jid.as_unicode())
-        self.debug("  Room JID = %s" % user.room_jid.as_unicode())
-        self.debug("  Nick = %s" % user.nick)
-        self.debug("  Affiliation = %s" % user.affiliation)
-        self.debug("  Role = %s" % user.role)
-        self.debug("User log ==END==")
-
-    def stanza(self, stanza):
-        stanzaType = stanza.get_stanza_type()
-        objectType = None
-        if isinstance(stanza, MucPresence):
-            objectType = "MucPresence"
-        elif isinstance(stanza, Presence):
-            objectType = "Presence"
-        elif isinstance(stanza, Message):
-            objectType = "Message"
-        self.debug("Stanza log ==BEGIN==")
-        self.debug("  Stanza type = %s" % stanzaType)
-        self.debug("  XMPP object type = %s" % objectType)
-        self.debug("  From = %s" % stanza.get_from().as_unicode())
-        self.debug("  To   = %s" % stanza.get_from().as_unicode())
-        if objectType == "Message":
-            self.debug("  Subject = %s" % stanza.get_subject())
-            self.debug("  Body = %s" % stanza.get_body())
-        elif objectType == "Presence" or objectType == "MucPresence":
-            self.debug("  Priority = %s" % stanza.get_priority())
-            self.debug("  Status = %s" % stanza.get_status())
-            self.debug("  Show = %s" % stanza.get_show())
-        elif objectType == "MucPresence":
-            joininfo = stanza.get_join_info()
-            self.debug("  Password = %s" % joininfo.get_password())
-            self.debug("  History = %s" % joininfo.get_history())
-            mucchild = stanza.get_muc_child()
-            self.debug("MUC child = %s" % mucchild)
-        self.debug("Stanza log ==END==")
-
-    # set_... methods: Methods to change settings that can be changed at runtime.
-    #
-    # Note: The set_... methods below return empty string on success, and error-string on failure.
-    #       So using the returned value in conditional expressions may opposite of what you might expect.
-    #
-    def set_Destination(self, dest):
-        '''Sets logging destination -> empty string on success. error-string on failure.
-
-        Arguments:
-        dest - A string: either "stdout", "stderr" or a string starting with "file:" followed
-               by a valid file path.
-               An empty string has the same effect as "stderr".
-               Leading or railing whitespace is ignored.
-
-        '''
-        dest = dest.strip()
-        if not dest or dest == "stderr":
-            newhandler = logging.StreamHandler(sys.stderr)
-        elif dest == "stdout":
-            newhandler = logging.StreamHandler(sys.stdout)
-        elif dest.split(':')[0] == 'file':
-            filepath = dest.split(':')[1].strip()
-            if not filepath:
-                return "No file path specified in logging destination"
-            try:
-                logfile = open(filepath, 'a')
-            except IOError, e:
-                return "Could not open %s for writing: %s" % (e.filename, e.args[1])
-            newhandler = logging.StreamHandler(logfile)
-        else:
-            return "Invalid log destination '%s'" % dest
-        if self.__logHandler is not None:
-            self.__log.removeHandler(self.__logHandler)
-        self.__helpimlog.info("Setting log destination to '%s'" % dest)
-        formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)-8s %(message)s')
-        newhandler.setFormatter(formatter)
-        self.__logHandler = newhandler
-        self.__log.addHandler(newhandler)
-        self.__helpimlog.info("Log destination now set to '%s'" % dest)
-        return str()
-
-    # Actual logging methods
-    #
-    def critical(self, msg): self.__helpimlog.critical(msg)
-    def error(self, msg): self.__helpimlog.error(msg)
-    def warning(self, msg): self.__helpimlog.warning(msg)
-    def notice(self, msg): self.__helpimlog.log(25, msg)
-    def info(self, msg): self.__helpimlog.info(msg)
-    def debug(self, msg): self.__helpimlog.debug(msg)
-
-    def set_Level(self, level, loggername=''):
-        '''Sets log level --> empty string on success. error-string on failure.
-
-        Arguments:
-        level -  One of the following strings: "critical", "error", "warning", "notice",
-                 "info" or "debug".
-                 An empty string has the same effect as "notice".
-                 Leading or railing whitespace is ignored.
-
-        '''
-        level = level.strip()
-        if not level:             newlevel = 25
-        elif level == "critical": newlevel = 50
-        elif level == "error":    newlevel = 40
-        elif level == "warning":  newlevel = 30
-        elif level == "notice":   newlevel = 25
-        elif level == "info":     newlevel = 20
-        elif level == "debug":    newlevel = 10
-        else:
-            return "Invalid log level '%s'." % level
-        level = level.upper()
-        logger = logging.getLogger(loggername)
-        logger.setLevel(newlevel)
-        self.__helpimlog.info("Log level now set to '%s'" % level)
-        return str()
-log = Log()
-
-
-def str2roomjid(jidstr):
-    tmp = jidstr.split('@')
-    node = tmp[0]
-    domain = tmp[1].split('/')[0]
-    roomjid = JID(node, domain)
-    return roomjid
-
-"""Utility function for using cryptografic Hashes in HelpIM"""
-
-initdone = False
-
-def newHash():
-    """Creates an unpredictable hash.
-       Returns an 64 character long string, containing an
-       hexadecimal encoded hash.
-       Usage: hash = newHash()
-    """
-    import datetime
-    import random
-    from hashlib import sha256
-    global initdone
-    if not initdone:
-        random.seed()
-        initdone = True
-    string = str(datetime.datetime.now()) + str(random.random())
-    hash = sha256(string).hexdigest()
-    return hash
-
-def get_questionnaire_entry_id(stanza):
-    try:
-        entry_id = stanza.xpath_eval('d:query/d:questionnaire',
-                                     {'d': NS_HELPIM_ROOMS})[0]
-        entry_id = entry_id.getContent()
-        log.debug("got entry id: %s" % entry_id)
-        return entry_id
-    except IndexError:
-        log.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
