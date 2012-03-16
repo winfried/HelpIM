@@ -206,13 +206,9 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'level': 'DEBUG',
-            'filename': 'helpim31.log',
+            'level': 'INFO',
+            'filename': '/var/log/HelpIM/helpim31.log',
             },
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-        },
     },
     'loggers': {
         'django.request':{
@@ -221,8 +217,8 @@ LOGGING = {
             'propagate': True,
         },
         'helpim.rooms.bot': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'handlers': ['file'],
+            'level': 'WARNING',
         },
     }
 }
