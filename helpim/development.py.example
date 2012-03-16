@@ -75,6 +75,32 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'level': 'DEBUG',
+            'filename': '/var/log/HelpIM/helpim31.log',
+            },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request':{
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+        'helpim.rooms.bot': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+    }
+}
+
 if DEBUG:
     STATICFILES_DIRS = [
        ("javascript",     abspath(join(dirname(__file__), 'javascript', 'src'))),
