@@ -20,3 +20,4 @@ prosody.log
 prosody.err
 helpim/javascript/htdocs/helpim.base.js
 helpim/javascript/src/deps.js
+*.db
