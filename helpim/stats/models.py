@@ -289,7 +289,6 @@ class Report(models.Model):
     )
 
     # filter by properties of chat
-    filter_business_hours = models.BooleanField(verbose_name=_('Hits outside of business hours'))
     filter_blocked = models.BooleanField(verbose_name=_('Hits from blocked IPs'))
     filter_queued = models.BooleanField(verbose_name=_('Hits when waiting queue was full'))
     filter_assigned = models.BooleanField(verbose_name=_('Assigned chats'))
