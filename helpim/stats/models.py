@@ -5,6 +5,7 @@ from itertools import product
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.utils import DatabaseError
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import Field, FieldEntry
@@ -204,8 +205,12 @@ class ConversationFormsReportVariable(ReportVariable):
         Return all questions in each questionnaire that has to do with conversations app (via questionnaire_conversationformentry relation).
         '''
 
-        for question in Field.objects.filter(form__questionnaire__position__in=['CB', 'CA', 'SA', 'SC']).values('pk', 'label', 'form__title').order_by("form__id"):
-            yield ('questionnaire-field-%s' % (question['pk']), _('Question: %(question)s on: %(form)s') % { 'form': question['form__title'], 'question': question['label'] })
+        try :
+            for question in Field.objects.filter(form__questionnaire__position__in=['CB', 'CA', 'SA', 'SC']).values('pk', 'label', 'form__title').order_by("form__id"):
+                yield ('questionnaire-field-%s' % (question['pk']), _('Question: %(question)s on: %(form)s') % { 'form': question['form__title'], 'question': question['label'] })
+        except DatabaseError:
+            # will fail during 'syncdb' with 'table doesnt exist'
+            pass
 
     @classmethod
     def create_context(cls, choice_name):
@@ -289,7 +294,6 @@ class Report(models.Model):
     )
 
     # filter by properties of chat
-    filter_business_hours = models.BooleanField(verbose_name=_('Hits outside of business hours'))
     filter_blocked = models.BooleanField(verbose_name=_('Hits from blocked IPs'))
     filter_queued = models.BooleanField(verbose_name=_('Hits when waiting queue was full'))
     filter_assigned = models.BooleanField(verbose_name=_('Assigned chats'))
