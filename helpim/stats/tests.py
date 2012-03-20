@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, ChatMessage
+from helpim.stats.forms import ReportForm
 from helpim.stats.models import BranchReportVariable, CareworkerReportVariable, ConversationFormsReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
 
 
@@ -304,6 +305,20 @@ class ReportTestCase(TestCase):
         self.assertEqual(2, data[Report.TOTAL_COLUMN][NoneReportVariable.EMPTY])
         self.assertEqual(2, data[NoneReportVariable.EMPTY][Report.TOTAL_COLUMN])
         self.assertEqual(2, data[Report.TOTAL_COLUMN][Report.TOTAL_COLUMN])
+
+
+class ReportFormTestCase(TestCase):
+    def test_clean_period(self):
+        form = ReportForm(data={ 'period_start': date(2012, 1, 1),
+            'period_end': date(1999, 1, 1),
+            'title': 'test',
+            'variable1': 'none',
+            'variable2': 'none',
+            'output': 'hits',
+        })
+
+        self.assertFalse(form.is_valid(), 'ReportForm validation should have failed because selected time period is empty')
+        self.assertEqual(form.errors['__all__'], [_('The period of time you selected is invalid (end date is older than start date).')])
 
 
 class ReportVariableTestCase(TestCase):
