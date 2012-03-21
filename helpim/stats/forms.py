@@ -2,17 +2,30 @@ from datetime import datetime
 
 from django import forms
 from django.db.models import Max, Min
+from django.forms.widgets import Select
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.translation import ugettext as _
 
 from helpim.conversations.models import Chat
-from helpim.stats.models import Report
+from helpim.stats.models import Report, ReportVariable
 
 
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
 
+    def __init__(self, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+
+        self.fields['branch'].empty_label = '- %s -' % (_('all branches'))
+        self.fields['careworker'].empty_label = '- %s -' % (_('all careworkers'))
+
+        # find choices for Variable fields
+        variable_choices = [ tup for var in ReportVariable.all_variables() for tup in var.get_choices_tuples() ]
+        self.fields['variable1'].widget = Select(choices=variable_choices)
+        self.fields['variable2'].widget = Select(choices=variable_choices)
+
+        # find choices for years-selection of Chats
         try:
             # use year of first/latest Chat
             years = Chat.objects.aggregate(Min('start_time'), Max('start_time'))
@@ -22,17 +35,8 @@ class ReportForm(forms.ModelForm):
             # default to +-5 years from now if no Chats
             min_year = datetime.now().year - 5
             max_year = datetime.now().year + 5
-
-        widgets = {
-            'period_start': SelectDateWidget(years=range(min_year, max_year + 1)),
-            'period_end': SelectDateWidget(years=range(min_year, max_year + 1)),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(ReportForm, self).__init__(*args, **kwargs)
-
-        self.fields['branch'].empty_label = '- %s -' % (_('all branches'))
-        self.fields['careworker'].empty_label = '- %s -' % (_('all careworkers'))
+        self.fields['period_start'].widget = SelectDateWidget(years=range(min_year, max_year + 1), required=False)
+        self.fields['period_end'].widget = SelectDateWidget(years=range(min_year, max_year + 1), required=False)
 
     def clean(self):
         '''

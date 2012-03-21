@@ -261,8 +261,6 @@ class NoneReportVariable(ReportVariable):
         yield NoneReportVariable.EMPTY
 
 class Report(models.Model):
-    VARIABLE_CHOICES = [ tup for var in ReportVariable.all_variables() for tup in var.get_choices_tuples() ]
-
     OUTPUT_CHOICES = (
         ('hits', _('Hits')),
         ('unique', _('Unique IPs'))
@@ -300,11 +298,11 @@ class Report(models.Model):
     filter_interactive = models.BooleanField(verbose_name=_('Interactive chats'))
 
     # what to show in result
-    variable1 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
+    variable1 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
         verbose_name=_('select row variable'),
     )
-    variable2 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
+    variable2 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
         verbose_name=_('select column variable')
     )
