@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from helpim.common.models import BranchOffice
 from helpim.conversations.models import Chat, ChatMessage
 from helpim.stats.forms import ReportForm
-from helpim.stats.models import BranchReportVariable, CareworkerReportVariable, ConversationFormsReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WeekdayReportVariable
+from helpim.stats.models import BranchReportVariable, CareworkerReportVariable, ConversationFormsReportVariable, DurationReportVariable, HourReportVariable, MonthReportVariable, NoneReportVariable, Report, ReportVariable, WaitingTimeReportVariable, WeekdayReportVariable
 
 
 class UrlPatternsTestCase(TestCase):
@@ -497,6 +497,25 @@ class DurationReportVariableTestCase(TestCase):
         self.assertEqual(_('0-5'), DurationReportVariable.extract_value(c1))
         self.assertEqual(_('10-15'), DurationReportVariable.extract_value(c2))
         self.assertEqual(_('45+'), DurationReportVariable.extract_value(c3))
+
+class WaitingTimeReportVariableTestCase(TestCase):
+    fixtures = ['reports-test.json']
+
+    def test_values(self):
+        # +1 for Other/No value
+        self.assertEqual(6 + 1, len(WaitingTimeReportVariable.values()))
+
+    def test_extract(self):
+        c1 = Chat.objects.get(pk=1)
+        c2 = Chat.objects.get(pk=2)
+        c3 = Chat.objects.get(pk=3)
+
+        c1._waiting_time = 5
+        c2._waiting_time = 7 * 60
+
+        self.assertEqual(_('0-1'), WaitingTimeReportVariable.extract_value(c1))
+        self.assertEqual(_('5-10'), WaitingTimeReportVariable.extract_value(c2))
+        self.assertEqual(Report.OTHER_COLUMN, WaitingTimeReportVariable.extract_value(c3))
 
 class ConversationFormsReportVariableTestCase(TestCase):
     fixtures = ['reports-test.json']

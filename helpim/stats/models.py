@@ -177,7 +177,7 @@ class DurationReportVariable(ReportVariable):
         try:
             duration_minutes = total_seconds(obj.duration()) / 60.0
 
-            if duration_minutes >= 0 and duration_minutes < 5.0:
+            if duration_minutes >= 0.0 and duration_minutes < 5.0:
                 return _('0-5')
             elif duration_minutes >= 5.0 and duration_minutes < 10.0:
                 return _('5-10')
@@ -197,6 +197,37 @@ class DurationReportVariable(ReportVariable):
     @classmethod
     def values(cls, context=None):
         return [_('0-5'), _('5-10'), _('10-15'), _('15-25'), _('25-45'), _('45+'), Report.OTHER_COLUMN]
+
+class WaitingTimeReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuples(cls):
+        return [('waitingtime', _('Waiting time for chat'))]
+
+    @classmethod
+    def extract_value(cls, obj, context=None):
+        try:
+            waiting_minutes = obj.waiting_time() / 60.0
+
+            if waiting_minutes >= 0.0 and waiting_minutes < 1.0:
+                return _('0-1')
+            elif waiting_minutes >= 1.0 and waiting_minutes < 3.0:
+                return _('1-3')
+            elif waiting_minutes >= 3.0 and waiting_minutes < 5.0:
+                return _('3-5')
+            elif waiting_minutes >= 5.0 and waiting_minutes < 10.0:
+                return _('5-10')
+            elif waiting_minutes >= 10.0 and waiting_minutes < 15.0:
+                return _('10-15')
+            elif waiting_minutes >= 15.0:
+                return _('15+')
+            else:
+                return Report.OTHER_COLUMN
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls, context=None):
+        return [_('0-1'), _('1-3'), _('3-5'), _('5-10'), _('10-15'), _('15+'), Report.OTHER_COLUMN]
 
 class ConversationFormsReportVariable(ReportVariable):
     @classmethod
