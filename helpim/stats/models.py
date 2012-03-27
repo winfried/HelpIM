@@ -177,7 +177,7 @@ class DurationReportVariable(ReportVariable):
         try:
             duration_minutes = total_seconds(obj.duration()) / 60.0
 
-            if duration_minutes >= 0 and duration_minutes < 5.0:
+            if duration_minutes >= 0.0 and duration_minutes < 5.0:
                 return _('0-5')
             elif duration_minutes >= 5.0 and duration_minutes < 10.0:
                 return _('5-10')
@@ -197,6 +197,37 @@ class DurationReportVariable(ReportVariable):
     @classmethod
     def values(cls, context=None):
         return [_('0-5'), _('5-10'), _('10-15'), _('15-25'), _('25-45'), _('45+'), Report.OTHER_COLUMN]
+
+class WaitingTimeReportVariable(ReportVariable):
+    @classmethod
+    def get_choices_tuples(cls):
+        return [('waitingtime', _('Waiting time for chat'))]
+
+    @classmethod
+    def extract_value(cls, obj, context=None):
+        try:
+            waiting_minutes = obj.waiting_time() / 60.0
+
+            if waiting_minutes >= 0.0 and waiting_minutes < 1.0:
+                return _('0-1')
+            elif waiting_minutes >= 1.0 and waiting_minutes < 3.0:
+                return _('1-3')
+            elif waiting_minutes >= 3.0 and waiting_minutes < 5.0:
+                return _('3-5')
+            elif waiting_minutes >= 5.0 and waiting_minutes < 10.0:
+                return _('5-10')
+            elif waiting_minutes >= 10.0 and waiting_minutes < 15.0:
+                return _('10-15')
+            elif waiting_minutes >= 15.0:
+                return _('15+')
+            else:
+                return Report.OTHER_COLUMN
+        except:
+            return Report.OTHER_COLUMN
+
+    @classmethod
+    def values(cls, context=None):
+        return [_('0-1'), _('1-3'), _('3-5'), _('5-10'), _('10-15'), _('15+'), Report.OTHER_COLUMN]
 
 class ConversationFormsReportVariable(ReportVariable):
     @classmethod
@@ -261,8 +292,6 @@ class NoneReportVariable(ReportVariable):
         yield NoneReportVariable.EMPTY
 
 class Report(models.Model):
-    VARIABLE_CHOICES = [ tup for var in ReportVariable.all_variables() for tup in var.get_choices_tuples() ]
-
     OUTPUT_CHOICES = (
         ('hits', _('Hits')),
         ('unique', _('Unique IPs'))
@@ -295,18 +324,18 @@ class Report(models.Model):
 
     # filter by properties of chat
     filter_blocked = models.BooleanField(verbose_name=_('Hits from blocked IPs'))
-    filter_queued = models.BooleanField(verbose_name=_('Hits when waiting queue was full'))
+    filter_queued = models.BooleanField(verbose_name=_('Hits that were queued'))
     filter_assigned = models.BooleanField(verbose_name=_('Assigned chats'))
     filter_interactive = models.BooleanField(verbose_name=_('Interactive chats'))
 
     # what to show in result
-    variable1 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
+    variable1 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
-        verbose_name=_('select row variable'),
+        verbose_name=_('select column variable'),
     )
-    variable2 = models.CharField(max_length=255, choices=VARIABLE_CHOICES,
+    variable2 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
-        verbose_name=_('select column variable')
+        verbose_name=_('select row variable')
     )
     output = models.CharField(max_length=255, choices=OUTPUT_CHOICES, default=OUTPUT_CHOICES[0],
         verbose_name=_('select information to show')
@@ -354,6 +383,8 @@ class Report(models.Model):
         staffParticipant = chat.getStaff()
 
         if self.filter_blocked and (not clientParticipant is None and clientParticipant.blocked):
+            return False
+        if self.filter_queued and (not chat.was_queued()):
             return False
         if self.filter_assigned and (staffParticipant is None or clientParticipant is None):
             return False

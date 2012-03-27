@@ -20,7 +20,9 @@
     <input type="submit" value="{%trans "Delete report" %}" onclick="return confirm('{% trans "Are you sure?" %}')" />
 </form>
 
-<p><a class="button form-row" href="{% url report_edit report.id %}">{%trans "Edit report" %}</a></p>
+<div class="form-row">
+	<p><a class="button" href="{% url report_edit report.id %}">{%trans "Edit report" %}</a></p>
+</div>
 
 {% include "stats/report_render.html" %}
 
