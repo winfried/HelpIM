@@ -328,3 +328,33 @@ class ChatHourlyStatsProviderTestCase(TestCase):
 
         # response will contain the link in escaped format
         self.assertContains(response, html.escape("?start_time__year=2011&start_time__month=11&start_time__day=1"), 1)
+
+
+class ChatTestCase(TestCase):
+    def setUp(self):
+        super(ChatTestCase, self).setUp()
+
+        # result for waiting_time is cached internally so db doesn't have to be queried
+        self.c1 = Chat.objects.create(start_time=datetime(2011, 11, 1, 16, 0), subject='Chat')
+        self.c1._waiting_time = 5
+
+        # 25 seconds waiting time
+        self.c2 = Chat.objects.create(start_time=datetime(2011, 11, 1, 17, 0, 25), subject='Chat')
+        createEventLog(created_at=datetime(2011, 11, 1, 17, 0), type='helpim.rooms.waitingroom.joined', session='aabbccdd')
+        createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.waitingroom.left', session='aabbccdd')
+        createEventLog(created_at=datetime(2011, 11, 1, 17, 0, 25), type='helpim.rooms.one2one.client_joined', session='aabbccdd', payload=self.c2.id)
+
+        # incomplete information in EventLog
+        self.c3 = Chat.objects.create(start_time=datetime(2011, 11, 1, 18, 0, 0), subject='Chat')
+        createEventLog(created_at=datetime(2011, 11, 1, 17, 45), type='helpim.rooms.waitingroom.joined', session='xyz')
+        createEventLog(created_at=datetime(2011, 11, 1, 18, 0, 0), type='helpim.rooms.one2one.client_joined', session='xyz', payload=self.c3.id)
+
+    def test_was_queued(self):
+        self.assertEqual(self.c1.was_queued(), False)
+        self.assertEqual(self.c2.was_queued(), True)
+        self.assertEqual(self.c3.was_queued(), None)
+
+    def test_waiting_time(self):
+        self.assertEqual(self.c1.waiting_time(), 5)
+        self.assertEqual(self.c2.waiting_time(), 25)
+        self.assertEqual(self.c3.waiting_time(), None)

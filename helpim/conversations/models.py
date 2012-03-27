@@ -133,6 +133,8 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
+    _waiting_time = None
+    
     def hasQuestionnaire(self, pos='CB'):
         """Returns whether Questionnaire at given position was submitted for this Chat"""
         
@@ -148,6 +150,53 @@ class Chat(Conversation):
         staffChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF,event='message').exclude(body__exact='').count() > 0
         
         return clientChatted and staffChatted
+
+    def was_queued(self):
+        '''
+        Returns a bool value indicating whether the careseeker in this Chat was sent to the waiting list.
+        Returns None if it couldn't be determined (via common.EventLog).
+        '''
+
+        # avoid circular imports
+        from helpim.conversations.stats import WaitingTimeFilter
+
+        waiting_time = self.waiting_time()
+
+        if waiting_time is None:
+            return None
+        elif waiting_time > WaitingTimeFilter.QUEUED_THRESHOLD:
+            return True
+        else:
+            return False
+
+    def waiting_time(self):
+        """
+        Returns waiting time in seconds for this Chat.
+        Returns None, if it couldn't be determined (via common.EventLog).
+        """
+
+        if self._waiting_time is None:
+            # avoid circular imports
+            from helpim.common.models import EventLog
+            from helpim.conversations.stats import EventLogProcessor, WaitingTimeFlatFilter
+
+            result = {str(self.id): {'avgWaitTime': None, 'queued': 0}}
+
+            # TODO: requiring session events to be within 1 hour isnt ideal
+            # get all EventLogs for the session which yielded this Chat
+            session_events = EventLog.objects.raw('''
+                select e2.*
+                from common_eventlog e1
+                inner join common_eventlog e2
+                    ON e1.session = e2.session AND ABS(TIMEDIFF(e1.created_at, e2.created_at) <= 3600)
+                where e1.payload='%s'
+                    AND e2.type IN ('helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined')
+            ''', self.id)
+            EventLogProcessor(session_events, [WaitingTimeFlatFilter()]).run(result)
+
+            self._waiting_time = result[str(self.id)]['avgWaitTime']
+
+        return self._waiting_time
 
 class ChatMessage(Message):
     EVENT_CHOICES = (
