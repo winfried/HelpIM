@@ -191,7 +191,7 @@ class Chat(Conversation):
                     ON e1.session = e2.session AND ABS(TIMEDIFF(e1.created_at, e2.created_at) <= 3600)
                 where e1.payload='%s'
                     AND e2.type IN ('helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined')
-            ''', self.id)
+            ''', [self.id])
             EventLogProcessor(session_events, [WaitingTimeFlatFilter()]).run(result)
 
             self._waiting_time = result[str(self.id)]['avgWaitTime']
