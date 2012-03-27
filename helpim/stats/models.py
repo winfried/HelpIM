@@ -300,11 +300,11 @@ class Report(models.Model):
     # what to show in result
     variable1 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
-        verbose_name=_('select row variable'),
+        verbose_name=_('select column variable'),
     )
     variable2 = models.CharField(max_length=255,
         default=NoneReportVariable.get_choices_tuples()[0][0],
-        verbose_name=_('select column variable')
+        verbose_name=_('select row variable')
     )
     output = models.CharField(max_length=255, choices=OUTPUT_CHOICES, default=OUTPUT_CHOICES[0],
         verbose_name=_('select information to show')
