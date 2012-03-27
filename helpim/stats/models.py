@@ -293,7 +293,7 @@ class Report(models.Model):
 
     # filter by properties of chat
     filter_blocked = models.BooleanField(verbose_name=_('Hits from blocked IPs'))
-    filter_queued = models.BooleanField(verbose_name=_('Hits when waiting queue was full'))
+    filter_queued = models.BooleanField(verbose_name=_('Hits that were queued'))
     filter_assigned = models.BooleanField(verbose_name=_('Assigned chats'))
     filter_interactive = models.BooleanField(verbose_name=_('Interactive chats'))
 
@@ -352,6 +352,8 @@ class Report(models.Model):
         staffParticipant = chat.getStaff()
 
         if self.filter_blocked and (not clientParticipant is None and clientParticipant.blocked):
+            return False
+        if self.filter_queued and (not chat.was_queued()):
             return False
         if self.filter_assigned and (staffParticipant is None or clientParticipant is None):
             return False

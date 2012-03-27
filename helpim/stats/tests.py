@@ -190,6 +190,22 @@ class ReportTestCase(TestCase):
         ChatMessage(conversation=c1, sender=c1.getStaff(), sender_name=c1.getStaff().name, created_at=datetime.now(), body="!").save()
         self.assertEqual(True, r.apply_filters(c1))
 
+    def test_filter_queued(self):
+        r = Report.objects.get(pk=1)
+        c1 = Chat.objects.get(pk=1)
+
+        # set filtering
+        r.filter_queued = True
+        self.assertEqual(False, r.apply_filters(c1))
+
+        # waiting time below threshold, c1 doesnt pass filters
+        c1._waiting_time = 0
+        self.assertEqual(False, r.apply_filters(c1))
+
+        # make c1 queued
+        c1._waiting_time = 3000
+        self.assertEqual(True, r.apply_filters(c1))
+
     def test_generate_2variables(self):
         r = Report.objects.get(pk=1)
 
