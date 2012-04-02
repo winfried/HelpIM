@@ -970,9 +970,6 @@ class Bot(JabberClient):
             for room in site.waitingRooms.getToDestroy():
                 log.info("Closing groupRoom %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
-            for room in site.waitingRooms.getTimedOut('abandoned', int(self.conf.mainloop.cleanup)):
-                log.notice("Closing groupRoom %s which has timed out in '%s' status." % (room.jid, status))
-                self.closeRoom(room)
             site.waitingRooms.deleteClosed()
             # SimpleRooms
             for room in site.simpleRooms.getToDestroy():
