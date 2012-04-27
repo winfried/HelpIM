@@ -115,7 +115,7 @@ msgstr "%s is aan het typen"
 #: static/xmpptk/helpim/ui/muc/room.js:156
 #, perl-format
 msgid "%s has entered the conversation"
-msgstr "%s is binnengekomen in het gesprek"
+msgstr "Je hebt een gesprek met %s"
 
 #: static/xmpptk/helpim/ui/muc/room.js:167
 #, perl-format

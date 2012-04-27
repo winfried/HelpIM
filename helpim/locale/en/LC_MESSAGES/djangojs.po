@@ -114,7 +114,7 @@ msgstr ""
 #: static/xmpptk/helpim/ui/muc/room.js:156
 #, perl-format
 msgid "%s has entered the conversation"
-msgstr ""
+msgstr "You have a conversation with %s"
 
 #: static/xmpptk/helpim/ui/muc/room.js:167
 #, perl-format
