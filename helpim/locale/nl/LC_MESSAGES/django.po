@@ -289,7 +289,7 @@ msgstr "Uur"
 #: conversations/stats.py:17
 #, fuzzy
 msgid "Total Chats"
-msgstr "Verbind met chat"
+msgstr "Totaal aantal chats"
 
 #: conversations/stats.py:18 stats/models.py:297
 msgid "Unique IPs"
@@ -312,7 +312,7 @@ msgstr "Toegevoegd"
 #: conversations/stats.py:22 conversations/stats.py:151
 #, fuzzy
 msgid "Interaction"
-msgstr "Gesprek"
+msgstr "Interactie"
 
 #: conversations/stats.py:23 conversations/stats.py:150
 msgid "Queued"
@@ -332,7 +332,7 @@ msgstr "Toegewezen chats"
 
 #: conversations/stats.py:142
 msgid "displays statistics of all Chats aggregated by hour"
-msgstr "toont statistieken van alle Chats gegroepeerd per uur"
+msgstr "toont statistieken van alle chats gegroepeerd per uur"
 
 #: conversations/stats.py:145
 msgid "Id"
