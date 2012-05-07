@@ -150,9 +150,7 @@ msgid "Please wait!"
 msgstr "Wacht alstublieft!"
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:54
-msgid ""
-"Please wait while we're acquiring a conversation for you! This can take some "
-"time."
+msgid "Please wait while we're acquiring a conversation for you! This can take some time."
 msgstr "Wacht alstublieft tot u aan de beurt bent. Dat kan even duren."
 
 #~ msgid "click to close"
