@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-27 10:51+0200\n"
+"POT-Creation-Date: 2012-05-07 16:48+0200\n"
 "PO-Revision-Date: 2012-01-25 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,8 +95,8 @@ msgstr ""
 "\n"
 "%(message)s\n"
 "\n"
-"Stuur geen direct antwoord op dit bericht, antwoord via de persoonlijke pagina van deze gebruiker op "
-"http://%(site)s/profile/%(client)s/"
+"Stuur geen direct antwoord op dit bericht, antwoord via de persoonlijke "
+"pagina van deze gebruiker op http://%(site)s/profile/%(client)s/"
 
 #: buddychat/views.py:133
 msgid "Your message has been sent"
@@ -137,7 +137,6 @@ msgstr ""
 "Stuur geen direct antwoord op dit bericht, antwoord via je persoonlijke op "
 "http://%(site)s%(path_profilepage)s"
 
-
 #: buddychat/management/commands/mail_questionnaires.py:62
 #, python-format
 msgid ""
@@ -146,7 +145,8 @@ msgid ""
 "Don't reply to this message directly, reply on the personal profile page at "
 "http://%(site)s%(path_profilepage)s"
 msgstr ""
-"Dit is een herinnering dat je je volgende vragenlijst moet invullen over %(careseeker)s.\n"
+"Dit is een herinnering dat je je volgende vragenlijst moet invullen over "
+"%(careseeker)s.\n"
 "\n"
 "Stuur geen direct antwoord op dit bericht, antwoord via je persoonlijke op "
 "http://%(site)s%(path_profilepage)s"
@@ -410,6 +410,10 @@ msgstr "Goedkeuren"
 msgid "Disagree"
 msgstr "Afkeuren"
 
+#: questionnaire/models.py:15
+msgid "Position"
+msgstr "Positie"
+
 #: questionnaire/models.py:21
 msgid "Questionnaire"
 msgstr "Vragenlijst"
@@ -575,8 +579,12 @@ msgid "all careworkers"
 msgstr "alle hulpverleners"
 
 #: stats/forms.py:48 stats/tests.py:337
-msgid "The period of time you selected is invalid (end date is older than start date)."
-msgstr "De tijdsspanne die je geselecteerd hebt is niet geldig (einddatum valt voor de begindatum)"
+msgid ""
+"The period of time you selected is invalid (end date is older than start "
+"date)."
+msgstr ""
+"De tijdsspanne die je geselecteerd hebt is niet geldig (einddatum valt voor "
+"de begindatum)"
 
 #: stats/models.py:95 stats/tests.py:378
 msgid "Weekday"
@@ -785,6 +793,7 @@ msgid "Internal server error"
 msgstr "Interne server fout"
 
 #: templates/base.html:22
+#, python-format
 msgid "Welcome, %(username)s!"
 msgstr "Welkom, %(username)s!"
 
@@ -1020,8 +1029,8 @@ msgid ""
 "You haven't created any reports yet. <a href=\"%(report_new_url)s\">Create a "
 "first report now!</a>"
 msgstr ""
-"Je hebt nog geen rapporten opgeslagen. <a href=\"%(report_new_url)s\">Maak nu "
-"je eerste rapport!</a>"
+"Je hebt nog geen rapporten opgeslagen. <a href=\"%(report_new_url)s\">Maak "
+"nu je eerste rapport!</a>"
 
 #: templates/stats/stats_overview.html:55
 #, python-format
