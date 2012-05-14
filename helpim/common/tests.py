@@ -1,8 +1,12 @@
+import pickle
+
 from django import template
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
+from helpim.common.management.commands.hi_import_db import Importer, HIData, HIUser
 from helpim.common.templatetags.if_app_installed import do_if_app_installed
 
 
@@ -47,3 +51,26 @@ class TemplateTagsTestCase(TestCase):
 
         # restore settings.INSTALLED_APP
         settings.INSTALLED_APPS = old_ia
+
+
+class ImporterTestCase(TestCase):
+    def setUp(self):
+        super(ImporterTestCase, self).setUp()
+
+        self.importer = Importer()
+
+    def test_import_users(self):
+        obj = HIData(users=[
+            HIUser(username='adam', email='adam@adam.com', password='sha1$hashash', is_staff=True),
+            HIUser(username="bob", email='bob@bob.com', password='sha1$hashash', is_staff=False)
+        ])
+
+        self.assertEqual(0, len(User.objects.all()))
+
+        self.importer.from_string(pickle.dumps(obj))
+        self.importer.import_users()
+
+        self.assertEqual(2, len(User.objects.all()))
+        self.assertEqual('adam@adam.com', User.objects.filter(username__exact='adam')[0].email)
+        self.assertEqual(True, User.objects.filter(username__exact='adam')[0].is_staff)
+        self.assertEqual('bob', User.objects.filter(email__exact='bob@bob.com')[0].username)
