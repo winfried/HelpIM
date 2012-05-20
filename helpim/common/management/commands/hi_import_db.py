@@ -2,7 +2,7 @@ from collections import namedtuple
 import os.path
 import pickle
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
@@ -33,23 +33,37 @@ class Importer():
         return self.data.users
 
     def import_users(self):
+        perm_careworker, created = Permission.objects.get_or_create(codename='is_careworker')
+        perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
+
         for u in self.data.users:
             # skip user if marked as deleted
             if not u.deleted_at is None:
                 continue
 
+            # create User, set basic properties
             new_user = User.objects.create_user(u.username, u.email)
             new_user.password = u.password
-            new_user.is_staff = u.is_staff is True
+
 
             # division, branchoffice, additional-user-information
             if not u.branch is None:
                 branchoffice, created = BranchOffice.objects.get_or_create(name=u.branch)
                 additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user, branch_office=branchoffice)
 
+            # permissions
+            if u.is_superuser is True:
+                new_user.is_superuser = True
+                new_user.is_staff = True
+            if u.is_coordinator is True:
+                new_user.user_permissions.add(perm_coordinator)
+                new_user.is_staff = True
+            if u.is_careworker is True:
+                new_user.user_permissions.add(perm_careworker)
+                new_user.is_staff = True
 
             new_user.save()
 
 
 HIData = namedtuple('HIData', ['users'])
-HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'branch', 'is_staff'])
+HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
