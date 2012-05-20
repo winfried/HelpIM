@@ -43,8 +43,9 @@ class Importer():
 
             # create User, set basic properties
             new_user = User.objects.create_user(u.username, u.email)
+            new_user.first_name = u.first_name
+            new_user.last_name = u.last_name
             new_user.password = u.password
-
 
             # division, branchoffice, additional-user-information
             if not u.branch is None:
@@ -66,4 +67,4 @@ class Importer():
 
 
 HIData = namedtuple('HIData', ['users'])
-HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
+HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])

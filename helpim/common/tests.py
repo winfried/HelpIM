@@ -66,17 +66,17 @@ class ImporterTestCase(TestCase):
 
     def test_import_users(self):
         # create User objects with properties to test
-        marked_deleted = HIUser(username='del', email='del@del.de', password='sha1$hashash', deleted_at=datetime(2005, 1, 1, 12, 30), branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
-        branchoffice_user1 = HIUser(username='branchuser1', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
-        branchoffice_user2 = HIUser(username='branchuser2', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
+        normal_user = HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
+        marked_deleted = HIUser(username='del', first_name='ffff4', last_name='lll3', email='del@del.de', password='sha1$hashash', deleted_at=datetime(2005, 1, 1, 12, 30), branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
+        branchoffice_user1 = HIUser(username='branchuser1', first_name='ffff4', last_name='lll3', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
+        branchoffice_user2 = HIUser(username='branchuser2', first_name='ffff4', last_name='lll3', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
 
-        super_user = HIUser(username='superuser', email='super@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=True, is_coordinator=False, is_careworker=False)
-        coordinator_user = HIUser(username='coordinator', email='coord@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=True, is_careworker=False)
-        careworker_user = HIUser(username='careworker', email='care@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=True)
+        super_user = HIUser(username='superuser', first_name='ffff4', last_name='lll3', email='super@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=True, is_coordinator=False, is_careworker=False)
+        coordinator_user = HIUser(username='coordinator', first_name='ffff4', last_name='lll3', email='coord@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=True, is_careworker=False)
+        careworker_user = HIUser(username='careworker', first_name='ffff4', last_name='lll3', email='care@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=True)
 
         obj = HIData(users=[
-            HIUser(username='adam', email='adam@adam.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=True, is_coordinator=False, is_careworker=False),
-            HIUser(username="bob", email='bob@bob.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False),
+            normal_user,
             marked_deleted,
             branchoffice_user1,
             branchoffice_user2,
@@ -94,10 +94,11 @@ class ImporterTestCase(TestCase):
         self.importer.from_string(pickle.dumps(obj))
         self.importer.import_users()
 
-        self.assertEqual(7, len(User.objects.all()))
-        self.assertEqual('adam@adam.com', User.objects.filter(username__exact='adam')[0].email)
-        self.assertEqual(True, User.objects.filter(username__exact='adam')[0].is_superuser)
-        self.assertEqual('bob', User.objects.filter(email__exact='bob@bob.com')[0].username)
+        self.assertEqual(6, len(User.objects.all()))
+        self.assertEqual(normal_user.username, User.objects.filter(email__exact=normal_user.email)[0].username)
+        self.assertEqual(normal_user.first_name, User.objects.filter(email__exact=normal_user.email)[0].first_name)
+        self.assertEqual(normal_user.last_name, User.objects.filter(email__exact=normal_user.email)[0].last_name)
+        self.assertEqual(True, User.objects.filter(username__exact=normal_user.username)[0].check_password('secret'))
 
         # deleted users
         self.assertEqual(0, User.objects.filter(username__exact=marked_deleted.username).count())
