@@ -5,6 +5,8 @@ import pickle
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
+from helpim.common.models import AdditionalUserInformation, BranchOffice
+
 
 class Command(BaseCommand):
     help = 'Imports data from HelpIM 2.2'
@@ -39,8 +41,15 @@ class Importer():
             new_user = User.objects.create_user(u.username, u.email)
             new_user.password = u.password
             new_user.is_staff = u.is_staff is True
+
+            # division, branchoffice, additional-user-information
+            if not u.branch is None:
+                branchoffice, created = BranchOffice.objects.get_or_create(name=u.branch)
+                additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user, branch_office=branchoffice)
+
+
             new_user.save()
 
 
 HIData = namedtuple('HIData', ['users'])
-HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'is_staff'])
+HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'branch', 'is_staff'])
