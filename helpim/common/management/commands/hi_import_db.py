@@ -32,6 +32,10 @@ class Importer():
 
     def import_users(self):
         for u in self.data.users:
+            # skip user if marked as deleted
+            if not u.deleted_at is None:
+                continue
+
             new_user = User.objects.create_user(u.username, u.email)
             new_user.password = u.password
             new_user.is_staff = u.is_staff is True
@@ -39,4 +43,4 @@ class Importer():
 
 
 HIData = namedtuple('HIData', ['users'])
-HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'is_staff'])
+HIUser = namedtuple('HIUser', ['username', 'email', 'password', 'deleted_at', 'is_staff'])

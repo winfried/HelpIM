@@ -1,3 +1,4 @@
+from datetime import datetime
 import pickle
 
 from django import template
@@ -60,9 +61,12 @@ class ImporterTestCase(TestCase):
         self.importer = Importer()
 
     def test_import_users(self):
+        marked_deleted = HIUser(username='del', email='del@del.de', password='sha1$hashash', deleted_at=datetime(2005, 1, 1, 12, 30), is_staff=False)
+        
         obj = HIData(users=[
-            HIUser(username='adam', email='adam@adam.com', password='sha1$hashash', is_staff=True),
-            HIUser(username="bob", email='bob@bob.com', password='sha1$hashash', is_staff=False)
+            HIUser(username='adam', email='adam@adam.com', password='sha1$hashash', deleted_at=None, is_staff=True),
+            HIUser(username="bob", email='bob@bob.com', password='sha1$hashash', deleted_at=None, is_staff=False),
+            marked_deleted
         ])
 
         self.assertEqual(0, len(User.objects.all()))
@@ -74,3 +78,5 @@ class ImporterTestCase(TestCase):
         self.assertEqual('adam@adam.com', User.objects.filter(username__exact='adam')[0].email)
         self.assertEqual(True, User.objects.filter(username__exact='adam')[0].is_staff)
         self.assertEqual('bob', User.objects.filter(email__exact='bob@bob.com')[0].username)
+        
+        self.assertEqual(0, User.objects.filter(username__exact=marked_deleted.username).count())
