@@ -6,6 +6,7 @@ from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
+from helpim.conversations.models import Chat, Conversation, Participant
 
 
 class Command(BaseCommand):
@@ -21,6 +22,7 @@ class Command(BaseCommand):
             imp.from_file(file)
 
             imp.import_users()
+            imp.import_chats()
 
 class Importer():
     def from_file(self, f):
@@ -65,6 +67,37 @@ class Importer():
 
             new_user.save()
 
+    def import_chats(self):
+        for c in self.data.chats:
+            new_chat = Chat(start_time=c.started_at, subject=c.subject)
+            new_chat.save()
 
-HIData = namedtuple('HIData', ['users'])
+            if not c.staff_name is None:
+                try:
+                    staff_user = User.objects.filter(username__exact=c.staff_name)[0]
+                except:
+                    print "Couldnt find associated User with username: %s" % c.staff_name
+                    staff_user = None
+
+                staff = Participant(conversation=new_chat, name=c.staff_name, user=staff_user, role=Participant.ROLE_STAFF, ip_hash=c.staff_ip)
+                staff.save()
+
+            if not c.client_name is None:
+                client = Participant(conversation=new_chat, name=c.client_name, user=None, role=Participant.ROLE_CLIENT, ip_hash=c.client_ip, blocked=c.client_blocked, blocked_at=c.client_blocked_at)
+                client.save(keep_blocked_at=True)
+
+
+HIData = namedtuple('HIData', ['users', 'chats'])
 HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
+HIChat = namedtuple('HIChat', [
+    'started_at',
+    'subject',
+    'client_name',
+    'client_user',
+    'client_ip',
+    'client_blocked',
+    'client_blocked_at',
+    'staff_name',
+    'staff_user',
+    'staff_ip',
+])

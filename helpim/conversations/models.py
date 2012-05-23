@@ -101,8 +101,9 @@ class Participant(models.Model):
     blocked = models.BooleanField()
     blocked_at = models.DateTimeField(null=True, default=None)
 
-    def save(self, *args, **kwargs):
-        if self.blocked:
+    def save(self, keep_blocked_at=False, *args, **kwargs):
+        # dont always overwrite blocked_at with $now, necessary for importing data
+        if self.blocked and not keep_blocked_at:
             self.blocked_at = datetime.now()
         super(Participant, self).save(*args, **kwargs)
 

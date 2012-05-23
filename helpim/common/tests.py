@@ -7,9 +7,10 @@ from django.contrib.auth.models import Permission, User
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
-from helpim.common.management.commands.hi_import_db import Importer, HIData, HIUser
+from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIUser
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.common.templatetags.if_app_installed import do_if_app_installed
+from helpim.conversations.models import Chat, Conversation, Participant
 
 
 class TemplateTagsTestCase(TestCase):
@@ -64,6 +65,13 @@ class ImporterTestCase(TestCase):
 
         self.importer = Importer()
 
+    def _updated_copy(self, dict, update):
+        '''creates a copy of `dict`, updates its entries and returns the object'''
+
+        new_dict = dict.copy()
+        new_dict.update(update)
+        return new_dict
+
     def test_import_users(self):
         # create User objects with properties to test
         normal_user = HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
@@ -75,15 +83,18 @@ class ImporterTestCase(TestCase):
         coordinator_user = HIUser(username='coordinator', first_name='ffff4', last_name='lll3', email='coord@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=True, is_careworker=False)
         careworker_user = HIUser(username='careworker', first_name='ffff4', last_name='lll3', email='care@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=True)
 
-        obj = HIData(users=[
-            normal_user,
-            marked_deleted,
-            branchoffice_user1,
-            branchoffice_user2,
-            super_user,
-            coordinator_user,
-            careworker_user,
-        ])
+        obj = HIData(
+            users=[
+                normal_user,
+                marked_deleted,
+                branchoffice_user1,
+                branchoffice_user2,
+                super_user,
+                coordinator_user,
+                careworker_user,
+            ],
+            chats=[]
+        )
 
         # check database state pre-import
         self.assertEqual(0, len(User.objects.all()))
@@ -118,3 +129,52 @@ class ImporterTestCase(TestCase):
 
         self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].has_perm('buddychat.is_careworker'))
         self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].is_staff)
+
+    def test_import_chats(self):
+        defaults = { 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_user': None, 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
+        only_staff = HIChat(**self._updated_copy(defaults, {'subject': 'not-assigned', 'client_name': None, 'client_user': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
+        blocked_client = HIChat(**self._updated_copy(defaults, {'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
+
+        obj = HIData(
+            users=[
+                HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
+            ],
+            chats=[
+                HIChat(**defaults),
+                only_staff,
+                blocked_client,
+            ]
+        )
+
+        # check database state pre-import
+        self.assertEqual(0, len(Chat.objects.all()))
+        self.assertEqual(0, len(Participant.objects.all()))
+
+        # import data
+        self.importer.from_string(pickle.dumps(obj))
+        self.importer.import_users()
+        self.importer.import_chats()
+
+        self.assertEqual(len(obj.chats), len(Chat.objects.all()))
+        self.assertEqual(5, len(Participant.objects.all()))
+
+        # normal chat
+        self.assertEqual(datetime(2012, 1, 3, 15, 0), Chat.objects.get(pk=1).start_time)
+        self.assertEqual('Subject', Chat.objects.get(pk=1).subject)
+        self.assertEqual('bob', Chat.objects.get(pk=1).getStaff().name)
+        self.assertEqual('bob', Chat.objects.get(pk=1).getStaff().user.username)
+        self.assertEqual('aabbcc', Chat.objects.get(pk=1).getStaff().ip_hash)
+        self.assertEqual('careseeker', Chat.objects.get(pk=1).getClient().name)
+        self.assertEqual(None, Chat.objects.get(pk=1).getClient().user)
+        self.assertEqual('112233', Chat.objects.get(pk=1).getClient().ip_hash)
+        self.assertEqual(False, Chat.objects.get(pk=1).getClient().blocked)
+        self.assertEqual(None, Chat.objects.get(pk=1).getClient().blocked_at)
+
+        # only_staff
+        self.assertEqual(1, Chat.objects.filter(subject__exact=only_staff.subject)[0].participant_set.count())
+
+        # blocked client
+        self.assertEqual(2, Chat.objects.filter(subject__exact=blocked_client.subject)[0].participant_set.count())
+        self.assertEqual('xxyyzz', Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().ip_hash)
+        self.assertEqual(True, Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked)
+        self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked_at)
