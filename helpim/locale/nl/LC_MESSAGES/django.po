@@ -920,8 +920,8 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"\t\t            %(staffname)s, neem AUB een moment de tijd om <b><a href="
-"\"%(questionnaire_url)s\">dit formulier in te vullen</a></b>!\n"
+"\t\t            %(username)s, neem AUB een moment de tijd om <b><a href="
+"\"%(recurring_questionnaire_url)s\">dit formulier in te vullen</a></b>!\n"
 "\t\t        "
 
 #: templates/buddychat/profile.html:41
