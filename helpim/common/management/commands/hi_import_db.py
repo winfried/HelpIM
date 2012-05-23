@@ -93,7 +93,6 @@ HIChat = namedtuple('HIChat', [
     'started_at',
     'subject',
     'client_name',
-    'client_user',
     'client_ip',
     'client_blocked',
     'client_blocked_at',

@@ -131,8 +131,8 @@ class ImporterTestCase(TestCase):
         self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].is_staff)
 
     def test_import_chats(self):
-        defaults = { 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_user': None, 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
-        only_staff = HIChat(**self._updated_copy(defaults, {'subject': 'not-assigned', 'client_name': None, 'client_user': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
+        defaults = { 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
+        only_staff = HIChat(**self._updated_copy(defaults, {'subject': 'not-assigned', 'client_name': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
         blocked_client = HIChat(**self._updated_copy(defaults, {'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
 
         obj = HIData(
