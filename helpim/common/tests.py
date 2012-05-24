@@ -66,7 +66,7 @@ class ImporterTestCase(TestCase):
         self.importer = Importer()
 
     def _updated_copy(self, dict, update):
-        '''creates a copy of `dict`, updates its entries and returns the object'''
+        '''creates a copy of `dict`, updates its entries using `update` and returns the resulting dict'''
 
         new_dict = dict.copy()
         new_dict.update(update)
@@ -74,14 +74,16 @@ class ImporterTestCase(TestCase):
 
     def test_import_users(self):
         # create User objects with properties to test
-        normal_user = HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
-        marked_deleted = HIUser(username='del', first_name='ffff4', last_name='lll3', email='del@del.de', password='sha1$hashash', deleted_at=datetime(2005, 1, 1, 12, 30), branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
-        branchoffice_user1 = HIUser(username='branchuser1', first_name='ffff4', last_name='lll3', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
-        branchoffice_user2 = HIUser(username='branchuser2', first_name='ffff4', last_name='lll3', email='branch@branch.com', password='sha1$hashash', deleted_at=None, branch='Amsterdam', is_superuser=True, is_coordinator=False, is_careworker=False)
+        defaults = { 'first_name': 'ffff4', 'last_name': 'lll3', 'password': 'sha1$hashash', 'deleted_at': None, 'branch': None, 'is_superuser': False, 'is_coordinator': False, 'is_careworker': False, }
 
-        super_user = HIUser(username='superuser', first_name='ffff4', last_name='lll3', email='super@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=True, is_coordinator=False, is_careworker=False)
-        coordinator_user = HIUser(username='coordinator', first_name='ffff4', last_name='lll3', email='coord@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=True, is_careworker=False)
-        careworker_user = HIUser(username='careworker', first_name='ffff4', last_name='lll3', email='care@worker.com', password='sha1$hashash', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=True)
+        normal_user = HIUser(**self._updated_copy(defaults, { 'username':"bob", 'first_name':'bob', 'last_name': 'bobby', 'email': 'bob@bob.com', 'password': 'sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', }))
+        marked_deleted = HIUser(**self._updated_copy(defaults, { 'username': 'del', 'email': 'del@del.de', 'deleted_at': datetime(2005, 1, 1, 12, 30), }))
+        branchoffice_user1 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser1', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
+        branchoffice_user2 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser2', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
+
+        super_user = HIUser(**self._updated_copy(defaults, { 'username': 'superuser', 'email': 'super@worker.com', 'is_superuser': True, }))
+        coordinator_user = HIUser(**self._updated_copy(defaults, { 'username': 'coordinator', 'email': 'coord@worker.com', 'is_coordinator': True, }))
+        careworker_user = HIUser(**self._updated_copy(defaults, { 'username': 'careworker', 'email': 'care@worker.com', 'is_careworker': True, }))
 
         obj = HIData(
             users=[
@@ -131,6 +133,7 @@ class ImporterTestCase(TestCase):
         self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].is_staff)
 
     def test_import_chats(self):
+        # create Chat objects with properties to test
         defaults = { 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
         only_staff = HIChat(**self._updated_copy(defaults, {'subject': 'not-assigned', 'client_name': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
         blocked_client = HIChat(**self._updated_copy(defaults, {'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
