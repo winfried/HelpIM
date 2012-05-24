@@ -7,10 +7,14 @@ from django.contrib.auth.models import Permission, User
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
-from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIUser
+from forms_builder.forms.models import Field, Form
+from forms_builder.forms.fields import *
+
+from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIQuestionnaire, HIQuestionnaireField, HIUser
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.common.templatetags.if_app_installed import do_if_app_installed
-from helpim.conversations.models import Chat, Conversation, Participant
+from helpim.conversations.models import Chat, Participant
+from helpim.questionnaire.models import Questionnaire
 
 
 class TemplateTagsTestCase(TestCase):
@@ -95,7 +99,8 @@ class ImporterTestCase(TestCase):
                 coordinator_user,
                 careworker_user,
             ],
-            chats=[]
+            chats=[],
+            questionnaires=[],
         )
 
         # check database state pre-import
@@ -146,7 +151,8 @@ class ImporterTestCase(TestCase):
                 HIChat(**defaults),
                 only_staff,
                 blocked_client,
-            ]
+            ],
+            questionnaires=[],
         )
 
         # check database state pre-import
@@ -181,3 +187,44 @@ class ImporterTestCase(TestCase):
         self.assertEqual('xxyyzz', Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().ip_hash)
         self.assertEqual(True, Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked)
         self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked_at)
+
+    def test_import_questionnaires(self):
+        # create Questionnaire objects with properties to test
+        normal_questionnaire = HIQuestionnaire(
+            id=55, title='questionnaire 1', position='CB', intro='welcome', response='gotcha',
+            fields=[
+                HIQuestionnaireField(label='city?', type=1, choices=None, visible=True), # text
+                HIQuestionnaireField(label='color?', type=5, choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
+                HIQuestionnaireField(label='double', type=15, choices='one(),two(A,B,C),three', visible=True), # doubledrop
+            ]
+        )
+
+        obj = HIData(
+            users=[],
+            chats=[],
+            questionnaires=[
+                normal_questionnaire,
+            ],
+        )
+
+        #check database state pre-import
+        self.assertEqual(0, len(Questionnaire.objects.all()))
+        self.assertEqual(0, len(Form.objects.all()))
+        self.assertEqual(0, len(Field.objects.all()))
+
+        #import data
+        self.importer.from_string(pickle.dumps(obj))
+        self.importer.import_questionnaires()
+
+        self.assertEqual(len(obj.questionnaires), len(Questionnaire.objects.all()))
+        self.assertEqual(len(obj.questionnaires), len(Form.objects.all()))
+        self.assertEqual(3, len(Field.objects.all()))
+
+        # normal questionnaire
+        q1 = Questionnaire.objects.filter(title__exact=normal_questionnaire.title)[0]
+        self.assertEqual('questionnaire 1', q1.title)
+        self.assertEqual('questionnaire-1', q1.slug)
+        self.assertEqual(3, q1.fields.count())
+        self.assertEqual(TEXT, q1.fields.get(label='city?').field_type)
+        self.assertEqual(CHECKBOX_MULTIPLE, q1.fields.get(label='color?').field_type)
+        self.assertEqual(101, q1.fields.get(label='double').field_type)

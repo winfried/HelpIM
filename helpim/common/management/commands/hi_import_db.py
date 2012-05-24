@@ -5,8 +5,12 @@ import pickle
 from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
 
+from forms_builder.forms.models import Field
+from forms_builder.forms.fields import *
+
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.conversations.models import Chat, Conversation, Participant
+from helpim.questionnaire.models import Questionnaire
 
 
 class Command(BaseCommand):
@@ -86,8 +90,42 @@ class Importer():
                 client = Participant(conversation=new_chat, name=c.client_name, user=None, role=Participant.ROLE_CLIENT, ip_hash=c.client_ip, blocked=c.client_blocked, blocked_at=c.client_blocked_at)
                 client.save(keep_blocked_at=True)
 
+    def import_questionnaires(self):
+        for q in self.data.questionnaires:
+            new_questionnaire = Questionnaire(title=q.title, position=q.position, intro=q.intro, response=q.response)
+            new_questionnaire.save()
 
-HIData = namedtuple('HIData', ['users', 'chats'])
+            for field in q.fields:
+                new_field = Field(form=new_questionnaire, label=field.label, field_type=self._convert_field_type(field.type), choices=field.choices or '', visible=field.visible is False)
+                new_field.save()
+
+    def _convert_field_type(self, id22):
+        '''takes a field-type-id from HelpIM 2.2, returns the corresponding field-type in 3.1'''
+
+        # field-type in 2.2 -> field-type in 3.1
+        lookup = {
+            1: TEXT,
+            2: TEXTAREA,
+            3: EMAIL,
+            4: CHECKBOX,
+            5: CHECKBOX_MULTIPLE,
+            6: SELECT,
+            7: SELECT_MULTIPLE,
+            8: RADIO_MULTIPLE,
+            9: FILE,
+            10: DATE,
+            11: DATE_TIME,
+            12: HIDDEN,
+            13: NUMBER,
+            14: URL,
+            14: 100, # ScaleField
+            15: 101, # DoubleDrop
+        }
+
+        return lookup[id22]
+
+
+HIData = namedtuple('HIData', ['users', 'chats', 'questionnaires'])
 HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
 HIChat = namedtuple('HIChat', [
     'started_at',
@@ -97,6 +135,20 @@ HIChat = namedtuple('HIChat', [
     'client_blocked',
     'client_blocked_at',
     'staff_name',
-    'staff_user',
+    'staff_user', # references a User by `username`
     'staff_ip',
+])
+HIQuestionnaire = namedtuple('HIQuestionnaire', [
+    'id',
+    'title',
+    'position',
+    'intro',
+    'response',
+    'fields', # a list of HIQuestionnaireField
+])
+HIQuestionnaireField = namedtuple('HIQuestionnaireField', [
+    'label',
+    'type',
+    'choices',
+    'visible',
 ])
