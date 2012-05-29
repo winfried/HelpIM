@@ -77,6 +77,16 @@ body {
     padding-top: 5pt;
 }
 
+.dynamic-messages td {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dynamic-messages p {
+    line-height: 100%;
+    margin: 4px 0px;
+}
+
 /* printing */
 @media print {
     #navigation,#logout,.subnavigation {
