@@ -139,9 +139,9 @@ class ImporterTestCase(TestCase):
 
     def test_import_chats(self):
         # create Chat objects with properties to test
-        defaults = { 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
-        only_staff = HIChat(**self._updated_copy(defaults, {'subject': 'not-assigned', 'client_name': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
-        blocked_client = HIChat(**self._updated_copy(defaults, {'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
+        defaults = { 'id': 10, 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
+        only_staff = HIChat(**self._updated_copy(defaults, {'id': 11, 'subject': 'not-assigned', 'client_name': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
+        blocked_client = HIChat(**self._updated_copy(defaults, {'id': 12, 'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
 
         obj = HIData(
             users=[
@@ -178,15 +178,18 @@ class ImporterTestCase(TestCase):
         self.assertEqual('112233', Chat.objects.get(pk=1).getClient().ip_hash)
         self.assertEqual(False, Chat.objects.get(pk=1).getClient().blocked)
         self.assertEqual(None, Chat.objects.get(pk=1).getClient().blocked_at)
+        self.assertEqual(Chat.objects.get(subject='Subject').id, self.importer._get_chat_id(10))
 
         # only_staff
         self.assertEqual(1, Chat.objects.filter(subject__exact=only_staff.subject)[0].participant_set.count())
+        self.assertEqual(Chat.objects.filter(subject__exact=only_staff.subject)[0].id, self.importer._get_chat_id(11))
 
         # blocked client
         self.assertEqual(2, Chat.objects.filter(subject__exact=blocked_client.subject)[0].participant_set.count())
         self.assertEqual('xxyyzz', Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().ip_hash)
         self.assertEqual(True, Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked)
         self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked_at)
+        self.assertEqual(Chat.objects.filter(subject__exact=blocked_client.subject)[0].id, self.importer._get_chat_id(12))
 
     def test_import_questionnaires(self):
         # create Questionnaire objects with properties to test

@@ -29,6 +29,11 @@ class Command(BaseCommand):
             imp.import_chats()
 
 class Importer():
+    def __init__(self):
+        # these dictionaries are used to convert primary key ids between the systems,
+        # since they will change during conversion
+        self.chat_ids = {}
+
     def from_file(self, f):
         self.data = pickle.load(f)
 
@@ -75,6 +80,7 @@ class Importer():
         for c in self.data.chats:
             new_chat = Chat(start_time=c.started_at, subject=c.subject)
             new_chat.save()
+            self.chat_ids[c.id] = new_chat.id
 
             if not c.staff_name is None:
                 try:
@@ -124,10 +130,15 @@ class Importer():
 
         return lookup[id22]
 
+    def _get_chat_id(self, id22):
+        '''takes the id of a Chat object in the 2.2 database, returns the id of the converted Chat object in the 3.1 database'''
+        return self.chat_ids[id22]
+
 
 HIData = namedtuple('HIData', ['users', 'chats', 'questionnaires'])
 HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
 HIChat = namedtuple('HIChat', [
+    'id', # identifier of this chat in 2.2
     'started_at',
     'subject',
     'client_name',
