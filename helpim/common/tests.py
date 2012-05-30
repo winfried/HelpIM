@@ -168,28 +168,31 @@ class ImporterTestCase(TestCase):
         self.assertEqual(5, len(Participant.objects.all()))
 
         # normal chat
-        self.assertEqual(datetime(2012, 1, 3, 15, 0), Chat.objects.get(pk=1).start_time)
-        self.assertEqual('Subject', Chat.objects.get(pk=1).subject)
-        self.assertEqual('bob', Chat.objects.get(pk=1).getStaff().name)
-        self.assertEqual('bob', Chat.objects.get(pk=1).getStaff().user.username)
-        self.assertEqual('aabbcc', Chat.objects.get(pk=1).getStaff().ip_hash)
-        self.assertEqual('careseeker', Chat.objects.get(pk=1).getClient().name)
-        self.assertEqual(None, Chat.objects.get(pk=1).getClient().user)
-        self.assertEqual('112233', Chat.objects.get(pk=1).getClient().ip_hash)
-        self.assertEqual(False, Chat.objects.get(pk=1).getClient().blocked)
-        self.assertEqual(None, Chat.objects.get(pk=1).getClient().blocked_at)
-        self.assertEqual(Chat.objects.get(subject='Subject').id, self.importer._get_chat_id(10))
+        c1 = Chat.objects.get(subject=defaults['subject'])
+        self.assertEqual(datetime(2012, 1, 3, 15, 0), c1.start_time)
+        self.assertEqual('Subject', c1.subject)
+        self.assertEqual('bob', c1.getStaff().name)
+        self.assertEqual('bob', c1.getStaff().user.username)
+        self.assertEqual('aabbcc', c1.getStaff().ip_hash)
+        self.assertEqual('careseeker', c1.getClient().name)
+        self.assertEqual(None, c1.getClient().user)
+        self.assertEqual('112233', c1.getClient().ip_hash)
+        self.assertEqual(False, c1.getClient().blocked)
+        self.assertEqual(None, c1.getClient().blocked_at)
+        self.assertEqual(c1.id, self.importer._get_chat_id(10))
 
         # only_staff
-        self.assertEqual(1, Chat.objects.filter(subject__exact=only_staff.subject)[0].participant_set.count())
-        self.assertEqual(Chat.objects.filter(subject__exact=only_staff.subject)[0].id, self.importer._get_chat_id(11))
+        c2 = Chat.objects.get(subject=only_staff.subject)
+        self.assertEqual(1, c2.participant_set.count())
+        self.assertEqual(c2.id, self.importer._get_chat_id(11))
 
         # blocked client
-        self.assertEqual(2, Chat.objects.filter(subject__exact=blocked_client.subject)[0].participant_set.count())
-        self.assertEqual('xxyyzz', Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().ip_hash)
-        self.assertEqual(True, Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked)
-        self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), Chat.objects.filter(subject__exact=blocked_client.subject)[0].getClient().blocked_at)
-        self.assertEqual(Chat.objects.filter(subject__exact=blocked_client.subject)[0].id, self.importer._get_chat_id(12))
+        c3 = Chat.objects.get(subject=blocked_client.subject)
+        self.assertEqual(2, c3.participant_set.count())
+        self.assertEqual('xxyyzz', c3.getClient().ip_hash)
+        self.assertEqual(True, c3.getClient().blocked)
+        self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), c3.getClient().blocked_at)
+        self.assertEqual(c3.id, self.importer._get_chat_id(12))
 
     def test_import_questionnaires(self):
         # create Questionnaire objects with properties to test
