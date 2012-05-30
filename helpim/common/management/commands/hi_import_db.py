@@ -9,7 +9,7 @@ from forms_builder.forms.models import Field, FieldEntry, FormEntry
 from forms_builder.forms.fields import *
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
-from helpim.conversations.models import Chat, Conversation, Participant
+from helpim.conversations.models import Chat, ChatMessage, Conversation, Participant
 from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
 
@@ -97,6 +97,15 @@ class Importer():
                 client = Participant(conversation=new_chat, name=c.client_name, user=None, role=Participant.ROLE_CLIENT, ip_hash=c.client_ip, blocked=c.client_blocked, blocked_at=c.client_blocked_at)
                 client.save(keep_blocked_at=True)
 
+            for msg in c.messages:
+                if msg.who == 'CLIENT':
+                    sender = client
+                else:
+                    sender = staff
+
+                new_msg = ChatMessage(conversation=new_chat, sender=sender, sender_name=sender.name, created_at=msg.created_at, body=msg.body, event=msg.event)
+                new_msg.save()
+
     def import_questionnaires(self):
         for q in self.data.questionnaires:
             new_questionnaire = Questionnaire(title=q.title, position=q.position, intro=q.intro, response=q.response)
@@ -164,6 +173,7 @@ HIChat = namedtuple('HIChat', [
     'id', # identifier of this chat in 2.2
     'started_at',
     'subject',
+    'messages', # list of messages
     'client_name',
     'client_ip',
     'client_blocked',
@@ -171,6 +181,12 @@ HIChat = namedtuple('HIChat', [
     'staff_name',
     'staff_user', # references a User by `username`
     'staff_ip',
+])
+HIMessage = namedtuple('HIMessage', [
+    'event', # 'message' | 'join' | 'rejoin' | 'left' | 'ended'
+    'created_at',
+    'who', # 'STAFF' or 'CLIENT'
+    'body',
 ])
 HIQuestionnaire = namedtuple('HIQuestionnaire', [
     'title',

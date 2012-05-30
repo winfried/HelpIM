@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pickle
 
 from django import template
@@ -10,10 +10,10 @@ from django.test import TestCase
 from forms_builder.forms.models import Field, FieldEntry, Form, FormEntry
 from forms_builder.forms.fields import *
 
-from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIQuestionnaire, HIQuestionnaireAnswer, HIQuestionnaireField, HIUser
+from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIMessage, HIQuestionnaire, HIQuestionnaireAnswer, HIQuestionnaireField, HIUser
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.common.templatetags.if_app_installed import do_if_app_installed
-from helpim.conversations.models import Chat, Participant
+from helpim.conversations.models import Chat, ChatMessage, Participant
 from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
 
@@ -139,9 +139,13 @@ class ImporterTestCase(TestCase):
 
     def test_import_chats(self):
         # create Chat objects with properties to test
-        defaults = { 'id': 10, 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
+        defaults = { 'id': 10, 'started_at': datetime(2012, 1, 3, 15, 0), 'subject': 'Subject', 'messages': [], 'client_name': 'careseeker', 'client_ip': '112233', 'client_blocked': False, 'client_blocked_at': None, 'staff_name': 'bob', 'staff_user': 'bob', 'staff_ip': 'aabbcc', }
         only_staff = HIChat(**self._updated_copy(defaults, {'id': 11, 'subject': 'not-assigned', 'client_name': None, 'client_ip': None, 'client_blocked': None, 'client_blocked_at': None, }))
         blocked_client = HIChat(**self._updated_copy(defaults, {'id': 12, 'subject': 'blocked-client', 'client_ip': 'xxyyzz', 'client_blocked': True, 'client_blocked_at': datetime(2000, 2, 2, 1, 1, 1), }))
+        with_messages = HIChat(**self._updated_copy(defaults, { 'id': 13, 'subject': 'talkative', 'messages': [
+            HIMessage(event='message', created_at=datetime(2000, 1, 1, 20), who='CLIENT', body='cccc'),
+            HIMessage(event='message', created_at=datetime(2000, 1, 1, 21), who='STAFF', body='ssss'),
+        ]}))
 
         obj = HIData(
             users=[
@@ -151,6 +155,7 @@ class ImporterTestCase(TestCase):
                 HIChat(**defaults),
                 only_staff,
                 blocked_client,
+                with_messages,
             ],
             questionnaires=[],
         )
@@ -158,6 +163,7 @@ class ImporterTestCase(TestCase):
         # check database state pre-import
         self.assertEqual(0, len(Chat.objects.all()))
         self.assertEqual(0, len(Participant.objects.all()))
+        self.assertEqual(0, len(ChatMessage.objects.all()))
 
         # import data
         self.importer.from_string(pickle.dumps(obj))
@@ -165,7 +171,9 @@ class ImporterTestCase(TestCase):
         self.importer.import_chats()
 
         self.assertEqual(len(obj.chats), len(Chat.objects.all()))
-        self.assertEqual(5, len(Participant.objects.all()))
+        self.assertEqual(7, len(Participant.objects.all()))
+        self.assertEqual(2, len(ChatMessage.objects.all()))
+
 
         # normal chat
         c1 = Chat.objects.get(subject=defaults['subject'])
@@ -193,6 +201,12 @@ class ImporterTestCase(TestCase):
         self.assertEqual(True, c3.getClient().blocked)
         self.assertEqual(datetime(2000, 2, 2, 1, 1, 1), c3.getClient().blocked_at)
         self.assertEqual(c3.id, self.importer._get_chat_id(12))
+
+        # with messages
+        c4 = Chat.objects.get(subject=with_messages.subject)
+        self.assertEqual('cccc', c4.messages.all()[0].body)
+        self.assertEqual('ssss', c4.messages.all()[1].body)
+        self.assertEqual(timedelta(0, 3600), c4.duration())
 
     def test_import_questionnaires(self):
         # create Questionnaire objects with properties to test
@@ -256,7 +270,7 @@ class ImporterTestCase(TestCase):
                 HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
             ],
             chats=[
-                HIChat(id=10, started_at=datetime(2012, 1, 3, 15, 0), subject='Subject', client_name='careseeker', client_ip='112233', client_blocked=False, client_blocked_at=None, staff_name='bob', staff_user='bob', staff_ip='aabbcc')
+                HIChat(id=10, started_at=datetime(2012, 1, 3, 15, 0), subject='Subject', messages=[], client_name='careseeker', client_ip='112233', client_blocked=False, client_blocked_at=None, staff_name='bob', staff_user='bob', staff_ip='aabbcc')
             ],
             questionnaires=[
                 answered_questionnaire,
