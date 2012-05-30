@@ -5,12 +5,12 @@ import pickle
 from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
 
-from forms_builder.forms.models import Field
+from forms_builder.forms.models import Field, FieldEntry, FormEntry
 from forms_builder.forms.fields import *
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.conversations.models import Chat, Conversation, Participant
-from helpim.questionnaire.models import Questionnaire
+from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
 
 class Command(BaseCommand):
@@ -33,6 +33,7 @@ class Importer():
         # these dictionaries are used to convert primary key ids between the systems,
         # since they will change during conversion
         self.chat_ids = {}
+        self.questionnaire_field_ids = {}
 
     def from_file(self, f):
         self.data = pickle.load(f)
@@ -104,6 +105,25 @@ class Importer():
             for field in q.fields:
                 new_field = Field(form=new_questionnaire, label=field.label, field_type=self._convert_field_type(field.type), choices=field.choices or '', visible=field.visible is False)
                 new_field.save()
+                self.questionnaire_field_ids[field.id] = new_field.id
+
+            for submission in q.submissions:
+                new_formentry = FormEntry(form=new_questionnaire)
+                new_cfe = ConversationFormEntry(position=q.position, questionnaire=new_questionnaire)
+
+                for answer in submission:
+                    new_formentry.entry_time = answer.entry_time
+                    new_formentry.save()
+
+                    new_fieldentry = FieldEntry(field_id=self._get_questionnaire_field_id(answer.field_id), value=answer.value, entry=new_formentry)
+                    new_fieldentry.save()
+
+                    if answer.conversation_id:
+                        new_cfe.entry = new_formentry
+                        new_cfe.conversation = Conversation.objects.get(pk=self._get_chat_id(answer.conversation_id))
+                        new_cfe.created_at = answer.entry_time
+                        new_cfe.save()
+
 
     def _convert_field_type(self, id22):
         '''takes a field-type-id from HelpIM 2.2, returns the corresponding field-type in 3.1'''
@@ -134,6 +154,9 @@ class Importer():
         '''takes the id of a Chat object in the 2.2 database, returns the id of the converted Chat object in the 3.1 database'''
         return self.chat_ids[id22]
 
+    def _get_questionnaire_field_id(self, id22):
+        return self.questionnaire_field_ids[id22]
+
 
 HIData = namedtuple('HIData', ['users', 'chats', 'questionnaires'])
 HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
@@ -150,16 +173,23 @@ HIChat = namedtuple('HIChat', [
     'staff_ip',
 ])
 HIQuestionnaire = namedtuple('HIQuestionnaire', [
-    'id',
     'title',
     'position',
     'intro',
     'response',
     'fields', # a list of HIQuestionnaireField
+    'submissions', # a list of list of HIQuestionnaireAnswer
 ])
 HIQuestionnaireField = namedtuple('HIQuestionnaireField', [
+    'id', # identifier of this question in 2.2
     'label',
     'type',
     'choices',
     'visible',
+])
+HIQuestionnaireAnswer = namedtuple('HIQuestionnaireAnswer', [
+    'field_id',
+    'entry_time',
+    'value',
+    'conversation_id', # 2.2 identifier of a Chat that this answer is connected to
 ])
