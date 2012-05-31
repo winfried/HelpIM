@@ -29,7 +29,10 @@ class Command(BaseCommand):
                 messages.count(),
               )),
 
-        messages.delete()
+        # empty contents of messages
+        for msg in messages:
+            msg.body = '*****'
+            msg.save()
 
         print >> sys.stderr, "done."
 
