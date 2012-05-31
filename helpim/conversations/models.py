@@ -114,6 +114,20 @@ class Participant(models.Model):
         verbose_name = _("Participant")
         verbose_name_plural = _("Participants")
 
+class BlockedParticipant(Participant):
+    '''
+    Using model proxies makes it possible to have a specialized ModelAdmin to display blocked Participants where verbose_name and ordering can be overridden without affecting Participant
+    This also generates the usual set of *_blockedparticipant rights.
+    
+    Assign the 'change_blockedparticipant' right to any user/role that is allowed to unblock clients
+    '''
+
+    class Meta:
+        proxy = True
+        verbose_name = _('Blocked client')
+        verbose_name_plural = _('Blocked clients')
+        ordering = ['-blocked_at']
+
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation, related_name='messages')
     sender = models.ForeignKey(Participant)
