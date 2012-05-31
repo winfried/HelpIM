@@ -1,10 +1,10 @@
+from datetime import timedelta, datetime
 import sys
 
-from datetime import timedelta, datetime
-from django.db.models import F
+from django.core.management.base import BaseCommand
 
-from django.core.management.base import BaseCommand, CommandError
 from helpim.conversations.models import Conversation, Message
+
 
 class Command(BaseCommand):
     def handle(self, days_to_keep, **options):
