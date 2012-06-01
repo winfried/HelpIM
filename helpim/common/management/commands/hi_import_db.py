@@ -70,7 +70,7 @@ class Importer():
                 additional_information.branch_office = branchoffice
                 additional_information.save()
 
-            if not u.chat_nick is None:
+            if not u.chat_nick is None and len(u.chat_nick) > 0:
                 additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user)
                 additional_information.chat_nick = u.chat_nick
                 additional_information.save()
