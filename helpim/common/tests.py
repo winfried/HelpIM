@@ -110,7 +110,7 @@ class ImporterTestCase(TestCase):
 
         # import data
         self.importer.from_string(pickle.dumps(obj))
-        self.importer.import_users()
+        self.importer.import_all()
 
         self.assertEqual(6, len(User.objects.all()))
         self.assertEqual(normal_user.username, User.objects.filter(email__exact=normal_user.email)[0].username)
@@ -167,8 +167,7 @@ class ImporterTestCase(TestCase):
 
         # import data
         self.importer.from_string(pickle.dumps(obj))
-        self.importer.import_users()
-        self.importer.import_chats()
+        self.importer.import_all()
 
         self.assertEqual(len(obj.chats), len(Chat.objects.all()))
         self.assertEqual(7, len(Participant.objects.all()))
@@ -235,7 +234,7 @@ class ImporterTestCase(TestCase):
 
         # import data
         self.importer.from_string(pickle.dumps(obj))
-        self.importer.import_questionnaires()
+        self.importer.import_all()
 
         self.assertEqual(len(obj.questionnaires), len(Questionnaire.objects.all()))
         self.assertEqual(len(obj.questionnaires), len(Form.objects.all()))
@@ -284,9 +283,7 @@ class ImporterTestCase(TestCase):
 
         # import data
         self.importer.from_string(pickle.dumps(obj))
-        self.importer.import_users()
-        self.importer.import_chats()
-        self.importer.import_questionnaires()
+        self.importer.import_all()
 
         self.assertEqual(3, len(FieldEntry.objects.all()))
         self.assertEqual(1, len(FormEntry.objects.all()))

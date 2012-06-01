@@ -25,8 +25,7 @@ class Command(BaseCommand):
             imp = Importer()
             imp.from_file(file)
 
-            imp.import_users()
-            imp.import_chats()
+            imp.import_all()
 
 class Importer():
     def __init__(self):
@@ -43,6 +42,11 @@ class Importer():
 
     def get_users(self):
         return self.data.users
+
+    def import_all(self):
+        self.import_users()
+        self.import_chats()
+        self.import_questionnaires()
 
     def import_users(self):
         perm_careworker, created = Permission.objects.get_or_create(codename='is_careworker')
