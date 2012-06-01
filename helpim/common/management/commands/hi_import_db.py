@@ -66,7 +66,14 @@ class Importer():
             # division, branchoffice, additional-user-information
             if not u.branch is None:
                 branchoffice, created = BranchOffice.objects.get_or_create(name=u.branch)
-                additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user, branch_office=branchoffice)
+                additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user)
+                additional_information.branch_office = branchoffice
+                additional_information.save()
+
+            if not u.chat_nick is None:
+                additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user)
+                additional_information.chat_nick = u.chat_nick
+                additional_information.save()
 
             # permissions
             if u.is_superuser is True:
@@ -172,7 +179,19 @@ class Importer():
 
 
 HIData = namedtuple('HIData', ['users', 'chats', 'questionnaires'])
-HIUser = namedtuple('HIUser', ['username', 'first_name', 'last_name', 'email', 'password', 'deleted_at', 'branch', 'is_superuser', 'is_coordinator', 'is_careworker'])
+HIUser = namedtuple('HIUser', [
+    'username',
+    'first_name',
+    'last_name',
+    'email',
+    'chat_nick', # can be None
+    'password',
+    'deleted_at',
+    'branch',
+    'is_superuser',
+    'is_coordinator',
+    'is_careworker'
+])
 HIChat = namedtuple('HIChat', [
     'id', # identifier of this chat in 2.2
     'started_at',

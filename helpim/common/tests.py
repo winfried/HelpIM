@@ -78,12 +78,13 @@ class ImporterTestCase(TestCase):
 
     def test_import_users(self):
         # create User objects with properties to test
-        defaults = { 'first_name': 'ffff4', 'last_name': 'lll3', 'password': 'sha1$hashash', 'deleted_at': None, 'branch': None, 'is_superuser': False, 'is_coordinator': False, 'is_careworker': False, }
+        defaults = { 'first_name': 'ffff4', 'last_name': 'lll3', 'chat_nick': None, 'password': 'sha1$hashash', 'deleted_at': None, 'branch': None, 'is_superuser': False, 'is_coordinator': False, 'is_careworker': False, }
 
         normal_user = HIUser(**self._updated_copy(defaults, { 'username':"bob", 'first_name':'bob', 'last_name': 'bobby', 'email': 'bob@bob.com', 'password': 'sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', }))
         marked_deleted = HIUser(**self._updated_copy(defaults, { 'username': 'del', 'email': 'del@del.de', 'deleted_at': datetime(2005, 1, 1, 12, 30), }))
         branchoffice_user1 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser1', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
         branchoffice_user2 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser2', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
+        custom_nick = HIUser(**self._updated_copy(defaults, { 'username': 'custom', 'email': 'cus@tom.com', 'chat_nick': 'mycustomnick', 'branch': 'Amsterdam', }))
 
         super_user = HIUser(**self._updated_copy(defaults, { 'username': 'superuser', 'email': 'super@worker.com', 'is_superuser': True, }))
         coordinator_user = HIUser(**self._updated_copy(defaults, { 'username': 'coordinator', 'email': 'coord@worker.com', 'is_coordinator': True, }))
@@ -95,6 +96,7 @@ class ImporterTestCase(TestCase):
                 marked_deleted,
                 branchoffice_user1,
                 branchoffice_user2,
+                custom_nick,
                 super_user,
                 coordinator_user,
                 careworker_user,
@@ -112,7 +114,7 @@ class ImporterTestCase(TestCase):
         self.importer.from_string(pickle.dumps(obj))
         self.importer.import_all()
 
-        self.assertEqual(6, len(User.objects.all()))
+        self.assertEqual(7, len(User.objects.all()))
         self.assertEqual(normal_user.username, User.objects.filter(email__exact=normal_user.email)[0].username)
         self.assertEqual(normal_user.first_name, User.objects.filter(email__exact=normal_user.email)[0].first_name)
         self.assertEqual(normal_user.last_name, User.objects.filter(email__exact=normal_user.email)[0].last_name)
@@ -121,11 +123,15 @@ class ImporterTestCase(TestCase):
         # deleted users
         self.assertEqual(0, User.objects.filter(username__exact=marked_deleted.username).count())
 
-        # division / branchoffice
+        # division / branchoffice / custom chat nick
+        self.assertEqual(3, len(AdditionalUserInformation.objects.all()))
+        self.assertEqual(1, len(BranchOffice.objects.all()))
+
         self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user1.username)[0].additionaluserinformation.branch_office.name)
         self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user2.username)[0].additionaluserinformation.branch_office.name)
-        self.assertEqual(2, len(AdditionalUserInformation.objects.all()))
-        self.assertEqual(1, len(BranchOffice.objects.all()))
+
+        self.assertEqual('mycustomnick', User.objects.filter(username__exact=custom_nick.username)[0].additionaluserinformation.chat_nick)
+        self.assertEqual('Amsterdam', User.objects.filter(username__exact=custom_nick.username)[0].additionaluserinformation.branch_office.name)
 
         # permissions
         self.assertEqual(True, User.objects.filter(username__exact=super_user.username)[0].is_superuser)
@@ -149,7 +155,7 @@ class ImporterTestCase(TestCase):
 
         obj = HIData(
             users=[
-                HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
+                HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', chat_nick=None, password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
             ],
             chats=[
                 HIChat(**defaults),
@@ -266,7 +272,7 @@ class ImporterTestCase(TestCase):
 
         obj = HIData(
             users=[
-                HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
+                HIUser(username="bob", first_name='bob', last_name='bobby', email='bob@bob.com', chat_nick=None, password='sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', deleted_at=None, branch=None, is_superuser=False, is_coordinator=False, is_careworker=False)
             ],
             chats=[
                 HIChat(id=10, started_at=datetime(2012, 1, 3, 15, 0), subject='Subject', messages=[], client_name='careseeker', client_ip='112233', client_blocked=False, client_blocked_at=None, staff_name='bob', staff_user='bob', staff_ip='aabbcc')
