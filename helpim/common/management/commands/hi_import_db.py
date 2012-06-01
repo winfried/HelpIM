@@ -19,17 +19,27 @@ class Command(BaseCommand):
     args = 'pickled_datafile [pickled_datafile ...]'
 
     def handle(self, *files, **options):
+        print 'Database has %d User, %d Chat, %d Questionnaire' % (len(User.objects.all()), len(Chat.objects.all()), len(Questionnaire.objects.all()))
+
         for file in files:
             if not os.path.isfile(file):
                 print "Could not find file '%s'" % (file)
 
+            print 'Unpickling %s' % (file)
+
             imp = Importer()
             imp.from_file(file)
 
+            print "Loaded %d HIUser, %d HIChat, %d HIQuestionnaire" % (len(imp.data.users), len(imp.data.chats), len(imp.data.questionnaires),)
+
             imp.import_all()
+
+        print 'Database has %d User, %d Chat, %d Questionnaire' % (len(User.objects.all()), len(Chat.objects.all()), len(Questionnaire.objects.all()))
 
 class Importer():
     def __init__(self):
+        self.data = None
+
         # these dictionaries are used to convert primary key ids between the systems,
         # since they will change during conversion
         self.chat_ids = {}
@@ -41,6 +51,9 @@ class Importer():
     def from_string(self, s):
         self.data = pickle.loads(s)
 
+    def print_indent(self, msg, indent=4):
+        print "%s%s" % (' ' * indent, msg)
+
     def import_all(self):
         self.import_users()
         self.import_chats()
@@ -51,15 +64,18 @@ class Importer():
         perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
 
         for u in self.data.users:
+            print '>>  %s' % str(u)
+
             # skip user if marked as deleted
             if not u.deleted_at is None:
+                self.print_indent('marked as deleted')
                 continue
 
             # create User, set basic properties
             try:
                 new_user = User.objects.create_user(u.username, u.email)
             except:
-                print "Error creating User: %s: %s" % (sys.exc_info()[0], sys.exc_info()[1])
+                print "**  Error creating User: %s: %s" % (sys.exc_info()[0], sys.exc_info()[1])
                 continue
 
             new_user.first_name = u.first_name
@@ -72,11 +88,13 @@ class Importer():
                 additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user)
                 additional_information.branch_office = branchoffice
                 additional_information.save()
+                self.print_indent('Additional user info: %s' % (additional_information.branch_office))
 
             if not u.chat_nick is None and len(u.chat_nick) > 0:
                 additional_information, created = AdditionalUserInformation.objects.get_or_create(user=new_user)
                 additional_information.chat_nick = u.chat_nick
                 additional_information.save()
+                self.print_indent('Additional User Info: %s' % (additional_information.chat_nick))
 
             # permissions
             if u.is_superuser is True:
@@ -90,6 +108,7 @@ class Importer():
                 new_user.is_staff = True
 
             new_user.save()
+            self.print_indent('User: %s' % (new_user.username))
 
     def import_chats(self):
         for c in self.data.chats:
