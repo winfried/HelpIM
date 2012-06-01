@@ -1,6 +1,7 @@
 from collections import namedtuple
 import os.path
 import pickle
+import sys
 
 from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
@@ -58,7 +59,12 @@ class Importer():
                 continue
 
             # create User, set basic properties
-            new_user = User.objects.create_user(u.username, u.email)
+            try:
+                new_user = User.objects.create_user(u.username, u.email)
+            except:
+                print "Error creating User: %s: %s" % (sys.exc_info()[0], sys.exc_info()[1])
+                continue
+
             new_user.first_name = u.first_name
             new_user.last_name = u.last_name
             new_user.set_password(u.password)
