@@ -61,7 +61,7 @@ class Importer():
             new_user = User.objects.create_user(u.username, u.email)
             new_user.first_name = u.first_name
             new_user.last_name = u.last_name
-            new_user.password = u.password
+            new_user.set_password(u.password)
 
             # division, branchoffice, additional-user-information
             if not u.branch is None:

@@ -78,9 +78,9 @@ class ImporterTestCase(TestCase):
 
     def test_import_users(self):
         # create User objects with properties to test
-        defaults = { 'first_name': 'ffff4', 'last_name': 'lll3', 'chat_nick': None, 'password': 'sha1$hashash', 'deleted_at': None, 'branch': None, 'is_superuser': False, 'is_coordinator': False, 'is_careworker': False, }
+        defaults = { 'first_name': 'ffff4', 'last_name': 'lll3', 'chat_nick': None, 'password': 'notsosecret', 'deleted_at': None, 'branch': None, 'is_superuser': False, 'is_coordinator': False, 'is_careworker': False, }
 
-        normal_user = HIUser(**self._updated_copy(defaults, { 'username':"bob", 'first_name':'bob', 'last_name': 'bobby', 'email': 'bob@bob.com', 'password': 'sha1$3cf22$935cf7156930db92a64bc560385a311d9b7c887a', }))
+        normal_user = HIUser(**self._updated_copy(defaults, { 'username':"bob", 'first_name':'bob', 'last_name': 'bobby', 'email': 'bob@bob.com', 'password': 'noonecanknow', }))
         marked_deleted = HIUser(**self._updated_copy(defaults, { 'username': 'del', 'email': 'del@del.de', 'deleted_at': datetime(2005, 1, 1, 12, 30), }))
         branchoffice_user1 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser1', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
         branchoffice_user2 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser2', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
@@ -118,7 +118,7 @@ class ImporterTestCase(TestCase):
         self.assertEqual(normal_user.username, User.objects.filter(email__exact=normal_user.email)[0].username)
         self.assertEqual(normal_user.first_name, User.objects.filter(email__exact=normal_user.email)[0].first_name)
         self.assertEqual(normal_user.last_name, User.objects.filter(email__exact=normal_user.email)[0].last_name)
-        self.assertEqual(True, User.objects.filter(username__exact=normal_user.username)[0].check_password('secret'))
+        self.assertEqual(True, User.objects.filter(username__exact=normal_user.username)[0].check_password('noonecanknow'))
 
         # deleted users
         self.assertEqual(0, User.objects.filter(username__exact=marked_deleted.username).count())
