@@ -35,7 +35,7 @@ class Importer():
         self.questionnaire_field_ids = {}
 
     def from_file(self, f):
-        self.data = pickle.load(f)
+        self.data = pickle.load(open(f, 'rb'))
 
     def from_string(self, s):
         self.data = pickle.loads(s)
