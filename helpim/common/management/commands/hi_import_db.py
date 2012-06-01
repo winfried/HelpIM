@@ -41,9 +41,6 @@ class Importer():
     def from_string(self, s):
         self.data = pickle.loads(s)
 
-    def get_users(self):
-        return self.data.users
-
     def import_all(self):
         self.import_users()
         self.import_chats()
