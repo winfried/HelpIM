@@ -115,33 +115,33 @@ class ImporterTestCase(TestCase):
         self.importer.import_all()
 
         self.assertEqual(7, len(User.objects.all()))
-        self.assertEqual(normal_user.username, User.objects.filter(email__exact=normal_user.email)[0].username)
-        self.assertEqual(normal_user.first_name, User.objects.filter(email__exact=normal_user.email)[0].first_name)
-        self.assertEqual(normal_user.last_name, User.objects.filter(email__exact=normal_user.email)[0].last_name)
-        self.assertEqual(True, User.objects.filter(username__exact=normal_user.username)[0].check_password('noonecanknow'))
+        self.assertEqual(normal_user['username'], User.objects.filter(email__exact=normal_user['email'])[0].username)
+        self.assertEqual(normal_user['first_name'], User.objects.filter(email__exact=normal_user['email'])[0].first_name)
+        self.assertEqual(normal_user['last_name'], User.objects.filter(email__exact=normal_user['email'])[0].last_name)
+        self.assertEqual(True, User.objects.filter(username__exact=normal_user['username'])[0].check_password('noonecanknow'))
 
         # deleted users
-        self.assertEqual(0, User.objects.filter(username__exact=marked_deleted.username).count())
+        self.assertEqual(0, User.objects.filter(username__exact=marked_deleted['username']).count())
 
         # division / branchoffice / custom chat nick
         self.assertEqual(3, len(AdditionalUserInformation.objects.all()))
         self.assertEqual(1, len(BranchOffice.objects.all()))
 
-        self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user1.username)[0].additionaluserinformation.branch_office.name)
-        self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user2.username)[0].additionaluserinformation.branch_office.name)
+        self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user1['username'])[0].additionaluserinformation.branch_office.name)
+        self.assertEqual('Amsterdam', User.objects.filter(username__exact=branchoffice_user2['username'])[0].additionaluserinformation.branch_office.name)
 
-        self.assertEqual('mycustomnick', User.objects.filter(username__exact=custom_nick.username)[0].additionaluserinformation.chat_nick)
-        self.assertEqual('Amsterdam', User.objects.filter(username__exact=custom_nick.username)[0].additionaluserinformation.branch_office.name)
+        self.assertEqual('mycustomnick', User.objects.filter(username__exact=custom_nick['username'])[0].additionaluserinformation.chat_nick)
+        self.assertEqual('Amsterdam', User.objects.filter(username__exact=custom_nick['username'])[0].additionaluserinformation.branch_office.name)
 
         # permissions
-        self.assertEqual(True, User.objects.filter(username__exact=super_user.username)[0].is_superuser)
-        self.assertEqual(True, User.objects.filter(username__exact=super_user.username)[0].is_staff)
+        self.assertEqual(True, User.objects.filter(username__exact=super_user['username'])[0].is_superuser)
+        self.assertEqual(True, User.objects.filter(username__exact=super_user['username'])[0].is_staff)
 
-        self.assertEqual(True, User.objects.filter(username__exact=coordinator_user.username)[0].has_perm('buddychat.is_coordinator'))
-        self.assertEqual(True, User.objects.filter(username__exact=coordinator_user.username)[0].is_staff)
+        self.assertEqual(True, User.objects.filter(username__exact=coordinator_user['username'])[0].has_perm('buddychat.is_coordinator'))
+        self.assertEqual(True, User.objects.filter(username__exact=coordinator_user['username'])[0].is_staff)
 
-        self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].has_perm('buddychat.is_careworker'))
-        self.assertEqual(True, User.objects.filter(username__exact=careworker_user.username)[0].is_staff)
+        self.assertEqual(True, User.objects.filter(username__exact=careworker_user['username'])[0].has_perm('buddychat.is_careworker'))
+        self.assertEqual(True, User.objects.filter(username__exact=careworker_user['username'])[0].is_staff)
 
     def test_import_chats(self):
         # create Chat objects with properties to test
@@ -175,7 +175,7 @@ class ImporterTestCase(TestCase):
         self.importer.from_string(pickle.dumps(obj))
         self.importer.import_all()
 
-        self.assertEqual(len(obj.chats), len(Chat.objects.all()))
+        self.assertEqual(len(obj['chats']), len(Chat.objects.all()))
         self.assertEqual(7, len(Participant.objects.all()))
         self.assertEqual(2, len(ChatMessage.objects.all()))
 
@@ -195,12 +195,12 @@ class ImporterTestCase(TestCase):
         self.assertEqual(c1.id, self.importer._get_chat_id(10))
 
         # only_staff
-        c2 = Chat.objects.get(subject=only_staff.subject)
+        c2 = Chat.objects.get(subject=only_staff['subject'])
         self.assertEqual(1, c2.participant_set.count())
         self.assertEqual(c2.id, self.importer._get_chat_id(11))
 
         # blocked client
-        c3 = Chat.objects.get(subject=blocked_client.subject)
+        c3 = Chat.objects.get(subject=blocked_client['subject'])
         self.assertEqual(2, c3.participant_set.count())
         self.assertEqual('xxyyzz', c3.getClient().ip_hash)
         self.assertEqual(True, c3.getClient().blocked)
@@ -208,7 +208,7 @@ class ImporterTestCase(TestCase):
         self.assertEqual(c3.id, self.importer._get_chat_id(12))
 
         # with messages
-        c4 = Chat.objects.get(subject=with_messages.subject)
+        c4 = Chat.objects.get(subject=with_messages['subject'])
         self.assertEqual('cccc', c4.messages.all()[0].body)
         self.assertEqual('ssss', c4.messages.all()[1].body)
         self.assertEqual(timedelta(0, 3600), c4.duration())
@@ -242,12 +242,12 @@ class ImporterTestCase(TestCase):
         self.importer.from_string(pickle.dumps(obj))
         self.importer.import_all()
 
-        self.assertEqual(len(obj.questionnaires), len(Questionnaire.objects.all()))
-        self.assertEqual(len(obj.questionnaires), len(Form.objects.all()))
+        self.assertEqual(len(obj['questionnaires']), len(Questionnaire.objects.all()))
+        self.assertEqual(len(obj['questionnaires']), len(Form.objects.all()))
         self.assertEqual(3, len(Field.objects.all()))
 
         # unanswered questionnaire
-        q1 = Questionnaire.objects.filter(title__exact=unanswered_questionnaire.title)[0]
+        q1 = Questionnaire.objects.filter(title__exact=unanswered_questionnaire['title'])[0]
         self.assertEqual('questionnaire 1', q1.title)
         self.assertEqual('questionnaire-1', q1.slug)
         self.assertEqual(3, q1.fields.count())
@@ -303,7 +303,7 @@ class ImporterTestCase(TestCase):
         # form -> answer
         form_entry = c1.conversationformentry_set.all()[0].entry
         self.assertIsNotNone(form_entry)
-        self.assertEqual(answered_questionnaire.title, form_entry.form.title)
+        self.assertEqual(answered_questionnaire['title'], form_entry.form.title)
         self.assertEqual(datetime(2012, 5, 5), form_entry.entry_time)
         self.assertEqual(3, form_entry.fields.count())
 
