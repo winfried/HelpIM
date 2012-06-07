@@ -30,7 +30,7 @@ class Command(BaseCommand):
             imp = Importer()
             imp.from_file(file)
 
-            print "Loaded %d HIUser, %d HIChat, %d HIQuestionnaire" % (len(imp.data.users), len(imp.data.chats), len(imp.data.questionnaires),)
+            print "Loaded %d HIUser, %d HIChat, %d HIQuestionnaire" % (len(imp.data['users']), len(imp.data['chats']), len(imp.data['questionnaires']),)
 
             imp.import_all()
 
