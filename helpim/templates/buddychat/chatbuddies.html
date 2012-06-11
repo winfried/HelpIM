@@ -32,7 +32,7 @@
 		        <tbody>
 					{% for buddy in chatbuddies %}
 						<tr class="{% cycle 'row1' 'row2' %}">
-							<th><a href="{% url buddychat_profile buddy.user.username %}">{{buddy.user.username}} ({{buddy.user.email}})</a></th>
+							<th><a href="{% url buddychat_profile buddy.user.username %}">{{buddy.user.username}}{% if perms.buddychat.is_coordinator %} ({{buddy.user.email}}){% endif %}</a></th>
 							{% if perms.is_coordinator %}
 							    {% if buddy.ready %}
 								    <td><img src="{% admin_media_prefix %}img/admin/icon-yes.gif" alt="{% trans "Yes" %}" /></td>

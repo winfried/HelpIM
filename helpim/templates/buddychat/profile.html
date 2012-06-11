@@ -38,8 +38,11 @@ questionnaire missing
 <a href="{% url buddychat_chat client.user.username %}">Join Chat</a>
 {% endif %}
 <dl>
+{% if user == client.user or perms.buddychat.is_coordinator %}
 <dt>{% trans "Email" %}</dt>
 <dd>{{client.user.email}}</dd>
+{% endif %}
+
 {% if perms.buddychat.is_coordinator %}
 <dt>{% trans "Careworker" %}</dt>
 <dd>
