@@ -85,21 +85,21 @@ class ConversationFormEntryInline(admin.StackedInline):
 
 class ConversationAdmin(admin.ModelAdmin):
 
-    date_hierarchy = 'start_time'
+    date_hierarchy = 'created_at'
     list_display = (
       'pk',
-      'start_time',
+      'created_at',
       'duration',
       'client_name',
       'staff_name',
       'subject',
     )
-    list_display_links = ('pk', 'start_time', 'subject')
+    list_display_links = ('pk', 'created_at', 'subject')
 
-    fields = ('start_time', 'subject')
+    fields = ('created_at', 'subject')
 
     if not CONVERSATION_EDITABLE:
-        readonly_fields = ('start_time', 'subject')
+        readonly_fields = ('created_at', 'subject')
 
     inlines = [
         ParticipantInline,

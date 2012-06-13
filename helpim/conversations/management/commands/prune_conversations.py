@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         print >> sys.stderr, "Deleting everything before", up_for_deletion, ".. \nthat is",
 
-        conversations = Conversation.objects.filter(start_time__lt=up_for_deletion)
+        conversations = Conversation.objects.filter(created_at__lt=up_for_deletion)
 
         messages = Message.objects.filter(conversation__in=conversations)
 

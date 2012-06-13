@@ -7,13 +7,13 @@ from threadedcomments.models import ThreadedComment
 
 
 class Conversation(models.Model):
-    start_time = models.DateTimeField()
+    created_at = models.DateTimeField()
     subject = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
-        return _('"%(subject)s" at %(start_time)s') % {
+        return _('"%(subject)s" at %(created_at)s') % {
           'subject': self.subject,
-          'start_time': self.start_time.strftime('%c'),
+          'created_at': self.created_at.strftime('%c'),
         }
 
     def getClient(self):
@@ -78,7 +78,7 @@ class Conversation(models.Model):
             return _('(unknown)')
 
     class Meta:
-        ordering = ['start_time']
+        ordering = ['created_at']
         verbose_name = _("Conversation")
         verbose_name_plural = _("Conversations")
 

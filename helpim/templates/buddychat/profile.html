@@ -65,7 +65,7 @@ questionnaire missing
 <h2>{% trans "Chat Sesssion" %}</h2>
 <ul>
 {% for chat in client.chats %}
-  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.start_time }}</a></li>
+  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.created_at }}</a></li>
 {% endfor %}
 </ul>
 {% endif %}

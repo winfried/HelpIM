@@ -396,7 +396,7 @@ class One2OneRoom(Room):
         """
 
         if not self.chat:
-            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat = Chat(created_at=datetime.datetime.now(), subject=_('Chat'))
             chat.save()
             self.chat = chat
 
@@ -426,7 +426,7 @@ class One2OneRoom(Room):
            """
 
         if not self.chat:
-            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat = Chat(created_at=datetime.datetime.now(), subject=_('Chat'))
             chat.save()
             self.chat = chat
 
@@ -553,7 +553,7 @@ class SimpleRoom(Room):
         """
 
         if not self.chat:
-            chat = Chat(start_time=datetime.datetime.now(), subject=_('Chat'))
+            chat = Chat(created_at=datetime.datetime.now(), subject=_('Chat'))
             chat.save()
             self.chat = chat
 

@@ -81,7 +81,7 @@ class HourReportVariable(ReportVariable):
     @classmethod
     def extract_value(cls, obj, context=None):
         try:
-            return obj.start_time.hour
+            return obj.created_at.hour
         except:
             return Report.OTHER_COLUMN
 
@@ -97,7 +97,7 @@ class WeekdayReportVariable(ReportVariable):
     @classmethod
     def extract_value(cls, obj, context=None):
         try:
-            return cls.values()[obj.start_time.weekday()]
+            return cls.values()[obj.created_at.weekday()]
         except:
             return Report.OTHER_COLUMN
 
@@ -113,7 +113,7 @@ class MonthReportVariable(ReportVariable):
     @classmethod
     def extract_value(cls, obj, context=None):
         try:
-            return cls.values()[obj.start_time.month - 1]
+            return cls.values()[obj.created_at.month - 1]
         except:
             return Report.OTHER_COLUMN
 
@@ -359,9 +359,9 @@ class Report(models.Model):
         chat_query = Chat.objects.all()
 
         if not self.period_start is None:
-            chat_query = chat_query.filter(start_time__gte=datetime.combine(self.period_start, time.min))
+            chat_query = chat_query.filter(created_at__gte=datetime.combine(self.period_start, time.min))
         if not self.period_end is None:
-            chat_query = chat_query.filter(start_time__lte=datetime.combine(self.period_end, time.max))
+            chat_query = chat_query.filter(created_at__lte=datetime.combine(self.period_end, time.max))
 
         if not self.branch is None:
             chat_query = chat_query.filter(participant__user__additionaluserinformation__branch_office=self.branch)

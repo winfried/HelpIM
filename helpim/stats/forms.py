@@ -28,9 +28,9 @@ class ReportForm(forms.ModelForm):
         # find choices for years-selection of Chats
         try:
             # use year of first/latest Chat
-            years = Chat.objects.aggregate(Min('start_time'), Max('start_time'))
-            min_year = years['start_time__min'].year
-            max_year = years['start_time__max'].year
+            years = Chat.objects.aggregate(Min('created_at'), Max('created_at'))
+            min_year = years['created_at__min'].year
+            max_year = years['created_at__max'].year
         except:
             # default to +-5 years from now if no Chats
             min_year = datetime.now().year - 5

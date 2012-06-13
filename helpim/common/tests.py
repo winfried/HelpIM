@@ -182,7 +182,7 @@ class ImporterTestCase(TestCase):
 
         # normal chat
         c1 = Chat.objects.get(subject=defaults['subject'])
-        self.assertEqual(datetime(2012, 1, 3, 15, 0), c1.start_time)
+        self.assertEqual(datetime(2012, 1, 3, 15, 0), c1.created_at)
         self.assertEqual('Subject', c1.subject)
         self.assertEqual('bob', c1.getStaff().name)
         self.assertEqual('bob', c1.getStaff().user.username)

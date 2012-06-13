@@ -205,7 +205,7 @@ msgstr ""
 
 #: conversations/models.py:14
 #, python-format
-msgid "\"%(subject)s\" at %(start_time)s"
+msgid "\"%(subject)s\" at %(created_at)s"
 msgstr ""
 
 #: conversations/models.py:51 conversations/models.py:69

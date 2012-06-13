@@ -112,7 +112,7 @@ class Importer():
 
     def import_chats(self):
         for c in self.data['chats']:
-            new_chat = Chat(start_time=c['started_at'], subject=c['subject'])
+            new_chat = Chat(created_at=c['started_at'], subject=c['subject'])
             new_chat.save()
             self.chat_ids[c['id']] = new_chat.id
 
