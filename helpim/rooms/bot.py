@@ -257,6 +257,12 @@ class One2OneRoomHandler(RoomHandlerBase):
 
         chatmessage.save()
 
+        # if careseeker and careworker are present (status chatting) and this was the first message,
+        # then this first message marks the start of the conversation
+        if room.getStatus() == 'chatting' and room.chat.messages.filter(chatmessage__event='message').count() == 1:
+            room.chat.started_at = chatmessage.created_at
+            room.chat.save()
+
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             log.info("user joined with self nick '%s'" % user.nick)

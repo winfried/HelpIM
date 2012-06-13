@@ -148,6 +148,9 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
+    # starting time of Chat is defined as: 1) all participants have joined, and 2) one of the participants sends a message
+    started_at = models.DateTimeField(null=True)
+
     _waiting_time = None
     
     def hasQuestionnaire(self, pos='CB'):
