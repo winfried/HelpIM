@@ -218,9 +218,9 @@ class ImporterTestCase(TestCase):
         unanswered_questionnaire = HIQuestionnaire(
             title='questionnaire 1', position='CB', intro='welcome', response='gotcha',
             fields=[
-                HIQuestionnaireField(id=20, label='city?', field_type='text', choices=None, visible=True), # text
-                HIQuestionnaireField(id=21, label='color?', field_type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
-                HIQuestionnaireField(id=22, label='double', field_type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
+                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, visible=True), # text
+                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
+                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
             ],
             submissions=[],
         )
@@ -261,9 +261,9 @@ class ImporterTestCase(TestCase):
         answered_questionnaire = HIQuestionnaire(
             title='questionnaire 1', position='CB', intro='welcome', response='gotcha',
             fields=[
-                HIQuestionnaireField(id=20, label='city?', field_type='text', choices=None, visible=True), # text
-                HIQuestionnaireField(id=21, label='color?', field_type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
-                HIQuestionnaireField(id=22, label='double', field_type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
+                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, visible=True), # text
+                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
+                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
             ],
             submissions=[
                 [ HIQuestionnaireAnswer(field_id=20, entry_time=datetime(2012, 5, 5), value='budapest', conversation_id=10), HIQuestionnaireAnswer(field_id=21, entry_time=datetime(2012, 5, 5), value='3', conversation_id=10), HIQuestionnaireAnswer(field_id=22, entry_time=datetime(2012, 5, 5), value='two>>>B', conversation_id=10) ],
