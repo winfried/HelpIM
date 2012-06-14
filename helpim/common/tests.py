@@ -218,9 +218,9 @@ class ImporterTestCase(TestCase):
         unanswered_questionnaire = HIQuestionnaire(
             title='questionnaire 1', position='CB', intro='welcome', response='gotcha',
             fields=[
-                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, visible=True), # text
-                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
-                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
+                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, required=True, visible=True), # text
+                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', required=True, visible=True), # checkbox_multiple
+                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', required=False, visible=True), # doubledrop
             ],
             submissions=[],
         )
@@ -252,18 +252,21 @@ class ImporterTestCase(TestCase):
         self.assertEqual('questionnaire-1', q1.slug)
         self.assertEqual(3, q1.fields.count())
         self.assertEqual(TEXT, q1.fields.get(label='city?').field_type)
+        self.assertEqual(True, q1.fields.get(label='city?').required)
+        self.assertEqual(True, q1.fields.get(label='city?').visible)
         self.assertEqual(q1.fields.get(label='city?').id, self.importer._get_questionnaire_field_id(20))
         self.assertEqual(CHECKBOX_MULTIPLE, q1.fields.get(label='color?').field_type)
         self.assertEqual(101, q1.fields.get(label='double').field_type)
+        self.assertEqual(False, q1.fields.get(label='double').required)
         self.assertEqual(q1.fields.get(label='double').id, self.importer._get_questionnaire_field_id(22))
 
     def test_import_answers(self):
         answered_questionnaire = HIQuestionnaire(
             title='questionnaire 1', position='CB', intro='welcome', response='gotcha',
             fields=[
-                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, visible=True), # text
-                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', visible=True), # checkbox_multiple
-                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', visible=True), # doubledrop
+                HIQuestionnaireField(id=20, label='city?', type='text', choices=None, required=True, visible=True), # text
+                HIQuestionnaireField(id=21, label='color?', type='multiple', choices='red,blue,green,yellow,pink', required=True, visible=True), # checkbox_multiple
+                HIQuestionnaireField(id=22, label='double', type='doubledrop', choices='one(),two(A,B,C),three', required=False, visible=True), # doubledrop
             ],
             submissions=[
                 [ HIQuestionnaireAnswer(field_id=20, entry_time=datetime(2012, 5, 5), value='budapest', conversation_id=10), HIQuestionnaireAnswer(field_id=21, entry_time=datetime(2012, 5, 5), value='3', conversation_id=10), HIQuestionnaireAnswer(field_id=22, entry_time=datetime(2012, 5, 5), value='two>>>B', conversation_id=10) ],

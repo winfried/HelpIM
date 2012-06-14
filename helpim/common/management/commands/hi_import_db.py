@@ -145,7 +145,7 @@ class Importer():
             new_questionnaire.save()
 
             for field in q['fields']:
-                new_field = Field(form=new_questionnaire, label=field['label'], field_type=self._convert_field_type(field['type']), choices=field['choices'] or '', visible=field['visible'] is False)
+                new_field = Field(form=new_questionnaire, label=field['label'], field_type=self._convert_field_type(field['type']), choices=field['choices'] or '', required=field['required'] is not False, visible=field['visible'] is not False)
                 new_field.save()
                 self.questionnaire_field_ids[field['id']] = new_field.id
 
@@ -238,12 +238,13 @@ def HIQuestionnaire(title, position, intro, response, fields, submissions):
         'fields': fields, # a list of HIQuestionnaireField
         'submissions': submissions, # a list of list of HIQuestionnaireAnswer
     }
-def HIQuestionnaireField(id, label, type, choices, visible):
+def HIQuestionnaireField(id, label, type, choices, required, visible):
     return {
         'id': id, # identifier of this question in 2.2
         'label': label,
         'type': type,
         'choices': choices,
+        'required': required,
         'visible': visible,
     }
 def HIQuestionnaireAnswer(field_id, entry_time, value, conversation_id):
