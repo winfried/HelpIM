@@ -172,24 +172,16 @@ class Importer():
 
         # field-type in 2.2 -> field-type in 3.1
         lookup = {
-            1: TEXT,
-            2: TEXTAREA,
-            3: EMAIL,
-            4: CHECKBOX,
-            5: CHECKBOX_MULTIPLE,
-            6: SELECT,
-            7: SELECT_MULTIPLE,
-            8: RADIO_MULTIPLE,
-            9: FILE,
-            10: DATE,
-            11: DATE_TIME,
-            12: HIDDEN,
-            13: NUMBER,
-            14: URL,
-            14: 100, # ScaleField
-            15: 101, # DoubleDrop
+            'doubledrop': 101,
+            'text': TEXT,
+            'textfield': TEXTAREA,
+            'textfield_long': TEXTAREA,
+            'nummeric': NUMBER,
+            'droplist': SELECT,
+            'single': CHECKBOX,
+            'multiple': CHECKBOX_MULTIPLE,
+            'hide': CHECKBOX,
         }
-
         return lookup[id22]
 
     def _get_chat_id(self, id22):
