@@ -65,7 +65,7 @@
           <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
         {% endif %}
 
-
+  {% if forloop.first %}
   <style>
     tr.commentrow {
       background: #EEE;
@@ -95,6 +95,7 @@
       white-space: no-wrap;
     }
   </style>
+  {% endif %}
 
   {% if inline_admin_form.original %}
     {% get_threaded_comment_tree for inline_admin_form.original as tree %}
