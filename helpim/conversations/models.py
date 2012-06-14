@@ -8,6 +8,10 @@ from threadedcomments.models import ThreadedComment
 
 class Conversation(models.Model):
     created_at = models.DateTimeField()
+
+    # starting time of is defined as: 1) all participants have joined, and 2) one of the participants sends a message
+    started_at = models.DateTimeField(null=True)
+
     subject = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
@@ -148,9 +152,6 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
-    # starting time of Chat is defined as: 1) all participants have joined, and 2) one of the participants sends a message
-    started_at = models.DateTimeField(null=True)
-
     _waiting_time = None
     
     def hasQuestionnaire(self, pos='CB'):

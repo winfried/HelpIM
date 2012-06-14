@@ -96,10 +96,10 @@ class ConversationAdmin(admin.ModelAdmin):
     )
     list_display_links = ('pk', 'created_at', 'subject')
 
-    fields = ('created_at', 'subject')
+    fields = ('created_at', 'subject', 'started_at')
 
     if not CONVERSATION_EDITABLE:
-        readonly_fields = ('created_at', 'subject')
+        readonly_fields = ('created_at', 'subject', 'started_at')
 
     inlines = [
         ParticipantInline,
