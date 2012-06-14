@@ -15,6 +15,7 @@ from pyxmpp.iq import Iq
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
 from pyxmpp.jabber.muccore import MucPresence, MucIq
 
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 
 from forms_builder.forms.models import FormEntry
@@ -312,7 +313,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
                 if not formEntry is None:
                     # tell staff about
-                    self.send_private_message(room.staff_nick, _("%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/") % {'nick':user.nick, 'domain':self.mucconf.http_domain, 'id':formEntry.pk})
+                    self.send_private_message(room.staff_nick, _("%(nick)s filled in a questionnaire: http://%(domain)s/forms/entry/%(id)d/") % {'nick':user.nick, 'domain':Site.objects.get_current().domain, 'id':formEntry.pk})
                 log.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
             else:
                 self.rejoinCount = None
