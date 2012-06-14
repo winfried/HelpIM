@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from helpim.utils import CharNullField
+
 class BranchOffice(models.Model):
 
     name = models.CharField(max_length=50)
@@ -34,7 +36,7 @@ class AdditionalUserInformation(models.Model):
 
     branch_office = models.ForeignKey(BranchOffice, null=True, blank=True)
 
-    chat_nick = models.CharField(_("Chatname"), max_length=64, unique=True, null=True, blank=True)
+    chat_nick = CharNullField(_("Chatname"), max_length=64, unique=True, null=True, blank=True)
 
 
 class EventLogManager(models.Manager):
