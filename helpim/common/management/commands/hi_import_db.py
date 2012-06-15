@@ -65,7 +65,7 @@ class Importer():
         perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
 
         for u in self.data['users']:
-            print '>>  %s' % str(u)
+            print '>>  User(%s)' % str(u)
 
             # skip user if marked as deleted
             if not u['deleted_at'] is None:
@@ -113,6 +113,8 @@ class Importer():
 
     def import_chats(self):
         for c in self.data['chats']:
+            print '>>  Chat(%s)' % str(c)
+
             new_chat = Chat(created_at=c['started_at'], subject=c['subject'])
             new_chat.save()
             self.chat_ids[c['id']] = new_chat.id
@@ -132,6 +134,8 @@ class Importer():
                 client.save(keep_blocked_at=True)
 
             for msg in c['messages']:
+                self.print_indent('>>  Message(%s)' % str(msg))
+                
                 if msg['who'] == 'CLIENT':
                     sender = client
                 else:
@@ -142,10 +146,14 @@ class Importer():
 
     def import_questionnaires(self):
         for q in self.data['questionnaires']:
+            print '>>  Questionnaire(%s)' % str(q)
+
             new_questionnaire = Questionnaire(title=q['title'], position=q['position'], intro=q['intro'], response=q['response'])
             new_questionnaire.save()
 
             for field in q['fields']:
+                self.print_indent('>>  QuestionnaireField(%s)' % str(field))
+
                 new_field = Field(form=new_questionnaire, label=field['label'], field_type=self._convert_field_type(field['type']), choices=field['choices'] or '', required=field['required'] is not False, visible=field['visible'] is not False)
                 new_field.save()
                 self.questionnaire_field_ids[field['id']] = new_field.id
@@ -155,6 +163,8 @@ class Importer():
                 new_cfe = ConversationFormEntry(position=q['position'], questionnaire=new_questionnaire)
 
                 for answer in submission:
+                    self.print_indent('>>  QuestionnaireAnswer(%s)' % str(answer), 8)
+
                     new_formentry.entry_time = answer['entry_time']
                     new_formentry.save()
 
