@@ -34,7 +34,7 @@ class AdditionalUserInformation(models.Model):
 
     branch_office = models.ForeignKey(BranchOffice, null=True, blank=True)
 
-    chat_nick = models.CharField(_("Chatname"), max_length=64, unique=True, null=True, blank=True)
+    chat_nick = models.CharField(_("Chatname"), max_length=64, blank=True)
 
 
 class EventLogManager(models.Manager):
