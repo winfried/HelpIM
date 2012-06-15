@@ -24,6 +24,7 @@ class Command(BaseCommand):
         for file in files:
             if not os.path.isfile(file):
                 print "Could not find file '%s'" % (file)
+                continue
 
             print 'Unpickling %s' % (file)
 
