@@ -4,7 +4,6 @@ import pickle
 from django import template
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
-from django.core.exceptions import ValidationError
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
@@ -318,34 +317,3 @@ class ImporterTestCase(TestCase):
         self.assertEqual(Field.objects.get(label='color?').id, FieldEntry.objects.get(value='3').field_id)
         self.assertEqual(form_entry, FieldEntry.objects.get(value='two>>>B').entry)
         self.assertEqual(Field.objects.get(label='double').id, FieldEntry.objects.get(value='two>>>B').field_id)
-
-class AdditionalUserInformationTestCase(TestCase):
-    def setUp(self):
-        super(AdditionalUserInformationTestCase, self).setUp()
-
-        self.adam = User.objects.create_user('adam', 'adam@example.com', 'test')
-        self.bob = User.objects.create_user('bob', 'bob@example.com', 'test')
-
-        self.amsterdam = BranchOffice.objects.create(name='Amsterdam')
-        self.berlin = BranchOffice.objects.create(name='Berlin')
-
-    def testChatNickUnique(self):
-        profile_adam = AdditionalUserInformation.objects.create(user=self.adam, branch_office=self.amsterdam, chat_nick='a')
-        profile_bob = AdditionalUserInformation.objects.create(user=self.bob, branch_office=self.berlin, chat_nick='b')
-
-        # multiple users with blank or None/null chat_nick are allowed
-        profile_adam.chat_nick = ''
-        profile_adam.save()
-        profile_bob.chat_nick = ''
-        profile_bob.save()
-
-        profile_adam.chat_nick = None
-        profile_adam.save()
-        profile_bob.chat_nick = None
-        profile_bob.save()
-
-        # chat_nick must be unique across entire table
-        profile_adam.chat_nick = 'supernick'
-        profile_adam.save()
-        profile_bob.chat_nick = 'supernick'
-        self.assertRaisesRegexp(ValidationError, 'Additional user information with this Chatname already exists', profile_bob.validate_unique)
