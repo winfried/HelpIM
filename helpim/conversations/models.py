@@ -7,14 +7,34 @@ from threadedcomments.models import ThreadedComment
 
 
 class Conversation(models.Model):
-    start_time = models.DateTimeField()
+    created_at = models.DateTimeField()
+
+    # Starting time of the conversation. after being set once, should not be changed again.
+    # Whether the criteria for 'started' are met, is encapsulated in `create_message()`.
+    started_at = models.DateTimeField(null=True)
+
     subject = models.CharField(max_length=64, blank=True)
 
     def __unicode__(self):
-        return _('"%(subject)s" at %(start_time)s') % {
+        return _('"%(subject)s" at %(created_at)s') % {
           'subject': self.subject,
-          'start_time': self.start_time.strftime('%c'),
+          'created_at': self.created_at.strftime('%c'),
         }
+
+    def create_message(self, **kwargs):
+        """
+        Create a new Message and add it to the Conversation.
+        This also contains logic to determine whether the Conversation should be considered as 'started' and to set the `started_at` property accordingly.
+        """
+        new_msg = Message.objects.create(conversation=self, **kwargs)
+
+        # first message marks the conversation as 'started'
+        if self.started_at is None:
+            if self.messages.count() == 1:
+                self.started_at = self.created_at
+                self.save()
+
+        return new_msg
 
     def getClient(self):
         """Returns assigned client Participant for this Conversation"""
@@ -78,7 +98,7 @@ class Conversation(models.Model):
             return _('(unknown)')
 
     class Meta:
-        ordering = ['start_time']
+        ordering = ['created_at']
         verbose_name = _("Conversation")
         verbose_name_plural = _("Conversations")
 
@@ -101,8 +121,9 @@ class Participant(models.Model):
     blocked = models.BooleanField()
     blocked_at = models.DateTimeField(null=True, default=None)
 
-    def save(self, *args, **kwargs):
-        if self.blocked:
+    def save(self, keep_blocked_at=False, *args, **kwargs):
+        # dont always overwrite blocked_at with $now, necessary for importing data
+        if self.blocked and not keep_blocked_at:
             self.blocked_at = datetime.now()
         super(Participant, self).save(*args, **kwargs)
 
@@ -112,6 +133,20 @@ class Participant(models.Model):
     class Meta:
         verbose_name = _("Participant")
         verbose_name_plural = _("Participants")
+
+class BlockedParticipant(Participant):
+    '''
+    Using model proxies makes it possible to have a specialized ModelAdmin to display blocked Participants where verbose_name and ordering can be overridden without affecting Participant
+    This also generates the usual set of *_blockedparticipant rights.
+    
+    Assign the 'change_blockedparticipant' right to any user/role that is allowed to unblock clients
+    '''
+
+    class Meta:
+        proxy = True
+        verbose_name = _('Blocked client')
+        verbose_name_plural = _('Blocked clients')
+        ordering = ['-blocked_at']
 
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation, related_name='messages')
@@ -133,9 +168,22 @@ class Message(models.Model):
 
 
 class Chat(Conversation):
+    _waiting_time = None
+
+    def create_message(self, **kwargs):
+        new_msg = ChatMessage.objects.create(conversation=self, **kwargs)
+
+        # careworker has joined and careseeker has joined and at least 1 real message was sent
+        if self.started_at is None:
+            if self.messages.filter(chatmessage__event='message').count() >= 1 and not self.getClient() is None and not self.getStaff() is None:
+                self.started_at = self.created_at
+                self.save()
+
+        return new_msg
+
     def hasQuestionnaire(self, pos='CB'):
         """Returns whether Questionnaire at given position was submitted for this Chat"""
-        
+
         # conversationformentry_set manager only present when questionnaire app loaded
         if hasattr(self, 'conversationformentry_set'):
             return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
@@ -148,6 +196,53 @@ class Chat(Conversation):
         staffChatted = ChatMessage.objects.filter(conversation=self,sender__role=Participant.ROLE_STAFF,event='message').exclude(body__exact='').count() > 0
         
         return clientChatted and staffChatted
+
+    def was_queued(self):
+        '''
+        Returns a bool value indicating whether the careseeker in this Chat was sent to the waiting list.
+        Returns None if it couldn't be determined (via common.EventLog).
+        '''
+
+        # avoid circular imports
+        from helpim.conversations.stats import WaitingTimeFilter
+
+        waiting_time = self.waiting_time()
+
+        if waiting_time is None:
+            return None
+        elif waiting_time > WaitingTimeFilter.QUEUED_THRESHOLD:
+            return True
+        else:
+            return False
+
+    def waiting_time(self):
+        """
+        Returns waiting time in seconds for this Chat.
+        Returns None, if it couldn't be determined (via common.EventLog).
+        """
+
+        if self._waiting_time is None:
+            # avoid circular imports
+            from helpim.common.models import EventLog
+            from helpim.conversations.stats import EventLogProcessor, WaitingTimeFlatFilter
+
+            result = {str(self.id): {'avgWaitTime': None, 'queued': 0}}
+
+            # TODO: requiring session events to be within 1 hour isnt ideal
+            # get all EventLogs for the session which yielded this Chat
+            session_events = EventLog.objects.raw('''
+                select e2.*
+                from common_eventlog e1
+                inner join common_eventlog e2
+                    ON e1.session = e2.session AND ABS(TIMEDIFF(e1.created_at, e2.created_at) <= 3600)
+                where e1.payload='%s'
+                    AND e2.type IN ('helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined')
+            ''', [self.id])
+            EventLogProcessor(session_events, [WaitingTimeFlatFilter()]).run(result)
+
+            self._waiting_time = result[str(self.id)]['avgWaitTime']
+
+        return self._waiting_time
 
 class ChatMessage(Message):
     EVENT_CHOICES = (

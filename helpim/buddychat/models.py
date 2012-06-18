@@ -22,10 +22,11 @@ if ia.index('helpim.buddychat') > ia.index('helpim.rooms') or ia.index('helpim.b
 
 from helpim.common.models import register_position_choices
 register_position_choices([
-  ('CR', _('Client, after Registration')),
+  ('CB', _('Client, before chat')),
   ('CA', _('Client, after chat')),
   ('SA', _('Staff, after chat')),
   ('SC', _('Staff, on Conversation page')),
+  ('CR', _('Client, after Registration')),
   ('CX', _('Client, recurring')),
   ('SX', _('Staff, recurring')),
 ])
@@ -39,9 +40,9 @@ from forms_builder.forms.models import FormEntry
 class BuddyChatProfileManager(RegistrationManager):
     def create(self, user, activation_key):
         now = datetime.now()
-        conv1 = Conversation(start_time=now); conv1.save()
-        conv2 = Conversation(start_time=now); conv2.save()
-        conv3 = Conversation(start_time=now); conv3.save()
+        conv1 = Conversation(created_at=now); conv1.save()
+        conv2 = Conversation(created_at=now); conv2.save()
+        conv3 = Conversation(created_at=now); conv3.save()
         profile = BuddyChatProfile(
             user = user,
             activation_key = activation_key,

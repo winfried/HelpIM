@@ -2,7 +2,6 @@ body {
     margin: 0;
     padding: 0 0 1em 0;
     font-family: sans-serif;
-    font-size: .8em;
 }
 
 .copyright {
@@ -75,6 +74,24 @@ body {
 
 #content {
     padding-top: 5pt;
+}
+
+.dynamic-messages td {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.dynamic-messages p {
+    line-height: 100%;
+    margin: 4px 0px;
+}
+
+#content a:link {
+    color: #0000BB;
+}
+
+#content a:visited {
+    color: #000066;
 }
 
 /* printing */

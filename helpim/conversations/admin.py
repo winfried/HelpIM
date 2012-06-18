@@ -1,11 +1,13 @@
 from helpim.common.models import AdditionalUserInformation
-from helpim.conversations.models import Conversation, Participant, ChatMessage
+from helpim.conversations.models import BlockedParticipant, Conversation, Participant, ChatMessage
 from django.utils.translation import ugettext as _
 from django.contrib import admin
 from django import forms
 from threadedcomments.forms import ThreadedCommentForm
 from django.forms.models import inlineformset_factory
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 CONVERSATION_EDITABLE = False
 from forms_builder.forms.models import FormEntry
@@ -83,21 +85,21 @@ class ConversationFormEntryInline(admin.StackedInline):
 
 class ConversationAdmin(admin.ModelAdmin):
 
-    date_hierarchy = 'start_time'
+    date_hierarchy = 'created_at'
     list_display = (
       'pk',
-      'start_time',
+      'created_at',
       'duration',
       'client_name',
       'staff_name',
       'subject',
     )
-    list_display_links = ('pk', 'start_time', 'subject')
+    list_display_links = ('pk', 'created_at', 'subject')
 
-    fields = ('start_time', 'subject')
+    fields = ('created_at', 'subject', 'started_at')
 
     if not CONVERSATION_EDITABLE:
-        readonly_fields = ('start_time', 'subject')
+        readonly_fields = ('created_at', 'subject', 'started_at')
 
     inlines = [
         ParticipantInline,
@@ -195,5 +197,31 @@ class ConversationAdmin(admin.ModelAdmin):
 
         return super(ConversationAdmin, self).change_view(request, object_id, extra_context)
 
+class BlockedParticipantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'conversation', 'conversation_link', 'blocked_at', 'blocked',)
+    list_editable = ('blocked',)
+    search_fields = ('name',)
+
+    def __init__(self, *args, **kwargs):
+        # this is to remove the link to the change page in the first column
+        # see: http://stackoverflow.com/questions/1618728/disable-link-to-edit-object-in-djangos-admin-display-list-only
+        super(BlockedParticipantAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None,)
+
+    def queryset(self, request):
+        '''only blocked Participants'''
+        all_participants = super(BlockedParticipantAdmin, self).queryset(request)
+        return all_participants.filter(blocked=True)
+
+    def change_view(self, request, obj=None):
+        # dont show change page
+        return HttpResponseRedirect(reverse('admin:conversations_blockedparticipant_changelist'))
+
+    def conversation_link(self, obj):
+        return '<a href="%s">%s</a>' % (reverse('admin:conversations_conversation_change', args=[obj.conversation.id]), _('Show chat'))
+    conversation_link.short_description = ''
+    conversation_link.allow_tags = True
+
+admin.site.register(BlockedParticipant, BlockedParticipantAdmin)
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.disable_action('delete_selected')

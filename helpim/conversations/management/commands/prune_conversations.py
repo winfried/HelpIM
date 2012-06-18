@@ -1,10 +1,10 @@
+from datetime import timedelta, datetime
 import sys
 
-from datetime import timedelta, datetime
-from django.db.models import F
+from django.core.management.base import BaseCommand
 
-from django.core.management.base import BaseCommand, CommandError
 from helpim.conversations.models import Conversation, Message
+
 
 class Command(BaseCommand):
     def handle(self, days_to_keep, **options):
@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         print >> sys.stderr, "Deleting everything before", up_for_deletion, ".. \nthat is",
 
-        conversations = Conversation.objects.filter(start_time__lt=up_for_deletion)
+        conversations = Conversation.objects.filter(created_at__lt=up_for_deletion)
 
         messages = Message.objects.filter(conversation__in=conversations)
 
@@ -29,7 +29,10 @@ class Command(BaseCommand):
                 messages.count(),
               )),
 
-        messages.delete()
+        # empty contents of messages
+        for msg in messages:
+            msg.body = '*****'
+            msg.save()
 
         print >> sys.stderr, "done."
 

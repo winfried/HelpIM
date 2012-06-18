@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-25 12:37+0100\n"
+"POT-Creation-Date: 2012-06-18 16:21+0200\n"
 "PO-Revision-Date: 2012-01-25 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,141 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: common/models.py:13
+#: buddychat/models.py:25 common/models.py:59
+msgid "Client, before chat"
+msgstr "Hulpvrager, voor de chat"
+
+#: buddychat/models.py:26 common/models.py:60
+msgid "Client, after chat"
+msgstr "Hulpvrager, na de chat"
+
+#: buddychat/models.py:27 common/models.py:61
+msgid "Staff, after chat"
+msgstr "Hulpverlener, na de chat"
+
+#: buddychat/models.py:28 common/models.py:62
+msgid "Staff, on Conversation page"
+msgstr "Medewerkers, op converstie pagina"
+
+#: buddychat/models.py:29
+msgid "Client, after Registration"
+msgstr "Hulpvragers, na de chat"
+
+#: buddychat/models.py:30
+msgid "Client, recurring"
+msgstr "Hulpvragers, periodiek herhalend"
+
+#: buddychat/models.py:31
+msgid "Staff, recurring"
+msgstr "Medewerkers, periodiek herhalend"
+
+#: buddychat/models.py:61 stats/models.py:149 stats/models.py:321
+#: templates/buddychat/chatbuddies.html:24 templates/buddychat/profile.html:47
+msgid "Careworker"
+msgstr "Hulpverlener"
+
+#: buddychat/models.py:212
+msgid "Chat Buddy"
+msgstr "Chatmaatje"
+
+#: buddychat/models.py:213 templates/admin/base_site.html:36
+#: templates/buddychat/chatbuddies.html:9
+msgid "Chat Buddies"
+msgstr "Chatmaatjes"
+
+#: buddychat/models.py:249
+msgid "Questionnaire answer"
+msgstr "Ingezonden vragenlijst"
+
+#: buddychat/models.py:250
+msgid "Questionnaire answers"
+msgstr "Ingezonden vragenlijsten"
+
+#: buddychat/views.py:24 stats/models.py:284
+msgid "None"
+msgstr "(Geen)"
+
+#: buddychat/views.py:88 buddychat/views.py:94 buddychat/views.py:99
+#: buddychat/views.py:104 buddychat/views.py:172 buddychat/views.py:206
+msgid "Access Denied"
+msgstr "Toegang geweigerd"
+
+#: buddychat/views.py:117
+#, python-format
+msgid "a message from %s"
+msgstr "Bericht van %s"
+
+#: buddychat/views.py:118
+#, python-format
+msgid ""
+"%(sender)s wrote a message on %(client)s's profile:\n"
+"\n"
+"%(message)s\n"
+"\n"
+"Don't reply to this message directly, reply on this user's personal page at "
+"http://%(site)s/profile/%(client)s/"
+msgstr ""
+"%(sender)s schreef een bericht op %(client)s's profiel:\n"
+"\n"
+"%(message)s\n"
+"\n"
+"Stuur geen direct antwoord op dit bericht, antwoord via de persoonlijke "
+"pagina van deze gebruiker op http://%(site)s/profile/%(client)s/"
+
+#: buddychat/views.py:133
+msgid "Your message has been sent"
+msgstr "Je bericht is verzonden"
+
+#: buddychat/views.py:187
+msgid "Careworker not found"
+msgstr "Medewerker niet gevonden"
+
+#: buddychat/views.py:192
+msgid "Careworker has been set"
+msgstr "Medewerker is toegewezen"
+
+#: buddychat/views.py:195
+msgid "Careworker has been unset"
+msgstr "Medewerker is ontkoppeld"
+
+#: buddychat/views.py:229
+msgid "Service Unavailable"
+msgstr "Niet beschikbaar"
+
+#: buddychat/management/commands/mail_questionnaires.py:54
+#: buddychat/management/commands/mail_questionnaires.py:61
+#, python-format
+msgid "a reminder about %s"
+msgstr "een herinnering over %s"
+
+#: buddychat/management/commands/mail_questionnaires.py:55
+#, python-format
+msgid ""
+"This is a reminder to take your next questionnaire.\n"
+"\n"
+"Don't reply to this message directly, reply on your personal profile page at "
+"http://%(site)s%(path_profilepage)s"
+msgstr ""
+"Dit is een herinnering dat je je volgende vragenlijst moet invullen.\n"
+"\n"
+"Stuur geen direct antwoord op dit bericht, antwoord via je persoonlijke op "
+"http://%(site)s%(path_profilepage)s"
+
+#: buddychat/management/commands/mail_questionnaires.py:62
+#, python-format
+msgid ""
+"This is a reminder to take the next questionnaire about %(careseeker)s.\n"
+"\n"
+"Don't reply to this message directly, reply on the personal profile page at "
+"http://%(site)s%(path_profilepage)s"
+msgstr ""
+"Dit is een herinnering dat je je volgende vragenlijst moet invullen over "
+"%(careseeker)s.\n"
+"\n"
+"Stuur geen direct antwoord op dit bericht, antwoord via je persoonlijke op "
+"http://%(site)s%(path_profilepage)s"
+
+#: common/models.py:13 stats/models.py:127 stats/models.py:318
 msgid "Branch office"
 msgstr "Afdeling"
 
@@ -43,125 +177,135 @@ msgid "Additional user information"
 msgstr "Extra gebruiker informatie"
 
 #: common/models.py:37
-#, fuzzy
 msgid "Chatname"
-msgstr "Aan het chatten"
+msgstr "Nicknaam"
 
 #: common/models.py:46
 #, python-format
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr "Gebeurtenis %(event_name)s om %(timestamp)s"
 
-#: conversations/admin.py:33
+#: conversations/admin.py:35
 msgid "Message"
 msgstr "Bericht"
 
-#: conversations/admin.py:34
+#: conversations/admin.py:36 templates/buddychat/chatbuddies.html:26
 msgid "Messages"
 msgstr "Berichten"
 
-#: conversations/admin.py:54 conversations/models.py:101
+#: conversations/admin.py:56 conversations/models.py:118
 msgid "Participant"
 msgstr "Deelnemer"
 
-#: conversations/admin.py:55 conversations/models.py:102
+#: conversations/admin.py:57 conversations/models.py:119
 msgid "Participants"
 msgstr "Deelnemers"
 
-#: conversations/admin.py:126
+#: conversations/admin.py:128 templates/buddychat/chatbuddies.html:40
 msgid "No"
 msgstr "Nee"
 
-#: conversations/admin.py:128
+#: conversations/admin.py:130 templates/buddychat/chatbuddies.html:38
 msgid "Yes"
 msgstr "Ja"
 
-#: conversations/admin.py:129
+#: conversations/admin.py:131
 msgid "Staff submitted?"
-msgstr "Hulpverlener toegevoegd?"
+msgstr "Registratie ingevuld?"
 
-#: conversations/admin.py:137 conversations/models.py:71
-#: templates/admin/base_site.html:28 templates/admin/index.html:37
+#: conversations/admin.py:139 conversations/models.py:87
+#: templates/admin/base_site.html:30
 msgid "Conversations"
 msgstr "Gesprekken"
 
-#: conversations/models.py:14
-#, python-format
-msgid "\"%(subject)s\" at %(start_time)s"
-msgstr "\"%(subject)s\" om %(start_time)s"
+#: conversations/admin.py:221
+msgid "Show chat"
+msgstr ""
 
-#: conversations/models.py:39 conversations/models.py:57
+#: conversations/models.py:18
+#, python-format
+msgid "\"%(subject)s\" at %(created_at)s"
+msgstr "\"%(subject)s\" om %(created_at)s"
+
+#: conversations/models.py:55 conversations/models.py:73
 msgid "(None)"
 msgstr "(Geen)"
 
-#: conversations/models.py:50
+#: conversations/models.py:66
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr "%(first_name)s %(last_name)s"
 
-#: conversations/models.py:66
+#: conversations/models.py:82
 msgid "(unknown)"
 msgstr "(onbekend)"
 
-#: conversations/models.py:70
+#: conversations/models.py:86
 msgid "Conversation"
 msgstr "Gesprek"
 
-#: conversations/models.py:84 rooms/models.py:378 rooms/models.py:630
+#: conversations/models.py:100 rooms/models.py:378 rooms/models.py:534
+#: rooms/models.py:760
 msgid "Client"
 msgstr "Hulpvrager"
 
-#: conversations/models.py:85 rooms/models.py:631
+#: conversations/models.py:101 rooms/models.py:761
 msgid "Staff"
 msgstr "Hulpverlener"
 
-#: conversations/models.py:107
+#: conversations/models.py:131
+msgid "Blocked client"
+msgstr "Geblokkeerde hulpvrager"
+
+#: conversations/models.py:132
+msgid "Blocked clients"
+msgstr "Geblokkeerde hulpvragers"
+
+#: conversations/models.py:138 templates/buddychat/profile.html:77
+#: templates/buddychat/profile.html:99 templates/buddychat/profile.html:119
 msgid "Sender"
 msgstr "Afzender"
 
-#: conversations/models.py:141
-#, fuzzy
+#: conversations/models.py:222
 msgid "Chat message"
 msgstr "Bericht"
 
-#: conversations/models.py:142
-#, fuzzy
+#: conversations/models.py:223
 msgid "Chat joining"
-msgstr "Aan het chatten"
+msgstr "In chat gekomen"
 
-#: conversations/models.py:143
-#, fuzzy
+#: conversations/models.py:224
 msgid "Chat rejoining"
-msgstr "Aan het chatten"
+msgstr "Opnieuw in chat gekomen"
 
-#: conversations/models.py:144
+#: conversations/models.py:225
 msgid "Chat exit"
-msgstr "Stop chat"
+msgstr "Chat verlaten"
 
-#: conversations/models.py:145
-#, fuzzy
+#: conversations/models.py:226
 msgid "Chat end"
-msgstr "Chat einde"
+msgstr "Einde chat"
 
 #: conversations/stats.py:15 conversations/stats.py:146
+#: templates/buddychat/profile.html:79 templates/buddychat/profile.html:101
+#: templates/buddychat/profile.html:121
 msgid "Date"
 msgstr "Datum"
 
-#: conversations/stats.py:16
+#: conversations/stats.py:16 stats/models.py:79
 msgid "Hour"
 msgstr "Uur"
 
 #: conversations/stats.py:17
-#, fuzzy
 msgid "Total Chats"
-msgstr "Verbind met chat"
+msgstr "Totaal aantal chats"
 
-#: conversations/stats.py:18
+#: conversations/stats.py:18 stats/models.py:297
 msgid "Unique IPs"
-msgstr "Unieke IPs"
+msgstr "Unieke IP's"
 
 #: conversations/stats.py:19 conversations/stats.py:147
-#: questionnaire/models.py:23
+#: questionnaire/models.py:22 templates/buddychat/chatbuddies.html:29
 msgid "Questionnaires"
 msgstr "Vragenlijsten"
 
@@ -175,9 +319,8 @@ msgid "Assigned"
 msgstr "Toegevoegd"
 
 #: conversations/stats.py:22 conversations/stats.py:151
-#, fuzzy
 msgid "Interaction"
-msgstr "Gesprek"
+msgstr "Interactie"
 
 #: conversations/stats.py:23 conversations/stats.py:150
 msgid "Queued"
@@ -185,11 +328,11 @@ msgstr "Wachtend"
 
 #: conversations/stats.py:24
 msgid "Avg. Wait time (sec.)"
-msgstr "Gem. Wachttijd (sec.)"
+msgstr "Gem. wachttijd (sec.)"
 
 #: conversations/stats.py:25
 msgid "Avg. Chat Time (sec.)"
-msgstr "Gem. Chat Tijd (sec.)"
+msgstr "Gem. chattijd per gesprek (sec.)"
 
 #: conversations/stats.py:138
 msgid "Chats Aggregated"
@@ -197,28 +340,26 @@ msgstr "Toegewezen chats"
 
 #: conversations/stats.py:142
 msgid "displays statistics of all Chats aggregated by hour"
-msgstr "toont statistieken van alle Chats gegroepeerd per uur"
+msgstr ""
+"toont statistieken van alle chatsgesprekken gegroepeerd per dag per uur"
 
 #: conversations/stats.py:145
 msgid "Id"
 msgstr "Id"
 
 #: conversations/stats.py:152
-#, fuzzy
 msgid "Client IP"
-msgstr "Hulpvrager"
+msgstr "IP adres hulpvrager"
 
 #: conversations/stats.py:153
-#, fuzzy
 msgid "Client name"
-msgstr "Nicknaam"
+msgstr "Naam hulpvrager"
 
 #: conversations/stats.py:154
-#, fuzzy
 msgid "Staff name"
-msgstr "Nicknaam"
+msgstr "Naam hulpverlener"
 
-#: conversations/stats.py:155 templates/rooms/chat_client.html:29
+#: conversations/stats.py:155 templates/rooms/chat_client.html:28
 msgid "Subject"
 msgstr "Onderwerp"
 
@@ -227,18 +368,16 @@ msgid "Wait time (sec.)"
 msgstr "Wacht tijd (sec.)"
 
 #: conversations/stats.py:157
-#, fuzzy
 msgid "Chat Time (sec.)"
-msgstr "Bericht"
+msgstr "Duur chat (sec.)"
 
 #: conversations/stats.py:242
-#, fuzzy
 msgid "Chats Flat"
-msgstr "Stop chat"
+msgstr "Volledige lijst van chats"
 
 #: conversations/stats.py:246
 msgid "displays statistics of all Chats of a year without aggregation"
-msgstr "toont statistieken van alle Chats van een jaar zonder groepering"
+msgstr "toont statistieken van alle chats van een jaar zonder groepering"
 
 #: groups/models.py:21
 msgid "Chatgroups"
@@ -272,7 +411,7 @@ msgstr "Bijeenkomst"
 msgid "Meetings"
 msgstr "Bijeenkomsten"
 
-#: questionnaire/admin.py:8 templates/admin/base_site.html:21
+#: questionnaire/admin.py:8 templates/admin/base_site.html:22
 msgid "HelpIM"
 msgstr "HelpIM"
 
@@ -284,40 +423,27 @@ msgstr "Goedkeuren"
 msgid "Disagree"
 msgstr "Afkeuren"
 
-#: questionnaire/models.py:8
-msgid "Client, before chat"
-msgstr "Hulpvrager, voor de chat"
+#: questionnaire/models.py:15
+msgid "Position"
+msgstr "Positie"
 
-#: questionnaire/models.py:9
-msgid "Client, after chat"
-msgstr "Hulpvrager, na de chat"
-
-#: questionnaire/models.py:10
-msgid "Staff, after chat"
-msgstr "Hulpverlener, na de chat"
-
-#: questionnaire/models.py:11
-#, fuzzy
-msgid "Staff, on Conversation page"
-msgstr "Gesprek"
-
-#: questionnaire/models.py:22
+#: questionnaire/models.py:21
 msgid "Questionnaire"
 msgstr "Vragenlijst"
 
-#: questionnaire/models.py:38
+#: questionnaire/models.py:37
 msgid "Questionnaire answer for conversation"
 msgstr "Antwoord op vragen voor de chat"
 
-#: questionnaire/models.py:39
+#: questionnaire/models.py:38
 msgid "Questionnaire answers for conversation"
 msgstr "Antwoorden op vragen voor de chat"
 
-#: questionnaire/models.py:56
+#: questionnaire/models.py:78
 msgid "Scale"
 msgstr "Schaal"
 
-#: questionnaire/models.py:57
+#: questionnaire/models.py:79
 msgid "Double droplist"
 msgstr "Dubbele droplist"
 
@@ -346,7 +472,7 @@ msgstr "Invoegen"
 msgid "Filter by"
 msgstr "Filter op"
 
-#: questionnaire/templates/admin/forms/export.html:83
+#: questionnaire/templates/admin/forms/export.html:83 stats/models.py:280
 msgid "All"
 msgstr "Alle"
 
@@ -371,12 +497,13 @@ msgstr "Gegevens"
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr "U bent op positie %(pos)d van de wachtrij."
 
-#: rooms/bot.py:309
+#: rooms/bot.py:315
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
-msgstr "%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
+msgstr ""
+"%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
 
-#: rooms/models.py:268
+#: rooms/models.py:267
 msgid "Room status"
 msgstr "Chatroom status"
 
@@ -384,8 +511,8 @@ msgstr "Chatroom status"
 msgid "One2One Room"
 msgstr "EenOpEen chatroom"
 
-#: rooms/models.py:363 rooms/models.py:507 rooms/models.py:545
-#: rooms/models.py:558
+#: rooms/models.py:363 rooms/models.py:521 rooms/models.py:637
+#: rooms/models.py:675 rooms/models.py:688
 msgid "Available"
 msgstr "Beschikbaar"
 
@@ -401,57 +528,275 @@ msgstr "Hulpverlener wacht"
 msgid "Staff Waiting for Invitee"
 msgstr "Hulpverlener wacht op genodigde"
 
-#: rooms/models.py:367 rooms/models.py:508 rooms/models.py:546
-#: rooms/models.py:559
+#: rooms/models.py:367 rooms/models.py:523 rooms/models.py:638
+#: rooms/models.py:676 rooms/models.py:689
 msgid "Chatting"
 msgstr "Aan het chatten"
 
-#: rooms/models.py:368
+#: rooms/models.py:368 rooms/models.py:524
 msgid "Closing Chat"
 msgstr "Chat aan het afsluiten"
 
-#: rooms/models.py:369 rooms/models.py:509 rooms/models.py:547
-#: rooms/models.py:560
+#: rooms/models.py:369 rooms/models.py:525 rooms/models.py:639
+#: rooms/models.py:677 rooms/models.py:690
 msgid "To Destroy"
 msgstr "Te vernietigen"
 
-#: rooms/models.py:370 rooms/models.py:510 rooms/models.py:548
-#: rooms/models.py:561
+#: rooms/models.py:370 rooms/models.py:526 rooms/models.py:640
+#: rooms/models.py:678 rooms/models.py:691
 msgid "Destroyed"
 msgstr "Vernietigd"
 
-#: rooms/models.py:371
+#: rooms/models.py:371 rooms/models.py:527
 msgid "Lost"
 msgstr "Verloren"
 
-#: rooms/models.py:372 rooms/models.py:511 rooms/models.py:549
-#: rooms/models.py:562
+#: rooms/models.py:372 rooms/models.py:528 rooms/models.py:641
+#: rooms/models.py:679 rooms/models.py:692
 msgid "Abandoned"
 msgstr "Verlaten"
 
-#: rooms/models.py:375
-#, fuzzy
+#: rooms/models.py:375 rooms/models.py:531
 msgid "Staff member"
-msgstr "Nicknaam"
+msgstr "Medewerker"
 
-#: rooms/models.py:376
-#, fuzzy
+#: rooms/models.py:376 rooms/models.py:532
 msgid "Staff nickname"
-msgstr "Nicknaam"
+msgstr "Nicknaam medewerker"
 
-#: rooms/models.py:379
-#, fuzzy
+#: rooms/models.py:379 rooms/models.py:535
 msgid "Client nickname"
-msgstr "Nicknaam"
+msgstr "Nicknaam hulpvrager"
 
-#: rooms/models.py:381
+#: rooms/models.py:381 rooms/models.py:537
 msgid "Allocated by client"
 msgstr "Toegewezen aan hulpvrager"
 
-#: rooms/models.py:399 rooms/models.py:429
-#, fuzzy
+#: rooms/models.py:399 rooms/models.py:429 rooms/models.py:556
 msgid "Chat"
-msgstr "Aan het chatten"
+msgstr "Chat"
+
+#: rooms/models.py:515
+msgid "Simple Room"
+msgstr "Eenvoudige chatroom"
+
+#: rooms/models.py:522
+msgid "Participant Waiting"
+msgstr "Deelnemer is aan het wachten"
+
+#: stats/forms.py:20
+msgid "all branches"
+msgstr "alle afdelingen"
+
+#: stats/forms.py:21
+msgid "all careworkers"
+msgstr "alle hulpverleners"
+
+#: stats/forms.py:48 stats/tests.py:337
+msgid ""
+"The period of time you selected is invalid (end date is older than start "
+"date)."
+msgstr ""
+"De tijdsspanne die je geselecteerd hebt is niet geldig (einddatum valt voor "
+"de begindatum)"
+
+#: stats/models.py:95 stats/tests.py:378
+msgid "Weekday"
+msgstr "Dag van de week"
+
+#: stats/models.py:106
+msgid "Monday"
+msgstr "Maandag"
+
+#: stats/models.py:106
+msgid "Tuesday"
+msgstr "Dinsdag"
+
+#: stats/models.py:106
+msgid "Wednesday"
+msgstr "Woensdag"
+
+#: stats/models.py:106 stats/tests.py:227 stats/tests.py:236
+#: stats/tests.py:264 stats/tests.py:272 stats/tests.py:414
+msgid "Thursday"
+msgstr "Donderdag"
+
+#: stats/models.py:106 stats/tests.py:228 stats/tests.py:237
+#: stats/tests.py:265 stats/tests.py:273 stats/tests.py:413
+msgid "Friday"
+msgstr "Vrijdag"
+
+#: stats/models.py:106 stats/tests.py:229 stats/tests.py:238
+#: stats/tests.py:266 stats/tests.py:274 stats/tests.py:415
+msgid "Saturday"
+msgstr "Zaterdag"
+
+#: stats/models.py:106
+msgid "Sunday"
+msgstr "Zondag"
+
+#: stats/models.py:111
+msgid "Month"
+msgstr "Maand"
+
+#: stats/models.py:122 stats/tests.py:429
+msgid "January"
+msgstr "Januari"
+
+#: stats/models.py:122
+msgid "February"
+msgstr "Februari"
+
+#: stats/models.py:122
+msgid "March"
+msgstr "Maart"
+
+#: stats/models.py:122
+msgid "April"
+msgstr "April"
+
+#: stats/models.py:122 stats/tests.py:430
+msgid "May"
+msgstr "Mei"
+
+#: stats/models.py:122
+msgid "June"
+msgstr "Juni"
+
+#: stats/models.py:122
+msgid "July"
+msgstr "Juli"
+
+#: stats/models.py:122
+msgid "August"
+msgstr "Augustus"
+
+#: stats/models.py:122
+msgid "September"
+msgstr "September"
+
+#: stats/models.py:122
+msgid "October"
+msgstr "Oktober"
+
+#: stats/models.py:122
+msgid "November"
+msgstr "November"
+
+#: stats/models.py:122 stats/tests.py:431
+msgid "December"
+msgstr "December"
+
+#: stats/models.py:173
+msgid "Duration of chat"
+msgstr "Duur van de chat"
+
+#: stats/models.py:181 stats/models.py:199 stats/tests.py:497
+msgid "0-5"
+msgstr "0-5"
+
+#: stats/models.py:183 stats/models.py:199 stats/models.py:218
+#: stats/models.py:230 stats/tests.py:517
+msgid "5-10"
+msgstr "5-10"
+
+#: stats/models.py:185 stats/models.py:199 stats/models.py:220
+#: stats/models.py:230 stats/tests.py:498
+msgid "10-15"
+msgstr "10-15"
+
+#: stats/models.py:187 stats/models.py:199
+msgid "15-25"
+msgstr "15-25"
+
+#: stats/models.py:189 stats/models.py:199
+msgid "25-45"
+msgstr "25-45"
+
+#: stats/models.py:191 stats/models.py:199 stats/tests.py:499
+msgid "45+"
+msgstr "45+"
+
+#: stats/models.py:204
+msgid "Waiting time for chat"
+msgstr "Wachttijd"
+
+#: stats/models.py:212 stats/models.py:230 stats/tests.py:516
+msgid "0-1"
+msgstr "0-1"
+
+#: stats/models.py:214 stats/models.py:230
+msgid "1-3"
+msgstr "1-3"
+
+#: stats/models.py:216 stats/models.py:230
+msgid "3-5"
+msgstr "3-5"
+
+#: stats/models.py:222 stats/models.py:230
+msgid "15+"
+msgstr "15+"
+
+#: stats/models.py:241
+#, python-format
+msgid "Question: %(question)s on: %(form)s"
+msgstr "Vraag: %(question)s op: %(form)s"
+
+#: stats/models.py:296
+msgid "Hits"
+msgstr "Hits"
+
+#: stats/models.py:301
+msgid "No value"
+msgstr "Geen waarde"
+
+#: stats/models.py:302
+msgid "Total"
+msgstr "Totaal"
+
+#: stats/models.py:308
+msgid "Chats from (inclusive)"
+msgstr "Chats vanaf (inclusief)"
+
+#: stats/models.py:313
+msgid "Chats until (inclusive)"
+msgstr "Chats tot en met"
+
+#: stats/models.py:326
+msgid "Hits from blocked IPs"
+msgstr "Hits van geblokkeerde ip-adressen"
+
+#: stats/models.py:327
+msgid "Hits that were queued"
+msgstr "Hits die in de wachtrij kwamen"
+
+#: stats/models.py:328
+msgid "Assigned chats"
+msgstr "Toegewezen chats"
+
+#: stats/models.py:329
+msgid "Interactive chats"
+msgstr "Chats met interactie"
+
+#: stats/models.py:334
+msgid "select column variable"
+msgstr "selecteer een variable voor de kolommen"
+
+#: stats/models.py:338
+msgid "select row variable"
+msgstr "selecteer een variable voor de rijen"
+
+#: stats/models.py:341
+msgid "select information to show"
+msgstr "selecteer de informatie om te tonen"
+
+#: stats/tests.py:351 stats/tests.py:365
+msgid "Var1"
+msgstr "Var1"
+
+#: stats/tests.py:351 stats/tests.py:365
+msgid "Var2"
+msgstr "Var2"
 
 #: templates/404.html:3 templates/404.html.py:4
 msgid "Page not found"
@@ -461,30 +806,33 @@ msgstr "Pagina niet gevonden"
 msgid "Internal server error"
 msgstr "Interne server fout"
 
-#: templates/base.html:16
-#, fuzzy, python-format
+#: templates/base.html:22
+#, python-format
 msgid "Welcome, %(username)s!"
-msgstr "Voeg %(name)s toe"
+msgstr "Welkom, %(username)s!"
 
-#: templates/admin/base_site.html:6 templates/admin/flatpage.html:4
+#: templates/admin/base_site.html:7 templates/admin/flatpage.html:4
 msgid "Django site admin"
 msgstr "Django site beheerder"
 
-#: templates/admin/base_site.html:29 templates/admin/index.html:46
-#, fuzzy
+#: templates/admin/base_site.html:31 templates/admin/index.html:35
 msgid "Chat!"
-msgstr "Aan het chatten"
+msgstr "Chat!"
 
-#: templates/admin/base_site.html:32 templates/admin/index.html:41
-#: templates/stats/stats_index.html:7
+#: templates/admin/base_site.html:42 templates/admin/index.html:49
+#: templates/stats/report_new.html:9 templates/stats/report_show.html:9
+#: templates/stats/stats_index.html:9 templates/stats/stats_index.html:15
+#: templates/stats/stats_overview.html:19
 msgid "Stats"
 msgstr "Stats"
 
-#: templates/admin/change_form.html:26
+#: templates/admin/change_form.html:26 templates/stats/report_new.html:8
+#: templates/stats/report_show.html:8 templates/stats/stats_index.html:8
+#: templates/stats/stats_overview.html:18
 msgid "Home"
 msgstr "Home"
 
-#: templates/admin/change_form.html:29 templates/admin/index.html:67
+#: templates/admin/change_form.html:29
 msgid "Add"
 msgstr "Toevoegen"
 
@@ -494,26 +842,11 @@ msgid_plural "Please correct the errors below."
 msgstr[0] "Corrigeer onderstaande fout AUB."
 msgstr[1] "Corrigeer onderstaande fouten AUB."
 
-#: templates/admin/index.html:34
+#: templates/admin/index.html:33
 msgid "Quick access"
 msgstr "Snelle toegang"
 
-#: templates/admin/index.html:56
-#, python-format
-msgid "Models available in the %(name)s application."
-msgstr "Modellen beschikbaar in de %(name)s applicatie."
-
-#: templates/admin/index.html:57
-#, fuzzy, python-format
-msgid "%(name)s"
-msgstr "Voeg %(name)s toe"
-
-#: templates/admin/index.html:73
-#, fuzzy
-msgid "Change"
-msgstr "Aan het chatten"
-
-#: templates/admin/index.html:83
+#: templates/admin/index.html:54
 msgid "You don't have permission to edit anything."
 msgstr "U heeft geen toestemming om iets te wijzigen"
 
@@ -535,16 +868,16 @@ msgid "Delete?"
 msgstr "Verwijderen?"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:60
-#: templates/admin/edit_inline/with_threadedcomments.html:115
+#: templates/admin/edit_inline/with_threadedcomments.html:116
 msgid "Reply"
 msgstr "Beantwoorden"
 
-#: templates/admin/edit_inline/with_threadedcomments.html:265
+#: templates/admin/edit_inline/with_threadedcomments.html:266
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr "Voeg een %(verbose_name)s toe"
 
-#: templates/admin/edit_inline/with_threadedcomments.html:268
+#: templates/admin/edit_inline/with_threadedcomments.html:269
 msgid "Remove"
 msgstr "Verwijder"
 
@@ -558,13 +891,94 @@ msgstr "Ga in volgende beschikbare %(name)s"
 msgid "Add %(name)s"
 msgstr "Voeg %(name)s toe"
 
-#: templates/buddychat/welcome.html:3 templates/buddychat/welcome.html.py:4
-msgid "Welcome"
-msgstr ""
+#: templates/buddychat/base_buddychat.html:11
+msgid "Logout"
+msgstr "Log uit"
 
-#: templates/buddychat/welcome.html:5
-msgid "Yo bro'!"
+#: templates/buddychat/base_buddychat.html:11
+msgid "Change Password"
+msgstr "Verander wachtwoord"
+
+#: templates/buddychat/chatbuddies.html:13
+msgid "Chatbuddies"
+msgstr "Chatmaatjes"
+
+#: templates/buddychat/chatbuddies.html:21
+msgid "Nick"
+msgstr "Nicknaam"
+
+#: templates/buddychat/chatbuddies.html:23
+msgid "Ready"
+msgstr "Gereed"
+
+#: templates/buddychat/chatbuddies.html:27
+msgid "Unread"
+msgstr "Ongelezen"
+
+#: templates/buddychat/chatbuddies.html:28
+msgid "Chats"
+msgstr "Chats"
+
+#: templates/buddychat/profile.html:4 templates/buddychat/profile.html.py:6
+#, python-format
+msgid "Personal page for %(username)s"
+msgstr "Persoonlijke pagina voor %(username)s"
+
+#: templates/buddychat/profile.html:24
+#, python-format
+msgid ""
+"\n"
+"                    %(username)s, please take a moment to <b><a href="
+"\"%(recurring_questionnaire_url)s\">fill out this form</a></b> to evaluate "
+"the progress!\n"
+"                "
 msgstr ""
+"\n"
+"\t\t            %(username)s, neem AUB een moment de tijd om <b><a href="
+"\"%(recurring_questionnaire_url)s\">dit formulier in te vullen</a></b>!\n"
+"\t\t        "
+
+#: templates/buddychat/profile.html:42
+msgid "Email"
+msgstr "E-mail"
+
+#: templates/buddychat/profile.html:51 templates/buddychat/profile.html:90
+#: templates/buddychat/profile.html:111 templates/buddychat/profile.html:131
+msgid "Submit"
+msgstr "Verzend"
+
+#: templates/buddychat/profile.html:55
+msgid "Careworker's Email"
+msgstr "Hulpverleners e-mail"
+
+#: templates/buddychat/profile.html:57
+msgid "Coupled at"
+msgstr "Gekoppeld op"
+
+#: templates/buddychat/profile.html:60
+msgid "Registered at"
+msgstr "Geregistreerd op"
+
+#: templates/buddychat/profile.html:65
+msgid "Chat Sesssion"
+msgstr "Chatsessie"
+
+#: templates/buddychat/profile.html:74
+msgid "Careworker Conversation"
+msgstr "Gesprek met medewerker"
+
+#: templates/buddychat/profile.html:78 templates/buddychat/profile.html:100
+#: templates/buddychat/profile.html:120
+msgid "Body"
+msgstr "Bericht"
+
+#: templates/buddychat/profile.html:96
+msgid "Coordinator Conversation"
+msgstr "Gesprek met coördinator"
+
+#: templates/buddychat/profile.html:116
+msgid "Careworker-Coordinator Conversation"
+msgstr "Gesprek medewerker-coördinator"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
@@ -575,34 +989,92 @@ msgstr "Sorry, je IP address is geblokkeerd voor deze service."
 msgid "Join Chat"
 msgstr "Verbind met chat"
 
-#: templates/stats/stats_index.html:9
+#: templates/stats/report_new.html:12 templates/stats/report_new.html.py:22
+#: templates/stats/report_show.html:24
+msgid "Edit report"
+msgstr "Wijzig rapport"
+
+#: templates/stats/report_new.html:14 templates/stats/report_new.html.py:24
+#: templates/stats/stats_index.html:41
+msgid "Create new report"
+msgstr "Maak nieuw rapport"
+
+#: templates/stats/report_new.html:32
+msgid "Preview report"
+msgstr "Bekijk voorbeel van raport"
+
+#: templates/stats/report_new.html:35 templates/stats/report_new.html.py:39
+#: templates/stats/report_new.html:42
+msgid "Save report"
+msgstr "Bewaar rapport"
+
+#: templates/stats/report_show.html:16
+#, python-format
+msgid "Report <i>%(report)s</i>"
+msgstr "Rapport <i>%(report)s</i>"
+
+#: templates/stats/report_show.html:20
+msgid "Delete report"
+msgstr "Verwijder rapprt?"
+
+#: templates/stats/report_show.html:20
+msgid "Are you sure?"
+msgstr "Weet je het zeker?"
+
+#: templates/stats/stats_index.html:17
 msgid "Show statistics for one of the following topics:"
 msgstr "Toon statistieken voor een van de volgende topics:"
 
-#: templates/stats/stats_index.html:22
+#: templates/stats/stats_index.html:30
 msgid "No module registered that collects stats"
 msgstr "Geen module geregistreerd om statistieken te verzamelen"
 
-#: templates/stats/stats_overview.html:47
+#: templates/stats/stats_index.html:35
+msgid "Reports"
+msgstr "Rapporten"
+
+#: templates/stats/stats_index.html:38
+msgid "Configurable summaries that can be saved."
+msgstr "Configureerbare samenvattingen die opgeslagen kunnen worden."
+
+#: templates/stats/stats_index.html:55
+#, python-format
+msgid ""
+"You haven't created any reports yet. <a href=\"%(report_new_url)s\">Create a "
+"first report now!</a>"
+msgstr ""
+"Je hebt nog geen rapporten opgeslagen. <a href=\"%(report_new_url)s\">Maak "
+"nu je eerste rapport!</a>"
+
+#: templates/stats/stats_overview.html:55
 #, python-format
 msgid "Statistics: %(name)s in %(year)s"
 msgstr "Statistieken: %(name)s in %(year)s"
 
-#: templates/stats/stats_overview.html:51
+#: templates/stats/stats_overview.html:59
 msgid "Download as:"
 msgstr "Download als:"
 
-#: templates/stats/stats_overview.html:53
+#: templates/stats/stats_overview.html:61
 msgid "CSV"
 msgstr "CSV"
 
-#: templates/stats/stats_overview.html:54
+#: templates/stats/stats_overview.html:62
 msgid "Excel"
 msgstr "Excel"
 
-#: templates/stats/stats_overview.html:94
+#: templates/stats/stats_overview.html:102
 msgid "No stats available for the selected year."
 msgstr "Geen statistieken beschikbaar voor het geselecteerde jaar."
+
+#~ msgid "Models available in the %(name)s application."
+#~ msgstr "Modellen beschikbaar in de %(name)s applicatie."
+
+#~ msgid "%(name)s"
+#~ msgstr "%(name)s"
+
+#~ msgid "Change"
+#~ msgstr "Wijzig"
 
 #~ msgid "HelpIM administration"
 #~ msgstr "HelpIM beheer"
@@ -613,17 +1085,11 @@ msgstr "Geen statistieken beschikbaar voor het geselecteerde jaar."
 #~ msgid "Care seeker"
 #~ msgstr "Hulpvrager"
 
-#~ msgid "Care worker"
-#~ msgstr "Hulpverlener"
-
 #~ msgid "Logged out"
 #~ msgstr "Uitgelogd"
 
 #~ msgid "Thank you for using our service."
 #~ msgstr "Dank je voor het gebruiken van deze chat."
-
-#~ msgid "No room available"
-#~ msgstr "Geen chatroom beschikbaar"
 
 #~ msgid "We're sorry, but there is no care worker available right now."
 #~ msgstr "Helaas is er momenteel geen hulpverlener beschikbaar."

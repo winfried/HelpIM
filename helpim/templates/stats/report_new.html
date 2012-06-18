@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Stats{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+    <a href="/admin">{% trans "Home" %}</a> &rsaquo;
+    <a href="{% url stats_index %}">{% trans "Stats" %}</a> &rsaquo;
+    {% if is_edit %}
+        {{ report_form.title.value }} &rsaquo;
+        {% trans "Edit report" %}
+    {% else %}
+        {% trans "Create new report" %}
+    {% endif %}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+
+{% if is_edit %}
+    <h1>{% trans "Edit report" %}</h1>
+{% else %}
+    <h1>{% trans "Create new report" %}</h1>
+{% endif %}
+
+
+<form method="POST" action="">
+    {% csrf_token %}
+    
+    {{ report_form.as_p }}
+    <input type="submit" name="action_preview" value="{%trans "Preview report" %}" />
+    
+    {% if rendered_report %}
+	    <input type="submit" name="action_save" value="{%trans "Save report" %}" />
+	    
+	    {% include "stats/report_render.html" %}
+	    
+	    <input type="submit" name="action_save" value="{%trans "Save report" %}" />
+	{% else %}
+	   {% if is_edit %}
+	       <input type="submit" name="action_save" value="{%trans "Save report" %}" />   
+	   {% endif %}
+    {% endif %}
+</form>
+{% endblock %}

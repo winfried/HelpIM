@@ -12,7 +12,7 @@ questionnaire_saved = Signal(providing_args=["questionnaire", "entry"])
 
 
 class Questionnaire(Form):
-    position = models.CharField(max_length=3, choices=get_position_choices(), unique=True, blank=False)
+    position = models.CharField(max_length=3, choices=get_position_choices(), unique=True, blank=False, verbose_name=_('Position'))
 
     def __unicode__(self):
         return self.title

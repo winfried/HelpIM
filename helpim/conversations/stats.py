@@ -119,19 +119,19 @@ class ChatHourlyStatsProvider(StatsProvider):
         """Returns list with years and number of Chats during year"""
 
         # see: https://code.djangoproject.com/ticket/10302
-        extra_mysql = {"value": "YEAR(start_time)"}
-        return list(Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('start_time'))
+        extra_mysql = {"value": "YEAR(created_at)"}
+        return list(Chat.objects.extra(select=extra_mysql).values("value").annotate(count=models.Count('id')).order_by('created_at'))
 
 
     @classmethod
     def aggregateObjects(cls, whichYear):
         """Returns relevant Chats and Events of year specified"""
-        return (Chat.objects.filter(start_time__year=whichYear).extra(select={"hourAgg": "LEFT(start_time, 13)"}).order_by('start_time'),
+        return (Chat.objects.filter(created_at__year=whichYear).extra(select={"hourAgg": "LEFT(created_at, 13)"}).order_by('created_at'),
                 EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
 
     @classmethod
     def get_detail_url(cls):
-        return reverse('admin:conversations_conversation_changelist') + '?start_time__year=%(year)s&start_time__month=%(month)s&start_time__day=%(day)s'
+        return reverse('admin:conversations_conversation_changelist') + '?created_at__year=%(year)s&created_at__month=%(month)s&created_at__day=%(day)s'
     
     @classmethod
     def get_short_name(cls):
@@ -172,7 +172,7 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
             clientParticipant = chat.getClient()
             staffParticipant = chat.getStaff()
 
-            dictStats[key]['date'] = chat.start_time
+            dictStats[key]['date'] = chat.created_at
             dictStats[key]['id'] = chat.id
             
             if chat.hasQuestionnaire():
@@ -217,7 +217,7 @@ class ChatFlatStatsProvider(ChatHourlyStatsProvider):
     
     @classmethod
     def aggregateObjects(cls, whichYear):
-        return (Chat.objects.filter(start_time__year=whichYear).order_by('start_time'),
+        return (Chat.objects.filter(created_at__year=whichYear).order_by('created_at'),
                 EventLog.objects.findByYearAndTypes(whichYear, ['helpim.rooms.waitingroom.joined', 'helpim.rooms.waitingroom.left', 'helpim.rooms.one2one.client_joined']))
 
     @classmethod
@@ -289,8 +289,8 @@ class WaitingTimeFilter(EventLogFilter):
         return (not self.waitStart is None) and (not self.waitEnd is None) and (not self.key is None)
 
     def getKey(self):
-        # use date/hour part of start_time of Chat to insert into result dict
-        return str(self.key.start_time)[:13]
+        # use date/hour part of created_at of Chat to insert into result dict
+        return str(self.key.created_at)[:13]
     
 class WaitingTimeFlatFilter(WaitingTimeFilter):
     '''Same as WaitingTimeFilter but uses Chat's id to store into result dict'''

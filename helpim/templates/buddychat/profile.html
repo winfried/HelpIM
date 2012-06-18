@@ -22,7 +22,7 @@
         <div class="form-row">
             <p>
                 {% blocktrans with username=user.username %}
-                    {{ username }}, please take a moment to <b><a href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
+                    {{ username }}, please take a moment to <b><a target="_blank" href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
                 {% endblocktrans %}
             </p>
         </div>
@@ -38,8 +38,11 @@ questionnaire missing
 <a href="{% url buddychat_chat client.user.username %}">Join Chat</a>
 {% endif %}
 <dl>
+{% if user == client.user or perms.buddychat.is_coordinator %}
 <dt>{% trans "Email" %}</dt>
 <dd>{{client.user.email}}</dd>
+{% endif %}
+
 {% if perms.buddychat.is_coordinator %}
 <dt>{% trans "Careworker" %}</dt>
 <dd>
@@ -62,7 +65,7 @@ questionnaire missing
 <h2>{% trans "Chat Sesssion" %}</h2>
 <ul>
 {% for chat in client.chats %}
-  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.start_time }}</a></li>
+  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.created_at }}</a></li>
 {% endfor %}
 </ul>
 {% endif %}

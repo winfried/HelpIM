@@ -257,6 +257,12 @@ class One2OneRoomHandler(RoomHandlerBase):
 
         chatmessage.save()
 
+        # if careseeker and careworker are present (status chatting) and this was the first message,
+        # then this first message marks the start of the conversation
+        if room.getStatus() == 'chatting' and room.chat.messages.filter(chatmessage__event='message').count() == 1:
+            room.chat.started_at = chatmessage.created_at
+            room.chat.save()
+
     def user_joined(self, user, stanza):
         if user.nick == self.nick:
             log.info("user joined with self nick '%s'" % user.nick)
@@ -450,10 +456,8 @@ class One2OneRoomHandler(RoomHandlerBase):
                 return
 
             position = 'SA'
-            result_handler = self.__questionnaire_result_for_staff
         else:
             position = 'CA'
-            result_handler = self.__questionnaire_result_for_client
 
         # check for questionnaire
         try:
@@ -462,7 +466,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             # send along
             self.send_questionnaire(user_jid=user.real_jid,
                                     questionnaire_url=questionnaire.get_absolute_url(),
-                                    result_handler=result_handler)
+                                    result_handler=lambda stanza: create_conversation_form_entry(room.chat.id, stanza, position))
         except IndexError:
             # no milk today
             pass
@@ -477,37 +481,6 @@ class One2OneRoomHandler(RoomHandlerBase):
             log.error("Could not find room '%s' in database." % jidstr)
             return None
 
-    def __questionnaire_result_for_staff(self, stanza):
-        self.__create_conversation_form_entry(stanza, 'SA')
-
-    def __questionnaire_result_for_client(self, stanza):
-        self.__create_conversation_form_entry(stanza, 'CA')
-
-    def __create_conversation_form_entry(self, stanza, position):
-        try:
-            room = self.get_helpim_room()
-            if room is None:
-                log.warning("get_helpim_room couldn't find a room")
-                return
-            # For now we assume that the questionnaire hasn't changed
-            # in between sending and receiving it. The correct
-            # solution would be to store the ConversationFormEntry
-            # when sending the quesitonnaire and to only attach the
-            # entry when receiving the result. This could be done by
-            # storing the ConversationFormEntry with the user's token.x
-            questionnaire = Questionnaire.objects.filter(position=position)[0]
-
-            entry_id = get_questionnaire_entry_id(stanza)
-            entry = FormEntry.objects.get(pk=entry_id)
-
-            ConversationFormEntry.objects.create(
-                questionnaire = questionnaire,
-                entry = entry,
-                conversation = room.chat,
-                position = position)
-
-        except FormEntry.DoesNotExist:
-            log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
 class SimpleRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -1927,3 +1900,27 @@ def get_questionnaire_entry_id(stanza):
         return entry_id
     except IndexError:
         log.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
+
+def create_conversation_form_entry(conversation_id, stanza, position):
+    try:
+        # For now we assume that the questionnaire hasn't changed in
+        # between sending and receiving it. The correct solution would
+        # be to store the ConversationFormEntry when sending the
+        # quesitonnaire and to only attach the entry when receiving
+        # the result. This could be done by storing the
+        # ConversationFormEntry with the user's token.x
+        questionnaire = Questionnaire.objects.filter(position=position)[0]
+
+        entry_id = get_questionnaire_entry_id(stanza)
+        entry = FormEntry.objects.get(pk=entry_id)
+
+        ConversationFormEntry.objects.create(
+            questionnaire = questionnaire,
+            entry = entry,
+            conversation_id = conversation_id,
+            position = position)
+
+        log.info("logged ConversationFormEntry %s for conversation %s at position %s" % (entry_id, conversation_id, position)) 
+
+    except FormEntry.DoesNotExist:
+        log.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))

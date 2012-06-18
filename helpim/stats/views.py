@@ -3,11 +3,14 @@ import datetime
 import xlwt
 
 from django.contrib.auth.decorators import permission_required
-from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response
+from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
 from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
+from helpim.stats.forms import ReportForm
+from helpim.stats.models import Report
 
 @permission_required('stats.can_view_stats', '/admin')
 def stats_overview(request, keyword, year=None, format=None):
@@ -32,23 +35,23 @@ def stats_overview(request, keyword, year=None, format=None):
 
     insertIndex = 0
     currentPageIndex = None
-    
+
     # try to find index of requested year in `listOfPages`. also determine insert position if requested year is not in that list.
     for (idx, x) in enumerate(listOfPages):
         # get index of current year in listOfPages
         if x['value'] == year:
             currentPageIndex = idx
-        
+
         # find largest value that is smaller than requested year, insert after that index
         # if no such value exists, use default insertIndex of 0
         if x['value'] < year:
             insertIndex = idx + 1
-        
+
     # requested year is not in list, "fake" add it
     if currentPageIndex is None:
         listOfPages.insert(insertIndex, {'count': 0, 'value': year})
         currentPageIndex = insertIndex
-    
+
     # derive "prev" and "next" indices, if possible
     if currentPageIndex is not None:
         prevPageIndex = currentPageIndex - 1 if currentPageIndex > 0 else None
@@ -94,9 +97,67 @@ def stats_index(request):
         })
 
     return render_to_response('stats/stats_index.html',
-        { 'statProviders': listOfStatsProviders },
+        {
+          'statProviders': listOfStatsProviders,
+          'reports': Report.objects.all()
+        },
         context_instance=RequestContext(request))
 
+@permission_required('stats.can_view_stats', '/admin')
+def report_new(request, instance=None):
+    '''display form where new Report can be configured'''
+
+    context = {}
+
+    if request.method == 'POST':
+        report_form = ReportForm(request.POST, instance=instance)
+        if report_form.is_valid():
+            if len(request.POST.get('action_preview', '')) > 0:
+                # get Report object from ReportForm, unsaved
+                report_obj = report_form.save(commit=False)
+                context.update(report_obj.generate())
+            elif len(request.POST.get('action_save', '')) > 0:
+                report_obj = report_form.save()
+                return HttpResponseRedirect(report_obj.get_absolute_url())
+    else:
+        report_form = ReportForm(instance=instance)
+
+    context['report_form'] = report_form
+    context['is_edit'] = not instance is None
+
+    return render_to_response('stats/report_new.html',
+        context,
+        context_instance=RequestContext(request)
+    )
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_edit(request, id):
+    '''edit report'''
+
+    saved_report = get_object_or_404(Report, pk=id)
+    return report_new(request, instance=saved_report)
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_show(request, id):
+    '''generate and show pre-saved Report'''
+
+    report = get_object_or_404(Report, pk=id)
+    context = { 'report': report }
+    context.update(report.generate())
+
+    return render_to_response('stats/report_show.html',
+        context,
+        context_instance=RequestContext(request)
+    )
+
+@permission_required('stats.can_view_stats', '/admin')
+def report_delete(request, id):
+    '''deletes a report'''
+
+    report = get_object_or_404(Report, pk=id)
+    report.delete()
+
+    return HttpResponseRedirect(reverse('stats_index'))
 
 def _stats_overview_csv(knownStats, dictStats, keyword, year):
     '''Creates a Response with the stat data rendered as comma-separated values (CSV)'''
@@ -106,7 +167,7 @@ def _stats_overview_csv(knownStats, dictStats, keyword, year):
 
     # apparently, in this loop, datetime.date objects in dictStats are automatically formatted according to ISO
     # which is 'YYYY-MM-DD' and looks good in CSV
-    
+
     writer = csv.writer(response)
     writer.writerow(knownStats.values())
     for statRow in dictStats.itervalues():
@@ -136,7 +197,7 @@ def _stats_overview_xls(knownStats, dictStats, keyword, year):
     for statRow in dictStats.itervalues():
         for statName in knownStats.iterkeys():
             stat = statRow.get(statName, '')
-            
+
             if isinstance(stat, datetime.date):
                 style = xlwt.Style.XFStyle()
                 style.num_format_str = 'YYYY-MM-DD'

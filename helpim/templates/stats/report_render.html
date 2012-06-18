@@ -1,0 +1,30 @@
+{% load stats %}
+
+<div>
+    <table>
+        <thead>
+            <tr class="row1">
+                <td></td>
+                {% for val in variable1_samples %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in variable2_samples %}
+                {% for col in variable1_samples %}
+                    {% if forloop.first %}
+                    <tr class="{% cycle 'row2' 'row1' %}">
+                        <td>{{ row }}</td>
+                    {% endif %}
+                        
+                        <td>{{ rendered_report|key:col|key:row }}</td>
+                        
+                    {% if forloop.last %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
