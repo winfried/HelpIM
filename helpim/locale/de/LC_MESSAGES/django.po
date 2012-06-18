@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-07 16:48+0200\n"
+"POT-Creation-Date: 2012-06-18 16:21+0200\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgid "Staff, recurring"
 msgstr "Mitarbeiter wartet"
 
 #: buddychat/models.py:61 stats/models.py:149 stats/models.py:321
-#: templates/buddychat/chatbuddies.html:24 templates/buddychat/profile.html:44
+#: templates/buddychat/chatbuddies.html:24 templates/buddychat/profile.html:47
 msgid "Careworker"
 msgstr ""
 
@@ -175,98 +175,112 @@ msgstr "Chatname"
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr ""
 
-#: conversations/admin.py:33
+#: conversations/admin.py:35
 msgid "Message"
 msgstr "Nachricht"
 
-#: conversations/admin.py:34 templates/buddychat/chatbuddies.html:26
+#: conversations/admin.py:36 templates/buddychat/chatbuddies.html:26
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: conversations/admin.py:54 conversations/models.py:113
+#: conversations/admin.py:56 conversations/models.py:118
 msgid "Participant"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:55 conversations/models.py:114
+#: conversations/admin.py:57 conversations/models.py:119
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:126 templates/buddychat/chatbuddies.html:40
+#: conversations/admin.py:128 templates/buddychat/chatbuddies.html:40
 msgid "No"
 msgstr ""
 
-#: conversations/admin.py:128 templates/buddychat/chatbuddies.html:38
+#: conversations/admin.py:130 templates/buddychat/chatbuddies.html:38
 msgid "Yes"
 msgstr ""
 
-#: conversations/admin.py:129
+#: conversations/admin.py:131
 msgid "Staff submitted?"
 msgstr ""
 
-#: conversations/admin.py:137 conversations/models.py:83
+#: conversations/admin.py:139 conversations/models.py:87
 #: templates/admin/base_site.html:30
 msgid "Conversations"
 msgstr "Unterhaltungen"
 
-#: conversations/models.py:14
+#: conversations/admin.py:221
+msgid "Show chat"
+msgstr ""
+
+#: conversations/models.py:18
 #, python-format
 msgid "\"%(subject)s\" at %(created_at)s"
 msgstr "\"%(subject)s\" um %(created_at)s"
 
-#: conversations/models.py:51 conversations/models.py:69
+#: conversations/models.py:55 conversations/models.py:73
 msgid "(None)"
 msgstr ""
 
-#: conversations/models.py:62
+#: conversations/models.py:66
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr ""
 
-#: conversations/models.py:78
+#: conversations/models.py:82
 msgid "(unknown)"
 msgstr ""
 
-#: conversations/models.py:82
+#: conversations/models.py:86
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:96 rooms/models.py:378 rooms/models.py:534
+#: conversations/models.py:100 rooms/models.py:378 rooms/models.py:534
 #: rooms/models.py:760
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:97 rooms/models.py:761
+#: conversations/models.py:101 rooms/models.py:761
 msgid "Staff"
 msgstr "Mitarbeiter"
 
-#: conversations/models.py:119 templates/buddychat/profile.html:74
-#: templates/buddychat/profile.html:96 templates/buddychat/profile.html:116
+#: conversations/models.py:131
+#, fuzzy
+msgid "Blocked client"
+msgstr "Blockiert"
+
+#: conversations/models.py:132
+#, fuzzy
+msgid "Blocked clients"
+msgstr "Blockiert"
+
+#: conversations/models.py:138 templates/buddychat/profile.html:77
+#: templates/buddychat/profile.html:99 templates/buddychat/profile.html:119
 msgid "Sender"
 msgstr "Absender"
 
-#: conversations/models.py:203
+#: conversations/models.py:222
 msgid "Chat message"
 msgstr "Chatnachricht"
 
-#: conversations/models.py:204
+#: conversations/models.py:223
 msgid "Chat joining"
 msgstr "Chat betreten"
 
-#: conversations/models.py:205
+#: conversations/models.py:224
 msgid "Chat rejoining"
 msgstr "Chat wiederbetreten"
 
-#: conversations/models.py:206
+#: conversations/models.py:225
 msgid "Chat exit"
 msgstr "Chat verlassen"
 
-#: conversations/models.py:207
+#: conversations/models.py:226
 msgid "Chat end"
 msgstr "Chat beendet"
 
 #: conversations/stats.py:15 conversations/stats.py:146
-#: templates/buddychat/profile.html:76 templates/buddychat/profile.html:98
-#: templates/buddychat/profile.html:118
+#: templates/buddychat/profile.html:79 templates/buddychat/profile.html:101
+#: templates/buddychat/profile.html:121
 msgid "Date"
 msgstr ""
 
@@ -482,7 +496,7 @@ msgstr ""
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:309
+#: rooms/bot.py:315
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
@@ -853,16 +867,16 @@ msgid "Delete?"
 msgstr "Entfernen?"
 
 #: templates/admin/edit_inline/with_threadedcomments.html:60
-#: templates/admin/edit_inline/with_threadedcomments.html:115
+#: templates/admin/edit_inline/with_threadedcomments.html:116
 msgid "Reply"
 msgstr ""
 
-#: templates/admin/edit_inline/with_threadedcomments.html:265
+#: templates/admin/edit_inline/with_threadedcomments.html:266
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr "Ein weiteres %(verbose_name)s hinzufügen"
 
-#: templates/admin/edit_inline/with_threadedcomments.html:268
+#: templates/admin/edit_inline/with_threadedcomments.html:269
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -921,48 +935,48 @@ msgid ""
 "                "
 msgstr ""
 
-#: templates/buddychat/profile.html:41
+#: templates/buddychat/profile.html:42
 msgid "Email"
 msgstr ""
 
-#: templates/buddychat/profile.html:48 templates/buddychat/profile.html:87
-#: templates/buddychat/profile.html:108 templates/buddychat/profile.html:128
+#: templates/buddychat/profile.html:51 templates/buddychat/profile.html:90
+#: templates/buddychat/profile.html:111 templates/buddychat/profile.html:131
 msgid "Submit"
 msgstr ""
 
-#: templates/buddychat/profile.html:52
+#: templates/buddychat/profile.html:55
 msgid "Careworker's Email"
 msgstr ""
 
-#: templates/buddychat/profile.html:54
+#: templates/buddychat/profile.html:57
 msgid "Coupled at"
 msgstr ""
 
-#: templates/buddychat/profile.html:57
+#: templates/buddychat/profile.html:60
 msgid "Registered at"
 msgstr ""
 
-#: templates/buddychat/profile.html:62
+#: templates/buddychat/profile.html:65
 #, fuzzy
 msgid "Chat Sesssion"
 msgstr "Chat beendet"
 
-#: templates/buddychat/profile.html:71
+#: templates/buddychat/profile.html:74
 #, fuzzy
 msgid "Careworker Conversation"
 msgstr "Unterhaltung"
 
-#: templates/buddychat/profile.html:75 templates/buddychat/profile.html:97
-#: templates/buddychat/profile.html:117
+#: templates/buddychat/profile.html:78 templates/buddychat/profile.html:100
+#: templates/buddychat/profile.html:120
 msgid "Body"
 msgstr ""
 
-#: templates/buddychat/profile.html:93
+#: templates/buddychat/profile.html:96
 #, fuzzy
 msgid "Coordinator Conversation"
 msgstr "Unterhaltung"
 
-#: templates/buddychat/profile.html:113
+#: templates/buddychat/profile.html:116
 msgid "Careworker-Coordinator Conversation"
 msgstr ""
 
