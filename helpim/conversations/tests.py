@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.utils import html
 
 from helpim.common.models import EventLog
-from helpim.conversations.models import Chat, Participant, ChatMessage
+from helpim.conversations.models import Chat, ChatMessage, Conversation, Message, Participant
 from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
 from forms_builder.forms.models import FormEntry
@@ -329,7 +329,6 @@ class ChatHourlyStatsProviderTestCase(TestCase):
         # response will contain the link in escaped format
         self.assertContains(response, html.escape("?created_at__year=2011&created_at__month=11&created_at__day=1"), 1)
 
-
 class ChatTestCase(TestCase):
     def setUp(self):
         super(ChatTestCase, self).setUp()
@@ -358,3 +357,47 @@ class ChatTestCase(TestCase):
         self.assertEqual(self.c1.waiting_time(), 5)
         self.assertEqual(self.c2.waiting_time(), 25)
         self.assertEqual(self.c3.waiting_time(), None)
+
+    def test_create_message(self):
+        # db state pre-test
+        self.assertEqual(len(ChatMessage.objects.all()), 0)
+
+        # create objects
+        started_chat = Chat.objects.create(created_at=datetime(2000, 5, 5, 8, 0), subject='Chat')
+        staff1 = Participant.objects.create(conversation=started_chat, name='Staff1', role=Participant.ROLE_STAFF)
+        self.assertEqual(started_chat.started_at, None)
+        self.assertEqual(started_chat.messages.count(), 0)
+
+        # doesnt count towards started_at, because only careworker is there
+        started_chat.create_message(sender=staff1, sender_name='Staff1', created_at=datetime(2011, 11, 1, 16, 1), body='message1', event='message')
+        self.assertEqual(started_chat.started_at, None)
+        self.assertEqual(started_chat.messages.count(), 1)
+
+        # let careseeker "join", now started_at was changed
+        Participant.objects.create(conversation=started_chat, name='seeker', role=Participant.ROLE_CLIENT)
+        started_chat.create_message(sender=staff1, sender_name='Staff1', created_at=datetime(2011, 11, 1, 16, 1), body='message1', event='message')
+        self.assertEqual(started_chat.started_at, started_chat.created_at)
+        self.assertEqual(started_chat.messages.count(), 2)
+
+        self.assertEqual(len(ChatMessage.objects.all()), 2)
+
+class ConversationTestCase(TestCase):
+    def setUp(self):
+        super(ConversationTestCase, self).setUp()
+
+
+    def test_create_message(self):
+        # db state pre-test
+        self.assertEqual(len(Message.objects.all()), 0)
+
+        # create objects
+        conv = Conversation.objects.create(created_at=datetime(2011, 11, 1, 16, 0), subject='Conversation')
+        staff1 = Participant.objects.create(conversation=conv, name='Staff1', role=Participant.ROLE_STAFF)
+        self.assertEqual(conv.started_at, None)
+        self.assertEqual(conv.messages.count(), 0)
+
+        conv.create_message(sender=staff1, sender_name='Staff1', created_at=datetime(2011, 11, 1, 16, 1), body='message1')
+
+        self.assertEqual(len(Message.objects.all()), 1)
+        self.assertEqual(conv.messages.count(), 1)
+        self.assertEqual(conv.started_at, conv.created_at)
