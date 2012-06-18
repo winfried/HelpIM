@@ -141,8 +141,7 @@ class Importer():
                 else:
                     sender = staff
 
-                new_msg = ChatMessage(conversation=new_chat, sender=sender, sender_name=sender.name, created_at=msg['created_at'], body=msg['body'], event=msg['event'])
-                new_msg.save()
+                new_chat.create_message(sender=sender, sender_name=sender.name, created_at=msg['created_at'], body=msg['body'], event=msg['event'])
 
     def import_questionnaires(self):
         for q in self.data['questionnaires']:
