@@ -22,7 +22,7 @@
         <div class="form-row">
             <p>
                 {% blocktrans with username=user.username %}
-                    {{ username }}, please take a moment to <b><a href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
+                    {{ username }}, please take a moment to <b><a target="_blank" href="{{ recurring_questionnaire_url }}">fill out this form</a></b> to evaluate the progress!
                 {% endblocktrans %}
             </p>
         </div>

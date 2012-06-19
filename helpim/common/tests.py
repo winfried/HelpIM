@@ -212,6 +212,7 @@ class ImporterTestCase(TestCase):
         self.assertEqual('cccc', c4.messages.all()[0].body)
         self.assertEqual('ssss', c4.messages.all()[1].body)
         self.assertEqual(timedelta(0, 3600), c4.duration())
+        self.assertEqual(c4.started_at, c4.created_at)
 
     def test_import_questionnaires(self):
         # create Questionnaire objects with properties to test

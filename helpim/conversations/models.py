@@ -9,7 +9,8 @@ from threadedcomments.models import ThreadedComment
 class Conversation(models.Model):
     created_at = models.DateTimeField()
 
-    # starting time of is defined as: 1) all participants have joined, and 2) one of the participants sends a message
+    # Starting time of the conversation. after being set once, should not be changed again.
+    # Whether the criteria for 'started' are met, is encapsulated in `create_message()`.
     started_at = models.DateTimeField(null=True)
 
     subject = models.CharField(max_length=64, blank=True)
@@ -19,6 +20,21 @@ class Conversation(models.Model):
           'subject': self.subject,
           'created_at': self.created_at.strftime('%c'),
         }
+
+    def create_message(self, **kwargs):
+        """
+        Create a new Message and add it to the Conversation.
+        This also contains logic to determine whether the Conversation should be considered as 'started' and to set the `started_at` property accordingly.
+        """
+        new_msg = Message.objects.create(conversation=self, **kwargs)
+
+        # first message marks the conversation as 'started'
+        if self.started_at is None:
+            if self.messages.count() == 1:
+                self.started_at = self.created_at
+                self.save()
+
+        return new_msg
 
     def getClient(self):
         """Returns assigned client Participant for this Conversation"""
@@ -153,10 +169,21 @@ class Message(models.Model):
 
 class Chat(Conversation):
     _waiting_time = None
-    
+
+    def create_message(self, **kwargs):
+        new_msg = ChatMessage.objects.create(conversation=self, **kwargs)
+
+        # careworker has joined and careseeker has joined and at least 1 real message was sent
+        if self.started_at is None:
+            if self.messages.filter(chatmessage__event='message').count() >= 1 and not self.getClient() is None and not self.getStaff() is None:
+                self.started_at = self.created_at
+                self.save()
+
+        return new_msg
+
     def hasQuestionnaire(self, pos='CB'):
         """Returns whether Questionnaire at given position was submitted for this Chat"""
-        
+
         # conversationformentry_set manager only present when questionnaire app loaded
         if hasattr(self, 'conversationformentry_set'):
             return bool(self.conversationformentry_set.filter(position=pos,entry__isnull=False).count())
