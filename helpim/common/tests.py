@@ -1,9 +1,13 @@
 from datetime import datetime, timedelta
 import pickle
+from StringIO import StringIO
+import tempfile
 
 from django import template
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
+from django.contrib.flatpages.models import FlatPage
+from django.core.management import call_command
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
@@ -318,3 +322,39 @@ class ImporterTestCase(TestCase):
         self.assertEqual(Field.objects.get(label='color?').id, FieldEntry.objects.get(value='3').field_id)
         self.assertEqual(form_entry, FieldEntry.objects.get(value='two>>>B').entry)
         self.assertEqual(Field.objects.get(label='double').id, FieldEntry.objects.get(value='two>>>B').field_id)
+
+class SettingsDumpLoadTestCase(TestCase):
+    def setUp(self):
+        super(SettingsDumpLoadTestCase, self).setUp()
+
+        self.tempfile = tempfile.NamedTemporaryFile()
+
+        # create objects representing the settings of a helpim instance
+        self.flatpage1 = FlatPage.objects.create(url='/welcome', title='Welcome', content='hello there')
+        self.flatpage2 = FlatPage.objects.create(url='/bye', title='Good Bye', content='see you')
+        self.assertEqual(FlatPage.objects.all().count(), 2)
+
+    def tearDown(self):
+        super(SettingsDumpLoadTestCase, self).tearDown()
+
+        # closing automatically deletes it
+        self.tempfile.close()
+
+    def test_dump_load(self):
+        # dump settings to temp file
+        stdout = StringIO()
+        call_command('hi_dump_settings', stdout=stdout)
+        self.tempfile.write(stdout.getvalue())
+        self.tempfile.flush()
+
+        # make db different from what was dumped
+        self.flatpage1.delete()
+        self.flatpage1.title = 'Hello'
+        self.flatpage1.save()
+        self.flatpage2.delete()
+
+        # load settings
+        call_command('hi_load_settings', self.tempfile.name)
+
+        # change of the title of flatpage1 is undone, deleted flatpage2 is readded
+        self.assertItemsEqual([(u'Welcome', u'/welcome'), (u'Good Bye', u'/bye')], FlatPage.objects.all().values_list('title', 'url'))
