@@ -19,4 +19,5 @@ class Command(BaseCommand):
             'auth.group', # permission settings
             'flatpages', # static pages
             #'questionnaire', # questionnaires
+            use_natural_keys=True,
             **options)

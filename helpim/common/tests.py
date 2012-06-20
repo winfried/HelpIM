@@ -363,6 +363,7 @@ class SettingsDumpLoadTestCase(TestCase):
         self.tempfile.flush()
 
         # make db different from what was dumped
+        # (to make sure objects cannot simply be matched by their PK)
         self.flatpage1.delete()
         self.flatpage1.title = 'Hello'
         self.flatpage1.save()
@@ -370,6 +371,10 @@ class SettingsDumpLoadTestCase(TestCase):
 
         self.group1.permissions.add(Permission.objects.get(codename='delete_conversation'))
         self.group2.delete()
+
+        p = Permission.objects.get(codename='view_conversations_of_own_branch_office')
+        p.delete()
+        p.save()
 
         # load settings
         call_command('hi_load_settings', self.tempfile.name)
