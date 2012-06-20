@@ -4,6 +4,7 @@ import os
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
 from django.contrib.flatpages.models import FlatPage
 
 NaturalObject = namedtuple('NaturalObject', ['find_by_key', 'make_key'])
@@ -13,7 +14,8 @@ class Command(BaseCommand):
     args = 'filename [filename ...]'
 
     natural_objects = {
-        'flatpages.FlatPage': NaturalObject(find_by_key=lambda o : FlatPage.objects.get(url=o[0]), make_key=lambda o : (o.url,))
+        'flatpages.FlatPage': NaturalObject(find_by_key=lambda o: FlatPage.objects.get(url=o[0]), make_key=lambda o: (o.url,)),
+        'auth.Group': NaturalObject(find_by_key=lambda o: Group.objects.get(name=o[0]), make_key=lambda o: (o.name,)),
     }
 
     def handle(self, *files, **options):

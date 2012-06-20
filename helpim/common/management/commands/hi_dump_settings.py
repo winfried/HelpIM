@@ -16,8 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         call_command('dumpdata',
-            #'auth.permission', 'auth.group','contenttypes', # permission settings
-            #'auth.group',
+            'auth.group', # permission settings
             'flatpages', # static pages
             #'questionnaire', # questionnaires
             **options)
