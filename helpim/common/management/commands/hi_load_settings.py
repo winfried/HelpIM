@@ -34,7 +34,11 @@ class Command(BaseCommand):
                 key = '%s.%s' % (obj.object._meta.app_label, obj.object._meta.object_name)
 
                 # find natural handler object for this type
-                natural = Command.natural_objects[key]
+                try:
+                    natural = Command.natural_objects[key]
+                except KeyError:
+                    print "don't know how to handle '%s' object, skipping" % (key)
+                    continue
 
                 try:
                     # if there is an equal object (as determined by natural key) in the db,
