@@ -331,7 +331,9 @@ class SettingsDumpLoadTestCase(TestCase):
 
         # create objects representing the settings of a helpim instance
         self.flatpage1 = FlatPage.objects.create(url='/welcome', title='Welcome', content='hello there')
+        self.flatpage1.sites.add(settings.SITE_ID)
         self.flatpage2 = FlatPage.objects.create(url='/bye', title='Good Bye', content='see you')
+        self.flatpage2.sites.add(settings.SITE_ID)
         self.assertEqual(FlatPage.objects.all().count(), 2)
 
     def tearDown(self):
@@ -357,4 +359,4 @@ class SettingsDumpLoadTestCase(TestCase):
         call_command('hi_load_settings', self.tempfile.name)
 
         # change of the title of flatpage1 is undone, deleted flatpage2 is readded
-        self.assertItemsEqual([(u'Welcome', u'/welcome'), (u'Good Bye', u'/bye')], FlatPage.objects.all().values_list('title', 'url'))
+        self.assertItemsEqual([(u'Welcome', u'/welcome', settings.SITE_ID), (u'Good Bye', u'/bye', settings.SITE_ID)], FlatPage.objects.all().values_list('title', 'url', 'sites'))
