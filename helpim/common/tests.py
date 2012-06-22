@@ -1,9 +1,14 @@
 from datetime import datetime, timedelta
 import pickle
+from StringIO import StringIO
+import tempfile
 
 from django import template
 from django.conf import settings
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Group, Permission, User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.flatpages.models import FlatPage
+from django.core.management import call_command
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase
 
@@ -318,3 +323,71 @@ class ImporterTestCase(TestCase):
         self.assertEqual(Field.objects.get(label='color?').id, FieldEntry.objects.get(value='3').field_id)
         self.assertEqual(form_entry, FieldEntry.objects.get(value='two>>>B').entry)
         self.assertEqual(Field.objects.get(label='double').id, FieldEntry.objects.get(value='two>>>B').field_id)
+
+class SettingsDumpLoadTestCase(TestCase):
+    def setUp(self):
+        super(SettingsDumpLoadTestCase, self).setUp()
+
+        self.tempfile = tempfile.NamedTemporaryFile()
+
+        # create objects representing the settings of a helpim instance
+        self.flatpage1 = FlatPage.objects.create(url='/welcome', title='Welcome', content='hello there')
+        self.flatpage2 = FlatPage.objects.create(url='/bye', title='Good Bye', content='see you')
+        self.flatpage3 = FlatPage.objects.create(url='/page3', title='Third', content='three')
+        self.flatpage1.sites.add(settings.SITE_ID)
+        self.flatpage2.sites.add(settings.SITE_ID)
+        self.flatpage3.sites.add(settings.SITE_ID)
+        self.assertEqual(FlatPage.objects.all().count(), 3)
+
+        self.group1 = Group.objects.create(name="coordinators")
+        self.group1.permissions = [Permission.objects.get(codename='can_view_stats'), Permission.objects.get(codename='change_blockedparticipant')]
+        self.group2 = Group.objects.create(name='careworkers')
+        self.group2.permissions = [Permission.objects.get(codename='view_conversations_of_own_branch_office')]
+        self.group3 = Group.objects.create(name='group3')
+        self.group3.permissions = [Permission.objects.get(codename='add_user')]
+        self.assertEqual(Group.objects.all().count(), 3)
+        self.permission_count = Permission.objects.all().count()
+        self.contenttype_count = ContentType.objects.all().count()
+
+    def tearDown(self):
+        super(SettingsDumpLoadTestCase, self).tearDown()
+
+        # closing automatically deletes it
+        self.tempfile.close()
+
+    def test_dump_load(self):
+        # dump settings to temp file
+        stdout = StringIO()
+        call_command('hi_dump_settings', stdout=stdout)
+        self.tempfile.write(stdout.getvalue())
+        self.tempfile.flush()
+
+        # make db different from what was dumped
+        # (to make sure objects cannot simply be matched by their PK)
+        self.flatpage1.delete()
+        self.flatpage1.title = 'Hello'
+        self.flatpage1.save()
+        self.flatpage2.delete()
+
+        self.group1.permissions.add(Permission.objects.get(codename='delete_conversation'))
+        self.group2.delete()
+
+        p = Permission.objects.get(codename='view_conversations_of_own_branch_office')
+        p.delete()
+        p.save()
+
+        # load settings
+        call_command('hi_load_settings', self.tempfile.name)
+
+        # change of the title of flatpage1 is undone, deleted flatpage2 is readded, flatpage3 untouched
+        self.assertItemsEqual([(u'Welcome', u'/welcome', settings.SITE_ID), (u'Good Bye', u'/bye', settings.SITE_ID), (u'Third', u'/page3', settings.SITE_ID)],
+                              FlatPage.objects.all().values_list('title', 'url', 'sites'))
+
+        # group1's changes are overwritten, deleted group2 is readded, group3 untouched
+        self.assertItemsEqual([(u'coordinators',), (u'careworkers',), (u'group3',)], Group.objects.all().values_list('name'))
+        self.assertItemsEqual(['can_view_stats', 'change_blockedparticipant'], [p.codename for p in Group.objects.get(name='coordinators').permissions.all()])
+        self.assertItemsEqual(['view_conversations_of_own_branch_office'], [p.codename for p in Group.objects.get(name='careworkers').permissions.all()])
+        self.assertItemsEqual(['add_user'], [p.codename for p in Group.objects.get(name='group3').permissions.all()])
+        # Permissions and Contenttypes untouched
+        self.assertEqual(Permission.objects.all().count(), self.permission_count)
+        self.assertEqual(ContentType.objects.all().count(), self.contenttype_count)

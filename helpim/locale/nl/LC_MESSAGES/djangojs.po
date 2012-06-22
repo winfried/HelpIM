@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-25 12:37+0100\n"
+"POT-Creation-Date: 2012-06-19 10:52+0200\n"
 "PO-Revision-Date: 2011-11-02 13:00+0000\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: static/xmpptk/helpim/ui/client.js:50
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:155
+#: static/xmpptk/helpim/ui/client.js:51
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:166
 msgid "Error"
 msgstr "Fout"
 
-#: static/xmpptk/helpim/ui/client.js:51 static/xmpptk/helpim/ui/client.js:180
-#: static/xmpptk/helpim/ui/client_running.js:22
+#: static/xmpptk/helpim/ui/client.js:52 static/xmpptk/helpim/ui/client.js:173
+#: static/xmpptk/helpim/ui/client_running.js:23
 msgid "An error occured"
 msgstr "Er is een fout opgetreden"
 
@@ -40,43 +40,43 @@ msgstr "Bevestigen"
 msgid "Are you sure you want to end this conversation?"
 msgstr "Weet u zeker dat u het gesprek wilt beëindigen?"
 
-#: static/xmpptk/helpim/ui/client.js:172
+#: static/xmpptk/helpim/ui/client.js:165
 msgid "Sorry, you're not allowed to access this service"
 msgstr "Sorry, u heeft geen toegang tot deze service"
 
-#: static/xmpptk/helpim/ui/client.js:175
+#: static/xmpptk/helpim/ui/client.js:168
 msgid "Sorry, you're not allowed to request more chats"
 msgstr "Sorry, u heeft geen toegang tot deze service"
 
-#: static/xmpptk/helpim/ui/client.js:200
+#: static/xmpptk/helpim/ui/client.js:192
 msgid "Join Chat"
 msgstr "Verbind met chat"
 
-#: static/xmpptk/helpim/ui/client.js:201
+#: static/xmpptk/helpim/ui/client.js:193
 msgid "Nickname"
 msgstr "Nicknaam"
 
-#: static/xmpptk/helpim/ui/client.js:203
+#: static/xmpptk/helpim/ui/client.js:195
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: static/xmpptk/helpim/ui/client.js:219
+#: static/xmpptk/helpim/ui/client.js:210
 msgid "Please provide a nickname!"
 msgstr "Geef alstublieft een nicknaam op!"
 
-#: static/xmpptk/helpim/ui/client.js:245
+#: static/xmpptk/helpim/ui/client.js:236
 msgid "Questionnaire"
 msgstr "Vragenlijst"
 
-#: static/xmpptk/helpim/ui/client.js:308
+#: static/xmpptk/helpim/ui/client.js:296
 msgid "staff"
 msgstr "hulpverlener"
 
-#: static/xmpptk/helpim/ui/client.js:311
+#: static/xmpptk/helpim/ui/client.js:299
 msgid "waiting..."
 msgstr "wachten..."
 
-#: static/xmpptk/helpim/ui/client_running.js:23
+#: static/xmpptk/helpim/ui/client_running.js:24
 msgid "Sorry, there's already a conversation active at some other window."
 msgstr "Sorry, er is al een gesprek actief in een ander venster."
 
@@ -84,64 +84,68 @@ msgstr "Sorry, er is al een gesprek actief in een ander venster."
 msgid "Request Client"
 msgstr "Open Hulpchat"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:34
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:42
+#, c-format
 msgid "Welcome %s, now wait for a participant to join!"
 msgstr "Welkom %s, wacht nu tot er een hulpvrager komt!"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:56
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:53
 msgid "Ring! Ring!"
 msgstr "Ring! Ring!"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:122
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:132
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:135
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:145
 msgid "Block Participant"
 msgstr "Blokkeer Hulpvrager"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:145
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:157
 msgid "Block participant"
 msgstr "Blokkeer hulpvrager"
 
-#: static/xmpptk/helpim/ui/muc/room.js:113
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/room.js:182
+#, c-format
 msgid "%s stopped composing"
 msgstr "%s is gestopt met typen"
 
-#: static/xmpptk/helpim/ui/muc/room.js:116
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/room.js:185
+#, c-format
 msgid "%s is composing a message"
 msgstr "%s is aan het typen"
 
-#: static/xmpptk/helpim/ui/muc/room.js:156
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/room.js:225
+#, c-format
 msgid "%s has entered the conversation"
 msgstr "Je hebt een gesprek met %s"
 
-#: static/xmpptk/helpim/ui/muc/room.js:167
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/room.js:236
+#, c-format
 msgid "%s has disappeared from the conversation"
 msgstr "%s is weggegaan uit het gesprek"
 
-#: static/xmpptk/helpim/ui/muc/room.js:170
-#, perl-format
+#: static/xmpptk/helpim/ui/muc/room.js:239
+#, c-format
 msgid "%s has ended the conversation"
 msgstr "%s heeft de conversatie beëindigd"
 
-#: static/xmpptk/helpim/ui/muc/room.js:244
-#: static/xmpptk/helpim/ui/muc/room.js:255
+#: static/xmpptk/helpim/ui/muc/room.js:262
+msgid "Please click here to send a message!"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:324
+#: static/xmpptk/helpim/ui/muc/room.js:335
 msgid "Click to see even more emoticons"
 msgstr "Klik om nog meer emoticons te zien"
 
-#: static/xmpptk/helpim/ui/muc/room.js:245
-#: static/xmpptk/helpim/ui/muc/room.js:254
+#: static/xmpptk/helpim/ui/muc/room.js:325
+#: static/xmpptk/helpim/ui/muc/room.js:334
 msgid "more"
 msgstr "meer"
 
-#: static/xmpptk/helpim/ui/muc/room.js:258
+#: static/xmpptk/helpim/ui/muc/room.js:338
 msgid "less"
 msgstr "minder"
 
-#: static/xmpptk/helpim/ui/muc/room.js:259
+#: static/xmpptk/helpim/ui/muc/room.js:339
 msgid "Click to collapse emoticons"
 msgstr "Klik om de emoticons in te klappen"
 
@@ -150,7 +154,9 @@ msgid "Please wait!"
 msgstr "Wacht alstublieft!"
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:54
-msgid "Please wait while we're acquiring a conversation for you! This can take some time."
+msgid ""
+"Please wait while we're acquiring a conversation for you! This can take some "
+"time."
 msgstr "Wacht alstublieft tot u aan de beurt bent. Dat kan even duren."
 
 #~ msgid "click to close"
