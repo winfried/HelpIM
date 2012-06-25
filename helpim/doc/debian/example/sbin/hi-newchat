@@ -27,6 +27,8 @@ if test "$cert" = ""; then
   cert="$defaultcert"
 fi
 read -p "Admin password, specify a password (return=secret28, r=random) : " adminpw
+read -p "Is this a buddy-chat? (return=no, y=buddychat) : " buddychat
+if test "$buddychat" != "y"; then buddychat="n"; fi
 
 # some input checks (incomplete)
 chat=`echo $chat | tr '[A-Z]' '[a-z]' | tr -cd '[:alnum:]' | cut -c -16` # lowercase, alfanum, max 16
@@ -57,6 +59,7 @@ echo Domain:           $domain
 echo IPv4 Address      $address
 echo Certificate:      $cert
 echo Pasword:          $adminpw
+echo Buddychat:        $buddychat
 echo
 read -p "Is this correct?  (give ctrl-c to stop)"
 
@@ -91,6 +94,24 @@ rpl DOMAINX $domain $chat/settings.py
 #cp -r /home/buildout/HelpIM/helpim/fixtures $chat/
 #cp -r /home/buildout/HelpIM/helpim/templates $chat/
 #cp -r /home/buildout/HelpIM/helpim/rooms/static/helpim/ $chat/static
+
+if test "$buddychat" = "y"; then echo "
+# uncomment the following lines to enably buddychats please note that
+# 'helpim.buddychat' must be loaded /before/ 'helpim.rooms' and
+# 'helpim.questionnaire'
+INSTALLED_APPS = ('helpim.buddychat','registration') + INSTALLED_APPS
+#
+# how long it may take to actually activate a newly registered account
+# via django_registrations (part of buddychat)
+ACCOUNT_ACTIVATION_DAYS = 7
+#
+# e-mail address to use as from address when sending mails from the buddychat
+DEFAULT_FROM_EMAIL = 'helpdesk@e-hulp.nl'
+#
+# Interval to send the (recurring) evaluation forms:
+RECURRING_QUESTIONNAIRE_INTERVAL={'days': 30}
+" >> $chat/settings.py
+fi
 
 echo
 echo "Create Database..."
