@@ -1,0 +1,17 @@
+#!/bin/bash
+# script to call from cron to do something on all chats
+
+# use something like this in /etc/crontab:
+# 00 2   * * *   root    /usr/local/sbin/hi-cronscript
+
+export PYTHONPATH=""
+list=`ls -1d /etc/helpim/sites/*`
+
+for chat in $list; do
+  cd $chat
+
+  DJANGO_SETTINGS_MODULE=settings django-admin.py prune_conversations
+  DJANGO_SETTINGS_MODULE=settings django-admin.py mail_questionnaires
+
+done
+

@@ -1,0 +1,33 @@
+#!/bin/bash
+# tells about usage of chats
+
+cd /etc/helpim/sites
+list=`ls -1d *`
+
+for chat in $list; do
+
+aantal1=`mysql -BN <<EOD
+use $chat;
+select count(*) from rooms_lobbyroomtoken;
+EOD
+`
+aantal2=`mysql -BN <<EOD
+use $chat;
+select count(*) from rooms_waitingroomtoken;
+EOD
+`
+aantal3=`mysql -BN <<EOD
+use $chat;
+select count(*) from rooms_waitingroomtoken;
+EOD
+`
+
+if test "$aantal1$aantal2$aantal3" != "000"; then
+  echo Chatname: $chat
+  echo aantal hulpverleners in hulpverlenerschat:   $aantal1
+  echo aantal hulpvragers die vragen hebben beantwoord: $aantal2
+  echo aantal mensen in de wachtrij: $aantal3
+fi
+
+done
+
