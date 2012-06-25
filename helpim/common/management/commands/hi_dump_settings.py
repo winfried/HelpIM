@@ -18,6 +18,6 @@ class Command(BaseCommand):
         call_command('dumpdata',
             'auth.group', # permission settings
             'flatpages', # static pages
-            #'questionnaire', # questionnaires
+            #'questionnaire.questionnaire', 'forms.form', 'forms.field', # questionnaires
             use_natural_keys=True,
             **options)

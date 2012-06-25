@@ -51,5 +51,10 @@ class Command(BaseCommand):
                     # not finding such an old object is not a problem
                     pass
                 finally:
-                    # save loaded object, either replacing an old one or being added to the set
-                    obj.save()
+                    # sql-insert loaded object, either replacing an old one or being added to the set
+                    # then attach m2m-models to it
+                    obj.object.pk = None
+                    obj.object.id = None
+                    obj.object.save(force_insert=True)
+                    for accessor_name, object_list in obj.m2m_data.items():
+                        setattr(obj.object, accessor_name, object_list)
