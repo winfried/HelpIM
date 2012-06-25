@@ -1,18 +1,19 @@
 from datetime import timedelta, datetime
 import sys
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
 
 from helpim.conversations.models import Conversation, Message
 
 
 class Command(BaseCommand):
-    def handle(self, days_to_keep, **options):
+    def handle(self, *args, **options):
         try:
-            days_to_keep = int(days_to_keep)
-        except ValueError:
-            print >> sys.stderr, "days_to_keep: must be a number"
-            print >> sys.stderr, "Usage: ./manage.py prune_conversations [days_to_keep]"
+            days_to_keep = int(settings.CONVERSATION_KEEP_DAYS)
+        except (ValueError, AttributeError):
+            raise ImproperlyConfigured("You have not set CONVERSATION_KEEP_DAYS to a number in settings.py")
             sys.exit(1)
 
         up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
@@ -35,4 +36,3 @@ class Command(BaseCommand):
             msg.save()
 
         print >> sys.stderr, "done."
-

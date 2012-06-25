@@ -36,6 +36,10 @@ CHAT['log_level'] = 'ALL'
 # 'helpim.questionnaire'
 #INSTALLED_APPS = ('helpim.buddychat','registration') + INSTALLED_APPS
 
+# how many days to keep conversations before pruning them
+# this is used by django-admin script `prune_conversations`
+#CONVERSATION_KEEP_DAYS = 90
+
 # how long it may take to actually activate a newly registered account
 # via django_registrations (part of buddychat)
 #ACCOUNT_ACTIVATION_DAYS = 7
