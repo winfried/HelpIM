@@ -349,6 +349,18 @@ class SettingsDumpLoadTestCase(TestCase):
         self.permission_count = Permission.objects.all().count()
         self.contenttype_count = ContentType.objects.all().count()
 
+        self.questionnaire1 = Questionnaire.objects.create(title='Client Before Chat', position='CB', intro='intro1', response='response')
+        Field.objects.create(form=self.questionnaire1, label='color?', field_type=4, choices='red,blue,green,yellow,pink')
+        Field.objects.create(form=self.questionnaire1, label='city?', field_type=1)
+        self.assertEqual(Questionnaire.objects.all().count(), 1)
+        self.assertEqual(Form.objects.all().count(), 1)
+
+        # dump settings to temp file
+        stdout = StringIO()
+        call_command('hi_dump_settings', stdout=stdout)
+        self.tempfile.write(stdout.getvalue())
+        self.tempfile.flush()
+
     def tearDown(self):
         super(SettingsDumpLoadTestCase, self).tearDown()
 
@@ -356,12 +368,6 @@ class SettingsDumpLoadTestCase(TestCase):
         self.tempfile.close()
 
     def test_dump_load(self):
-        # dump settings to temp file
-        stdout = StringIO()
-        call_command('hi_dump_settings', stdout=stdout)
-        self.tempfile.write(stdout.getvalue())
-        self.tempfile.flush()
-
         # make db different from what was dumped
         # (to make sure objects cannot simply be matched by their PK)
         self.flatpage1.delete()
@@ -375,6 +381,10 @@ class SettingsDumpLoadTestCase(TestCase):
         p = Permission.objects.get(codename='view_conversations_of_own_branch_office')
         p.delete()
         p.save()
+
+        Form.objects.all().delete()
+        Field.objects.all().delete
+        Questionnaire.objects.all().delete()
 
         # load settings
         call_command('hi_load_settings', self.tempfile.name)
@@ -391,3 +401,22 @@ class SettingsDumpLoadTestCase(TestCase):
         # Permissions and Contenttypes untouched
         self.assertEqual(Permission.objects.all().count(), self.permission_count)
         self.assertEqual(ContentType.objects.all().count(), self.contenttype_count)
+
+        # questionnaires
+        self.assertEqual(1, Questionnaire.objects.all().count())
+        self.assertEqual(1, Form.objects.all().count())
+        self.assertEqual(2, Field.objects.all().count())
+        quiz1 = Form.objects.all()[0]
+        self.assertEqual('Client Before Chat', quiz1.title)
+        self.assertEqual(2, quiz1.fields.count())
+        self.assertItemsEqual([(u'color?',), (u'city?',)], quiz1.fields.all().values_list('label'))
+
+    def test_questionnaires_import_only_when_db_empty(self):
+        # load settings
+        stdout = StringIO()
+        call_command('hi_load_settings', self.tempfile.name, stdout=stdout)
+
+        # questionnaires can only be safely imported, when corresponding tables are empty
+        self.assertTrue("don't know how to handle 'questionnaire.Questionnaire' object, skipping" in stdout.getvalue())
+        self.assertTrue("don't know how to handle 'forms.Form' object, skipping" in stdout.getvalue())
+        self.assertTrue("don't know how to handle 'forms.Field' object, skipping" in stdout.getvalue())
