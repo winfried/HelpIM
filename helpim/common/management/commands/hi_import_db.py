@@ -188,9 +188,9 @@ class Importer():
             'textfield_long': TEXTAREA,
             'nummeric': NUMBER,
             'droplist': SELECT,
-            'single': CHECKBOX,
+            'single': RADIO_MULTIPLE,
             'multiple': CHECKBOX_MULTIPLE,
-            'hide': CHECKBOX,
+            'hide': RADIO_MULTIPLE,
         }
         return lookup[id22]
 
