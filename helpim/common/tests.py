@@ -69,9 +69,6 @@ class ImporterTestCase(TestCase):
     def setUp(self):
         super(ImporterTestCase, self).setUp()
 
-        perm_careworker, created = Permission.objects.get_or_create(codename='is_careworker')
-        perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
-
         self.importer = Importer()
 
     def _updated_copy(self, dict, update):
@@ -91,7 +88,7 @@ class ImporterTestCase(TestCase):
         branchoffice_user2 = HIUser(**self._updated_copy(defaults, { 'username': 'branchuser2', 'email': 'branch@branch.com', 'branch': 'Amsterdam', 'is_superuser': True, }))
         custom_nick = HIUser(**self._updated_copy(defaults, { 'username': 'custom', 'email': 'cus@tom.com', 'chat_nick': 'mycustomnick', 'branch': 'Amsterdam', }))
 
-        super_user = HIUser(**self._updated_copy(defaults, { 'username': 'superuser', 'email': 'super@worker.com', 'is_superuser': True, }))
+        admin_user = HIUser(**self._updated_copy(defaults, { 'username': 'superuser', 'email': 'super@worker.com', 'is_superuser': True, }))
         coordinator_user = HIUser(**self._updated_copy(defaults, { 'username': 'coordinator', 'email': 'coord@worker.com', 'is_coordinator': True, }))
         careworker_user = HIUser(**self._updated_copy(defaults, { 'username': 'careworker', 'email': 'care@worker.com', 'is_careworker': True, }))
 
@@ -102,7 +99,7 @@ class ImporterTestCase(TestCase):
                 branchoffice_user1,
                 branchoffice_user2,
                 custom_nick,
-                super_user,
+                admin_user,
                 coordinator_user,
                 careworker_user,
             ],
@@ -139,13 +136,13 @@ class ImporterTestCase(TestCase):
         self.assertEqual('Amsterdam', User.objects.filter(username__exact=custom_nick['username'])[0].additionaluserinformation.branch_office.name)
 
         # permissions
-        self.assertEqual(True, User.objects.filter(username__exact=super_user['username'])[0].is_superuser)
-        self.assertEqual(True, User.objects.filter(username__exact=super_user['username'])[0].is_staff)
+        self.assertItemsEqual([(u'admins',)], User.objects.filter(username__exact=admin_user['username'])[0].groups.all().values_list('name'))
+        self.assertEqual(True, User.objects.filter(username__exact=admin_user['username'])[0].is_staff)
 
-        self.assertEqual(True, User.objects.filter(username__exact=coordinator_user['username'])[0].has_perm('buddychat.is_coordinator'))
+        self.assertItemsEqual([(u'coordinators',)], User.objects.filter(username__exact=coordinator_user['username'])[0].groups.all().values_list('name'))
         self.assertEqual(True, User.objects.filter(username__exact=coordinator_user['username'])[0].is_staff)
 
-        self.assertEqual(True, User.objects.filter(username__exact=careworker_user['username'])[0].has_perm('buddychat.is_careworker'))
+        self.assertItemsEqual([(u'careworkers',)], User.objects.filter(username__exact=careworker_user['username'])[0].groups.all().values_list('name'))
         self.assertEqual(True, User.objects.filter(username__exact=careworker_user['username'])[0].is_staff)
 
     def test_import_chats(self):
