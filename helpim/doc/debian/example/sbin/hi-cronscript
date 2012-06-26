@@ -7,11 +7,19 @@
 export PYTHONPATH=""
 list=`ls -1d /etc/helpim/sites/*`
 
+#list="/etc/helpim/sites/buddy4/"
+
 for chat in $list; do
   cd $chat
+  # echo $chat
 
-  DJANGO_SETTINGS_MODULE=settings django-admin.py prune_conversations
-  DJANGO_SETTINGS_MODULE=settings django-admin.py mail_questionnaires
+  test1=`DJANGO_SETTINGS_MODULE=settings django-admin.py prune_conversations 2>&1`
+  echo $test1 | grep -i "error"
+
+  test2=`DJANGO_SETTINGS_MODULE=settings django-admin.py help 2>&1 | grep mail_questionnaires`
+  if test "$test2" = "  mail_questionnaires"; then 
+    DJANGO_SETTINGS_MODULE=settings django-admin.py mail_questionnaires
+  fi
 
 done
 
