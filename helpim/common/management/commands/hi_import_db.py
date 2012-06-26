@@ -1,16 +1,15 @@
-from collections import namedtuple
 import os.path
 import pickle
 import sys
 
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
 
 from forms_builder.forms.models import Field, FieldEntry, FormEntry
 from forms_builder.forms.fields import *
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
-from helpim.conversations.models import Chat, ChatMessage, Conversation, Participant
+from helpim.conversations.models import Chat, Conversation, Participant
 from helpim.questionnaire.models import ConversationFormEntry, Questionnaire
 
 
@@ -61,8 +60,9 @@ class Importer():
         self.import_questionnaires()
 
     def import_users(self):
-        perm_careworker, created = Permission.objects.get_or_create(codename='is_careworker')
-        perm_coordinator, created = Permission.objects.get_or_create(codename='is_coordinator')
+        group_admins, created = Group.objects.get_or_create(name='admins')
+        group_coordinators, created = Group.objects.get_or_create(name='coordinators')
+        group_careworkers, created = Group.objects.get_or_create(name='careworkers')
 
         for u in self.data['users']:
             print '>>  User(%s)' % str(u)
@@ -99,13 +99,13 @@ class Importer():
 
             # permissions
             if u['is_superuser'] is True:
-                new_user.is_superuser = True
+                new_user.groups.add(group_admins)
                 new_user.is_staff = True
             if u['is_coordinator'] is True:
-                new_user.user_permissions.add(perm_coordinator)
+                new_user.groups.add(group_coordinators)
                 new_user.is_staff = True
             if u['is_careworker'] is True:
-                new_user.user_permissions.add(perm_careworker)
+                new_user.groups.add(group_careworkers)
                 new_user.is_staff = True
 
             new_user.save()
