@@ -23,3 +23,4 @@ LOCALE_PATHS = ('/usr/local/share/helpim/locale',)
 
 # specific for Prosody:
 CHAT['domain'] = 'anon.localhost'
+CONVERSATION_KEEP_DAYS = 60

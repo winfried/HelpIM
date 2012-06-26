@@ -24,10 +24,16 @@ EOD
 
 if test "$aantal1$aantal2$aantal3" != "000"; then
   echo Chatname: $chat
-  echo aantal hulpverleners in hulpverlenerschat:   $aantal1
-  echo aantal hulpvragers die vragen hebben beantwoord: $aantal2
-  echo aantal mensen in de wachtrij: $aantal3
+  echo Number of careworkers in careworkerschat:   $aantal1
+  echo Number of careseekers: $aantal2
+  echo Number of careseekers in waitingqueue: $aantal3
+  declare -i aantal=$aantal+1
 fi
 
 done
 
+if test $aantal = ""; then
+  echo "No chats active"
+else
+  echo "$aantal chats active"
+fi
