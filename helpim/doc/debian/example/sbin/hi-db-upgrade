@@ -12,5 +12,6 @@ for chat in $list; do
   # DJANGO_SETTINGS_MODULE=settings django-admin.py migrate forms 0001 --fake
   DJANGO_SETTINGS_MODULE=settings django-admin.py syncdb
   DJANGO_SETTINGS_MODULE=settings django-admin.py migrate
+  DJANGO_SETTINGS_MODULE=settings django-admin.py syncdb --all
 done
 
