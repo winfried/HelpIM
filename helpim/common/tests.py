@@ -15,7 +15,7 @@ from django.test import TestCase
 from forms_builder.forms.models import Field, FieldEntry, Form, FormEntry
 from forms_builder.forms.fields import *
 
-from helpim.common.management.commands.hi_import_db import Importer, HIChat, HIData, HIMessage, HIQuestionnaire, HIQuestionnaireAnswer, HIQuestionnaireField, HIUser
+from helpim.common.management.commands.hi_import_db import Command, Importer, HIChat, HIData, HIMessage, HIQuestionnaire, HIQuestionnaireAnswer, HIQuestionnaireField, HIUser
 from helpim.common.models import AdditionalUserInformation, BranchOffice
 from helpim.common.templatetags.if_app_installed import do_if_app_installed
 from helpim.conversations.models import Chat, ChatMessage, Participant
@@ -77,6 +77,15 @@ class ImporterTestCase(TestCase):
         new_dict = dict.copy()
         new_dict.update(update)
         return new_dict
+
+    def test_preconditions(self):
+        cmd = Command()
+
+        self.assertEquals(False, cmd.has_questionnaire_answers())
+        self.assertEquals(False, cmd.has_questionnaire_questions())
+
+        Questionnaire.objects.create(position='CB')
+        self.assertEquals(True, cmd.has_questionnaire_questions())
 
     def test_import_users(self):
         # create User objects with properties to test
@@ -380,7 +389,7 @@ class SettingsDumpLoadTestCase(TestCase):
         p.save()
 
         Form.objects.all().delete()
-        Field.objects.all().delete
+        Field.objects.all().delete()
         Questionnaire.objects.all().delete()
 
         # load settings

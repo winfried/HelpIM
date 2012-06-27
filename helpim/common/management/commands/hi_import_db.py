@@ -5,7 +5,7 @@ import sys
 from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
 
-from forms_builder.forms.models import Field, FieldEntry, FormEntry
+from forms_builder.forms.models import Field, FieldEntry, Form, FormEntry
 from forms_builder.forms.fields import *
 
 from helpim.common.models import AdditionalUserInformation, BranchOffice
@@ -18,6 +18,17 @@ class Command(BaseCommand):
     args = 'pickled_datafile [pickled_datafile ...]'
 
     def handle(self, *files, **options):
+        if self.has_questionnaire_answers():
+            self.stderr.write('Your database has answers to questionnaires. Cannot import, please resolve manually. Exiting...\n')
+            sys.exit(1)
+
+        if self.has_questionnaire_questions():
+            print 'Your database has questionnaires without answers. Will delete questionnaires before importing.'
+
+            Field.objects.all().delete()
+            Form.objects.all().delete()
+            Questionnaire.objects.all().delete()
+
         print 'Database has %d User, %d Chat, %d Questionnaire' % (len(User.objects.all()), len(Chat.objects.all()), len(Questionnaire.objects.all()))
 
         for file in files:
@@ -35,6 +46,18 @@ class Command(BaseCommand):
             imp.import_all()
 
         print 'Database has %d User, %d Chat, %d Questionnaire' % (len(User.objects.all()), len(Chat.objects.all()), len(Questionnaire.objects.all()))
+
+    def has_questionnaire_answers(self):
+        if FieldEntry.objects.all().count() > 0 or FormEntry.objects.all().count() > 0:
+            return True
+        else:
+            return False
+
+    def has_questionnaire_questions(self):
+        if Questionnaire.objects.all().count() > 0 or Form.objects.all().count() > 0 or Field.objects.all().count() > 0:
+            return True
+        else:
+            return False
 
 class Importer():
     def __init__(self):
