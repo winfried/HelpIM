@@ -32,7 +32,7 @@ fi
 
 done
 
-if test $aantal = ""; then
+if test "$aantal" = ""; then
   echo "No chats active"
 else
   echo "$aantal chats active"
