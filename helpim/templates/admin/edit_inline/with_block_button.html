@@ -6,7 +6,7 @@
     $(document).ready(function($) {
         $(".dynamic-participant_set").each(
             function(i, row) {
-                if ($(row).find('.role p').text() == 'Client') {
+                if ($(row).find('.role p').text() == '{% trans 'Client' %}') {
                     // connect onchange handler to blocked checkbox to automatically submit form
                     $('#id_participant_set-'+i+'-blocked').change(function() {
                         var form = $(row).parents('form');

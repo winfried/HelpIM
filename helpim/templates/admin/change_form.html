@@ -7,11 +7,19 @@
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 {{ media }}
 <style>
-.user_permissions .selector select { width: 450px; }
-.user_permissions .selector { width: 1000px; }
+.user_permissions .selector select,
 .user_permissions .selector-available, 
-.user_permissions .selector-chosen { width: 450px; }
-.user_permissions .selector .selector-available input { width: 410px; }
+.user_permissions .selector-chosen,
+.permissions .selector select,
+.permissions .selector-available, 
+.permissions .selector-chosen
+ { width: 450px; }
+.user_permissions .selector,
+.permissions .selector
+ { width: 1000px; }
+.user_permissions .selector .selector-available input,
+.permissions .selector .selector-available input
+ { width: 410px; }
 </style>
 {% endblock %}
 

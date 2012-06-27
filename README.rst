@@ -91,13 +91,14 @@ Updating the setup data (Development)
 
 With the command::
 
-    ./bin/dump_setup_data.sh > helpim/fixtures/setup_data.json
+    django-admin.py hi_dump_settings > helpim/fixtures/setup_data.json
 
 you can update the setup_data to the changes you have made in the
 settings stored in the database. These changes can now be imported
-by other developers.
+by other developers. Use the 'load_data' command to import them into
+a newly created database. If you want to merge them into an already
+existing database, you can use the 'hi_load_settings'.
 
-.. note:: When adding models, it might be necessary to update dump_setup_data.sh
 .. note:: There is deliberately chosen to not use 'initial_data.json', to avoid
           overwriting data when running syncdb.
 

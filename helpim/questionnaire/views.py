@@ -4,6 +4,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
+from django.forms.widgets import CheckboxSelectMultiple
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
@@ -185,7 +186,8 @@ def form_entry_edit(request, form_entry_id, template='forms/form_entry_edit.html
             # redirect to conversation-detail-page, store conversation id before so it remains known
             return redirect('form_entry_edit', form_entry_id=entry.id)
 
-    # convert FormEntry to dictionary to initialize FormForForm (django-forms-builder doesnt support editing instances)
+    # convert FormEntry to QueryDict to initialize FormForForm (django-forms-builder doesnt support editing instances)
+    # the reverse part to FormForForm.save(), there doesnt seem to be a general cover all cases approach
     data = QueryDict('', mutable=True)
     for entry_field in form_entry_fields:
         # skip if question to this entry does not exist anymore 
@@ -197,6 +199,9 @@ def form_entry_edit(request, form_entry_id, template='forms/form_entry_edit.html
             if widget == DoubleDropWidget:
                 for i, val in enumerate(DoubleDropWidget().decompress(entry_field.value)):
                     data['field_%s_%s' % (entry_field.field_id, i)] = val
+            elif widget == CheckboxSelectMultiple:
+                for val in entry_field.value.split(', '):
+                    data.appendlist('field_%s' % entry_field.field_id, val)
             else:
                 data['field_%s' % entry_field.field_id] = entry_field.value
         except Field.DoesNotExist:

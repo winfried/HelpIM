@@ -112,7 +112,10 @@ class DoubleDropField(forms.MultiValueField):
         self.widget.choicesDict = self.choicesDict
 
     def compress(self, data_list):
-        return "%s>>>%s" % (data_list[0], data_list[1])
+        if data_list:
+            return "%s>>>%s" % (data_list[0], data_list[1])
+        else:
+            return None
 
     def clean(self, value):
         # set choices for second combobox according to what is selected in first combobox
