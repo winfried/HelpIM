@@ -42,7 +42,15 @@ class IframeEditableWidget(forms.Widget):
     def render(self, name, value, attrs=None):
         if value is None: return u''
         final_attrs = self.build_attrs(attrs, name=name)
-        return mark_safe(u'<iframe src="%s" %s></iframe>' % (
+
+        # output input-hidden together with <iframe>
+        # this is necessary to keep the ForeignKey relationship intact
+        input_hidden_attrs = self.build_attrs(attrs, name=name, style='', width='')
+        if value != '':
+            input_hidden_attrs['value'] = force_unicode(value)
+
+        return mark_safe(u'<input type="hidden" %s /><iframe src="%s" %s></iframe>' % (
+                flatatt(input_hidden_attrs),
                 conditional_escape(force_unicode(reverse("form_entry_edit", args=[value,]))),
                 flatatt(final_attrs),
                 ))
