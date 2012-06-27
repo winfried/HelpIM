@@ -52,7 +52,7 @@ class Importer():
         self.data = pickle.loads(s)
 
     def print_indent(self, msg, indent=4):
-        print "%s%s" % (' ' * indent, msg)
+        print "%s%s" % (u' ' * indent, msg)
 
     def import_all(self):
         self.import_users()
