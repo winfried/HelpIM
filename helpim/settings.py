@@ -225,7 +225,7 @@ FORMS_BUILDER_FIELD_MAX_LENGTH = 5000
 # Make Django login sessions close with closing of the browser
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Refresh the session on each login, so the time-out counts only
+# Refresh the session on each request, so the time-out counts only
 # when idle
 SESSION_SAVE_EVERY_REQUEST = True
 
