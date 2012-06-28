@@ -221,3 +221,14 @@ LOGGING = {
 
 FORMS_BUILDER_USE_SITES = False
 FORMS_BUILDER_FIELD_MAX_LENGTH = 5000
+
+# Make Django login sessions close with closing of the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Refresh the session on each login, so the time-out counts only
+# when idle
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Set the session expiry time to 8 hours, so chatting doesn't
+# cause an idle timeout, but sessions do expire some day...
+SESSION_COOKIE_AGE = 28800
