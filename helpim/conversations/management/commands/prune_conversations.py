@@ -34,6 +34,7 @@ class Command(BaseCommand):
 
         self._verbose("done.", 2)
 
-    def _verbose(self, message, verbosity=1):
+    def __verbose(self, message, verbosity=1):
+        '''only print message if verbosity-level is high enough'''
         if self.verbosity >= verbosity:
             print message
