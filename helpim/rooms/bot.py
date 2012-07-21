@@ -1402,9 +1402,8 @@ class Bot(JabberClient):
         if isinstance(roomjid, str) or isinstance(roomjid, unicode):
             roomjid = str2roomjid(roomjid)
         log.info("Kicking user with nick '%s'." % nick)
-        kickIq = MucIq(to_jid=roomjid, stanza_type="set")
-        kickIq.make_kick_request(nick, reason=None)
-        self.stream.send(kickIq)
+        xml = "<iq to='%s' type='set' id='kick123'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'/></query></iq>" % (roomjid, nick)
+        self.stream.write_raw(xml)
 
     def makeModerator(self, roomjid, nick):
         if isinstance(roomjid, str) or isinstance(roomjid, unicode):
