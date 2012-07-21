@@ -1008,10 +1008,10 @@ class Bot(JabberClient):
                         else:
                             log.notice("Reconnected  after %d attempts" % reconnectcount)
                             break
-            self.stats.mainloopcount += 1
-            if self.stats.mainloopcount >= sys.maxint:
-                self.stats.mainloopcount = 0
-                self.stats.busycount = 0
+                self.stats.mainloopcount += 1
+                if self.stats.mainloopcount >= sys.maxint:
+                    self.stats.mainloopcount = 0
+                    self.stats.busycount = 0
 
         except KeyboardInterrupt:
             log.notice("Keyboard interrupt. Exit...")
