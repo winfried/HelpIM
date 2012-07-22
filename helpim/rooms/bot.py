@@ -904,6 +904,9 @@ class WaitingRoomHandler(RoomHandlerBase):
         self.todo.append((self.fillMucRoomPool, self.site))
 
     def user_left(self, user, stanza):
+        if user.nick == self.nick:
+            return True
+
         logger.debug("user left waiting room: %s" % user.nick)
 
         try:
@@ -913,8 +916,6 @@ class WaitingRoomHandler(RoomHandlerBase):
             """ this shouldn't happen """
             logger.warning("got no access token for user with jid %s" % user.real_jid)
 
-        if user.nick == self.nick:
-            return True
         self.userCount -= 1
         room = self.get_helpim_room()
         if room is None:
