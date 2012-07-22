@@ -1105,7 +1105,7 @@ class Bot(JabberClient):
 
         except KeyboardInterrupt:
             logger.warning("Keyboard interrupt. Exit...")
-            self.closeRooms()
+            self.closeRooms(reason=_("System shutdown"))
             self.disconnect()
 
     def session_started(self):
@@ -1488,11 +1488,18 @@ class Bot(JabberClient):
         newname = "%s.%d" % (basename, self.__room_name_uniqifier)
         return newname
 
-    def kick(self, roomjid, nick):
+    def kick(self, roomjid, nick, reason=None):
         if isinstance(roomjid, str) or isinstance(roomjid, unicode):
             roomjid = str2roomjid(roomjid)
         logger.info("Kicking user with nick '%s'." % nick)
-        xml = "<iq to='%s' type='set' id='kick123'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'/></query></iq>" % (roomjid, nick)
+
+        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid, self.getIqID(), nick)
+        if not reason is None:
+            xml += "><reason>%s</reason></item></query></iq>" % reason
+        else:
+            xml += "/></query></iq>"
+        logger.debug(xml)
+
         self.stream.write_raw(xml)
 
     def makeModerator(self, roomjid, nick):
@@ -1500,7 +1507,7 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Making user with nick '%s' moderator." % nick)
 
-        xml = "<iq to='%s' type='set' id='mod'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, nick)
+        xml = "<iq to='%s' type='set' id='mod%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, self.getIqID(), nick)
         logger.debug(xml)
         self.stream.write_raw(xml)
 
@@ -1519,11 +1526,11 @@ class Bot(JabberClient):
                 # no more waiting clients
                 break
 
-    def closeRooms(self, roomstatus=None, site=None):
+    def closeRooms(self, roomstatus=None, site=None, reason=None):
         if site is None:
             # Resursively do all sites
             for name in self.sites.iterkeys():
-                self.closeRooms(roomstatus, name)
+                self.closeRooms(roomstatus, name, reason)
             return
 
         if isinstance(site, str):
@@ -1536,11 +1543,11 @@ class Bot(JabberClient):
         if roomstatus is None:
             rooms = site.rooms.getNotDestroyed() + site.groupRooms.getNotDestroyed() + site.lobbyRooms.getNotDestroyed() + site.waitingRooms.getNotDestroyed() + site.simpleRooms.getNotDestroyed()
         else:
-            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus) + site.simpleROoms.getByStatus(roomstatus)
+            rooms = site.rooms.getByStatus(roomstatus) + site.groupRooms.getByStatus(roomstatus) + site.lobbyRooms.getByStatus(roomstatus) + site.waitingRooms.getByStatus(roomstatus) + site.simpleRooms.getByStatus(roomstatus)
         for room in rooms:
-            self.closeRoom(room)
+            self.closeRoom(room, reason)
 
-    def closeRoom(self, room):
+    def closeRoom(self, room, reason=None):
         roomjid = str2roomjid(room.jid)
         logger.info("Closing down MUC-room '%s'." % room.jid)
         roomstate = self.mucmanager.rooms[unicode(roomjid)]
@@ -1548,7 +1555,7 @@ class Bot(JabberClient):
         mynick = roomstate.get_nick()
         for nick in roomstate.users.iterkeys():
             if nick != mynick:
-                self.kick(roomjid, nick)
+                self.kick(roomjid, nick, reason)
         logger.info("Leaving MUC-room '%s'." % room.jid)
         room.destroyed()
         roomstate.leave()
