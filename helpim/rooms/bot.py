@@ -990,6 +990,12 @@ class Bot(JabberClient):
         self.port = int(c.port)
         self.sites = getSites()
 
+        self.iqID = 0
+
+    def getIqID(self):
+        self.iqID += 1
+        return self.iqID
+
     def roomCleanup(self):
         for name, site in self.sites.iteritems():
             # One2OneRooms
