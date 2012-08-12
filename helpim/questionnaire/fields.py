@@ -30,9 +30,9 @@ def register_forms_builder_field_type(identifier, name, field_class, widget_clas
 class ScaleField(forms.ChoiceField):
     def valid_value(self, value):
         try:
-          scaling = int(self.choices[0][1])
+            scaling = int(self.choices[0][1])
         except ValueError:
-          scaling = 5
+            scaling = 5
 
         try:
             return int(value, 10) in xrange(1, scaling + 1)
@@ -54,19 +54,19 @@ class ScaleWidget(forms.RadioSelect):
     def render(self, name, value, attrs={}, choices=None):
 
         try:
-          scaling = int(self.choices[0][1], 10)
-        except ValueError:
-          scaling = 5
+            scaling = int(self.choices[0][1], 10)
+        except (ValueError, IndexError):
+            scaling = 5
 
         try:
-          upper_label = self.choices[1][1]
-        except ValueError:
-          upper_label = _("Agree")
+            upper_label = self.choices[1][1]
+        except IndexError:
+            upper_label = _("Agree")
 
         try:
-          lower_label = self.choices[2][1]
-        except ValueError:
-          lower_label = _("Disagree")
+            lower_label = self.choices[2][1]
+        except IndexError:
+            lower_label = _("Disagree")
 
         attrs["class"]="scalefield"
 
