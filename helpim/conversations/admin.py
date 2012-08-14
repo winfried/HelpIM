@@ -45,7 +45,7 @@ class ParticipantInline(admin.TabularInline):
 
     if not CONVERSATION_EDITABLE:
         max_num = 0
-        readonly_fields = ('name', 'role')
+        readonly_fields = ['name', 'role']
         can_delete = False
 
     fields = ['name', 'role', 'blocked']
@@ -55,6 +55,13 @@ class ParticipantInline(admin.TabularInline):
 
     verbose_name = _("Participant")
     verbose_name_plural = _("Participants")
+
+    def get_readonly_fields(self, request, obj=None):
+        # make "block" button only editable if permission given
+        if request.user.has_perm('conversations.change_blockedparticipant'):
+            return self.readonly_fields 
+        else:
+            return self.readonly_fields + ['blocked']
 
 class ConversationFormEntryInline(admin.StackedInline):
 
