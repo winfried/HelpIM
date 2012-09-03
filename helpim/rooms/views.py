@@ -21,7 +21,7 @@ def staff_join_chat(request, room_pk=None):
     except AdditionalUserInformation.DoesNotExist:
         pass
 
-    if muc_nick is None or muc_nick == '':
+    if muc_nick is None:
         try:
             muc_nick = settings.CHAT['staff_muc_nick']
         except:
