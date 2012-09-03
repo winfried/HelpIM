@@ -27,7 +27,7 @@ def staff_join_chat(request, room_pk=None):
         except:
             pass
             
-    if muc_nick is None:
+    if muc_nick is None or muc_nick == '':
         muc_nick = request.user.username
 
     lobby_nick = request.user.get_full_name()
