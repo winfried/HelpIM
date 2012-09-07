@@ -38,15 +38,15 @@ msgstr "Bevestigen"
 
 #: static/xmpptk/helpim/ui/client.js:91
 msgid "Are you sure you want to end this conversation?"
-msgstr "Weet u zeker dat u het gesprek wilt beëindigen?"
+msgstr "Weet je zeker dat je het gesprek wilt beëindigen?"
 
 #: static/xmpptk/helpim/ui/client.js:165
 msgid "Sorry, you're not allowed to access this service"
-msgstr "Sorry, u heeft geen toegang tot deze service"
+msgstr "Sorry, je hebt geen toegang tot deze service"
 
 #: static/xmpptk/helpim/ui/client.js:168
 msgid "Sorry, you're not allowed to request more chats"
-msgstr "Sorry, u heeft geen toegang tot deze service"
+msgstr "Sorry, je mag niet meer chats openen"
 
 #: static/xmpptk/helpim/ui/client.js:192
 msgid "Join Chat"
@@ -70,7 +70,7 @@ msgstr "Vragenlijst"
 
 #: static/xmpptk/helpim/ui/client.js:296
 msgid "staff"
-msgstr "hulpverlener"
+msgstr "collega's"
 
 #: static/xmpptk/helpim/ui/client.js:299
 msgid "waiting..."
@@ -125,11 +125,11 @@ msgstr "%s is weggegaan uit het gesprek"
 #: static/xmpptk/helpim/ui/muc/room.js:239
 #, c-format
 msgid "%s has ended the conversation"
-msgstr "%s heeft de conversatie beëindigd"
+msgstr "%s heeft het gesprek beëindigd"
 
 #: static/xmpptk/helpim/ui/muc/room.js:262
 msgid "Please click here to send a message!"
-msgstr ""
+msgstr "Klik hier om een bericht te sturen!"
 
 #: static/xmpptk/helpim/ui/muc/room.js:324
 #: static/xmpptk/helpim/ui/muc/room.js:335
@@ -157,7 +157,7 @@ msgstr "Wacht alstublieft!"
 msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
-msgstr "Wacht alstublieft tot u aan de beurt bent. Dat kan even duren."
+msgstr "Wacht alstublieft tot je aan de beurt bent. Dat kan even duren."
 
 #~ msgid "click to close"
 #~ msgstr "Klik om te sluiten"
