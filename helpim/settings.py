@@ -184,12 +184,7 @@ BOT = {
         'reconnectdelay': 5,
         'cleanup': 600,
         },
-    'language': 'en-us',
-    'logging': {
-        'destination': 'file:/var/log/HelpIM/helpim31.log',
-        'level': 'debug',
-        'level_pyxmpp': 'info',
-        }
+    'language': 'en-us'
     }
 
 ROOMS = {
@@ -208,7 +203,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'file': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'level': 'INFO',
+            'filename': '/var/log/HelpIM/helpim31.log',
+            },
     },
     'loggers': {
         'django.request':{
@@ -216,8 +216,23 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'helpim.rooms.bot': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+        },
     }
 }
 
 FORMS_BUILDER_USE_SITES = False
 FORMS_BUILDER_FIELD_MAX_LENGTH = 5000
+
+# Make Django login sessions close with closing of the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Refresh the session on each request, so the time-out counts only
+# when idle
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Set the session expiry time to 8 hours, so chatting doesn't
+# cause an idle timeout, but sessions do expire some day...
+SESSION_COOKIE_AGE = 28800

@@ -91,7 +91,7 @@ Updating the setup data (Development)
 
 With the command::
 
-    django-admin.py hi_dump_settings > helpim/fixtures/setup_data.json
+    django-admin.py hi_dump_settings --indent=4 > helpim/fixtures/setup_data.json
 
 you can update the setup_data to the changes you have made in the
 settings stored in the database. These changes can now be imported

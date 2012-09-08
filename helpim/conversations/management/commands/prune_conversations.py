@@ -10,6 +10,8 @@ from helpim.conversations.models import Conversation, Message
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        self.verbosity = int(options.get('verbosity', 1))
+
         try:
             days_to_keep = int(settings.CONVERSATION_KEEP_DAYS)
         except (ValueError, AttributeError):
@@ -18,21 +20,21 @@ class Command(BaseCommand):
 
         up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
 
-        print >> sys.stderr, "Deleting everything before", up_for_deletion, ".. \nthat is",
+        self._verbose('Deleting everything before %s ...' % (up_for_deletion), 2)
 
         conversations = Conversation.objects.filter(created_at__lt=up_for_deletion)
-
         messages = Message.objects.filter(conversation__in=conversations)
 
-        print >> sys.stderr, (
-              "%d conversations, that is %d messages .." % (
-                conversations.count(),
-                messages.count(),
-              )),
+        self._verbose('%d conversations, containing %d messages ...' % (conversations.count(), messages.count()), 2)
 
         # empty contents of messages
         for msg in messages:
             msg.body = '*****'
             msg.save()
 
-        print >> sys.stderr, "done."
+        self._verbose("done.", 2)
+
+    def __verbose(self, message, verbosity=1):
+        '''only print message if verbosity-level is high enough'''
+        if self.verbosity >= verbosity:
+            print message

@@ -36,6 +36,27 @@ class AdditionalUserInformation(models.Model):
 
     chat_nick = models.CharField(_("Chatname"), max_length=64, blank=True)
 
+    CHAT_PRIORITIES = (
+        (100, 'High'),
+        (10, 'Normal')
+    )
+    chat_priority = models.IntegerField(choices=CHAT_PRIORITIES, default=10)
+        
+class AdministrativeUser(User):
+    """
+    More restrictive view on User. See corresponding ModelAdmin for details. 
+    """
+    class Meta:
+        app_label = 'auth'
+        proxy = True
+
+class BranchUser(User):
+    """
+    More restrictive view on User. See corresponding ModelAdmin for details.
+    """
+    class Meta:
+        app_label = 'auth'
+        proxy = True
 
 class EventLogManager(models.Manager):
     def findByYearAndTypes(self, year, types):

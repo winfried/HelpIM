@@ -1,5 +1,6 @@
 from datetime import datetime
 from optparse import make_option
+import sys
 
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
@@ -18,7 +19,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # process options
         self.run_dry = bool(options.get('dry', False))
-        self.verbosity = int(options.get('verbosity', 0))
+        self.verbosity = int(options.get('verbosity', 1))
 
         # needed to build absolute URLs
         self.site = Site.objects.get_current().domain
@@ -30,12 +31,12 @@ class Command(BaseCommand):
 
             # check for careseeker
             if profile.needs_email_reminder('CX'):
-                self.__verbose('profile "%s": needs CX' % (profile.user.username), 1)
+                self.__verbose('profile "%s": needs CX' % (profile.user.username), 2)
                 sent_mails += self.__send_mail('careseeker', profile)
 
             # check for careworker
             if profile.needs_email_reminder('SX'):
-                self.__verbose('profile "%s": needs SX' % (profile.user.username), 1)
+                self.__verbose('profile "%s": needs SX' % (profile.user.username), 2)
                 sent_mails += self.__send_mail('careworker', profile)
 
             # if any mail was sent, store that date
@@ -68,7 +69,7 @@ class Command(BaseCommand):
 
         # make sure email address is not empty
         if not rcpt.email:
-            self.__verbose('profile "%s": "%s" (%s) does not have an email address configured' % (profile.user.username, rcpt.username, receiver_role))
+            print >> sys.stderr, 'profile "%s": "%s" (%s) does not have an email address configured' % (profile.user.username, rcpt.username, receiver_role)
             return 0
 
         # abort here, if running dry
@@ -77,11 +78,11 @@ class Command(BaseCommand):
             return 1
 
         # send mail
-        self.__verbose('profile "%s": mailing "%s" (%s)' % (profile.user.username, rcpt.email, receiver_role), 1)
+        self.__verbose('profile "%s": mailing "%s" (%s)' % (profile.user.username, rcpt.email, receiver_role), 2)
         rcpt.email_user(subject, body)
         return 1
 
-    def __verbose(self, message, level=0):
+    def __verbose(self, message, verbosity=1):
         '''only print message if verbosity-level is high enough'''
-        if level <= self.verbosity:
+        if self.verbosity >= verbosity:
             print message

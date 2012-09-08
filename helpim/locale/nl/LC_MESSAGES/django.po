@@ -31,7 +31,7 @@ msgstr "Hulpverlener, na de chat"
 
 #: buddychat/models.py:28 common/models.py:62
 msgid "Staff, on Conversation page"
-msgstr "Medewerkers, op converstie pagina"
+msgstr "Medewerkers, op gesprekspagina"
 
 #: buddychat/models.py:29
 msgid "Client, after Registration"
@@ -495,7 +495,7 @@ msgstr "Gegevens"
 #: rooms/bot.py:198
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
-msgstr "U bent op positie %(pos)d van de wachtrij."
+msgstr "Je bent op positie %(pos)d van de wachtrij."
 
 #: rooms/bot.py:315
 #, python-format
@@ -848,7 +848,7 @@ msgstr "Snelle toegang"
 
 #: templates/admin/index.html:54
 msgid "You don't have permission to edit anything."
-msgstr "U heeft geen toestemming om iets te wijzigen"
+msgstr "Je hebt geen toestemming om iets te wijzigen"
 
 #: templates/admin/conversations/conversation/change_form.html:13
 #, python-format

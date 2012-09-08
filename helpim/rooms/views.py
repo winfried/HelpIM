@@ -16,17 +16,18 @@ def staff_join_chat(request, room_pk=None):
     # wide default or as a fallback by the username of the user object
     muc_nick = None
     try:
-        muc_nick = request.user.get_profile().chat_nick
+        if request.user.get_profile().chat_nick != '':
+            muc_nick = request.user.get_profile().chat_nick
     except AdditionalUserInformation.DoesNotExist:
         pass
 
-    if muc_nick is None or muc_nick == '':
+    if muc_nick is None:
         try:
             muc_nick = settings.CHAT['staff_muc_nick']
         except:
             pass
             
-    if muc_nick is None:
+    if muc_nick is None or muc_nick == '':
         muc_nick = request.user.username
 
     lobby_nick = request.user.get_full_name()

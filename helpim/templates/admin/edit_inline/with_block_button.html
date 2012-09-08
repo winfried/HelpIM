@@ -14,8 +14,9 @@
                         form.submit();
                     });
                 } else {
-                    // hide blocked checkbox
+                    // hide blocked checkbox or image if field read-only
                     $('#id_participant_set-'+i+'-blocked').remove();
+                    $('td.blocked p img', row).remove();
                 }
             }
         )
