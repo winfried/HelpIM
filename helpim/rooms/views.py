@@ -41,6 +41,7 @@ def staff_join_chat(request, room_pk=None):
             'muc_nick': muc_nick,
             'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
             'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
+            'no_block': not request.user.has_perm('conversations.change_blockedparticipant')
             }),
         Participant.ROLE_STAFF,
         request.user
