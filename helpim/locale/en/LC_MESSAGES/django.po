@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-18 16:21+0200\n"
+"POT-Creation-Date: 2012-09-10 12:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buddychat/models.py:25 common/models.py:59
+#: buddychat/models.py:25 common/models.py:80
 msgid "Client, before chat"
 msgstr ""
 
-#: buddychat/models.py:26 common/models.py:60
+#: buddychat/models.py:26 common/models.py:81
 msgid "Client, after chat"
 msgstr ""
 
-#: buddychat/models.py:27 common/models.py:61
+#: buddychat/models.py:27 common/models.py:82
 msgid "Staff, after chat"
 msgstr ""
 
-#: buddychat/models.py:28 common/models.py:62
+#: buddychat/models.py:28 common/models.py:83
 msgid "Staff, on Conversation page"
 msgstr ""
 
@@ -112,13 +112,13 @@ msgstr ""
 msgid "Service Unavailable"
 msgstr ""
 
-#: buddychat/management/commands/mail_questionnaires.py:54
-#: buddychat/management/commands/mail_questionnaires.py:61
+#: buddychat/management/commands/mail_questionnaires.py:55
+#: buddychat/management/commands/mail_questionnaires.py:62
 #, python-format
 msgid "a reminder about %s"
 msgstr ""
 
-#: buddychat/management/commands/mail_questionnaires.py:55
+#: buddychat/management/commands/mail_questionnaires.py:56
 #, python-format
 msgid ""
 "This is a reminder to take your next questionnaire.\n"
@@ -127,13 +127,29 @@ msgid ""
 "http://%(site)s%(path_profilepage)s"
 msgstr ""
 
-#: buddychat/management/commands/mail_questionnaires.py:62
+#: buddychat/management/commands/mail_questionnaires.py:63
 #, python-format
 msgid ""
 "This is a reminder to take the next questionnaire about %(careseeker)s.\n"
 "\n"
 "Don't reply to this message directly, reply on the personal profile page at "
 "http://%(site)s%(path_profilepage)s"
+msgstr ""
+
+#: common/admin.py:35
+msgid "Personal info"
+msgstr ""
+
+#: common/admin.py:36
+msgid "Important dates"
+msgstr ""
+
+#: common/admin.py:37
+msgid "Groups"
+msgstr ""
+
+#: common/admin.py:85
+msgid "Password"
 msgstr ""
 
 #: common/models.py:13 stats/models.py:127 stats/models.py:318
@@ -165,7 +181,7 @@ msgstr ""
 msgid "Chatname"
 msgstr ""
 
-#: common/models.py:46
+#: common/models.py:67
 #, python-format
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr ""
@@ -178,96 +194,96 @@ msgstr ""
 msgid "Messages"
 msgstr ""
 
-#: conversations/admin.py:56 conversations/models.py:118
+#: conversations/admin.py:56 conversations/models.py:134
 msgid "Participant"
 msgstr ""
 
-#: conversations/admin.py:57 conversations/models.py:119
+#: conversations/admin.py:57 conversations/models.py:135
 msgid "Participants"
 msgstr ""
 
-#: conversations/admin.py:128 templates/buddychat/chatbuddies.html:40
+#: conversations/admin.py:135 templates/buddychat/chatbuddies.html:40
 msgid "No"
 msgstr ""
 
-#: conversations/admin.py:130 templates/buddychat/chatbuddies.html:38
+#: conversations/admin.py:137 templates/buddychat/chatbuddies.html:38
 msgid "Yes"
 msgstr ""
 
-#: conversations/admin.py:131
+#: conversations/admin.py:138
 msgid "Staff submitted?"
 msgstr ""
 
-#: conversations/admin.py:139 conversations/models.py:87
+#: conversations/admin.py:146 conversations/models.py:103
 #: templates/admin/base_site.html:30
 msgid "Conversations"
 msgstr ""
 
-#: conversations/admin.py:221
+#: conversations/admin.py:228
 msgid "Show chat"
 msgstr ""
 
-#: conversations/models.py:18
+#: conversations/models.py:19
 #, python-format
 msgid "\"%(subject)s\" at %(created_at)s"
 msgstr ""
 
-#: conversations/models.py:55 conversations/models.py:73
+#: conversations/models.py:71 conversations/models.py:89
 msgid "(None)"
 msgstr ""
 
-#: conversations/models.py:66
+#: conversations/models.py:82
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr ""
 
-#: conversations/models.py:82
+#: conversations/models.py:98
 msgid "(unknown)"
 msgstr ""
 
-#: conversations/models.py:86
+#: conversations/models.py:102
 msgid "Conversation"
 msgstr ""
 
-#: conversations/models.py:100 rooms/models.py:378 rooms/models.py:534
-#: rooms/models.py:760
+#: conversations/models.py:116 rooms/models.py:378 rooms/models.py:534
+#: rooms/models.py:760 templates/admin/edit_inline/with_block_button.html:9
 msgid "Client"
 msgstr ""
 
-#: conversations/models.py:101 rooms/models.py:761
+#: conversations/models.py:117 rooms/models.py:761
 msgid "Staff"
 msgstr ""
 
-#: conversations/models.py:131
+#: conversations/models.py:147
 msgid "Blocked client"
 msgstr ""
 
-#: conversations/models.py:132
+#: conversations/models.py:148
 msgid "Blocked clients"
 msgstr ""
 
-#: conversations/models.py:138 templates/buddychat/profile.html:77
+#: conversations/models.py:154 templates/buddychat/profile.html:77
 #: templates/buddychat/profile.html:99 templates/buddychat/profile.html:119
 msgid "Sender"
 msgstr ""
 
-#: conversations/models.py:222
+#: conversations/models.py:249
 msgid "Chat message"
 msgstr ""
 
-#: conversations/models.py:223
+#: conversations/models.py:250
 msgid "Chat joining"
 msgstr ""
 
-#: conversations/models.py:224
+#: conversations/models.py:251
 msgid "Chat rejoining"
 msgstr ""
 
-#: conversations/models.py:225
+#: conversations/models.py:252
 msgid "Chat exit"
 msgstr ""
 
-#: conversations/models.py:226
+#: conversations/models.py:253
 msgid "Chat end"
 msgstr ""
 
@@ -440,7 +456,7 @@ msgid "History"
 msgstr ""
 
 #: questionnaire/templates/admin/forms/change_form.html:10
-#: templates/admin/change_form.html:38
+#: templates/admin/change_form.html:46
 msgid "View on site"
 msgstr ""
 
@@ -476,14 +492,18 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:198
+#: rooms/bot.py:265
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:315
+#: rooms/bot.py:382
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
+msgstr ""
+
+#: rooms/bot.py:1105
+msgid "System shutdown"
 msgstr ""
 
 #: rooms/models.py:267
@@ -807,17 +827,17 @@ msgstr ""
 msgid "Stats"
 msgstr ""
 
-#: templates/admin/change_form.html:26 templates/stats/report_new.html:8
+#: templates/admin/change_form.html:34 templates/stats/report_new.html:8
 #: templates/stats/report_show.html:8 templates/stats/stats_index.html:8
 #: templates/stats/stats_overview.html:18
 msgid "Home"
 msgstr ""
 
-#: templates/admin/change_form.html:29
+#: templates/admin/change_form.html:37
 msgid "Add"
 msgstr ""
 
-#: templates/admin/change_form.html:49
+#: templates/admin/change_form.html:57
 msgid "Please correct the error below."
 msgid_plural "Please correct the errors below."
 msgstr[0] ""
@@ -835,8 +855,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"\t\t            %(staffname)s, please take a moment to <b><a href="
-"\"%(questionnaire_url)s\">fill out this form</a></b>!\n"
+"\t\t            %(staffname)s, please take a moment to <b><a target=\"_blank"
+"\" href=\"%(questionnaire_url)s\">fill out this form</a></b>!\n"
 "\t\t        "
 msgstr ""
 
@@ -905,9 +925,9 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                    %(username)s, please take a moment to <b><a href="
-"\"%(recurring_questionnaire_url)s\">fill out this form</a></b> to evaluate "
-"the progress!\n"
+"                    %(username)s, please take a moment to <b><a target="
+"\"_blank\" href=\"%(recurring_questionnaire_url)s\">fill out this form</a></"
+"b> to evaluate the progress!\n"
 "                "
 msgstr ""
 

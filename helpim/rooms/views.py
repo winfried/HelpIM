@@ -41,6 +41,7 @@ def staff_join_chat(request, room_pk=None):
             'muc_nick': muc_nick,
             'logout_redirect': request.META.get('HTTP_REFERER') or request.build_absolute_uri('/admin/'),
             'conversation_redirect': request.build_absolute_uri('/admin/conversations/conversation/'),
+            'no_block': not request.user.has_perm('conversations.change_blockedparticipant')
             }),
         Participant.ROLE_STAFF,
         request.user
@@ -71,6 +72,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT, user=None):
                                                      settings.BOT['connection']['resource']),
                             'bot_nick': settings.BOT['muc']['nick'],
                             'static_url': settings.STATIC_URL,
+                            'emoticons_path' : settings.CHAT['emoticons_path'],
                             'is_staff': role is Participant.ROLE_STAFF,
                             'token': token.token,
                             }.items() + settings.CHAT.items() + cfg.items()), indent=2)

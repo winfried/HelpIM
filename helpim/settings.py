@@ -154,6 +154,7 @@ CHAT = {
     'authtype': 'saslanon',
     'composing_timeout': 10,
     'wait': 59,
+    'emoticons_path': STATIC_URL+'xmpptk/images/emoticons/',
     'debug': DEBUG,
     }
 
