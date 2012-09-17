@@ -51,6 +51,8 @@ class AdministrativeUser(User):
     class Meta:
         app_label = 'auth'
         proxy = True
+        verbose_name = _('Administrative User')
+        verbose_name_plural = _('Administrative Users')
 
 class BranchUser(User):
     """
@@ -59,6 +61,8 @@ class BranchUser(User):
     class Meta:
         app_label = 'auth'
         proxy = True
+        verbose_name = _('Branch User')
+        verbose_name_plural = _('Branch Users')
 
 class EventLogManager(models.Manager):
     def findByYearAndTypes(self, year, types):
