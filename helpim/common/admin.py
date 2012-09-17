@@ -16,6 +16,13 @@ class AdditionalUserInformationInline(admin.StackedInline):
 class AdditionalUserInformationAdmin(UserAdmin):
     inlines = [AdditionalUserInformationInline]
 
+class AdditionalUserInformationAdministrativeUserInline(admin.StackedInline):
+    """
+    to be used by BranchUserAdmin
+    """
+    model = AdditionalUserInformation
+    can_delete = False
+
 class AdministrativeUserAdmin(AdditionalUserInformationAdmin):
     """
     Restricted view on Users:
@@ -26,6 +33,8 @@ class AdministrativeUserAdmin(AdditionalUserInformationAdmin):
       * no box for user-level permissions
       * new AdministrativeUsers: default group 'careworkers' (when present)
     """
+
+    inlines = [AdditionalUserInformationAdministrativeUserInline]
 
     list_display = ('username', 'email', 'first_name', 'last_name',)
     list_filter = ()
