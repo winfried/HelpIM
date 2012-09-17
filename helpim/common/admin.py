@@ -42,6 +42,7 @@ class AdministrativeUserAdmin(AdditionalUserInformationAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password_change')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {'fields': ('is_active',)}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
