@@ -23,6 +23,8 @@ class BranchOffice(models.Model):
         )
 
 class AdditionalUserInformation(models.Model):
+    # See BranchUserAdmin.save_formset and AdditionalUserInformationBranchUserInline when changing fields.
+
     def __unicode__(self):
         return _("Additional information about user %s" % self.user.username)
 
