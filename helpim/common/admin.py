@@ -140,6 +140,8 @@ class BranchUserAdmin(AdministrativeUserAdmin):
                 profile.save()
             except AdditionalUserInformation.DoesNotExist:
                 pass
+        else:
+            AdministrativeUserAdmin.save_formset(self, request, form, formset, change)
 
 admin.site.unregister(User)
 admin.site.register(User, AdditionalUserInformationAdmin)
