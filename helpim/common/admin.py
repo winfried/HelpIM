@@ -91,7 +91,7 @@ class AdditionalUserInformationBranchUserInline(admin.StackedInline):
     model = AdditionalUserInformation
 
     fieldsets = (
-        (None, {'fields': ('branch_office', 'chat_nick',)}),
+        (None, {'fields': ('branch_office', 'chat_nick', 'chat_priority')}),
     )
 
     readonly_fields = ('branch_office',)
