@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 12:53+0200\n"
-"PO-Revision-Date: 2012-09-10 14:53+0200\n"
+"POT-Creation-Date: 2012-09-20 23:01+0200\n"
+"PO-Revision-Date: 2012-09-20 23:13+0200\n"
 "Last-Translator: Paul van der Vlis <paul@vandervlis.nl>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: nl_NL\n"
@@ -18,33 +18,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: buddychat/models.py:25 common/models.py:80
+#: buddychat/models.py:25 common/models.py:86
 msgid "Client, before chat"
 msgstr "Hulpvrager, voor de chat"
 
-#: buddychat/models.py:26 common/models.py:81
+#: buddychat/models.py:26 common/models.py:87
 msgid "Client, after chat"
 msgstr "Hulpvrager, na de chat"
 
-#: buddychat/models.py:27 common/models.py:82
+#: buddychat/models.py:27 common/models.py:88
 msgid "Staff, after chat"
 msgstr "Hulpverlener, na de chat"
 
-#: buddychat/models.py:28 common/models.py:83
+#: buddychat/models.py:28 common/models.py:89
 msgid "Staff, on Conversation page"
-msgstr "Medewerkers, op gesprekspagina"
+msgstr "Medewerker, op gesprekspagina"
 
 #: buddychat/models.py:29
 msgid "Client, after Registration"
-msgstr "Hulpvragers, na de chat"
+msgstr "Hulpvrager, na registratie"
 
 #: buddychat/models.py:30
 msgid "Client, recurring"
-msgstr "Hulpvragers, periodiek herhalend"
+msgstr "Hulpvrager, periodiek herhalend"
 
 #: buddychat/models.py:31
 msgid "Staff, recurring"
-msgstr "Medewerkers, periodiek herhalend"
+msgstr "Medewerker, periodiek herhalend"
 
 #: buddychat/models.py:61 stats/models.py:149 stats/models.py:321
 #: templates/buddychat/chatbuddies.html:24 templates/buddychat/profile.html:47
@@ -152,19 +152,23 @@ msgstr ""
 "Stuur geen direct antwoord op dit bericht, antwoord via je persoonlijke op "
 "http://%(site)s%(path_profilepage)s"
 
-#: common/admin.py:35
+#: common/admin.py:44
 msgid "Personal info"
 msgstr "Persoonlijke gegevens"
 
-#: common/admin.py:36
+#: common/admin.py:45
+msgid "Permissions"
+msgstr "Rechten"
+
+#: common/admin.py:46
 msgid "Important dates"
 msgstr "Belangrijke data"
 
-#: common/admin.py:37
+#: common/admin.py:47
 msgid "Groups"
 msgstr "Groepen"
 
-#: common/admin.py:85
+#: common/admin.py:95
 msgid "Password"
 msgstr "Wachtwoord"
 
@@ -184,20 +188,36 @@ msgstr "Bekijk alle gesprekken in eigen afdeling"
 msgid "View all conversations in all branch offices"
 msgstr "Bekijk alle gesprekken in alle afdelingen"
 
-#: common/models.py:27
+#: common/models.py:29
 #, python-format
 msgid "Additional information about user %s"
 msgstr "Extra informatie over gebruiker %s"
 
-#: common/models.py:30 common/models.py:31
+#: common/models.py:32 common/models.py:33
 msgid "Additional user information"
 msgstr "Extra gebruiker informatie"
 
-#: common/models.py:37
+#: common/models.py:39
 msgid "Chatname"
 msgstr "Nicknaam"
 
-#: common/models.py:67
+#: common/models.py:54
+msgid "Administrative User"
+msgstr "Gebruiker (alle afdelingen)"
+
+#: common/models.py:55
+msgid "Administrative Users"
+msgstr "Gebruikers (alle afdelingen)"
+
+#: common/models.py:64
+msgid "Branch User"
+msgstr "Gebruiker (eigen afdeling)"
+
+#: common/models.py:65
+msgid "Branch Users"
+msgstr "Gebruikers (eigen afdeling)"
+
+#: common/models.py:73
 #, python-format
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr "Gebeurtenis %(event_name)s om %(timestamp)s"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 12:53+0200\n"
+"POT-Creation-Date: 2012-09-20 23:01+0200\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: buddychat/models.py:25 common/models.py:80
+#: buddychat/models.py:25 common/models.py:86
 msgid "Client, before chat"
 msgstr ""
 
-#: buddychat/models.py:26 common/models.py:81
+#: buddychat/models.py:26 common/models.py:87
 msgid "Client, after chat"
 msgstr ""
 
-#: buddychat/models.py:27 common/models.py:82
+#: buddychat/models.py:27 common/models.py:88
 msgid "Staff, after chat"
 msgstr ""
 
-#: buddychat/models.py:28 common/models.py:83
+#: buddychat/models.py:28 common/models.py:89
 #, fuzzy
 msgid "Staff, on Conversation page"
 msgstr "Unterhaltung"
@@ -141,20 +141,24 @@ msgid ""
 "http://%(site)s%(path_profilepage)s"
 msgstr ""
 
-#: common/admin.py:35
+#: common/admin.py:44
 msgid "Personal info"
 msgstr ""
 
-#: common/admin.py:36
+#: common/admin.py:45
+msgid "Permissions"
+msgstr ""
+
+#: common/admin.py:46
 msgid "Important dates"
 msgstr ""
 
-#: common/admin.py:37
+#: common/admin.py:47
 #, fuzzy
 msgid "Groups"
 msgstr "Chatgruppen"
 
-#: common/admin.py:85
+#: common/admin.py:95
 msgid "Password"
 msgstr ""
 
@@ -174,20 +178,36 @@ msgstr ""
 msgid "View all conversations in all branch offices"
 msgstr ""
 
-#: common/models.py:27
+#: common/models.py:29
 #, python-format
 msgid "Additional information about user %s"
 msgstr ""
 
-#: common/models.py:30 common/models.py:31
+#: common/models.py:32 common/models.py:33
 msgid "Additional user information"
 msgstr ""
 
-#: common/models.py:37
+#: common/models.py:39
 msgid "Chatname"
 msgstr "Chatname"
 
-#: common/models.py:67
+#: common/models.py:54
+msgid "Administrative User"
+msgstr ""
+
+#: common/models.py:55
+msgid "Administrative Users"
+msgstr ""
+
+#: common/models.py:64
+msgid "Branch User"
+msgstr ""
+
+#: common/models.py:65
+msgid "Branch Users"
+msgstr ""
+
+#: common/models.py:73
 #, python-format
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr ""
@@ -920,8 +940,9 @@ msgid "Change Password"
 msgstr ""
 
 #: templates/buddychat/chatbuddies.html:13
+#, fuzzy
 msgid "Chatbuddies"
-msgstr ""
+msgstr "Chat beendet"
 
 #: templates/buddychat/chatbuddies.html:21
 #, fuzzy
@@ -966,8 +987,9 @@ msgid "Submit"
 msgstr ""
 
 #: templates/buddychat/profile.html:55
+#, fuzzy
 msgid "Careworker's Email"
-msgstr ""
+msgstr "Unterhaltung"
 
 #: templates/buddychat/profile.html:57
 msgid "Coupled at"
@@ -998,8 +1020,9 @@ msgid "Coordinator Conversation"
 msgstr "Unterhaltung"
 
 #: templates/buddychat/profile.html:116
+#, fuzzy
 msgid "Careworker-Coordinator Conversation"
-msgstr ""
+msgstr "Unterhaltung"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
@@ -1013,22 +1036,26 @@ msgstr "Chat betreten"
 
 #: templates/stats/report_new.html:12 templates/stats/report_new.html.py:22
 #: templates/stats/report_show.html:24
+#, fuzzy
 msgid "Edit report"
-msgstr ""
+msgstr "Entfernen?"
 
 #: templates/stats/report_new.html:14 templates/stats/report_new.html.py:24
 #: templates/stats/stats_index.html:41
+#, fuzzy
 msgid "Create new report"
-msgstr ""
+msgstr "Entfernen?"
 
 #: templates/stats/report_new.html:32
+#, fuzzy
 msgid "Preview report"
-msgstr ""
+msgstr "Entfernen?"
 
 #: templates/stats/report_new.html:35 templates/stats/report_new.html.py:39
 #: templates/stats/report_new.html:42
+#, fuzzy
 msgid "Save report"
-msgstr ""
+msgstr "Entfernen?"
 
 #: templates/stats/report_show.html:16
 #, python-format

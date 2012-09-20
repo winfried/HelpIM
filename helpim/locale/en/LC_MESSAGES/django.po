@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 12:53+0200\n"
+"POT-Creation-Date: 2012-09-20 23:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buddychat/models.py:25 common/models.py:80
+#: buddychat/models.py:25 common/models.py:86
 msgid "Client, before chat"
 msgstr ""
 
-#: buddychat/models.py:26 common/models.py:81
+#: buddychat/models.py:26 common/models.py:87
 msgid "Client, after chat"
 msgstr ""
 
-#: buddychat/models.py:27 common/models.py:82
+#: buddychat/models.py:27 common/models.py:88
 msgid "Staff, after chat"
 msgstr ""
 
-#: buddychat/models.py:28 common/models.py:83
+#: buddychat/models.py:28 common/models.py:89
 msgid "Staff, on Conversation page"
 msgstr ""
 
@@ -136,19 +136,23 @@ msgid ""
 "http://%(site)s%(path_profilepage)s"
 msgstr ""
 
-#: common/admin.py:35
+#: common/admin.py:44
 msgid "Personal info"
 msgstr ""
 
-#: common/admin.py:36
+#: common/admin.py:45
+msgid "Permissions"
+msgstr ""
+
+#: common/admin.py:46
 msgid "Important dates"
 msgstr ""
 
-#: common/admin.py:37
+#: common/admin.py:47
 msgid "Groups"
 msgstr ""
 
-#: common/admin.py:85
+#: common/admin.py:95
 msgid "Password"
 msgstr ""
 
@@ -168,20 +172,36 @@ msgstr ""
 msgid "View all conversations in all branch offices"
 msgstr ""
 
-#: common/models.py:27
+#: common/models.py:29
 #, python-format
 msgid "Additional information about user %s"
 msgstr ""
 
-#: common/models.py:30 common/models.py:31
+#: common/models.py:32 common/models.py:33
 msgid "Additional user information"
 msgstr ""
 
-#: common/models.py:37
+#: common/models.py:39
 msgid "Chatname"
 msgstr ""
 
-#: common/models.py:67
+#: common/models.py:54
+msgid "Administrative User"
+msgstr ""
+
+#: common/models.py:55
+msgid "Administrative Users"
+msgstr ""
+
+#: common/models.py:64
+msgid "Branch User"
+msgstr ""
+
+#: common/models.py:65
+msgid "Branch Users"
+msgstr ""
+
+#: common/models.py:73
 #, python-format
 msgid "Event %(event_name)s at %(timestamp)s"
 msgstr ""
