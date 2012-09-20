@@ -23,6 +23,8 @@ class BranchOffice(models.Model):
         )
 
 class AdditionalUserInformation(models.Model):
+    # See BranchUserAdmin.save_formset and AdditionalUserInformationBranchUserInline when changing fields.
+
     def __unicode__(self):
         return _("Additional information about user %s" % self.user.username)
 
@@ -49,6 +51,8 @@ class AdministrativeUser(User):
     class Meta:
         app_label = 'auth'
         proxy = True
+        verbose_name = _('Administrative User')
+        verbose_name_plural = _('Administrative Users')
 
 class BranchUser(User):
     """
@@ -57,6 +61,8 @@ class BranchUser(User):
     class Meta:
         app_label = 'auth'
         proxy = True
+        verbose_name = _('Branch User')
+        verbose_name_plural = _('Branch Users')
 
 class EventLogManager(models.Manager):
     def findByYearAndTypes(self, year, types):

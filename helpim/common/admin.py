@@ -16,6 +16,13 @@ class AdditionalUserInformationInline(admin.StackedInline):
 class AdditionalUserInformationAdmin(UserAdmin):
     inlines = [AdditionalUserInformationInline]
 
+class AdditionalUserInformationAdministrativeUserInline(admin.StackedInline):
+    """
+    to be used by BranchUserAdmin
+    """
+    model = AdditionalUserInformation
+    can_delete = False
+
 class AdministrativeUserAdmin(AdditionalUserInformationAdmin):
     """
     Restricted view on Users:
@@ -27,12 +34,15 @@ class AdministrativeUserAdmin(AdditionalUserInformationAdmin):
       * new AdministrativeUsers: default group 'careworkers' (when present)
     """
 
+    inlines = [AdditionalUserInformationAdministrativeUserInline]
+
     list_display = ('username', 'email', 'first_name', 'last_name',)
     list_filter = ()
 
     fieldsets = (
         (None, {'fields': ('username', 'password_change')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {'fields': ('is_active',)}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
     )
@@ -91,7 +101,7 @@ class AdditionalUserInformationBranchUserInline(admin.StackedInline):
     model = AdditionalUserInformation
 
     fieldsets = (
-        (None, {'fields': ('branch_office', 'chat_nick',)}),
+        (None, {'fields': ('branch_office', 'chat_nick', 'chat_priority')}),
     )
 
     readonly_fields = ('branch_office',)
@@ -137,9 +147,13 @@ class BranchUserAdmin(AdministrativeUserAdmin):
 
                 profile, created = AdditionalUserInformation.objects.get_or_create(user=obj)
                 profile.branch_office = users_office
+                profile.chat_nick = formset.cleaned_data[0]['chat_nick']
+                profile.chat_priority = formset.cleaned_data[0]['chat_priority']
                 profile.save()
             except AdditionalUserInformation.DoesNotExist:
                 pass
+        else:
+            AdministrativeUserAdmin.save_formset(self, request, form, formset, change)
 
 admin.site.unregister(User)
 admin.site.register(User, AdditionalUserInformationAdmin)
