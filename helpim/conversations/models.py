@@ -98,7 +98,7 @@ class Conversation(models.Model):
             return _('(unknown)')
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ['-created_at']
         verbose_name = _("Conversation")
         verbose_name_plural = _("Conversations")
 
