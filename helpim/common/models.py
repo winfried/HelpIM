@@ -34,7 +34,7 @@ class AdditionalUserInformation(models.Model):
 
     user = models.OneToOneField(User, unique=True)
 
-    branch_office = models.ForeignKey(BranchOffice, null=True, blank=True)
+    branch_office = models.ForeignKey(BranchOffice, null=True, blank=True, verbose_name=_('Branch office'))
 
     chat_nick = models.CharField(_("Chatname"), max_length=64, blank=True)
 
@@ -42,7 +42,7 @@ class AdditionalUserInformation(models.Model):
         (100, 'High'),
         (10, 'Normal')
     )
-    chat_priority = models.IntegerField(choices=CHAT_PRIORITIES, default=10)
+    chat_priority = models.IntegerField(_('Chat priority'), choices=CHAT_PRIORITIES, default=10)
         
 class AdministrativeUser(User):
     """
