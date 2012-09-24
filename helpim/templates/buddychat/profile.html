@@ -31,11 +31,11 @@
 
 
 {% if not client.ready %}
-questionnaire missing
+<p>questionnaire missing</p>
 {% endif %}
 
 {% if not perms.buddychat.is_coordinator %}
-<a href="{% url buddychat_chat client.user.username %}">Join Chat</a>
+<input type="submit" value="{% trans "Join Chat" %}" class="join-chat" onclick="document.location.href='{% url buddychat_chat client.user.username %}';" />
 {% endif %}
 <dl>
 {% if user == client.user or perms.buddychat.is_coordinator %}
