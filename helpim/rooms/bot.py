@@ -127,10 +127,7 @@ class RoomHandlerBase(MucRoomHandler):
         self.closingDown = False
         self.maxUsers = 10
         self.type = "Base"
-        if rejoining:
-            self.rejoinCount = 0
-        else:
-            self.rejoinCount = None
+        self.rejoining = rejoining
 
     def affiliation_changed(self, user, old_aff, new_aff, stanza):
         logger.debug("Callback: affiliation_changed(%s, %s, %s, %s)" % (user, old_aff, new_aff, stanza))
@@ -331,6 +328,10 @@ class One2OneRoomHandler(RoomHandlerBase):
             room.chat.save()
 
     def user_joined(self, user, stanza):
+        if self.rejoining:
+            # bot is about to rejoin rooms after bot crash
+            return
+        
         if user.nick == self.nick:
             logger.info("user joined with self nick '%s'" % user.nick)
             return True
@@ -354,7 +355,6 @@ class One2OneRoomHandler(RoomHandlerBase):
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender=room.staff, sender_name=user.nick)
             self.todo.append((self.fillMucRoomPool, self.site))
             logger.info("Staff member entered room '%s'." % self.room_state.room_jid.as_unicode())
-            self.rejoinCount = None
 
             """ send invite to a client """
             try:
@@ -372,29 +372,23 @@ class One2OneRoomHandler(RoomHandlerBase):
             chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.staff)
             self.todo.append((self.fillMucRoomPool, self.site))
             logger.info("Staff member entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
-            self.rejoinCount = None
+
         elif status == 'staffWaiting':
-            if self.rejoinCount is None:
-                formEntry = room.clientJoined(user)
-                chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                if not formEntry is None:
-                    # tell staff about
-                    self.send_private_message(room.staff_nick, _("%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/") % {'nick':user.nick, 'domain':self.mucconf.http_domain, 'id':formEntry.pk})
-                logger.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
-            else:
-                self.rejoinCount = None
-                chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                logger.info("A user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
+            logger.debug("Client is entering with status 'staffWaiting' room '%s'." % self.room_state.room_jid.as_unicode())
+            
+            formEntry = room.clientJoined(user)
+            chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
+            if not formEntry is None:
+                logger.debug("we got a formEntry, tell staff about it")
+                # tell staff about
+                self.send_private_message(room.staff_nick, _("%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/") % {'nick':user.nick, 'domain':self.mucconf.http_domain, 'id':formEntry.pk})
+            logger.info("Client entered room '%s'." % self.room_state.room_jid.as_unicode())
         elif status == 'staffWaitingForInvitee':
-            if self.rejoinCount is None:
-                room.clientJoined(user)
-                chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                logger.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
-            else:
-                # hmmm... this should happen, doesn't it?
-                self.rejoinCount = None
-                chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick, sender=room.client)
-                logger.info("A user rejoined room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+
+            room.clientJoined(user)
+            chatmessage = ChatMessage(event='join', conversation=room.chat, sender_name=user.nick, sender=room.client)
+            logger.info("Client entered room for invitation '%s'." % self.room_state.room_jid.as_unicode())
+
         elif status == 'chatting':
 
             chatmessage = ChatMessage(event='rejoin', conversation=room.chat, sender_name=user.nick)
@@ -403,17 +397,11 @@ class One2OneRoomHandler(RoomHandlerBase):
             elif user.nick == room.staff_nick:
                 chatmessage.sender = room.client
 
-            if self.rejoinCount is not None:
-                self.rejoinCount += 1
-                if self.rejoinCount == 2:
-                    self.rejoinCount = None
-                    logger.info("The second user rejoined room '%s'." % self.room_state.room_jid.as_unicode())
         else:
-            if self.rejoinCount is not None:
-                logger.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
-                logger.error("Kicking user: Nick = '%s'" % user.nick)
-                self.kick(self.room_state.room_jid.bare(), user.nick)
-                self.userkicked = user.nick
+            logger.error("User entered room '%s' while already after 'chatting' status!" % self.room_state.room_jid.as_unicode())
+            logger.error("Kicking user: Nick = '%s'" % user.nick)
+            self.kick(self.room_state.room_jid.bare(), user.nick)
+            self.userkicked = user.nick
             return False
 
         chatmessage.save()
@@ -1386,8 +1374,8 @@ class Bot(JabberClient):
                     room.setStatus("lost")
                 else: # nUsers == 0
                     logger.warning("Status is correct.")
-        # Finished fixing, set rejoinCount to None
-        room.rejoinCount = None
+        # Finished fixing, set rejoininig to False
+        room.rejoining = False
 
 
     def fixgrouproomstatus(self, room, mucstate):
@@ -1430,18 +1418,24 @@ class Bot(JabberClient):
                 room.setStatus("chatting")
             else: # nUsers == 0
                 logger.warning("Status is correct.")
-        # Finished fixing, set rejoinCount to None
-        room.rejoinCount = None
+        # Finished fixing, set rejoininig to False
+        room.rejoining = False
 
     def fixlobbyroomstatus(self, room, mucstate):
+        # Finished fixing, set rejoininig to False
+        room.rejoining = False
         """ [TODO] """
         pass
 
     def fixwaitingroomstatus(self, room, mucstate):
+        # Finished fixing, set rejoininig to False
+        room.rejoining = False
         """ [TODO] """
         pass
 
     def fixsimpleroomstatus(self, room, mucstate):
+        # Finished fixing, set rejoininig to False
+        room.rejoining = False
         """ [TODO] """
         pass
 
