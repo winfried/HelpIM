@@ -9,8 +9,7 @@ from helpim.rooms.models import AccessToken, Participant, IPBlockedException
 from helpim.common.models import AdditionalUserInformation
 
 @login_required
-def staff_join_chat(request, room_pk=None):
-    
+def get_staff_muc_nick(request):
     # for staff the muc_nick will be determined either by the settings
     # in additional profile information (chat_nick property) by a site
     # wide default or as a fallback by the username of the user object
@@ -29,6 +28,12 @@ def staff_join_chat(request, room_pk=None):
             
     if muc_nick is None or muc_nick == '':
         muc_nick = request.user.username
+
+    return muc_nick
+
+@login_required
+def staff_join_chat(request, room_pk=None):
+    muc_nick = get_staff_muc_nick(request)
 
     lobby_nick = request.user.get_full_name()
     if lobby_nick == '':
