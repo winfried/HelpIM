@@ -441,9 +441,11 @@ class One2OneRoom(Room):
             # link form entry from questionnaire to participant
             conversationFormEntry = None
             try:
-                conversationFormEntry = WaitingRoomToken.objects.get(token=accessToken).conversation_form_entry
-                conversationFormEntry.conversation=self.chat
-                conversationFormEntry.save()
+                waitingRoomToken = WaitingRoomToken.objects.get(token=accessToken)
+                if not waitingRoomToken.conversation_form_entry is None:
+                    conversationFormEntry = WaitingRoomToken.objects.get(token=accessToken).conversation_form_entry
+                    conversationFormEntry.conversation=self.chat
+                    conversationFormEntry.save()
             except WaitingRoomToken.DoesNotExist:
                 # HU!
                 pass
