@@ -1484,7 +1484,7 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Kicking user with nick '%s'." % nick)
 
-        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid, self.getIqID(), nick)
+        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid.as_utf8(), self.getIqID(), nick)
         if not reason is None:
             xml += "><reason>%s</reason></item></query></iq>" % reason
         else:
@@ -1728,7 +1728,7 @@ class Bot(JabberClient):
             except IndexError:
                 raise BadRequestError()
 
-            logger.info("got block request from %s" % iq.get_from())
+            logger.info("got block request from %s" % iq.get_from().as_utf8())
             from_jid = iq.get_from()
 
             room_jid = from_jid.bare()
