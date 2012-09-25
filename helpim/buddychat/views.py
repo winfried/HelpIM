@@ -16,6 +16,7 @@ from hashlib import md5
 
 from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
 from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
+from helpim.rooms.views import get_staff_muc_nick
 
 class ConvMessageForm(forms.Form):
     body = forms.CharField(max_length=4096, widget=forms.Textarea)
@@ -208,8 +209,10 @@ def join_chat(request, username):
     is_staff = client.careworker == request.user
     if is_staff:
         role = Participant.ROLE_STAFF
+        muc_nick = get_staff_muc_nick(request)
     else:
         role = Participant.ROLE_CLIENT
+        muc_nick = request.user.username
 
     ac = AccessToken.objects.get_or_create(token=request.COOKIES.get('room_token'), role=role, ip_hash=md5(request.META.get('REMOTE_ADDR')).hexdigest(), created_by=request.user)
     try:
@@ -248,7 +251,7 @@ def join_chat(request, username):
                 'static_url': settings.STATIC_URL,
                 'is_staff':is_staff,
                 'token': ac.token,
-                'muc_nick': request.user.username,
+                'muc_nick': muc_nick,
                 'mode': 'light',
                 'disable_blocking': True,
                 }.items() + settings.CHAT.items()), indent=2)
