@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.utils.encoding import smart_str
 
 from helpim.conversations.stats import ChatHourlyStatsProvider, ChatFlatStatsProvider
 from helpim.stats.forms import ReportForm
@@ -171,7 +172,7 @@ def _stats_overview_csv(knownStats, dictStats, keyword, year):
     writer = csv.writer(response)
     writer.writerow(knownStats.values())
     for statRow in dictStats.itervalues():
-        writer.writerow([statRow.get(statName, '') for statName in knownStats.iterkeys()])
+        writer.writerow([smart_str(statRow.get(statName, '')) for statName in knownStats.iterkeys()])
 
     return response
 
