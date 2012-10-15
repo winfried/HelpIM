@@ -10,6 +10,11 @@
 	<link type="text/css" rel="stylesheet" href="/custom/custom.css">
   </head>
   <body>
+  
+  {% if user.is_staff %}
+    {% include "admin/menu_bar.html" %}
+  {% endif %}
+  
    <div id="centeredColumn" class="main">
       <div class="copyright">
 			<div class="divLeft">
