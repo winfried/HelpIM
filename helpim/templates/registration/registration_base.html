@@ -1,1 +1,2 @@
-{% extends "base.html" %}
+{# for users with access to the admin site, show the admin-base-template with the navigation they are used to. #}
+{% extends user.is_staff|yesno:"admin/base_site.html,base.html" %}
