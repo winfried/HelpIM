@@ -47,6 +47,14 @@ LANGUAGES = (
 #    ('en-ns', 'Newspeak'),
 )
 
+# A tuple of directories where Django looks for translation files.
+# Note that in the paths you add to the value of this setting, 
+# if you have the typical /path/to/locale/xx/LC_MESSAGES hierarchy,
+# you should use the path to the locale directory (i.e. '/path/to/locale').
+#LOCALE_PATHS = (
+#    '/path/to/locale/',
+#)
+
 SITE_ID = 1
 
 # Use the two options to set the name and domain of your default Site.
