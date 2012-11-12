@@ -26,12 +26,6 @@
 					    {% if user.is_authenticated %}
 					        {% blocktrans with username=user.username %}Welcome, {{ username }}!{% endblocktrans %}
 						{% endif %}
-				        [
-                          {% if user.is_staff %}
-                            <a href="{% url admin:index %}">Admin</a> |
-                          {% endif %}
-                          <a href="{% url auth_logout %}">{% trans "Logout"%}</a> | <a href="{% url auth_password_change %}">{% trans "Change Password" %}</a>
-                        ]
 					{% endblock %}
 				</span>
 			</div>
