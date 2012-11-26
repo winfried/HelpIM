@@ -20,7 +20,7 @@ def get_staff_muc_nick(request):
     except AdditionalUserInformation.DoesNotExist:
         pass
 
-    if muc_nick is None:
+    if muc_nick is None or muc_nick == '':
         try:
             muc_nick = settings.CHAT['staff_muc_nick']
         except:
