@@ -200,6 +200,12 @@ ROOMS = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
@@ -209,6 +215,7 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': 'INFO',
             'filename': '/var/log/HelpIM/helpim31.log',
+            'formatter':'verbose',
             },
     },
     'loggers': {
