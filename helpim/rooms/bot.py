@@ -318,7 +318,7 @@ class One2OneRoomHandler(RoomHandlerBase):
             chatmessage.sender = room.client
         elif user.nick == room.staff_nick:
             chatmessage.sender = room.staff
-
+            
         chatmessage.save()
 
         # if careseeker and careworker are present (status chatting) and this was the first message,
@@ -1484,9 +1484,9 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Kicking user with nick '%s'." % nick)
 
-        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid.as_utf8(), self.getIqID(), nick)
+        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid.as_utf8(), self.getIqID(), nick.encode('utf-8'))
         if not reason is None:
-            xml += "><reason>%s</reason></item></query></iq>" % reason
+            xml += "><reason>%s</reason></item></query></iq>" % reason.encode('utf-8')
         else:
             xml += "/></query></iq>"
         logger.debug(xml)
@@ -1498,12 +1498,12 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Making user with nick '%s' moderator." % nick)
 
-        xml = "<iq to='%s' type='set' id='mod%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid, self.getIqID(), nick)
+        xml = "<iq to='%s' type='set' id='mod%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid.as_utf8(), self.getIqID(), nick.encode('utf-8'))
         logger.debug(xml)
         self.stream.write_raw(xml)
 
     def sendInvite(self, room, to):
-        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid, to)
+        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid.as_utf8, to.encode('utf-8'))
         logger.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
