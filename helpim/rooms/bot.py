@@ -105,7 +105,7 @@ def get_questionnaire_entry_id(stanza):
         logger.debug("got entry id: %s" % entry_id)
         return entry_id
     except IndexError:
-        logger.error("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
+        logger.exception("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
 
 class RoomHandlerBase(MucRoomHandler):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -566,7 +566,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 position = position)
 
         except FormEntry.DoesNotExist:
-            logger.error("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
+            logger.exception("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
 class SimpleRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
@@ -1070,7 +1070,7 @@ class Bot(JabberClient):
 
                 except (AttributeError, socket.error):
                     self.__lost_connection = True
-                    logger.critical("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
+                    logger.exception("Lost connection. Trying to reconnect every %d seconds" % reconnectdelay)
                     reconnectcount = 1
                     self.stats.connectionLost += 1
                     while True:
@@ -1503,7 +1503,7 @@ class Bot(JabberClient):
         self.stream.write_raw(xml)
 
     def sendInvite(self, room, to):
-        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid, to.encode('utf-8'))
+        xml = "<message to='%s'><x xmlns='http://jabber.org/protocol/muc#user'><invite to='%s'/></x></message>" % (room.jid.as_utf8, to.encode('utf-8'))
         logger.info("sending invite: %s" % xml)
         self.stream.write_raw(xml)
 
