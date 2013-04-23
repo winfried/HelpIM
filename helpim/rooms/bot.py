@@ -1484,9 +1484,9 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Kicking user with nick '%s'." % nick)
 
-        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid.as_utf8(), self.getIqID(), nick.encode('utf-8'))
+        xml = "<iq to='%s' type='set' id='kick%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='none' nick='%s'" % (roomjid.as_utf8(), self.getIqID(), xml_escape(nick.encode('utf-8')))
         if not reason is None:
-            xml += "><reason>%s</reason></item></query></iq>" % reason.encode('utf-8')
+            xml += "><reason>%s</reason></item></query></iq>" % xml_escape(reason.encode('utf-8'))
         else:
             xml += "/></query></iq>"
         logger.debug(xml)
@@ -1498,7 +1498,7 @@ class Bot(JabberClient):
             roomjid = str2roomjid(roomjid)
         logger.info("Making user with nick '%s' moderator." % nick)
 
-        xml = "<iq to='%s' type='set' id='mod%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid.as_utf8(), self.getIqID(), nick.encode('utf-8'))
+        xml = "<iq to='%s' type='set' id='mod%d'><query xmlns='http://jabber.org/protocol/muc#admin'><item role='moderator' nick='%s'/></query></iq>" % (roomjid.as_utf8(), self.getIqID(), xml_escape(nick.encode('utf-8')))
         logger.debug(xml)
         self.stream.write_raw(xml)
 
@@ -1774,6 +1774,18 @@ class Bot(JabberClient):
             return True
         # Ignore other requests
         return True
+
+def xml_escape(txt):
+    # escape the & first: otherwise we are escaping escapes
+    txt = txt.replace('&', '&amp;')
+    # escape both ' and ", just to be sure
+    escaped = {'<': '&lt;',
+               '>': '&gt;',
+               "'": '&apos;',
+               '"': '&quot;'}
+    for illegal in escaped.keys():
+        txt = txt.replace(illegal, escaped[illegal])
+    return txt
 
 class BotError(Exception):
     def __init__(self, msg):
