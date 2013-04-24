@@ -1054,7 +1054,10 @@ class Bot(JabberClient):
                         method = callme[0]
                         args = callme[1:]
                         method(*args)
-                    busy = self.stream.loop_iter(eventTimeout)
+                    try:
+                        busy = self.stream.loop_iter(eventTimeout)
+                    except SystemError:
+                        logger.exception("Error while processing XMPP stanza, trying to continue")
                     if not busy:
                         self.stats.busycount = 0
                         self.stream.idle()
@@ -1216,8 +1219,13 @@ class Bot(JabberClient):
         # Wait until all events are processed
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
-        while self.stream.loop_iter(1):
-            logger.debug("Looping until all pending events are processed.")
+        processing = True
+        logger.debug("Looping until all pending events are processed.")
+        while processing:
+            try:
+                processing = self.stream.loop_iter(1)
+            except SystemError:
+                logger.exception("Error while processing XMPP stanza, trying to continue")
 
         logger.warning("Checking status for room '%s'." % room.jid)
         status = room.getStatus()
@@ -1382,8 +1390,13 @@ class Bot(JabberClient):
         # Wait until all events are processed
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
-        while self.stream.loop_iter(1):
-            logger.debug("Looping until all pending events are processed.")
+        processing = True
+        logger.debug("Looping until all pending events are processed.")
+        while processing:
+            try:
+                processing = self.stream.loop_iter(1)
+            except SystemError:
+                logger.exception("Error while processing XMPP stanza, trying to continue")
 
         logger.warning("Checking status for group room '%s'." % room.jid)
         status = room.getStatus()
