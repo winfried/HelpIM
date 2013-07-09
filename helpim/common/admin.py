@@ -147,8 +147,8 @@ class BranchUserAdmin(AdministrativeUserAdmin):
 
                 profile, created = AdditionalUserInformation.objects.get_or_create(user=obj)
                 profile.branch_office = users_office
-                profile.chat_nick = formset.cleaned_data[0]['chat_nick']
-                profile.chat_priority = formset.cleaned_data[0]['chat_priority']
+                profile.chat_nick = formset.cleaned_data[0].get('chat_nick', '')
+                profile.chat_priority = formset.cleaned_data[0].get('chat_priority', 10)
                 profile.save()
             except AdditionalUserInformation.DoesNotExist:
                 pass

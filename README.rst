@@ -50,6 +50,8 @@ Installation:
 
 6) Edit the development settings at ``helpim/development.py`` and make
    ``DATABASES`` match your DB settings
+   Note: HelpIM does not support the MySQL Innodb engine. Pleas use MyISAM.
+
 
 7) Initialize the DB::
 
