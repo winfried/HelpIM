@@ -1,0 +1,166 @@
+[
+    {
+        "pk": 2, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "coordinators", 
+            "permissions": [
+                [
+                    "add_branchuser", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "change_branchuser", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "delete_branchuser", 
+                    "auth", 
+                    "user"
+                ], 
+                [
+                    "add_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "change_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "delete_additionaluserinformation", 
+                    "common", 
+                    "additionaluserinformation"
+                ], 
+                [
+                    "view_conversations_of_own_branch_office", 
+                    "common", 
+                    "branchoffice"
+                ], 
+                [
+                    "change_chat", 
+                    "conversations", 
+                    "chat"
+                ], 
+                [
+                    "change_chatmessage", 
+                    "conversations", 
+                    "chatmessage"
+                ], 
+                [
+                    "change_conversation", 
+                    "conversations", 
+                    "conversation"
+                ], 
+                [
+                    "change_message", 
+                    "conversations", 
+                    "message"
+                ], 
+                [
+                    "add_blockedparticipant", 
+                    "conversations", 
+                    "participant"
+                ], 
+                [
+                    "change_blockedparticipant", 
+                    "conversations", 
+                    "participant"
+                ], 
+                [
+                    "delete_blockedparticipant", 
+                    "conversations", 
+                    "participant"
+                ], 
+                [
+                    "change_flatpage", 
+                    "flatpages", 
+                    "flatpage"
+                ], 
+                [
+                    "can_view_stats", 
+                    "stats", 
+                    ""
+                ], 
+                [
+                    "add_report", 
+                    "stats", 
+                    "report"
+                ], 
+                [
+                    "change_report", 
+                    "stats", 
+                    "report"
+                ], 
+                [
+                    "delete_report", 
+                    "stats", 
+                    "report"
+                ]
+            ]
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "flatpages.flatpage", 
+        "fields": {
+            "registration_required": true, 
+            "title": "Documentatie", 
+            "url": "/admin/documentatie/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Hier kan je documentatie / handleidingen plaatsen", 
+            "enable_comments": false
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "flatpages.flatpage", 
+        "fields": {
+            "registration_required": false, 
+            "title": "Logged Out", 
+            "url": "/logged_out/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Dank voor het bezoek aan onze chat, je kan nu het venster afsluiten.", 
+            "enable_comments": false
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "flatpages.flatpage", 
+        "fields": {
+            "registration_required": false, 
+            "title": "Unavailable", 
+            "url": "/unavailable/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Helaas is er momenteel geen hulpverlener beschikbaar, probeer het later nog eens.", 
+            "enable_comments": false
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "flatpages.flatpage", 
+        "fields": {
+            "registration_required": true, 
+            "title": "Welcome", 
+            "url": "/welcome/", 
+            "template_name": "", 
+            "sites": [
+                1
+            ], 
+            "content": "Welcome in HelpIM light!", 
+            "enable_comments": false
+        }
+    }
+]
