@@ -13,7 +13,7 @@ EOD
 `
 aantal2=`mysql -BN <<EOD
 use $chat;
-select count(*) from rooms_waitingroomtoken;
+select count(*) from rooms_one2oneroomtoken;
 EOD
 `
 aantal3=`mysql -BN <<EOD
@@ -25,7 +25,7 @@ EOD
 if test "$aantal1$aantal2$aantal3" != "000"; then
   echo Chatname: $chat
   echo Number of careworkers in careworkerschat:   $aantal1
-  echo Number of careseekers: $aantal2
+  echo Number of chats: $aantal2
   echo Number of careseekers in waitingqueue: $aantal3
   declare -i aantal=$aantal+1
 fi

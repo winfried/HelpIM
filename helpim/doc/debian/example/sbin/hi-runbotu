@@ -27,6 +27,11 @@ while [ true ]; do
     exit 1
   fi
 
+  # hi-truncate
+  if [ $count -gt 3 ]; then
+    /usr/local/sbin/hi-truncate $1
+  fi
+
   # send a message about the crashing bot
   echo $output | mail -s "Bot $1 crashed $count." $mailto
 

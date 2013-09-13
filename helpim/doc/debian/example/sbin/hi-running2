@@ -18,7 +18,7 @@ EOD
 echo rooms_one2oneroomtoken:
 mysql <<EOD
 use $chat;
-select * from rooms_waitingroomtoken;
+select * from rooms_one2oneroomtoken;
 EOD
 
 echo rooms_waitingroomtoken:
