@@ -284,11 +284,45 @@ class RoomHandlerBase(MucRoomHandler):
 
         self.client.stream.send(iq)
 
+    def get_and_send_questionnaire(self, position, user_jid):
+        questionnaire = Questionnaire.objects.filter(position=position)
+        if questionnaire:
+            questionnaire=questionnaire[0]
+            self.send_questionnaire(user_jid=user_jid,
+                                    questionnaire_url=questionnaire.get_absolute_url(),
+                                    result_handler=lambda stanza: self.__create_conversation_form_entry(stanza, position))
+
     def __questionnaire_result(self, stanza):
         log_stanza(stanza)
 
     def __questionnaire_error(self, stanza):
         log_stanza(stanza)
+
+    def __create_conversation_form_entry(self, stanza, position):
+        try:
+            room = self.get_helpim_room()
+            if room is None:
+                logger.warning("get_helpim_room couldn't find a room")
+                return
+            # For now we assume that the questionnaire hasn't changed
+            # in between sending and receiving it. The correct
+            # solution would be to store the ConversationFormEntry
+            # when sending the quesitonnaire and to only attach the
+            # entry when receiving the result. This could be done by
+            # storing the ConversationFormEntry with the user's token.x
+            questionnaire = Questionnaire.objects.filter(position=position)[0]
+
+            entry_id = get_questionnaire_entry_id(stanza)
+            entry = FormEntry.objects.get(pk=entry_id)
+
+            ConversationFormEntry.objects.create(
+                questionnaire = questionnaire,
+                entry = entry,
+                conversation = room.chat,
+                position = position)
+
+        except FormEntry.DoesNotExist:
+            logger.exception("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
 class One2OneRoomHandler(RoomHandlerBase):
 
@@ -497,34 +531,17 @@ class One2OneRoomHandler(RoomHandlerBase):
             logger.info("User was: Nick = '%s'." % user.nick)
 
         # request questionnaire from participant
+        # Should there be a check on clean/unclean here? 
 
-        # determine type of user
-        is_staff = False
-        if user.nick == room.staff_nick:
-            is_staff = True
+        # first check if we had a client in the room otherwise we don't need to ask anything
+        if room.client:
+            # send staff questionnaire if staff left the chat:
+            if user.nick == room.staff_nick:
+                self.get_and_send_questionnaire(position='SA', user_jid=user.real_jid)
 
-        # set position and callback for questionnaire results (formEntry)
-        if is_staff:
-
-            # first check if we had a client in the room otherwise we don't need to ask anything
-            if room.client is None:
-                return
-
-            position = 'SA'
-        else:
-            position = 'CA'
-
-        # check for questionnaire
-        try:
-            questionnaire = Questionnaire.objects.filter(position=position)[0]
-
-            # send along
-            self.send_questionnaire(user_jid=user.real_jid,
-                                    questionnaire_url=questionnaire.get_absolute_url(),
-                                    result_handler=lambda stanza: self.__create_conversation_form_entry(stanza, position))
-        except IndexError:
-            # no milk today
-            pass
+            # Always send questionnare to client when we were chatting:
+            if roomstatus == "chatting":
+                self.get_and_send_questionnaire(position='CA', user_jid=self.room_state.users[room.client_nick].real_jid)
         return False
 
     def get_helpim_room(self):
@@ -541,32 +558,6 @@ class One2OneRoomHandler(RoomHandlerBase):
 
     def __questionnaire_result_for_client(self, stanza):
         self.__create_conversation_form_entry(stanza, 'CA')
-
-    def __create_conversation_form_entry(self, stanza, position):
-        try:
-            room = self.get_helpim_room()
-            if room is None:
-                logger.warning("get_helpim_room couldn't find a room")
-                return
-            # For now we assume that the questionnaire hasn't changed
-            # in between sending and receiving it. The correct
-            # solution would be to store the ConversationFormEntry
-            # when sending the quesitonnaire and to only attach the
-            # entry when receiving the result. This could be done by
-            # storing the ConversationFormEntry with the user's token.x
-            questionnaire = Questionnaire.objects.filter(position=position)[0]
-
-            entry_id = get_questionnaire_entry_id(stanza)
-            entry = FormEntry.objects.get(pk=entry_id)
-
-            ConversationFormEntry.objects.create(
-                questionnaire = questionnaire,
-                entry = entry,
-                conversation = room.chat,
-                position = position)
-
-        except FormEntry.DoesNotExist:
-            logger.exception("unable to find form entry from %s for id given %s" % (stanza.get_from(), entry_id))
 
 class SimpleRoomHandler(RoomHandlerBase):
     def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
