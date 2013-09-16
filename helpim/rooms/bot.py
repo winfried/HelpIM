@@ -102,7 +102,7 @@ def get_questionnaire_entry_id(stanza):
         entry_id = stanza.xpath_eval('d:query/d:questionnaire',
                                      {'d': NS_HELPIM_ROOMS})[0]
         entry_id = entry_id.getContent()
-        logger.debug("got entry id: %s" % entry_id)
+        logger.info("got form with entry id: %s" % entry_id)
         return entry_id
     except IndexError:
         logger.exception("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
@@ -302,7 +302,7 @@ class RoomHandlerBase(MucRoomHandler):
         try:
             room = self.get_helpim_room()
             if room is None:
-                logger.warning("get_helpim_room couldn't find a room")
+                logger.warning("get_helpim_room couldn't find a room to link questionnaire to")
                 return
             # For now we assume that the questionnaire hasn't changed
             # in between sending and receiving it. The correct
@@ -550,7 +550,7 @@ class One2OneRoomHandler(RoomHandlerBase):
         try:
             return self.site.rooms.getByJid(jidstr)
         except One2OneRoom.DoesNotExist:
-            logger.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find One2OneRoom '%s' in database." % jidstr)
             return None
 
     def __questionnaire_result_for_staff(self, stanza):
@@ -570,7 +570,7 @@ class SimpleRoomHandler(RoomHandlerBase):
         try:
             return self.site.simpleRooms.getByJid(jidstr)
         except One2OneRoom.DoesNotExist:
-            logger.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find One2OneRoom '%s' in database." % jidstr)
             return None
 
     def room_configured(self):
@@ -671,7 +671,7 @@ class GroupRoomHandler(RoomHandlerBase):
         try:
             return self.site.groupRooms.getByJid(jidstr)
         except GroupRoom.DoesNotExist:
-            logger.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find GroupRoom '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -779,7 +779,7 @@ class LobbyRoomHandler(RoomHandlerBase):
         try:
             return self.site.lobbyRooms.getByJid(jidstr)
         except LobbyRoom.DoesNotExist:
-            logger.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find LobbyRoom '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -833,7 +833,7 @@ class WaitingRoomHandler(RoomHandlerBase):
         try:
             return self.site.waitingRooms.getByJid(jidstr)
         except WaitingRoom.DoesNotExist:
-            logger.error("Could not find room '%s' in database." % jidstr)
+            logger.error("Could not find WaitingRoom '%s' in database." % jidstr)
             return None
 
     def user_joined(self, user, stanza):
@@ -979,14 +979,14 @@ class Bot(JabberClient):
         for name, site in self.sites.iteritems():
             # One2OneRooms
             for room in site.rooms.getToDestroy():
-                logger.info("Closing room %s which was not used anymore." % room.jid)
+                logger.info("Closing One2One room %s which was not used anymore." % room.jid)
                 self.closeRoom(room)
             for status in 'lost', 'closingChat', 'abandoned':
                 for room in site.rooms.getTimedOut(status, int(self.conf.mainloop.cleanup)):
-                    logger.warning("Closing room %s which has timed out in '%s' status." % (room.jid, status))
+                    logger.warning("Closing One2One room %s which has timed out in '%s' status." % (room.jid, status))
                     self.closeRoom(room)
             for room in site.rooms.getHangingStaffStart(int(self.conf.mainloop.cleanup)):
-                logger.warning("Closing room %s which is has timed out while waiting for staff to enter room" % (room.jid))
+                logger.warning("Closing One2One room %s which is has timed out while waiting for staff to enter room" % (room.jid))
                 self.closeRoom(room)
             site.rooms.deleteClosed()
             # GroupRooms
@@ -1153,8 +1153,8 @@ class Bot(JabberClient):
     def __createRooms(self, site, mucdomain, poolsize, nAvailable, handler):
         sitename = site.name
         nToCreate =  poolsize - nAvailable
-        logger.info("Pool size for site '%s' = %d.  Currently available rooms = %d." % (sitename, poolsize, nAvailable))
-        logger.info("Creating %d new rooms for site '%s'." % (nToCreate, sitename))
+        logger.info("Pool size for site '%s' = %d.  Currently available rooms of type '%s'= %d." % (sitename, poolsize, handler.__name__, nAvailable))
+        logger.info("Creating %d new rooms of type '%s' for site '%s'." % (nToCreate, handler.__name__, sitename))
         for tmp in range(nToCreate):
             roomname = self.newRoomName(sitename)
             password = unicode(newHash())
@@ -1544,7 +1544,7 @@ class Bot(JabberClient):
 
     def closeRoom(self, room, reason=None):
         roomjid = str2roomjid(room.jid)
-        logger.info("Closing down MUC-room '%s'." % room.jid)
+        logger.info("Closing down MUC-room '%s' of the type '%s'." % (room.jid, room.__class__.__name__))
         roomstate = self.mucmanager.rooms[unicode(roomjid)]
         roomstate.handler.closingDown = True
         mynick = roomstate.get_nick()
