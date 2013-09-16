@@ -183,7 +183,7 @@ BOT = {
     'mainloop': {
         'timeout': 1,
         'reconnectdelay': 5,
-        'cleanup': 600,
+        'cleanup': 1800,
         },
     'language': 'en-us'
     }
