@@ -1549,7 +1549,7 @@ class Bot(JabberClient):
         roomstate.handler.closingDown = True
         mynick = roomstate.get_nick()
         for nick in roomstate.users.iterkeys():
-            if nick != mynick:
+            if nick != mynick and roomstate.users[nick].role != "none":
                 self.kick(roomjid, nick, reason)
         logger.info("Leaving MUC-room '%s'." % room.jid)
         room.destroyed()
