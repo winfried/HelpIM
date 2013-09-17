@@ -978,10 +978,7 @@ class Bot(JabberClient):
     def roomCleanup(self):
         for name, site in self.sites.iteritems():
             # One2OneRooms
-            for room in site.rooms.getToDestroy():
-                logger.info("Closing One2One room %s which was not used anymore." % room.jid)
-                self.closeRoom(room)
-            for status in 'lost', 'closingChat', 'abandoned':
+            for status in 'lost', 'closingChat', 'abandoned', 'toDestroy':
                 for room in site.rooms.getTimedOut(status, int(self.conf.mainloop.cleanup)):
                     logger.warning("Closing One2One room %s which has timed out in '%s' status." % (room.jid, status))
                     self.closeRoom(room)
