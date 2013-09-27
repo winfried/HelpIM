@@ -13,6 +13,19 @@
 <h1>{% trans "Chatbuddies" %}</h1>
 
 <div id="content-main">
+    {% block object-tools %}
+      {% if perms.buddychat.add_buddychatprofile %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            <li>
+              <a href="{% url chatbuddy_add %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+              </a>
+            </li>
+          {% endblock %}
+        </ul>
+      {% endif %}
+    {% endblock %}
     <div class="module filtered" id="changelist">
 	    <div class="results">
 		    <table cellspacing="0" id="result_list">

@@ -1,0 +1,14 @@
+{% extends "buddychat/change_form.html" %}
+{% load i18n %}
+
+{% block form_top %}
+  {% if not is_popup %}
+    <h1>{% trans "Add a Chat Buddy Manually" %}</h1>
+  {% else %}
+    <p>{% trans "Enter a username and password." %}</p>
+  {% endif %}
+{% endblock %}
+
+{% block after_field_sets %}
+<script type="text/javascript">document.getElementById("id_username").focus();</script>
+{% endblock %}

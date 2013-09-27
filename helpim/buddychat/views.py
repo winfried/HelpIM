@@ -1,7 +1,7 @@
 from datetime import datetime
 from django import forms
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import messages, admin
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.sites.models import get_current_site
@@ -12,11 +12,14 @@ from django.template import RequestContext
 from django.utils.simplejson import dumps
 from django.utils.translation import ugettext as _
 
+from registration.models import RegistrationProfile
 from hashlib import md5
 
 from helpim.buddychat.models import BuddyChatProfile, QuestionnaireFormEntry
+from helpim.buddychat.forms import BuddyForm
 from helpim.rooms.models import AccessToken, SimpleRoomToken, Participant, SimpleRoom
 from helpim.rooms.views import get_staff_muc_nick
+from helpim.questionnaire.models import Questionnaire
 
 class ConvMessageForm(forms.Form):
     body = forms.CharField(max_length=4096, widget=forms.Textarea)
@@ -269,3 +272,46 @@ def chatbuddies(request):
         { 'chatbuddies': chatbuddies },
         context_instance=RequestContext(request)
     )
+
+@permission_required('buddychat.add_buddychatprofile', '/admin')
+def add_chatbuddy(request):
+    '''display form to add a user, bypasing the normal buddy registration process'''
+
+    if request.method == 'POST':
+        form = BuddyForm(request.POST)
+    else:
+        form = BuddyForm()
+
+    if form.is_valid():
+        buddy_user = User.objects.create_user(
+            form.cleaned_data['username'],
+            form.cleaned_data['email'],
+            form.cleaned_data['password1'])
+        buddy_profile = BuddyChatProfile.objects.create(buddy_user, RegistrationProfile.ACTIVATED)
+        if not form.cleaned_data.get("presentForm"):
+            qCR, created = Questionnaire.objects.get_or_create(position='CR')
+            buddy_profile.ready = True
+        buddy_profile.save()
+        messages.success(request, _('Buddy has been added'))
+        if '_addanother' in request.POST:
+            form = BuddyForm()
+        else:
+            # return to base
+            return HttpResponseRedirect(reverse("chatbuddies_list"))
+
+    fieldsets = [(None, {'fields': form.base_fields.keys()})]
+    adminForm = admin.helpers.AdminForm(form, fieldsets, {})
+    return render_to_response("buddychat/add_form.html", {
+            "adminform": adminForm,
+            "is_popup": "_popup" in request.REQUEST,
+            "change": False,
+            "add": True,
+            "save_as": False,
+            "has_delete_permission": False,
+            "has_add_permission": True,
+            "has_change_permission": False,
+            "opts": User._meta,
+            "root_path": "/admin/chatbuddies/",
+        },
+        context_instance=RequestContext(request))
+

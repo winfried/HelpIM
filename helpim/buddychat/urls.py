@@ -8,6 +8,7 @@ urlpatterns = patterns(
     '',
     url(r'^$', 'helpim.buddychat.views.welcome'),
     url(r'^admin/chatbuddies/$', 'helpim.buddychat.views.chatbuddies', name='chatbuddies_list'),
+    url(r'^admin/chatbuddies/add$', 'helpim.buddychat.views.add_chatbuddy', name='chatbuddy_add'),
     url(r'^profile/(?P<username>\w+)/$', 'helpim.buddychat.views.profile', name='buddychat_profile'),
     url(r'^profile/(?P<username>\w+)/chat$', 'helpim.buddychat.views.join_chat', name='buddychat_chat'),
     url(r'^profile/(?P<username>\w+)/set_cw$', 'helpim.buddychat.views.set_cw'),
