@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-20 23:01+0200\n"
+"POT-Creation-Date: 2013-09-29 21:40+0200\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: buddychat/forms.py:6 common/admin.py:95
+msgid "Password"
+msgstr ""
+
+#: buddychat/forms.py:7
+msgid "Password (again)"
+msgstr ""
+
+#: buddychat/forms.py:8
+msgid "Present registration form to buddy"
+msgstr ""
+
+#: buddychat/forms.py:22
+msgid "The two password fields didn't match."
+msgstr ""
 
 #: buddychat/models.py:25 common/models.py:86
 msgid "Client, before chat"
@@ -48,7 +64,7 @@ msgid "Staff, recurring"
 msgstr "Mitarbeiter wartet"
 
 #: buddychat/models.py:61 stats/models.py:149 stats/models.py:321
-#: templates/buddychat/chatbuddies.html:24 templates/buddychat/profile.html:47
+#: templates/buddychat/chatbuddies.html:37 templates/buddychat/profile.html:47
 msgid "Careworker"
 msgstr ""
 
@@ -57,7 +73,7 @@ msgstr ""
 msgid "Chat Buddy"
 msgstr "Chat beendet"
 
-#: buddychat/models.py:213 templates/admin/base_site.html:36
+#: buddychat/models.py:213 templates/admin/menu_bar.html:14
 #: templates/buddychat/chatbuddies.html:9
 #, fuzzy
 msgid "Chat Buddies"
@@ -71,21 +87,21 @@ msgstr ""
 msgid "Questionnaire answers"
 msgstr ""
 
-#: buddychat/views.py:24 stats/models.py:284
+#: buddychat/views.py:28 stats/models.py:284
 msgid "None"
 msgstr ""
 
-#: buddychat/views.py:88 buddychat/views.py:94 buddychat/views.py:99
-#: buddychat/views.py:104 buddychat/views.py:172 buddychat/views.py:206
+#: buddychat/views.py:92 buddychat/views.py:98 buddychat/views.py:103
+#: buddychat/views.py:108 buddychat/views.py:176 buddychat/views.py:210
 msgid "Access Denied"
 msgstr ""
 
-#: buddychat/views.py:117
+#: buddychat/views.py:121
 #, fuzzy, python-format
 msgid "a message from %s"
 msgstr "Chatnachricht"
 
-#: buddychat/views.py:118
+#: buddychat/views.py:122
 #, python-format
 msgid ""
 "%(sender)s wrote a message on %(client)s's profile:\n"
@@ -96,25 +112,29 @@ msgid ""
 "http://%(site)s/profile/%(client)s/"
 msgstr ""
 
-#: buddychat/views.py:133
+#: buddychat/views.py:137
 msgid "Your message has been sent"
 msgstr ""
 
-#: buddychat/views.py:187
+#: buddychat/views.py:191
 #, fuzzy
 msgid "Careworker not found"
 msgstr "Seite nicht gefunden"
 
-#: buddychat/views.py:192
+#: buddychat/views.py:196
 msgid "Careworker has been set"
 msgstr ""
 
-#: buddychat/views.py:195
+#: buddychat/views.py:199
 msgid "Careworker has been unset"
 msgstr ""
 
-#: buddychat/views.py:229
+#: buddychat/views.py:235
 msgid "Service Unavailable"
+msgstr ""
+
+#: buddychat/views.py:295
+msgid "Buddy has been added"
 msgstr ""
 
 #: buddychat/management/commands/mail_questionnaires.py:55
@@ -158,11 +178,8 @@ msgstr ""
 msgid "Groups"
 msgstr "Chatgruppen"
 
-#: common/admin.py:95
-msgid "Password"
-msgstr ""
-
-#: common/models.py:13 stats/models.py:127 stats/models.py:318
+#: common/models.py:13 common/models.py:37 stats/models.py:127
+#: stats/models.py:318
 msgid "Branch office"
 msgstr ""
 
@@ -191,6 +208,11 @@ msgstr ""
 msgid "Chatname"
 msgstr "Chatname"
 
+#: common/models.py:45
+#, fuzzy
+msgid "Chat priority"
+msgstr "Chat verlassen"
+
 #: common/models.py:54
 msgid "Administrative User"
 msgstr ""
@@ -216,7 +238,7 @@ msgstr ""
 msgid "Message"
 msgstr "Nachricht"
 
-#: conversations/admin.py:36 templates/buddychat/chatbuddies.html:26
+#: conversations/admin.py:36 templates/buddychat/chatbuddies.html:39
 msgid "Messages"
 msgstr "Nachrichten"
 
@@ -228,11 +250,11 @@ msgstr "Teilnehmer"
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: conversations/admin.py:135 templates/buddychat/chatbuddies.html:40
+#: conversations/admin.py:135 templates/buddychat/chatbuddies.html:53
 msgid "No"
 msgstr ""
 
-#: conversations/admin.py:137 templates/buddychat/chatbuddies.html:38
+#: conversations/admin.py:137 templates/buddychat/chatbuddies.html:51
 msgid "Yes"
 msgstr ""
 
@@ -241,7 +263,7 @@ msgid "Staff submitted?"
 msgstr ""
 
 #: conversations/admin.py:146 conversations/models.py:103
-#: templates/admin/base_site.html:30
+#: templates/admin/menu_bar.html:8
 msgid "Conversations"
 msgstr "Unterhaltungen"
 
@@ -271,12 +293,12 @@ msgstr ""
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: conversations/models.py:116 rooms/models.py:378 rooms/models.py:534
-#: rooms/models.py:760 templates/admin/edit_inline/with_block_button.html:9
+#: conversations/models.py:116 rooms/models.py:378 rooms/models.py:536
+#: rooms/models.py:762 templates/admin/edit_inline/with_block_button.html:9
 msgid "Client"
 msgstr "Klient"
 
-#: conversations/models.py:117 rooms/models.py:761
+#: conversations/models.py:117 rooms/models.py:763
 msgid "Staff"
 msgstr "Mitarbeiter"
 
@@ -335,7 +357,7 @@ msgid "Unique IPs"
 msgstr ""
 
 #: conversations/stats.py:19 conversations/stats.py:147
-#: questionnaire/models.py:22 templates/buddychat/chatbuddies.html:29
+#: questionnaire/models.py:22 templates/buddychat/chatbuddies.html:42
 msgid "Questionnaires"
 msgstr ""
 
@@ -446,7 +468,7 @@ msgstr "Treffen"
 msgid "Meetings"
 msgstr "Treffen"
 
-#: questionnaire/admin.py:8 templates/admin/base_site.html:22
+#: questionnaire/admin.py:8 templates/admin/base_site.html:20
 msgid "HelpIM"
 msgstr ""
 
@@ -488,11 +510,12 @@ msgid "Export entries"
 msgstr ""
 
 #: questionnaire/templates/admin/forms/change_form.html:9
+#: templates/buddychat/change_form.html:31
 msgid "History"
 msgstr ""
 
 #: questionnaire/templates/admin/forms/change_form.html:10
-#: templates/admin/change_form.html:46
+#: templates/admin/change_form.html:46 templates/buddychat/change_form.html:32
 msgid "View on site"
 msgstr ""
 
@@ -528,17 +551,17 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:265
+#: rooms/bot.py:262
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:382
+#: rooms/bot.py:418
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
 
-#: rooms/bot.py:1105
+#: rooms/bot.py:1084
 msgid "System shutdown"
 msgstr ""
 
@@ -550,8 +573,8 @@ msgstr "Raumstatus"
 msgid "One2One Room"
 msgstr "Eins-zu-eins-Raum"
 
-#: rooms/models.py:363 rooms/models.py:521 rooms/models.py:637
-#: rooms/models.py:675 rooms/models.py:688
+#: rooms/models.py:363 rooms/models.py:523 rooms/models.py:639
+#: rooms/models.py:677 rooms/models.py:690
 msgid "Available"
 msgstr "Verfügbar"
 
@@ -567,59 +590,59 @@ msgstr "Mitarbeiter wartet"
 msgid "Staff Waiting for Invitee"
 msgstr "Mitarbeiter wartet auf Eingeladenen"
 
-#: rooms/models.py:367 rooms/models.py:523 rooms/models.py:638
-#: rooms/models.py:676 rooms/models.py:689
+#: rooms/models.py:367 rooms/models.py:525 rooms/models.py:640
+#: rooms/models.py:678 rooms/models.py:691
 msgid "Chatting"
 msgstr "Chattend"
 
-#: rooms/models.py:368 rooms/models.py:524
+#: rooms/models.py:368 rooms/models.py:526
 msgid "Closing Chat"
 msgstr "Beende Chat"
 
-#: rooms/models.py:369 rooms/models.py:525 rooms/models.py:639
-#: rooms/models.py:677 rooms/models.py:690
+#: rooms/models.py:369 rooms/models.py:527 rooms/models.py:641
+#: rooms/models.py:679 rooms/models.py:692
 msgid "To Destroy"
 msgstr "Zu löschen"
 
-#: rooms/models.py:370 rooms/models.py:526 rooms/models.py:640
-#: rooms/models.py:678 rooms/models.py:691
+#: rooms/models.py:370 rooms/models.py:528 rooms/models.py:642
+#: rooms/models.py:680 rooms/models.py:693
 msgid "Destroyed"
 msgstr "Gelöscht"
 
-#: rooms/models.py:371 rooms/models.py:527
+#: rooms/models.py:371 rooms/models.py:529
 msgid "Lost"
 msgstr "Abhanden gekommen"
 
-#: rooms/models.py:372 rooms/models.py:528 rooms/models.py:641
-#: rooms/models.py:679 rooms/models.py:692
+#: rooms/models.py:372 rooms/models.py:530 rooms/models.py:643
+#: rooms/models.py:681 rooms/models.py:694
 msgid "Abandoned"
 msgstr "Verlassen"
 
-#: rooms/models.py:375 rooms/models.py:531
+#: rooms/models.py:375 rooms/models.py:533
 msgid "Staff member"
 msgstr "Mitarbeiter"
 
-#: rooms/models.py:376 rooms/models.py:532
+#: rooms/models.py:376 rooms/models.py:534
 msgid "Staff nickname"
 msgstr "Mitarbeiter-Spitzname"
 
-#: rooms/models.py:379 rooms/models.py:535
+#: rooms/models.py:379 rooms/models.py:537
 msgid "Client nickname"
 msgstr "Klienten-Spitzname"
 
-#: rooms/models.py:381 rooms/models.py:537
+#: rooms/models.py:381 rooms/models.py:539
 msgid "Allocated by client"
 msgstr ""
 
-#: rooms/models.py:399 rooms/models.py:429 rooms/models.py:556
+#: rooms/models.py:399 rooms/models.py:429 rooms/models.py:558
 msgid "Chat"
 msgstr "Chat"
 
-#: rooms/models.py:515
+#: rooms/models.py:517
 msgid "Simple Room"
 msgstr ""
 
-#: rooms/models.py:522
+#: rooms/models.py:524
 #, fuzzy
 msgid "Participant Waiting"
 msgstr "Teilnehmer"
@@ -849,38 +872,26 @@ msgstr "Seite nicht gefunden"
 msgid "Internal server error"
 msgstr "Interner Server-Fehler"
 
-#: templates/base.html:22
+#: templates/base.html:27
 #, fuzzy, python-format
 msgid "Welcome, %(username)s!"
 msgstr "Willkommen, %(name)s!"
 
-#: templates/admin/base_site.html:7 templates/admin/flatpage.html:4
+#: templates/admin/base_site.html:5 templates/admin/flatpage.html:4
 msgid "Django site admin"
 msgstr "Django Seiten-Administration"
 
-#: templates/admin/base_site.html:31 templates/admin/index.html:35
-#, fuzzy
-msgid "Chat!"
-msgstr "Chat"
-
-#: templates/admin/base_site.html:42 templates/admin/index.html:49
-#: templates/stats/report_new.html:9 templates/stats/report_show.html:9
-#: templates/stats/stats_index.html:9 templates/stats/stats_index.html:15
-#: templates/stats/stats_overview.html:19
-msgid "Stats"
-msgstr ""
-
-#: templates/admin/change_form.html:34 templates/stats/report_new.html:8
-#: templates/stats/report_show.html:8 templates/stats/stats_index.html:8
-#: templates/stats/stats_overview.html:18
+#: templates/admin/change_form.html:34 templates/buddychat/change_form.html:19
+#: templates/stats/report_new.html:8 templates/stats/report_show.html:8
+#: templates/stats/stats_index.html:8 templates/stats/stats_overview.html:18
 msgid "Home"
 msgstr ""
 
-#: templates/admin/change_form.html:37
+#: templates/admin/change_form.html:37 templates/buddychat/change_form.html:22
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: templates/admin/change_form.html:57
+#: templates/admin/change_form.html:57 templates/buddychat/change_form.html:43
 msgid "Please correct the error below."
 msgid_plural "Please correct the errors below."
 msgstr[0] ""
@@ -890,9 +901,42 @@ msgstr[1] ""
 msgid "Quick access"
 msgstr "Schnellzugang"
 
+#: templates/admin/index.html:35 templates/admin/menu_bar.html:9
+#, fuzzy
+msgid "Chat!"
+msgstr "Chat"
+
+#: templates/admin/index.html:49 templates/admin/menu_bar.html:20
+#: templates/stats/report_new.html:9 templates/stats/report_show.html:9
+#: templates/stats/stats_index.html:9 templates/stats/stats_index.html:15
+#: templates/stats/stats_overview.html:19
+msgid "Stats"
+msgstr ""
+
 #: templates/admin/index.html:54
 msgid "You don't have permission to edit anything."
 msgstr "Sie haben keine Rechte um irgendetwas zu bearbeiten."
+
+#: templates/admin/submit_line.html:3
+msgid "Save"
+msgstr ""
+
+#: templates/admin/submit_line.html:4
+#, fuzzy
+msgid "Delete"
+msgstr "Entfernen?"
+
+#: templates/admin/submit_line.html:5
+msgid "Save as new"
+msgstr ""
+
+#: templates/admin/submit_line.html:6
+msgid "Save and add another"
+msgstr ""
+
+#: templates/admin/submit_line.html:7
+msgid "Save and continue editing"
+msgstr ""
 
 #: templates/admin/conversations/conversation/change_form.html:13
 #, python-format
@@ -927,9 +971,18 @@ msgid "Join next available %(name)s"
 msgstr "Nächstem verfügbaren %(name)s beitreten"
 
 #: templates/admin/rooms/change_list.html:15
+#: templates/buddychat/chatbuddies.html:22
 #, python-format
 msgid "Add %(name)s"
 msgstr "%(name)s hinzufügen"
+
+#: templates/buddychat/add_form.html:6
+msgid "Add a Chat Buddy Manually"
+msgstr ""
+
+#: templates/buddychat/add_form.html:8
+msgid "Enter a username and password."
+msgstr ""
 
 #: templates/buddychat/base_buddychat.html:11
 msgid "Logout"
@@ -944,20 +997,20 @@ msgstr ""
 msgid "Chatbuddies"
 msgstr "Chat beendet"
 
-#: templates/buddychat/chatbuddies.html:21
+#: templates/buddychat/chatbuddies.html:34
 #, fuzzy
 msgid "Nick"
 msgstr "Spitzname"
 
-#: templates/buddychat/chatbuddies.html:23
+#: templates/buddychat/chatbuddies.html:36
 msgid "Ready"
 msgstr ""
 
-#: templates/buddychat/chatbuddies.html:27
+#: templates/buddychat/chatbuddies.html:40
 msgid "Unread"
 msgstr ""
 
-#: templates/buddychat/chatbuddies.html:28
+#: templates/buddychat/chatbuddies.html:41
 #, fuzzy
 msgid "Chats"
 msgstr "Chat"
@@ -976,6 +1029,11 @@ msgid ""
 "b> to evaluate the progress!\n"
 "                "
 msgstr ""
+
+#: templates/buddychat/profile.html:38 templates/rooms/client_get_info.html:5
+#: templates/rooms/client_get_info.html:10
+msgid "Join Chat"
+msgstr "Chat betreten"
 
 #: templates/buddychat/profile.html:42
 msgid "Email"
@@ -1028,11 +1086,6 @@ msgstr "Unterhaltung"
 msgid "Sorry, but your IP address is blocked from using this service."
 msgstr ""
 "Entschuldigung, aber deine IP-Adresse wurde von diesem Dienst blockiert."
-
-#: templates/rooms/client_get_info.html:5
-#: templates/rooms/client_get_info.html:10
-msgid "Join Chat"
-msgstr "Chat betreten"
 
 #: templates/stats/report_new.html:12 templates/stats/report_new.html.py:22
 #: templates/stats/report_show.html:24
