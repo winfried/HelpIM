@@ -49,7 +49,10 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
                     self.request_version))
                 self.headers['Connection'] = 'close'
                 for key_val in self.headers.items():
-                    soc.send("%s: %s\r\n" % key_val)
+                    if key_val[0] == "host" and self.path == '/http-bind/':
+                        soc.send("host: localhost:%s" % str(argv[1]))
+                    else:
+                        soc.send("%s: %s\r\n" % key_val)
                 soc.send("\r\n")
                 self._read_write(soc)
         finally:
