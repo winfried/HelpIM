@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-29 22:27+0200\n"
-"PO-Revision-Date: 2013-09-29 22:51+0100\n"
+"POT-Creation-Date: 2013-10-08 00:55+0200\n"
+"PO-Revision-Date: 2013-10-08 00:57+0100\n"
 "Last-Translator: Winfried Tilanus <winfried@tilanus.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: nl_NL\n"
@@ -17,10 +17,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.4\n"
-"MIME-Version: 1.0\n"
+
+#: static/xmpptk/helpim/util.js:36
+msgid "Warning: this action will disconnect your chat conversation."
+msgstr "Waarschuwing: hiermee verbreek je je chatverbinding."
 
 #: static/xmpptk/helpim/ui/client.js:55
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:168
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:166
 msgid "Error"
 msgstr "Fout"
 
@@ -86,7 +89,7 @@ msgid "Request Client"
 msgstr "Open Hulpchat"
 
 #: static/xmpptk/helpim/ui/muc/one2oneroom.js:42
-#, c-format
+#, perl-format
 msgid "Welcome %s, now wait for a participant to join!"
 msgstr "Welkom %s, wacht nu tot er een hulpvrager komt!"
 
@@ -94,70 +97,14 @@ msgstr "Welkom %s, wacht nu tot er een hulpvrager komt!"
 msgid "Ring! Ring!"
 msgstr "Ring! Ring!"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:137
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:147
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:135
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:145
 msgid "Block Participant"
 msgstr "Blokkeer hulpvrager"
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:159
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:157
 msgid "Block participant"
 msgstr "Blokkeer hulpvrager"
-
-#: static/xmpptk/helpim/ui/muc/room.js:182
-#, c-format
-msgid "%s stopped composing"
-msgstr "%s is gestopt met typen"
-
-#: static/xmpptk/helpim/ui/muc/room.js:185
-#, c-format
-msgid "%s is composing a message"
-msgstr "%s is aan het typen"
-
-#: static/xmpptk/helpim/ui/muc/room.js:225
-#, c-format
-msgid "%s has entered the conversation"
-msgstr "Je hebt een gesprek met %s"
-
-#: static/xmpptk/helpim/ui/muc/room.js:236
-msgid "You have been kicked"
-msgstr "Het gesprek is afgesloten"
-
-#: static/xmpptk/helpim/ui/muc/room.js:238
-#, c-format
-msgid "%s has been kicked"
-msgstr "%s is uit de chat gezet"
-
-#: static/xmpptk/helpim/ui/muc/room.js:243
-#, c-format
-msgid "%s has disappeared from the conversation"
-msgstr "%s is weggegaan uit het gesprek"
-
-#: static/xmpptk/helpim/ui/muc/room.js:246
-#, c-format
-msgid "%s has ended the conversation"
-msgstr "%s heeft het gesprek beëindigd"
-
-#: static/xmpptk/helpim/ui/muc/room.js:270
-msgid "Please click here to send a message!"
-msgstr "Type hier je bericht!"
-
-#: static/xmpptk/helpim/ui/muc/room.js:332
-#: static/xmpptk/helpim/ui/muc/room.js:343
-msgid "Click to see even more emoticons"
-msgstr "Klik om nog meer emoticons te zien"
-
-#: static/xmpptk/helpim/ui/muc/room.js:333
-#: static/xmpptk/helpim/ui/muc/room.js:342
-msgid "more"
-msgstr "meer"
-
-#: static/xmpptk/helpim/ui/muc/room.js:346
-msgid "less"
-msgstr "minder"
-
-#: static/xmpptk/helpim/ui/muc/room.js:347
-msgid "Click to collapse emoticons"
-msgstr "Klik om de emoticons in te klappen"
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:53
 msgid "Please wait!"
@@ -168,6 +115,42 @@ msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
 msgstr "Wacht alsjeblieft tot je aan de beurt bent. Dat kan even duren."
+
+#~ msgid "%s stopped composing"
+#~ msgstr "%s is gestopt met typen"
+
+#~ msgid "%s is composing a message"
+#~ msgstr "%s is aan het typen"
+
+#~ msgid "%s has entered the conversation"
+#~ msgstr "Je hebt een gesprek met %s"
+
+#~ msgid "You have been kicked"
+#~ msgstr "Het gesprek is afgesloten"
+
+#~ msgid "%s has been kicked"
+#~ msgstr "%s is uit de chat gezet"
+
+#~ msgid "%s has disappeared from the conversation"
+#~ msgstr "%s is weggegaan uit het gesprek"
+
+#~ msgid "%s has ended the conversation"
+#~ msgstr "%s heeft het gesprek beëindigd"
+
+#~ msgid "Please click here to send a message!"
+#~ msgstr "Type hier je bericht!"
+
+#~ msgid "Click to see even more emoticons"
+#~ msgstr "Klik om nog meer emoticons te zien"
+
+#~ msgid "more"
+#~ msgstr "meer"
+
+#~ msgid "less"
+#~ msgstr "minder"
+
+#~ msgid "Click to collapse emoticons"
+#~ msgstr "Klik om de emoticons in te klappen"
 
 #~ msgid "click to close"
 #~ msgstr "Klik om te sluiten"
