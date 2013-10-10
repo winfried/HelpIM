@@ -527,7 +527,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 logger.info("A user left room '%s' while the other user already left unclean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
             logger.info("User was: Nick = '%s'." % user.nick)
         else:
-            logger.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
+            logger.warning("User left one2one room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
             logger.info("User was: Nick = '%s'." % user.nick)
 
         # request questionnaire from participant
@@ -757,7 +757,7 @@ class GroupRoomHandler(RoomHandlerBase):
                 else:
                     logger.info("User '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
         else:
-            logger.warning("User '%s' left  room '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
+            logger.warning("User '%s' left grouproom '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
             logger.info("User was: Nick = '%s'." % user.nick)
         return False
 
