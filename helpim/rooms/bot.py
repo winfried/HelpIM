@@ -362,15 +362,15 @@ class One2OneRoomHandler(RoomHandlerBase):
             room.chat.save()
 
     def user_joined(self, user, stanza):
+        room = self.get_helpim_room()
         if self.rejoining:
             # bot is about to rejoin rooms after bot crash
+            logger.debug("Rejoining, so we are ignoring joining of user with nick '%s' in room '%s'." % (user.nick, room.jid))
             return
-        
+
         if user.nick == self.nick:
             logger.info("user joined with self nick '%s'" % user.nick)
             return True
-
-        room = self.get_helpim_room()
 
         if room is None:
             logger.info("get_helpim_room returned None")
@@ -1371,6 +1371,7 @@ class Bot(JabberClient):
                 else: # nUsers == 0
                     logger.warning("Status is correct.")
         # Finished fixing, set rejoininig to False
+        logger.debug("Setting rejoining flag to False for room: '%s'." %room.jid)
         room.rejoining = False
 
 
@@ -1420,25 +1421,26 @@ class Bot(JabberClient):
             else: # nUsers == 0
                 logger.warning("Status is correct.")
         # Finished fixing, set rejoininig to False
+        logger.debug("Setting rejoining flag to False for room: '%s'." %room.jid)
         room.rejoining = False
 
     def fixlobbyroomstatus(self, room, mucstate):
         # Finished fixing, set rejoininig to False
+        logger.debug("Setting rejoining flag to False for room: '%s'." %room.jid)
         room.rejoining = False
         """ [TODO] """
-        pass
 
     def fixwaitingroomstatus(self, room, mucstate):
         # Finished fixing, set rejoininig to False
+        logger.debug("Setting rejoining flag to False for room: '%s'." %room.jid)
         room.rejoining = False
         """ [TODO] """
-        pass
 
     def fixsimpleroomstatus(self, room, mucstate):
         # Finished fixing, set rejoininig to False
+        logger.debug("Setting rejoining flag to False for room: '%s'." %room.jid)
         room.rejoining = False
         """ [TODO] """
-        pass
 
     def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
         mucconf = self.getMucSettings(site.name)
