@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-08 17:17+0100\n"
-"PO-Revision-Date: 2013-12-08 17:22+0100\n"
+"POT-Creation-Date: 2013-12-08 23:40+0100\n"
+"PO-Revision-Date: 2013-12-08 23:42+0100\n"
 "Last-Translator: Winfried Tilanus <winfried@tilanus.com>\n"
 "Language-Team: Dutch <>\n"
 "Language: nl_NL\n"
@@ -1092,13 +1092,12 @@ msgstr "Er is een probleem met het activeren van je account"
 #: templates/registration/activate.html:7
 #, python-format
 msgid ""
-"Thanks %(account)s, activation complete!  You may now <a "
-"href='%(login_url)s'>login</a> using the username and password you set at "
-"registration."
+"Thanks %(account)s, activation complete!  You may now <a href='/'>login</a> "
+"using the username and password you set at registration."
 msgstr ""
 "Bedankt %(account)s, de activatie is geslaagd! Met de gebruikersnaam en het "
 "wachtwoord dat je tijdens de registratie hebt ingevuld kun je nu inloggen "
-"via: <a href='%(login_url)s'>login</a>"
+"via: <a href='/'>login</a>"
 
 #: templates/registration/activate.html:9
 msgid ""
@@ -1109,14 +1108,13 @@ msgstr ""
 "probeer het alsjeblieft opnieuw."
 
 #: templates/registration/activation_complete.html:6
-#, python-format
 msgid ""
-"Thanks, activation complete!  You may now <a href='%(login_url)s'>login</a> "
-"using the username and password you set at registration."
+"Thanks, activation complete!  You may now <a href='/'>login</a> using the "
+"username and password you set at registration."
 msgstr ""
 "Bedankt, de activatie is geslaagd! Met de gebruikersnaam en het wachtwoord "
 "dat je tijdens de registratie hebt ingevuld kun je nu inloggen via: <a "
-"href='%(login_url)s'>login</a>."
+"href='/'>login</a>."
 
 #: templates/registration/activation_email.txt:2
 #, python-format
@@ -1200,12 +1198,8 @@ msgid "Password reset complete"
 msgstr "Wachtwoord gereset"
 
 #: templates/registration/password_reset_complete.html:5
-#, python-format
-msgid ""
-"Your password has been reset!  You may now <a href=\"%(login_url)s\">log in</"
-"a>."
-msgstr ""
-"Je wachtwoord is gereset! Ja kan nu <a href=\"%(login_url)s\">inloggen</a>."
+msgid "Your password has been reset!  You may now <a href=\"/\">log in</a>."
+msgstr "Je wachtwoord is gereset! Ja kan nu <a href=\"/\">inloggen</a>."
 
 #: templates/registration/password_reset_confirm.html:3
 msgid "Confirm password reset"
