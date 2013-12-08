@@ -37,6 +37,13 @@ Installation:
     $ python bootstrap.py --distribute
     $ ./bin/buildout
 
+  If you encouter problems with the version of setuptools or distribute,
+  then you may substitute the bootstrap command with::
+
+    $ python bootstrap.py --distribute -v 2.1.11
+
+  This will pin to a version that will not have these problems.
+
   HelpIM runs on django 1.3 by default, if you want another version (say
   1.2.1), run::
 
@@ -104,6 +111,23 @@ existing database, you can use the 'hi_load_settings'.
 .. note:: There is deliberately chosen to not use 'initial_data.json', to avoid
           overwriting data when running syncdb.
 
+Updating the translations (Development)
++++++++++++++++++++++++++++++++++++++++
+
+Before updating the translations, make shure the buddychat is activated. Failing
+to do so may result in the translation system not picking up the buddychat specific
+translations.
+
+To update the translations files:
+
+$ cd helpim
+$ ../bin/manage.py makemessages -a -e ".html" -e ".txt"
+$ ../bin/manage.py makemessages -a -d djangojs
+
+Now check the language files for changes. Once the translations are updated, you have
+to compile the messages:
+
+$ ../bin/manage.py compilemessages
 
 Adding content with flatpages
 +++++++++++++++++++++++++++++
