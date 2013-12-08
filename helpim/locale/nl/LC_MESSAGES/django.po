@@ -3,21 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # Paul van der Vlis <paul@vandervlis.nl>, 2012.
+# Winfried Tilanus <winfried@tilanus.com>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-29 21:40+0200\n"
-"PO-Revision-Date: 2013-09-29 22:49+0100\n"
+"POT-Creation-Date: 2013-12-08 17:17+0100\n"
+"PO-Revision-Date: 2013-12-08 17:22+0100\n"
 "Last-Translator: Winfried Tilanus <winfried@tilanus.com>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: Dutch <>\n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Gtranslator 2.91.6\n"
 
 #: buddychat/forms.py:6 common/admin.py:95
 msgid "Password"
@@ -552,18 +553,18 @@ msgstr "Export CSV"
 msgid "Entries"
 msgstr "Gegevens"
 
-#: rooms/bot.py:262
+#: rooms/bot.py:261
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr "Je bent op positie %(pos)d van de wachtrij."
 
-#: rooms/bot.py:418
+#: rooms/bot.py:413
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
 "%(nick)s heeft een vragenlijst ingevuld: %(domain)s/forms/entry/%(id)d/"
 
-#: rooms/bot.py:1084
+#: rooms/bot.py:1079
 msgid "System shutdown"
 msgstr "Systeem afgesloten"
 
@@ -1028,7 +1029,7 @@ msgid ""
 msgstr ""
 "\n"
 "\t\t            %(username)s, neem AUB een moment de tijd om <b><a href="
-"\"%(recurring_questionnaire_url)s\">dit evaluatie formulier in te vullen</"
+"\"%(recurring_questionnaire_url)s\">dit voortgangsformulier in te vullen</"
 "a></b>!\n"
 "\t\t        "
 
@@ -1078,6 +1079,226 @@ msgstr "Gesprek met coördinator"
 #: templates/buddychat/profile.html:116
 msgid "Careworker-Coordinator Conversation"
 msgstr "Gesprek medewerker-coördinator"
+
+#: templates/registration/activate.html:4
+#: templates/registration/activation_complete.html:4
+msgid "Activation complete"
+msgstr "Je account is geactiveerd"
+
+#: templates/registration/activate.html:4
+msgid "Activation problem"
+msgstr "Er is een probleem met het activeren van je account"
+
+#: templates/registration/activate.html:7
+#, python-format
+msgid ""
+"Thanks %(account)s, activation complete!  You may now <a "
+"href='%(login_url)s'>login</a> using the username and password you set at "
+"registration."
+msgstr ""
+"Bedankt %(account)s, de activatie is geslaagd! Met de gebruikersnaam en het "
+"wachtwoord dat je tijdens de registratie hebt ingevuld kun je nu inloggen "
+"via: <a href='%(login_url)s'>login</a>"
+
+#: templates/registration/activate.html:9
+msgid ""
+"Oops &ndash; it seems that your activation key is invalid.  Please check the "
+"url again."
+msgstr ""
+"Oeps &ndash; Er is iets mis met je activatie code.. Controleer de url en "
+"probeer het alsjeblieft opnieuw."
+
+#: templates/registration/activation_complete.html:6
+#, python-format
+msgid ""
+"Thanks, activation complete!  You may now <a href='%(login_url)s'>login</a> "
+"using the username and password you set at registration."
+msgstr ""
+"Bedankt, de activatie is geslaagd! Met de gebruikersnaam en het wachtwoord "
+"dat je tijdens de registratie hebt ingevuld kun je nu inloggen via: <a "
+"href='%(login_url)s'>login</a>."
+
+#: templates/registration/activation_email.txt:2
+#, python-format
+msgid ""
+"\n"
+"You (or someone pretending to be you) have asked to register an account at\n"
+"%(site_name)s.  If this wasn't you, please ignore this email\n"
+"and your address will be removed from our records.\n"
+"\n"
+"To activate this account, please click the following link within the next\n"
+"%(expiration_days)s days:\n"
+"\n"
+"http://%(site_domain)s/activate/%(activation_key)s\n"
+"\n"
+"Sincerely,\n"
+"%(site.name)s Management\n"
+msgstr ""
+"Jij (of iemand die zich voor jou uitgeeft) heeft gevraagd om een account\n"
+"aan te maken op %(site_name)s. Als jij geen account aangevraagd hebt, kan\n"
+"je deze e-mail negeren. We verwijderen dan je adres uit onze database.\n"
+"\n"
+"Om je account te activeren, klik alsjeblieft op de onderstaande link binnen\n"
+"%(expiration_days)s dagen:\n"
+"\n"
+"http://%(site_domain)s/activate/%(activation_key)s\n"
+"\n"
+"\n"
+"met vriendelijke groet,\n"
+"\n"
+"de staf van %(site.name)s\n"
+
+#: templates/registration/activation_email_subject.txt:2
+msgid "Account registration for"
+msgstr "Account registreren op"
+
+#: templates/registration/login.html:3
+msgid "Login"
+msgstr "Login"
+
+#: templates/registration/login.html:7
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+"Je wachtwoord en gebruikersnaam kwamen niet overeen. Probeer het opnieuw."
+
+#: templates/registration/login.html:21
+msgid "Forgot your password?"
+msgstr "Wachtwoord vergeten?"
+
+#: templates/registration/login.html:21
+msgid "Need an account?"
+msgstr "Maak een account."
+
+#: templates/registration/login.html:23
+msgid "login"
+msgstr "login"
+
+#: templates/registration/logout.html:3
+msgid "Logged out"
+msgstr "Uitgelogd"
+
+#: templates/registration/logout.html:5
+msgid "Successfully logged out!"
+msgstr "Je bent uitgelogd!"
+
+#: templates/registration/password_change_done.html:3
+msgid "Password changed"
+msgstr "Wachtwoord gewijzigd"
+
+#: templates/registration/password_change_done.html:5
+msgid "Password successfully changed!"
+msgstr "Je wachtwoord is gewijzigd!"
+
+#: templates/registration/password_change_form.html:3
+#: templates/registration/password_change_form.html:8
+msgid "Change password"
+msgstr "Verander wachtwoord"
+
+#: templates/registration/password_reset_complete.html:3
+msgid "Password reset complete"
+msgstr "Wachtwoord gereset"
+
+#: templates/registration/password_reset_complete.html:5
+#, python-format
+msgid ""
+"Your password has been reset!  You may now <a href=\"%(login_url)s\">log in</"
+"a>."
+msgstr ""
+"Je wachtwoord is gereset! Ja kan nu <a href=\"%(login_url)s\">inloggen</a>."
+
+#: templates/registration/password_reset_confirm.html:3
+msgid "Confirm password reset"
+msgstr "Bevestig resetten wachtwoord"
+
+#: templates/registration/password_reset_confirm.html:5
+msgid "Enter your new password below to reset your password:"
+msgstr "Voer je nieuwe wachtwoord hieronder in om je wachtwoord te resetten:"
+
+#: templates/registration/password_reset_confirm.html:9
+msgid "Set password"
+msgstr "Bevestig wachtwoord"
+
+#: templates/registration/password_reset_done.html:3
+msgid "Password reset"
+msgstr "Resetten wachtwoord"
+
+#: templates/registration/password_reset_done.html:6
+msgid ""
+"We have sent you an email with a link to reset your password.  Please check "
+"your email and click the link to continue."
+msgstr ""
+"We hebben je een mail gestuurd met een link om je wachtwoord te resetten. "
+"Controleer je mail en klik op de link in het mailtje om verder te gaan."
+
+#: templates/registration/password_reset_email.html:3
+#, python-format
+msgid ""
+"\n"
+"Greetings %(user)s,\n"
+"\n"
+"You are receiving this email because you (or someone pretending to be you)\n"
+"requested that your password be reset on %(site.name)s.  If you do not\n"
+"wish to reset your password, please ignore this message.\n"
+"\n"
+"To reset your password, please click the following link, or copy and paste "
+"it\n"
+"into your web browser:\n"
+"\n"
+"%(protocol)s://%(domain)s%(reset_url)s\n"
+"\n"
+"Best regards,\n"
+"%(site_name)s Management\n"
+msgstr ""
+"Hallo %(user)s,\n"
+"\n"
+"Je ontvangt deze mail omdat jij (of iemand die zich voordeed als jou) een\n"
+"nieuw wachtwoord gevraagd hebt voor de website %(site.name)s. Als je het\n"
+"wachtwoord niet wilt resetten, kun je dit bericht als niet verzonden\n"
+"beschouwen.\n"
+"\n"
+"Om je wachtwoord te resetten klik je op de volgende link, of kopieer de "
+"link\n"
+"in een web browser:\n"
+"\n"
+"\n"
+"%(protocol)s://%(domain)s%(reset_url)s\n"
+"\n"
+"Met hartelijke groet,\n"
+"%(site_name)s\n"
+"\n"
+
+#: templates/registration/password_reset_form.html:3
+#: templates/registration/password_reset_form.html:9
+msgid "Reset password"
+msgstr "Wachtwoord resetten"
+
+#: templates/registration/password_reset_form.html:5
+msgid ""
+"Forgot your password?  Enter your email in the form below and we'll send you "
+"instructions for creating a new one."
+msgstr ""
+"Ben je het wachtwoord vergeten? Voer je email adres hieronder in en we "
+"sturen je instructies om een nieuw wachtwoord te kiezen."
+
+#: templates/registration/registration_complete.html:3
+msgid "Activation email sent"
+msgstr "Activatie e-mail verzonden"
+
+#: templates/registration/registration_complete.html:5
+msgid ""
+"An activation email has been sent.  Please check your email and click on the "
+"link to activate your account."
+msgstr ""
+"Er is een mail verstuurd waarmee je het account kunt activeren. Controleer "
+"je email en klik op de link in de email om verder te gaan."
+
+#: templates/registration/registration_form.html:3
+msgid "Register for an account"
+msgstr "Registreer een account"
+
+#: templates/registration/registration_form.html:8
+msgid "Send activation email"
+msgstr "Registreer en ontvang een activatie e-mail"
 
 #: templates/rooms/blocked.html:5
 msgid "Sorry, but your IP address is blocked from using this service."
@@ -1178,9 +1399,6 @@ msgstr "Geen statistieken beschikbaar voor het geselecteerde jaar."
 
 #~ msgid "Care seeker"
 #~ msgstr "Hulpvrager"
-
-#~ msgid "Logged out"
-#~ msgstr "Uitgelogd"
 
 #~ msgid "Thank you for using our service."
 #~ msgstr "Dank je voor het gebruiken van deze chat."
