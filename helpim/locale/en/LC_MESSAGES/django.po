@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-08 17:17+0100\n"
+"POT-Creation-Date: 2013-12-08 23:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1061,9 +1061,8 @@ msgstr ""
 #: templates/registration/activate.html:7
 #, python-format
 msgid ""
-"Thanks %(account)s, activation complete!  You may now <a "
-"href='%(login_url)s'>login</a> using the username and password you set at "
-"registration."
+"Thanks %(account)s, activation complete!  You may now <a href='/'>login</a> "
+"using the username and password you set at registration."
 msgstr ""
 
 #: templates/registration/activate.html:9
@@ -1073,10 +1072,9 @@ msgid ""
 msgstr ""
 
 #: templates/registration/activation_complete.html:6
-#, python-format
 msgid ""
-"Thanks, activation complete!  You may now <a href='%(login_url)s'>login</a> "
-"using the username and password you set at registration."
+"Thanks, activation complete!  You may now <a href='/'>login</a> using the "
+"username and password you set at registration."
 msgstr ""
 
 #: templates/registration/activation_email.txt:2
@@ -1146,10 +1144,7 @@ msgid "Password reset complete"
 msgstr ""
 
 #: templates/registration/password_reset_complete.html:5
-#, python-format
-msgid ""
-"Your password has been reset!  You may now <a href=\"%(login_url)s\">log in</"
-"a>."
+msgid "Your password has been reset!  You may now <a href=\"/\">log in</a>."
 msgstr ""
 
 #: templates/registration/password_reset_confirm.html:3
