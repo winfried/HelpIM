@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-29 21:40+0200\n"
+"POT-Creation-Date: 2013-12-08 17:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -534,17 +534,17 @@ msgstr ""
 msgid "Entries"
 msgstr ""
 
-#: rooms/bot.py:262
+#: rooms/bot.py:261
 #, python-format
 msgid "You're at position %(pos)d of the waiting queue."
 msgstr ""
 
-#: rooms/bot.py:418
+#: rooms/bot.py:413
 #, python-format
 msgid "%(nick)s filled in a questionnaire: %(domain)s/forms/entry/%(id)d/"
 msgstr ""
 
-#: rooms/bot.py:1084
+#: rooms/bot.py:1079
 msgid "System shutdown"
 msgstr ""
 
@@ -1047,6 +1047,180 @@ msgstr ""
 
 #: templates/buddychat/profile.html:116
 msgid "Careworker-Coordinator Conversation"
+msgstr ""
+
+#: templates/registration/activate.html:4
+#: templates/registration/activation_complete.html:4
+msgid "Activation complete"
+msgstr ""
+
+#: templates/registration/activate.html:4
+msgid "Activation problem"
+msgstr ""
+
+#: templates/registration/activate.html:7
+#, python-format
+msgid ""
+"Thanks %(account)s, activation complete!  You may now <a "
+"href='%(login_url)s'>login</a> using the username and password you set at "
+"registration."
+msgstr ""
+
+#: templates/registration/activate.html:9
+msgid ""
+"Oops &ndash; it seems that your activation key is invalid.  Please check the "
+"url again."
+msgstr ""
+
+#: templates/registration/activation_complete.html:6
+#, python-format
+msgid ""
+"Thanks, activation complete!  You may now <a href='%(login_url)s'>login</a> "
+"using the username and password you set at registration."
+msgstr ""
+
+#: templates/registration/activation_email.txt:2
+#, python-format
+msgid ""
+"\n"
+"You (or someone pretending to be you) have asked to register an account at\n"
+"%(site_name)s.  If this wasn't you, please ignore this email\n"
+"and your address will be removed from our records.\n"
+"\n"
+"To activate this account, please click the following link within the next\n"
+"%(expiration_days)s days:\n"
+"\n"
+"http://%(site_domain)s/activate/%(activation_key)s\n"
+"\n"
+"Sincerely,\n"
+"%(site.name)s Management\n"
+msgstr ""
+
+#: templates/registration/activation_email_subject.txt:2
+msgid "Account registration for"
+msgstr ""
+
+#: templates/registration/login.html:3
+msgid "Login"
+msgstr ""
+
+#: templates/registration/login.html:7
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: templates/registration/login.html:21
+msgid "Forgot your password?"
+msgstr ""
+
+#: templates/registration/login.html:21
+msgid "Need an account?"
+msgstr ""
+
+#: templates/registration/login.html:23
+msgid "login"
+msgstr ""
+
+#: templates/registration/logout.html:3
+msgid "Logged out"
+msgstr ""
+
+#: templates/registration/logout.html:5
+msgid "Successfully logged out!"
+msgstr ""
+
+#: templates/registration/password_change_done.html:3
+msgid "Password changed"
+msgstr ""
+
+#: templates/registration/password_change_done.html:5
+msgid "Password successfully changed!"
+msgstr ""
+
+#: templates/registration/password_change_form.html:3
+#: templates/registration/password_change_form.html:8
+msgid "Change password"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:3
+msgid "Password reset complete"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:5
+#, python-format
+msgid ""
+"Your password has been reset!  You may now <a href=\"%(login_url)s\">log in</"
+"a>."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:3
+msgid "Confirm password reset"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:5
+msgid "Enter your new password below to reset your password:"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:9
+msgid "Set password"
+msgstr ""
+
+#: templates/registration/password_reset_done.html:3
+msgid "Password reset"
+msgstr ""
+
+#: templates/registration/password_reset_done.html:6
+msgid ""
+"We have sent you an email with a link to reset your password.  Please check "
+"your email and click the link to continue."
+msgstr ""
+
+#: templates/registration/password_reset_email.html:3
+#, python-format
+msgid ""
+"\n"
+"Greetings %(user)s,\n"
+"\n"
+"You are receiving this email because you (or someone pretending to be you)\n"
+"requested that your password be reset on %(site.name)s.  If you do not\n"
+"wish to reset your password, please ignore this message.\n"
+"\n"
+"To reset your password, please click the following link, or copy and paste "
+"it\n"
+"into your web browser:\n"
+"\n"
+"%(protocol)s://%(domain)s%(reset_url)s\n"
+"\n"
+"Best regards,\n"
+"%(site_name)s Management\n"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:3
+#: templates/registration/password_reset_form.html:9
+msgid "Reset password"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:5
+msgid ""
+"Forgot your password?  Enter your email in the form below and we'll send you "
+"instructions for creating a new one."
+msgstr ""
+
+#: templates/registration/registration_complete.html:3
+msgid "Activation email sent"
+msgstr ""
+
+#: templates/registration/registration_complete.html:5
+msgid ""
+"An activation email has been sent.  Please check your email and click on the "
+"link to activate your account."
+msgstr ""
+
+#: templates/registration/registration_form.html:3
+msgid "Register for an account"
+msgstr ""
+
+#: templates/registration/registration_form.html:8
+msgid "Send activation email"
 msgstr ""
 
 #: templates/rooms/blocked.html:5
