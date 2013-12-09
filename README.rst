@@ -20,7 +20,7 @@ before 4.2 don't support HelpIMs chat state notification. The 5.x versions are
 not tested with HelpIM. Tigase needs needs a JDK (not JRE!) of version 1.6 or
 higher.
 
-On a Debian system the needed python and mysql packages are:
+On a Debian system the needed python and mysql packages are::
 
     git-core python python-dev mysql-server mysql-client libmysqlclient-dev libxml2-dev openjdk-6-jre-headless
 
@@ -84,7 +84,7 @@ Installation:
 
 11) If you want to test the chat too, and you have tigase running::
 
-    Open a new terminal and run:
+    Open a new terminal and run::
 
     $ ./bin/proxy.py 8888
 
@@ -118,16 +118,16 @@ Before updating the translations, make shure the buddychat is activated. Failing
 to do so may result in the translation system not picking up the buddychat specific
 translations.
 
-To update the translations files:
+To update the translations files::
 
-$ cd helpim
-$ ../bin/manage.py makemessages -a -e ".html" -e ".txt"
-$ ../bin/manage.py makemessages -a -d djangojs
+    $ cd helpim
+    $ ../bin/manage.py makemessages -a -e ".html" -e ".txt"
+    $ ../bin/manage.py makemessages -a -d djangojs
 
 Now check the language files for changes. Once the translations are updated, you have
-to compile the messages:
+to compile the messages::
 
-$ ../bin/manage.py compilemessages
+    $ ../bin/manage.py compilemessages
 
 Adding content with flatpages
 +++++++++++++++++++++++++++++
