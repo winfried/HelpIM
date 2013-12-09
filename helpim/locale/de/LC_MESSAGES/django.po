@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-08 23:41+0100\n"
+"POT-Creation-Date: 2013-12-09 13:47+0100\n"
 "PO-Revision-Date: 2011-02-23 16:39+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,18 +98,19 @@ msgstr ""
 
 #: buddychat/views.py:121
 #, fuzzy, python-format
-msgid "a message from %s"
+msgid "There is a message at %s"
 msgstr "Chatnachricht"
 
 #: buddychat/views.py:122
 #, python-format
 msgid ""
-"%(sender)s wrote a message on %(client)s's profile:\n"
+"There is a message for you at https://%(site)s/\n"
 "\n"
-"%(message)s\n"
+"You can read this message, with the username and password you have\n"
+"chosen while creating your account.\n"
 "\n"
-"Don't reply to this message directly, reply on this user's personal page at "
-"http://%(site)s/profile/%(client)s/"
+"Note: don't react by replying to this e-mail, but by logging in on:\n"
+"https://%(site)s/"
 msgstr ""
 
 #: buddychat/views.py:137
