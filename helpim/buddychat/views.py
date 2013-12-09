@@ -118,8 +118,8 @@ def profile(request, username):
                 """
                 site = get_current_site(request)
 
-                subject = _('a message from %s' % request.user.username)
-                body = _('%(sender)s wrote a message on %(client)s\'s profile:\n\n%(message)s\n\nDon\'t reply to this message directly, reply on this user\'s personal page at http://%(site)s/profile/%(client)s/' %
+                subject = (_('There is a message at %s') % site)
+                body = (_('There is a message for you at https://%(site)s/\n\nYou can read this message, with the username and password you have\nchosen while creating your account.\n\nNote: don\'t react by replying to this e-mail, but by logging in on:\nhttps://%(site)s/') %
                          {'sender' : request.user.username,
                           'client' : client.user.username,
                           'message': form.cleaned_data['body'],
