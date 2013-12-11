@@ -122,7 +122,14 @@ To update the translations files::
 
     $ cd helpim
     $ ../bin/manage.py makemessages -a -e ".html" -e ".txt"
-    $ ../bin/manage.py makemessages -a -d djangojs
+    $ ../bin/manage.py makemessages -a -s -d djangojs
+
+Note: if you are using Django 1.3 or lower, a bug in the makemessages function prevents
+all javascript messages being parsed. If you run into this bug and you have installed a
+later version of Django on your machine globally, then you can work around it by issuing
+the following command::
+
+    $ django-admin makemessages -v 3 -s -a -d djangojs
 
 Now check the language files for changes. Once the translations are updated, you have
 to compile the messages::

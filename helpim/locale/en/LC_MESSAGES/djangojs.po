@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-08 00:55+0200\n"
+"POT-Creation-Date: 2013-12-12 00:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,11 +22,11 @@ msgid "Warning: this action will disconnect your chat conversation."
 msgstr ""
 
 #: static/xmpptk/helpim/ui/client.js:55
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:166
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:168
 msgid "Error"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:56 static/xmpptk/helpim/ui/client.js:177
+#: static/xmpptk/helpim/ui/client.js:56 static/xmpptk/helpim/ui/client.js:185
 #: static/xmpptk/helpim/ui/client_running.js:23
 msgid "An error occured"
 msgstr ""
@@ -43,39 +43,39 @@ msgstr ""
 msgid "Are you sure you want to end this conversation?"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:169
+#: static/xmpptk/helpim/ui/client.js:177
 msgid "Sorry, you're not allowed to access this service"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:172
+#: static/xmpptk/helpim/ui/client.js:180
 msgid "Sorry, you're not allowed to request more chats"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:196
+#: static/xmpptk/helpim/ui/client.js:204
 msgid "Join Chat"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:197
+#: static/xmpptk/helpim/ui/client.js:205
 msgid "Nickname"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:199
+#: static/xmpptk/helpim/ui/client.js:207
 msgid "Subject"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:214
+#: static/xmpptk/helpim/ui/client.js:222
 msgid "Please provide a nickname!"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:240
+#: static/xmpptk/helpim/ui/client.js:248
 msgid "Questionnaire"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:301
+#: static/xmpptk/helpim/ui/client.js:309
 msgid "staff"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/client.js:304
+#: static/xmpptk/helpim/ui/client.js:312
 msgid "waiting..."
 msgstr ""
 
@@ -88,7 +88,7 @@ msgid "Request Client"
 msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/one2oneroom.js:42
-#, perl-format
+#, c-format
 msgid "Welcome %s, now wait for a participant to join!"
 msgstr ""
 
@@ -96,13 +96,69 @@ msgstr ""
 msgid "Ring! Ring!"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:135
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:145
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:137
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:147
 msgid "Block Participant"
 msgstr ""
 
-#: static/xmpptk/helpim/ui/muc/one2oneroom.js:157
+#: static/xmpptk/helpim/ui/muc/one2oneroom.js:159
 msgid "Block participant"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:184
+#, c-format
+msgid "%s stopped composing"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:187
+#, c-format
+msgid "%s is composing a message"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:227
+#, c-format
+msgid "%s has entered the conversation"
+msgstr "You have a conversation with %s"
+
+#: static/xmpptk/helpim/ui/muc/room.js:238
+msgid "You have been kicked"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:240
+#, c-format
+msgid "%s has been kicked"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:245
+#, fuzzy, c-format
+msgid "%s has disappeared from the conversation"
+msgstr "You have a conversation with %s"
+
+#: static/xmpptk/helpim/ui/muc/room.js:248
+#, fuzzy, c-format
+msgid "%s has ended the conversation"
+msgstr "You have a conversation with %s"
+
+#: static/xmpptk/helpim/ui/muc/room.js:272
+msgid "Please click here to send a message!"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:334
+#: static/xmpptk/helpim/ui/muc/room.js:345
+msgid "Click to see even more emoticons"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:335
+#: static/xmpptk/helpim/ui/muc/room.js:344
+msgid "more"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:348
+msgid "less"
+msgstr ""
+
+#: static/xmpptk/helpim/ui/muc/room.js:349
+msgid "Click to collapse emoticons"
 msgstr ""
 
 #: static/xmpptk/helpim/ui/muc/waitingroom.js:53
@@ -114,14 +170,3 @@ msgid ""
 "Please wait while we're acquiring a conversation for you! This can take some "
 "time."
 msgstr ""
-
-#~ msgid "%s has entered the conversation"
-#~ msgstr "You have a conversation with %s"
-
-#, fuzzy
-#~ msgid "%s has disappeared from the conversation"
-#~ msgstr "You have a conversation with %s"
-
-#, fuzzy
-#~ msgid "%s has ended the conversation"
-#~ msgstr "You have a conversation with %s"
