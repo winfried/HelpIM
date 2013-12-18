@@ -32,8 +32,13 @@ echo "`date` migrate on databases" >> /var/log/hi-upgrade.log
 /etc/init.d/apache2 reload
 
 echo
-if test "$defaultip" = "91.198.178.29"; then echo "this is the xen9, I stop here"; exit; fi
-read -p "Press return to sync scripts and skel (give ctrl-c to stop)"
+echo "Syncing scripts. The following files will be overwritten:"
+diff -q /usr/local/share/helpim/doc/debian/example/helpim/apache-config /etc/helpim/apache-config | grep differ | awk '{ print $4 }'
+diff -qr /usr/local/share/helpim/doc/debian/example/helpim/skel /etc/helpim/skel | grep differ | awk '{ print $4 }'
+diff -q /usr/local/share/helpim/doc/debian/example/init.d/helpim /etc/init.d/helpim | grep differ | awk '{ print $4 }'
+diff -qr /usr/local/share/helpim/doc/debian/example/sbin /usr/local/sbin | grep "hi-" | grep differ | awk '{ print $4 }'
+echo
+read -p "Press return to continue (give ctrl-c to stop)"
 rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/apache-config /etc/helpim/
 rsync -av --del /usr/local/share/helpim/doc/debian/example/helpim/skel /etc/helpim/
 rsync -av --del /usr/local/share/helpim/doc/debian/example/sbin/hi-* /usr/local/sbin/

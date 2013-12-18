@@ -35,6 +35,18 @@
         ProxyPassReverse /http-bind/ http://localhost:5280/http-bind/
         AddDefaultCharset utf-8
 
+        SecAuditEngine Off
+        SecRuleEngine On
+        # Block connect and trace requests
+        SecRule REQUEST_METHOD "^((?:connect|trace))$" "log,drop,phase:1"
+        # Block requests without a User-Agent header
+        SecRule &REQUEST_HEADERS:User-Agent "@eq 0" "log,drop,phase:1"
+        # Block requests without a Host: header
+        SecRule &REQUEST_HEADERS:Host "@eq 0" "log,drop,phase:1"
+        # Block requests without a User-Agent header
+        SecRule REQUEST_HEADERS:User-Agent "^$" "log,drop,phase:1"
+        # Block requests without a Host: header
+        SecRule REQUEST_HEADERS:Host "^$" "log,drop,phase:1"
 
 </virtualhost>
 
