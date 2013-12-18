@@ -50,7 +50,8 @@ chroot /$branch-chroot su $buildoutuser -c "
 chroot /$branch-chroot su $buildoutuser -c "
    # do this as a normal user
    cd ~/HelpIM/
-   python bootstrap.py # --distribute (only needed for Mac)
+   # python bootstrap.py # --distribute (only needed for Mac)
+   python bootstrap.py --distribute -v 2.1.1 # needed to avoid version conflicts
    ./bin/buildout  -v
    cd ~/HelpIM/helpim/javascript/
    make
@@ -72,8 +73,9 @@ chroot /$branch-chroot su $buildoutuser -c "
    echo
    echo begin makemessages
    cd helpim
-   ../bin/manage.py makemessages -a
-   ../bin/manage.py makemessages -a -d djangojs
+   # only compile, in git should be correct message files
+   #../bin/manage.py makemessages -a
+   #../bin/manage.py makemessages -a -d djangojs
    echo
    echo begin compilemessages
    ../bin/manage.py compilemessages
