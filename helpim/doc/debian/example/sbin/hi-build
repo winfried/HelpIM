@@ -70,9 +70,9 @@ chroot /$branch-chroot su $buildoutuser -c "
    echo begin collectstatic
    rm -rf static
    ./bin/manage.py collectstatic --noinput
-   echo
-   echo begin makemessages
    cd helpim
+   #echo
+   #echo begin makemessages
    # only compile, in git should be correct message files
    #../bin/manage.py makemessages -a
    #../bin/manage.py makemessages -a -d djangojs
