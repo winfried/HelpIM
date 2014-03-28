@@ -362,14 +362,15 @@ class One2OneRoomHandler(RoomHandlerBase):
 
     def user_joined(self, user, stanza):
         room = self.get_helpim_room()
-        if room is None:
-            logger.error("BUG: User joined a room we are present in but that can't be found in the database.")
-            logger.error("The offending stanza is: %s" % stanza.serialize())
-            return
 
         if user.nick == self.nick:
             logger.debug("user joined with self nick '%s'" % user.nick)
             return True
+
+        if room is None:
+            logger.error("BUG: User joined a room we are present in but that can't be found in the database.")
+            logger.error("The offending stanza is: %s" % stanza.serialize())
+            return
 
         # log event when careseeker has joined
         accessToken = AccessToken.objects.get(jid=user.real_jid)
@@ -1483,7 +1484,13 @@ class Bot(JabberClient):
         self.stream.write_raw(xml)
 
     def inviteClients(self, waitingRoom):
-        rooms = One2OneRoom.objects.filter(status='staffWaiting').order_by('-staff__user__additionaluserinformation__chat_priority', 'status_timestamp')
+        rooms = One2OneRoom.objects.filter(status='staffWaiting').order_by(
+            '-staff__user__additionaluserinformation__chat_priority',
+            'status_timestamp')
+        # Logging the order of waiting staff to track down bug with order
+        # of asignments
+        for room in rooms:
+            logger.info("Staff available: " + str(room.jid) + " since: " + str(room.status_timestamp))
         for room in rooms:
             client = waitingRoom.getNextClient()
             if not client is None:
