@@ -108,7 +108,7 @@ def get_questionnaire_entry_id(stanza):
         logger.exception("failed to parse questionnaires result paket from client with jid %s" % stanza.get_from())
 
 class RoomHandlerBase(MucRoomHandler):
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
+    def __init__(self, bot, site, mucconf, nick, password):
         MucRoomHandler.__init__(self)
         self.client = bot
         self.mucmanager = bot.mucmanager
@@ -127,7 +127,6 @@ class RoomHandlerBase(MucRoomHandler):
         self.closingDown = False
         self.maxUsers = 10
         self.type = "Base"
-        self.rejoining = rejoining
 
     def affiliation_changed(self, user, old_aff, new_aff, stanza):
         logger.debug("Callback: affiliation_changed(%s, %s, %s, %s)" % (user, old_aff, new_aff, stanza))
@@ -326,8 +325,8 @@ class RoomHandlerBase(MucRoomHandler):
 
 class One2OneRoomHandler(RoomHandlerBase):
 
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
-        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+    def __init__(self, bot, site, mucconf, nick, password):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password)
         self.maxUsers = 3
         self.type = "One2OneRoom"
 
@@ -362,18 +361,15 @@ class One2OneRoomHandler(RoomHandlerBase):
             room.chat.save()
 
     def user_joined(self, user, stanza):
-        if self.rejoining:
-            # bot is about to rejoin rooms after bot crash
-            return
-        
-        if user.nick == self.nick:
-            logger.info("user joined with self nick '%s'" % user.nick)
-            return True
-
         room = self.get_helpim_room()
 
+        if user.nick == self.nick:
+            logger.debug("user joined with self nick '%s'" % user.nick)
+            return True
+
         if room is None:
-            logger.info("get_helpim_room returned None")
+            logger.error("BUG: User joined a room we are present in but that can't be found in the database.")
+            logger.error("The offending stanza is: %s" % stanza.serialize())
             return
 
         # log event when careseeker has joined
@@ -527,7 +523,7 @@ class One2OneRoomHandler(RoomHandlerBase):
                 logger.info("A user left room '%s' while the other user already left unclean before (un-clean exit)." % self.room_state.room_jid.as_unicode())
             logger.info("User was: Nick = '%s'." % user.nick)
         else:
-            logger.warning("User left room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
+            logger.warning("User left one2one room '%s' while room was expected to be empty (roomstatus == %s)." % (roomname, roomstatus))
             logger.info("User was: Nick = '%s'." % user.nick)
 
         # request questionnaire from participant
@@ -560,8 +556,8 @@ class One2OneRoomHandler(RoomHandlerBase):
         self.__create_conversation_form_entry(stanza, 'CA')
 
 class SimpleRoomHandler(RoomHandlerBase):
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
-        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+    def __init__(self, bot, site, mucconf, nick, password):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password)
         self.type = "SimpleRoom"
 
     def get_helpim_room(self):
@@ -640,8 +636,8 @@ class SimpleRoomHandler(RoomHandlerBase):
 
 class GroupRoomHandler(RoomHandlerBase):
 
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
-        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+    def __init__(self, bot, site, mucconf, nick, password):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password)
         self.maxUsers = 30
         self.type = "GroupRoom"
 
@@ -757,13 +753,13 @@ class GroupRoomHandler(RoomHandlerBase):
                 else:
                     logger.info("User '%s' left group room '%s' (un-clean exit, chat_id == '%s')." % (user.nick, room.jid, room.chat_id))
         else:
-            logger.warning("User '%s' left  room '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
+            logger.warning("User '%s' left grouproom '%s' while room was expected to be empty (roomstatus == %s)." % (user.nick, room.jid, status))
             logger.info("User was: Nick = '%s'." % user.nick)
         return False
 
 class LobbyRoomHandler(RoomHandlerBase):
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
-        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+    def __init__(self, bot, site, mucconf, nick, password):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password)
         self.type = "LobbyRoom"
         self.userCount = 0
 
@@ -816,8 +812,8 @@ class LobbyRoomHandler(RoomHandlerBase):
                 room.setStatus('abandoned')
 
 class WaitingRoomHandler(RoomHandlerBase):
-    def __init__(self, bot, site, mucconf, nick, password, rejoining=False):
-        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password, rejoining)
+    def __init__(self, bot, site, mucconf, nick, password):
+        RoomHandlerBase.__init__(self, bot, site, mucconf, nick, password)
         self.type = "WaitingRoom"
         self.userCount = 0
 
@@ -1170,51 +1166,34 @@ class Bot(JabberClient):
             for room in site.rooms.getNotDestroyed():
                 logger.warning("Re-joining room '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
-                mucstate = self.joinMucRoom(site, jid, room.password, One2OneRoomHandler, rejoining=True)
+                mucstate = self.joinMucRoom(site, jid, room.password, One2OneRoomHandler)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
-                if mucstate:
-                    self.fixroomstatus(room, mucstate)
             for room in site.groupRooms.getNotDestroyed():
                 logger.warning("Re-joining groupRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
-                mucstate = self.joinMucRoom(site, jid, room.password, GroupRoomHandler, rejoining=True)
+                mucstate = self.joinMucRoom(site, jid, room.password, GroupRoomHandler)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
-                if mucstate:
-                    self.fixgrouproomstatus(room, mucstate)
             for room in site.lobbyRooms.getNotDestroyed():
                 logger.warning("Re-joining lobbyRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
-                mucstate = self.joinMucRoom(site, jid, room.password, LobbyRoomHandler, rejoining=True)
+                mucstate = self.joinMucRoom(site, jid, room.password, LobbyRoomHandler)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
-                if mucstate:
-                    self.fixlobbyroomstatus(room, mucstate)
             for room in site.waitingRooms.getNotDestroyed():
                 logger.warning("Re-joining waitingRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
-                mucstate = self.joinMucRoom(site, jid, room.password, WaitingRoomHandler, rejoining=True)
+                mucstate = self.joinMucRoom(site, jid, room.password, WaitingRoomHandler)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
-                if mucstate:
-                    self.fixwaitingroomstatus(room, mucstate)
             for room in site.simpleRooms.getNotDestroyed():
                 logger.warning("Re-joining simpleRoom '%s'." % room.jid)
                 jid = str2roomjid(room.jid)
-                mucstate = self.joinMucRoom(site, jid, room.password, SimpleRoomHandler, rejoining=True)
+                mucstate = self.joinMucRoom(site, jid, room.password, SimpleRoomHandler)
                 # FIXME: check if we are owner of the room again (otherwise log error) & reconfigure room if locked
-                if mucstate:
-                    self.fixsimpleroomstatus(room, mucstate)
 
     def fixroomstatus(self, room, mucstate):
+        # THIS FUNCTION IS NOT CALLED ANYMORE, THE LOGIC SHOULD BE INCORPORATED IN THE ROOM HANDLER
         # Wait until all events are processed
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
-        processing = True
-        logger.debug("Looping until all pending events are processed.")
-        while processing:
-            try:
-                processing = self.stream.loop_iter(1)
-            except SystemError:
-                logger.exception("Error while processing XMPP stanza, trying to continue")
-
         logger.warning("Checking status for room '%s'." % room.jid)
         status = room.getStatus()
         logger.warning("Status is '%s' for room '%s'." % (status, room.jid))
@@ -1370,11 +1349,10 @@ class Bot(JabberClient):
                     room.setStatus("lost")
                 else: # nUsers == 0
                     logger.warning("Status is correct.")
-        # Finished fixing, set rejoininig to False
-        room.rejoining = False
 
 
     def fixgrouproomstatus(self, room, mucstate):
+        # THIS FUNCTION IS NOT CALLED ANYMORE, THE LOGIC SHOULD BE INCORPORATED IN THE ROOM HANDLER
         # Wait until all events are processed
         # i.e. until all presence stanzas are received so we can count
         # the number of users in the freshly re-joined rooms
@@ -1419,31 +1397,28 @@ class Bot(JabberClient):
                 room.setStatus("chatting")
             else: # nUsers == 0
                 logger.warning("Status is correct.")
-        # Finished fixing, set rejoininig to False
-        room.rejoining = False
 
     def fixlobbyroomstatus(self, room, mucstate):
-        # Finished fixing, set rejoininig to False
-        room.rejoining = False
+        # THIS FUNCTION IS NOT CALLED ANYMORE, THE LOGIC SHOULD BE INCORPORATED IN THE ROOM HANDLER
         """ [TODO] """
         pass
 
     def fixwaitingroomstatus(self, room, mucstate):
+        # THIS FUNCTION IS NOT CALLED ANYMORE, THE LOGIC SHOULD BE INCORPORATED IN THE ROOM HANDLER
         # Finished fixing, set rejoininig to False
-        room.rejoining = False
         """ [TODO] """
         pass
 
     def fixsimpleroomstatus(self, room, mucstate):
+        # THIS FUNCTION IS NOT CALLED ANYMORE, THE LOGIC SHOULD BE INCORPORATED IN THE ROOM HANDLER
         # Finished fixing, set rejoininig to False
-        room.rejoining = False
         """ [TODO] """
         pass
 
-    def joinMucRoom(self, site, jid, password, handlerClass, rejoining=False):
+    def joinMucRoom(self, site, jid, password, handlerClass):
         mucconf = self.getMucSettings(site.name)
         nick = mucconf["nick"].strip() or self.nick
-        muchandler = handlerClass(self, site, mucconf, nick, password, rejoining)
+        muchandler = handlerClass(self, site, mucconf, nick, password)
         logger.debug("MUC-room setting: history_maxchars=%s,  history_stanzas=%s, history_seconds=%s" % (
                 mucconf["history_maxchars"],
                 mucconf["history_maxstanzas"],
@@ -1509,7 +1484,13 @@ class Bot(JabberClient):
         self.stream.write_raw(xml)
 
     def inviteClients(self, waitingRoom):
-        rooms = One2OneRoom.objects.filter(status='staffWaiting').order_by('-staff__user__additionaluserinformation__chat_priority', 'status_timestamp')
+        rooms = One2OneRoom.objects.filter(status='staffWaiting').order_by(
+            '-staff__user__additionaluserinformation__chat_priority',
+            'status_timestamp')
+        # Logging the order of waiting staff to track down bug with order
+        # of asignments
+        for room in rooms:
+            logger.info("Staff available: " + str(room.jid) + " since: " + str(room.status_timestamp))
         for room in rooms:
             client = waitingRoom.getNextClient()
             if not client is None:

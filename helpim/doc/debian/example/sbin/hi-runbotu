@@ -14,6 +14,10 @@ while [ true ]; do
     django-admin.py runbot 2>&1`
   echo $output >> /var/log/helpim/$1.log
 
+  # mail logs
+  issuer=hi-runbotu
+  . /usr/local/sbin/hi-maillog
+
   # stop when crashing too much
   endtime=`date +'%s'`
   difftime=$(($endtime - $starttime))

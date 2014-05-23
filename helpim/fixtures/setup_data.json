@@ -125,6 +125,11 @@
                     "questionnaire"
                 ], 
                 [
+                    "can_view_stats", 
+                    "stats", 
+                    ""
+                ], 
+                [
                     "add_report", 
                     "stats", 
                     "report"
@@ -526,7 +531,7 @@
             "visible": true, 
             "help_text": "", 
             "placeholder_text": "", 
-            "label": "Heb je nog opmerlingen over dit gesprek?"
+            "label": "Heb je nog opmerkingen over dit gesprek?"
         }
     }
 ]

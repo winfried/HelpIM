@@ -52,15 +52,15 @@ class Command(BaseCommand):
 
         # determine receipient email adress and mail text 
         if receiver_role == 'careseeker':
-            subject = _('a reminder about %s' % profile.user.username)
-            body = _('This is a reminder to take your next questionnaire.\n\nDon\'t reply to this message directly, reply on your personal profile page at http://%(site)s%(path_profilepage)s' % {
+            subject = (_('a reminder about %s') % profile.user.username)
+            body = (_('This is a reminder to take your next questionnaire.\n\nDon\'t reply to this message directly, reply on your personal profile page at http://%(site)s%(path_profilepage)s') % {
                 'site': self.site,
                 'path_profilepage': reverse('buddychat_profile', args=[profile.user.username])
             })
             rcpt = profile.user
         else:
-            subject = _('a reminder about %s' % profile.user.username)
-            body = _('This is a reminder to take the next questionnaire about %(careseeker)s.\n\nDon\'t reply to this message directly, reply on the personal profile page at http://%(site)s%(path_profilepage)s' % {
+            subject = (_('a reminder about %s') % profile.user.username)
+            body = (_('This is a reminder to take the next questionnaire about %(careseeker)s.\n\nDon\'t reply to this message directly, reply on the personal profile page at http://%(site)s%(path_profilepage)s') % {
                 'careseeker': profile.user.username,
                 'site': self.site,
                 'path_profilepage': reverse('buddychat_profile', args=[profile.user.username])

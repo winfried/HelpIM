@@ -9,7 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HelpIM\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2013-12-09 13:47+0100\n"
+=======
+"POT-Creation-Date: 2013-12-09 14:34+0100\n"
+>>>>>>> testing
 "PO-Revision-Date: 2013-12-09 13:49+0100\n"
 "Last-Translator: Winfried Tilanus <winfried@tilanus.com>\n"
 "Language-Team: Dutch <>\n"
