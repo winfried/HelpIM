@@ -1,31 +1,36 @@
 # needs some variables:
 # $chat (chat identifier)
 # $issuer (name of the program sending the maillog)
+# $mailto (where to send it to)
 
-echo "$issuer report about $chat on `date`" > /tmp/hi-maillog
-echo "" >> /tmp/hi-maillog
-echo "Mysqldump of room-tables:" >> /tmp/hi-maillog
+TMPFILE=‘mktemp‘
+
+echo "$issuer report about $chat on `date`" > $TMPFILE
 
 # mysqldump
-echo "" >> /tmp/hi-maillog
-echo "Mysqldump of room-tables:" >> /tmp/hi-maillog
-mysqldump $chat rooms_accesstoken rooms_grouproom rooms_lobbyroom \
+echo "" >> $TMPFILE
+echo "Mysqldump of room-tables:" >> $TMPFILE
+DBNAME=`grep "DATABASES\['default'\]\['NAME'\]" /etc/helpim/sites/$chat/settings.py | cut -d "=" -f 2 | sed "s/'//g" | sed "s/ //g"`
+DBUSER=`grep "DATABASES\['default'\]\['USER'\]" /etc/helpim/sites/$chat/settings.py | cut -d "=" -f 2 | sed "s/'//g" | sed "s/ //g"`
+DBPASSWORD=`grep "DATABASES\['default'\]\['PASSWORD'\]" /etc/helpim/sites/$chat/settings.py | cut -d "=" -f 2 | sed "s/'//g" | sed "s/ //g"`
+mysqldump -u $DBUSER -p$DBPASSWORD $DBNAME rooms_accesstoken rooms_grouproom rooms_lobbyroom \
  rooms_lobbyroomtoken rooms_one2oneroom rooms_one2oneroomtoken \
- rooms_waitingroom rooms_waitingroomtoken >> /tmp/hi-maillog
+ rooms_waitingroom rooms_waitingroomtoken rooms_simpleroom rooms_simpleroomtoken >> $TMPFILE
 
-# mail bot-log
-echo "" >> /tmp/hi-maillog
-echo "Last 250 lines of /var/log/helpim/$chat.log:" >> /tmp/hi-maillog
-tail -n 250 /var/log/helpim/$chat.log >> /tmp/hi-maillog
+# mail logfiles
 
-# mail prosody.log
-echo "" >> /tmp/hi-maillog
-echo "Last 70 lines of /var/log/prosody/prosody.log:" >> /tmp/hi-maillog
-tail -n 70 /var/log/prosody/prosody.log >> /tmp/hi-maillog        
+for LOGFILE in /var/log/helpim/$chat.log /var/log/prosody/prosody.log /var/log/prosody/prosody.err
+do
+  echo "" >> $TMPFILE
+  if [ -r "$LOGFILE" ] ; then
+    echo "Last 250 lines of $LOGFILE:" >> $TMPFILE
+    tail -n 250 $LOGFILE >> $TMPFILE
+  else
+    echo "Skipping $LOGFILE: No permission to read." >> $TMPFILE
+  fi
+done
 
-# mail prosody.err
-echo "" >> /tmp/hi-maillog
-echo "Last 20 lines of /var/log/prosody/prosody.err:" >> /tmp/hi-maillog
-tail -n 20 /var/log/prosody/prosody.err >> /tmp/hi-maillog
+cat $TMPFILE | mail -s "$issuer requested to mail logs of $chat" $mailto
 
-cat /tmp/hi-maillog | mail -s "$issuer log on $chat" helpdesk@e-hulp.nl
+rm $TMPFILE
+TMPFILE=""
