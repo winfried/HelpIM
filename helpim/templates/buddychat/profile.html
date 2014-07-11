@@ -64,8 +64,10 @@
 {% if user.is_staff %}
 <h2>{% trans "Chat Sesssion" %}</h2>
 <ul>
-{% for chat in client.chats %}
-  <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.created_at }}</a></li>
+{% for chat in chats %}
+  {% if not chat.staff_name == _("(None)") %}
+    <li><a href="{% url admin:conversations_conversation_change chat.pk %}">{{ chat.created_at }}</a></li>
+  {% endif %}
 {% endfor %}
 </ul>
 {% endif %}
@@ -78,7 +80,7 @@
 <th>{% trans "Body" %}</th>
 <th>{% trans "Date" %}</th>
 </tr>
-{% for message in client.careworker_conversation.messages.all %}
+{% for message in cw.messages %}
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
@@ -100,7 +102,7 @@
 <th>{% trans "Body" %}</th>
 <th>{% trans "Date" %}</th>
 </tr>
-{% for message in client.coordinator_conversation.messages.all %}
+{% for message in co_messages %}
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
