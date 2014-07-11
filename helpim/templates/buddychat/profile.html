@@ -61,7 +61,6 @@
 <dd>{{client.user.date_joined}}</dd>
 {% endif %}
 </dl>
-{% if user.is_staff %}
 <h2>{% trans "Chat Sesssion" %}</h2>
 <ul>
 {% for chat in chats %}
@@ -70,7 +69,6 @@
   {% endif %}
 {% endfor %}
 </ul>
-{% endif %}
 
 {% if client.careworker or perms.buddychat.is_coordinator %}
 <h2>{% trans "Careworker Conversation" %}</h2>
@@ -122,7 +120,7 @@
 <th>{% trans "Body" %}</th>
 <th>{% trans "Date" %}</th>
 </tr>
-{% for message in client.careworker_coordinator_conversation.messages.all %}
+{% for message in cc_messages %}
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
