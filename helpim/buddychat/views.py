@@ -143,7 +143,7 @@ def profile(request, username):
         params['chats'] = sorted(client.chats(), key=lambda k: k.created_at)
         params['cw_messages'] = sorted(client.careworker_conversation.messages.all(), key=lambda k: k.created_at)
         params['co_messages'] = sorted(client.coordinator_conversation.messages.all(), key=lambda k: k.created_at)
-        params['cc_messages'] = sorted(client.careworker_coordinator_conversation.messages.all, key=lambda k: k.created_at)
+        params['cc_messages'] = sorted(client.careworker_coordinator_conversation.messages.all(), key=lambda k: k.created_at)
         params['form'] = form
         params['questionnaire_history'] = QuestionnaireFormEntry.objects.for_profile_and_user(client, request.user)
 
