@@ -189,7 +189,7 @@ class ConversationAdmin(admin.ModelAdmin):
 
         # do nothing unless same staff-user, revisiting own conversation
         the_conversation = Conversation.objects.get(pk=object_id)
-        if request.user != the_conversation.getStaff().user:
+        if the_conversation.getStaff() and request.user != the_conversation.getStaff().user:
             return super(ConversationAdmin, self).change_view(request, object_id, extra_context=extra_context)
 
         # augment context with SC-type questionnaire, if not yet submitted

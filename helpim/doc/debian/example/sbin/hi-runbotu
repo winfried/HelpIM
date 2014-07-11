@@ -1,6 +1,9 @@
 #!/bin/bash
 # script to start a bot, and mail about crashing
 
+#get the sitename, seems to get lost later on...
+chat=$1
+
 # get variables like "$mailto and $maxcrash"
 . /etc/helpim/helpim.conf
 
@@ -9,13 +12,13 @@ while [ true ]; do
 
   # start the bot
   starttime=`date +'%s'`
-  cd /etc/helpim/sites/$1
+  cd /etc/helpim/sites/$chat
   output=`PYTHONPATH='' DJANGO_SETTINGS_MODULE=settings \
     django-admin.py runbot 2>&1`
-  echo $output >> /var/log/helpim/$1.log
+  echo $output >> /var/log/helpim/$chat.log
 
   # mail logs
-  issuer=hi-runbotu
+  issuer='hi-runbotu'
   . /usr/local/sbin/hi-maillog
 
   # stop when crashing too much
@@ -27,17 +30,18 @@ while [ true ]; do
     count=0
   fi
   if [ $count -gt $maxcrash ]; then
-    echo "maxcrash" | mail -s "Bot $1 max crash" $mailto
+    echo "maxcrash" | mail -s "Bot $chat max crash" $mailto
     exit 1
   fi
 
   # hi-truncate
-  if [ $count -gt 3 ]; then
-    /usr/local/sbin/hi-truncate $1
-  fi
+  #  DON'T DO THIS, IT TRIES TO RESTART WITHOUT PERMISSIONS
+  #if [ $count -gt 3 ]; then
+  #  /usr/local/sbin/hi-truncate $chat
+  #fi
 
   # send a message about the crashing bot
-  echo $output | mail -s "Bot $1 crashed $count." $mailto
+  echo $output | mail -s "Bot $chat crashed $count." $mailto
 
 done
 

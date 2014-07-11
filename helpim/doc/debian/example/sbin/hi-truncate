@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# get variables like "$mailto
+. /etc/helpim/helpim.conf
+
 # ask questions
 echo
 if test "$1" = ""; then
@@ -9,7 +12,7 @@ else
   echo "Chatname: $chat"
 fi
 
-issuer=hi-truncate
+issuer='hi-truncate'
 . /usr/local/sbin/hi-maillog
 
 # stop bot
