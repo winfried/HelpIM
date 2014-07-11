@@ -78,7 +78,7 @@
 <th>{% trans "Body" %}</th>
 <th>{% trans "Date" %}</th>
 </tr>
-{% for message in cw.messages %}
+{% for message in cw_messages %}
 <tr><td>{{message.sender_name}}</td><td>{{message.body}}</td><td>{{message.created_at}}</td></tr>
 {% endfor %}
 </table>
