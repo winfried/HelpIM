@@ -41,4 +41,6 @@ urlpatterns += patterns(
     url(r'^admin/rooms/join/$', 'helpim.rooms.views.staff_join_chat', name='staff_join_room'),
 
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+
+    url(r'^status.xml$', 'helpim.rooms.views.room_status', name='room_status'),
 )

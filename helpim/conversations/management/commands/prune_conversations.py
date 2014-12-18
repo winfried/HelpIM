@@ -20,19 +20,19 @@ class Command(BaseCommand):
 
         up_for_deletion = datetime.utcnow() - timedelta(days=days_to_keep)
 
-        self._verbose('Deleting everything before %s ...' % (up_for_deletion), 2)
+        self.__verbose('Deleting everything before %s ...' % (up_for_deletion), 2)
 
         conversations = Conversation.objects.filter(created_at__lt=up_for_deletion)
         messages = Message.objects.filter(conversation__in=conversations)
 
-        self._verbose('%d conversations, containing %d messages ...' % (conversations.count(), messages.count()), 2)
+        self.__verbose('%d conversations, containing %d messages ...' % (conversations.count(), messages.count()), 2)
 
         # empty contents of messages
         for msg in messages:
             msg.body = '*****'
             msg.save()
 
-        self._verbose("done.", 2)
+        self.__verbose("done.", 2)
 
     def __verbose(self, message, verbosity=1):
         '''only print message if verbosity-level is high enough'''
