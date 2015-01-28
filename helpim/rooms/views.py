@@ -90,8 +90,7 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT, user=None):
 def room_status(request):
     response = HttpResponse(content_type='text/xml')
     items = {}
-    items['open'] = (len(LobbyRoom.objects.filter(status='chatting')) > 0)
-    items['waiting'] = len(WaitingRoom.objects.filter(status='chatting'))
-    items['chatting'] = len(One2OneRoom.objects.filter(status='chatting'))
+    items['open'] = LobbyRoom.objects.filter(status='chatting').count() > 0
+    items['chatting'] = One2OneRoom.objects.filter(status='chatting').count()
     response.write(render_to_string('rooms/status.xml', {'items': items}))
     return response
