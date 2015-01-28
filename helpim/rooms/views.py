@@ -4,8 +4,10 @@ from django.utils.simplejson import dumps
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.shortcuts import render_to_response
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
-from helpim.rooms.models import AccessToken, Participant, IPBlockedException
+from helpim.rooms.models import AccessToken, Participant, IPBlockedException, One2OneRoom, WaitingRoom, LobbyRoom
 from helpim.common.models import AdditionalUserInformation
 
 @login_required
@@ -84,3 +86,11 @@ def join_chat(request, cfg, role=Participant.ROLE_CLIENT, user=None):
                 })
     except IPBlockedException:
         return render_to_response('rooms/blocked.html')
+
+def room_status(request):
+    response = HttpResponse(content_type='text/xml')
+    items = {}
+    items['open'] = LobbyRoom.objects.filter(status='chatting').count() > 0
+    items['chatting'] = One2OneRoom.objects.filter(status='chatting').count()
+    response.write(render_to_string('rooms/status.xml', {'items': items}))
+    return response

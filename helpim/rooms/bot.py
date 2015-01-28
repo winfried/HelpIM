@@ -790,7 +790,7 @@ class LobbyRoomHandler(RoomHandlerBase):
                 """ now get a waiting room to be associated with this lobby """
                 waitingroom = WaitingRoom.objects.filter(status='available')[0]
                 waitingroom.lobbyroom = room
-                waitingroom.setStatus('abandoned')
+                waitingroom.setStatus('abandoned') #is this correct?
 
         self.userCount += 1
         self.todo.append((self.fillMucRoomPool, self.site))

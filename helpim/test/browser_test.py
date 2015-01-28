@@ -180,7 +180,7 @@ class Browser:
             return False
 
     def closeActiveChat(self, confirm=False):
-        self.driver.find_element_by_id("logoutButton").click()
+        self.driver.find_element_by_xpath("//div[@id='logoutButton']/div").click()
         if confirm:
             self.waitForXPath('(//button[@name="ok"])[last()]')
             self.getScreenshot("close_confirmation")
@@ -260,7 +260,7 @@ class StaffBrowser(Browser):
         self.waitForClass("sendTextarea")
 
     def openCarechat(self):
-        self.driver.find_element_by_class_name("requestClientButton").click()
+        self.driver.find_element_by_xpath("//div[@class='requestClientButton']/div").click()
         self.waitForXPath("html/body/div[1]/div[2]/div/div[2]/table/tbody/tr[2]/td/div")
 
     def waitForClient(self, timeout=timeout):
@@ -307,6 +307,19 @@ class ClientBrowser(Browser):
     def confirmExit(self):
         self.waitForXPath("//button[@name='ok' and not(ancestor::div[contains(@style,'display: none')])]")
         self.driver.find_element_by_xpath("//button[@name='ok' and not(ancestor::div[contains(@style,'display: none')])]").click()
+
+class StatusBrowser(Browser):
+    """Browser to test status xml"""
+    def __init__(self, browserId=None, name="", firefoxPlugins=False):
+        self.role = "XML status checker"
+        Browser.__init__(self, browserId, name, firefoxPlugins)
+
+    def getStatus(self):
+        self.driver.get(testSite + "status.xml")
+        self.waitForXPath("/status")
+        copen = self.driver.find_element_by_xpath("/status/open").text == "True"
+        chatting = int(self.driver.find_element_by_xpath("/status/chatting").text)
+        return (copen, chatting)
 
 def typing_notification_check(Send, Receive, screenshot = False):
     """utility function to check the typing notification"""
@@ -457,6 +470,8 @@ def test_nickname_collision():
     assert s1.getOwnNick()+"_" == s1.getPeerNick()
     s1.close()
     c1.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_closed():
     """Is the client redirected correctly when no staff is present?"""
@@ -484,12 +499,18 @@ def test_staff_priority():
     c1.close()
     sN.close()
     sP.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
     
 def test_linear_queue():
     """Check if queue gets handled ok, when it is nice and neat"""
+    x = StatusBrowser(firefoxPlugins=firefoxPlugins)
+    assert x.getStatus() == (False, 0)
     s1 = StaffBrowser(firefoxPlugins=firefoxPlugins)
     s1.login(0)
+    assert x.getStatus() == (False, 0)
     s1.openGroupchat()
+    assert x.getStatus() == (True, 0)
     client = []
     for n in range(10):
         c = ClientBrowser(firefoxPlugins=firefoxPlugins)
@@ -497,12 +518,14 @@ def test_linear_queue():
         c.enterNick("queuetest_"+str(n))
         c.submitQuestionnaire()
         assert c.getQueuePos() == n+1
+        assert x.getStatus() == (True, 0)
         client.append(c)
     while client:
         s1.openCarechat()
         s1.waitForClient()
         client[0].waitForChat()
         client[0].waitForChatLine(s1.sendChatLine())
+        assert x.getStatus() == (True, 1)
         client[0].closeActiveChat(confirm=True)
         client[0].submitQuestionnaire(wait=True)
         client[0].confirmExit()
@@ -511,14 +534,18 @@ def test_linear_queue():
         del client[0]
         s1.closeActiveChat()
         s1.submitQuestionnaire(wait=True)
+        assert x.getStatus() == (True, 0)
         for n in range(len(client)):
             assert client[n].getQueuePos() == n+1
     s1.closeActiveChat()
     s1.waitForTitle("Sitebeheer | Django site beheerder")
     s1.close()
+    x.close()
 
 def test_messy_queue():
     """Check if queue gets handled ok when things get messy"""
+    x = StatusBrowser(firefoxPlugins=firefoxPlugins)
+    assert x.getStatus() == (False, 0)
     staff = []
     client = []
     for n in range(5):
@@ -527,20 +554,25 @@ def test_messy_queue():
         staff.append(s)
     for n in range(5):
         client.append(ClientBrowser(firefoxPlugins=firefoxPlugins))
+    assert x.getStatus() == (False, 0)
     staff[0].openGroupchat()
+    assert x.getStatus() == (True, 0)
     for n in range(3):
         client[n].start()
         client[n].enterNick("queuetest_"+str(n))
         client[n].submitQuestionnaire()
         assert client[n].getQueuePos() == n+1
+    assert x.getStatus() == (True, 0)
     staff[1].openGroupchat()
     staff[1].openCarechat()
     staff[1].waitForClient()
     client[0].waitForChat()
+    assert x.getStatus() == (True, 1)
     client[0].waitForChatLine(staff[1].sendChatLine())
     staff[0].openCarechat()
     staff[0].waitForClient()
     client[1].waitForChat()
+    assert x.getStatus() == (True, 2)
     client[1].waitForChatLine(staff[0].sendChatLine())
     client[3].start()
     client[3].enterNick("queuetest_3")
@@ -548,10 +580,12 @@ def test_messy_queue():
     assert client[3].getQueuePos() == 2
     for n in [2, 3, 4]:
         staff[n].openGroupchat()
+    assert x.getStatus() == (True, 2)
     for n in [2, 3]:
         staff[n].openCarechat()
         staff[n].waitForClient()
         client[n].waitForChat()
+        assert x.getStatus() == (True, n+1)
         client[n].waitForChatLine(staff[n].sendChatLine())
     staff[4].openCarechat()
     client[4].start()
@@ -559,22 +593,28 @@ def test_messy_queue():
     client[4].submitQuestionnaire()
     staff[4].waitForClient()
     client[4].waitForChat()
+    assert x.getStatus() == (True, 5)
     client[4].waitForChatLine(staff[4].sendChatLine())
     staff[0].closeActiveChat(confirm=True)
     staff[0].submitQuestionnaire(wait=True)
     client[1].submitQuestionnaire(wait=True)
     client[1].closeActiveChat()
     client[1].waitForTitle("Einde")
+    assert x.getStatus() == (True, 4)
     staff[0].openCarechat()
     client[1].start()
     client[1].enterNick("queuetest_1bis")
     client[1].submitQuestionnaire()
     staff[0].waitForClient()
     client[1].waitForChat()
+    assert x.getStatus() == (True, 5)
     client[1].waitForChatLine(staff[0].sendChatLine())
     for n in range(5):
         client[n].close()
         staff[n].close()
+    x.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_staff_groupchat():
     """Can we communicat in the group chat?"""
@@ -591,6 +631,8 @@ def test_staff_groupchat():
                 staff[o].waitForChatLine(line)
     for n in range(len(staff)):
         staff[n].close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_fast_chat_lines():
     """How fast can we go?"""
@@ -635,9 +677,8 @@ def test_non_ascii_nick():
     s1.closeActiveChat()
     s1.waitForTitle("Sitebeheer | Django site beheerder")
     s1.close()
-    time.sleep(120)
-    c1.submitQuestionnaire(wait=True)
     c1.closeActiveChat()
+    c1.submitQuestionnaire(wait=True)
     c1.waitForTitle("Einde")
     c1.close()
      
