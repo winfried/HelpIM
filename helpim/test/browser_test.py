@@ -470,6 +470,8 @@ def test_nickname_collision():
     assert s1.getOwnNick()+"_" == s1.getPeerNick()
     s1.close()
     c1.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_closed():
     """Is the client redirected correctly when no staff is present?"""
@@ -497,6 +499,8 @@ def test_staff_priority():
     c1.close()
     sN.close()
     sP.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
     
 def test_linear_queue():
     """Check if queue gets handled ok, when it is nice and neat"""
@@ -609,6 +613,8 @@ def test_messy_queue():
         client[n].close()
         staff[n].close()
     x.close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_staff_groupchat():
     """Can we communicat in the group chat?"""
@@ -625,6 +631,8 @@ def test_staff_groupchat():
                 staff[o].waitForChatLine(line)
     for n in range(len(staff)):
         staff[n].close()
+    # should close propery, this leaves the chat in an inconsistent
+    # state for the next test
 
 def test_fast_chat_lines():
     """How fast can we go?"""
@@ -669,9 +677,8 @@ def test_non_ascii_nick():
     s1.closeActiveChat()
     s1.waitForTitle("Sitebeheer | Django site beheerder")
     s1.close()
-    time.sleep(120)
-    c1.submitQuestionnaire(wait=True)
     c1.closeActiveChat()
+    c1.submitQuestionnaire(wait=True)
     c1.waitForTitle("Einde")
     c1.close()
      
