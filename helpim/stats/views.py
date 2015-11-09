@@ -184,7 +184,7 @@ def _stats_overview_xls(knownStats, dictStats, keyword, year):
     response['Content-Disposition'] = 'attachment; filename=stats.%s.%s.xls' % (keyword, year)
 
     # init sheet
-    book = xlwt.Workbook()
+    book = xlwt.Workbook(style_compression=2)
     sheet = book.add_sheet('%s %s' % (keyword, year))
 
     # write heading row

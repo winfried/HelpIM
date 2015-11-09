@@ -683,7 +683,7 @@ def test_non_ascii_nick():
     c1.close()
      
 def test_idle_nickname():
-    """What happens if you wait log before... entering a nickname"""
+    """What happens if you wait long before... entering a nickname"""
     s1 = StaffBrowser(firefoxPlugins=firefoxPlugins)
     s1.login(0)
     s1.openGroupchat()
@@ -707,7 +707,7 @@ def test_idle_nickname():
     c1.close()
 
 def test_idle_available():
-    """What happens if you wait log before... somebody enters"""
+    """What happens if you wait long before... somebody enters"""
     s1 = StaffBrowser(firefoxPlugins=firefoxPlugins)
     s1.login(0)
     s1.openGroupchat()
@@ -731,7 +731,7 @@ def test_idle_available():
     c1.close()
 
 def test_idle_chat():
-    """What happens if you wait log before... entering the next chatline"""
+    """What happens if you wait long before... entering the next chatline"""
     s1 = StaffBrowser(firefoxPlugins=firefoxPlugins)
     s1.login(0)
     s1.openGroupchat()
