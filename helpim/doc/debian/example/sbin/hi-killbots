@@ -1,4 +1,0 @@
-#!/bin/bash
-
-killall -9 hi-runbotu
-killall django-admin.py
